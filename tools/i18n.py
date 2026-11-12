@@ -558,3 +558,9 @@ T.update({
 # 概算の目安（estimates.py の文言）
 from estimates import T_EST
 T.update({k: v for k, v in T_EST.items() if k not in T})
+
+T.update({
+"文章の言葉が会社の説明に出てくる会社": ("Companies whose description mentions your words", "公司介绍中出现您所写词语的公司"),
+"工程は読み取れませんでしたが、書いた言葉が社名や説明に含まれる会社です。参考にしてください。": ("We couldn't pick out the steps, but these companies mention your words in their name or description. Use them as a reference.", "虽然未能读取工序，但这些公司的名称或介绍中包含您写的词语，供参考。"),
+"文章に近い会社": ("Companies matching your words", "与描述相近的公司"),
+})
