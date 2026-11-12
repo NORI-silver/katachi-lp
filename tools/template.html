@@ -333,6 +333,15 @@ details.grp>.in{display:grid;gap:12px;padding:0 14px 14px}
 
 .mstep{margin-top:28px;padding-top:20px;border-top:1px solid var(--line)}
 .mhead{display:flex;align-items:baseline;gap:12px;margin-bottom:12px}.mhead h2{font-size:19px;margin:0}.mno{font-size:12px;color:var(--ice)}
+.chip.on{color:var(--ice);border-color:color-mix(in srgb,var(--ice) 40%,transparent);background:var(--hover)}
+.integ{display:grid;grid-template-columns:1fr 1fr;gap:10px}.integ>div{display:grid;gap:4px;padding:14px 16px;border:1.5px dashed color-mix(in srgb,var(--ice) 45%,transparent);border-radius:12px;background:var(--panel)}.integ b{font-size:14px}.integ span{font-size:13px;color:var(--mute);line-height:1.65}
+.rank{padding:20px 0 8px}.rhead h2{margin:8px 0 6px}.rhead p{margin:0 0 14px;font-size:13px}
+.rlist{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.rlist button{width:100%;display:grid;grid-template-columns:28px 1fr 90px 70px;gap:12px;align-items:center;text-align:left;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--panel);transition:border-color .15s,background .15s}
+.rlist button:hover{border-color:var(--ice);background:var(--hover)}
+.rno{font-size:18px;color:var(--ice)}.rt{display:grid;min-width:0}.rt b{font-size:14px}.rt small{font-size:12px;color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rbar{height:6px;border-radius:3px;background:var(--bg2);overflow:hidden}.rbar i{display:block;height:100%;background:var(--ice);opacity:.55}.rn{font-size:12.5px;color:var(--mute);text-align:right}
+@media (max-width:760px){.integ,.rlist{grid-template-columns:1fr}.rlist button{grid-template-columns:24px 1fr 60px}.rbar{display:none}}
 /* guided (選んで探す) */
 .modes{display:grid;grid-template-columns:1fr 1fr;gap:8px;max-width:760px;margin:0 0 12px}
 .modes button{display:grid;gap:2px;text-align:left;padding:12px 16px;border:1px solid var(--line2);border-radius:14px;background:color-mix(in srgb,var(--panel) 80%,transparent);transition:border-color .15s,background .15s}
@@ -508,6 +517,7 @@ function renderHome(){
     </form>
     <div class="examples" ${S.mode==='guided'?'hidden':''}><span>試す</span>${EX.map(([k,t])=>`<button class="ex" data-ex="${k}">${t}</button>`).join('')}</div>
   </div></section>
+  <section class="gut"><div class="wrap rank" id="rank"></div></section>
   <section class="gut"><div class="wrap figs">
     <div class="fig"><b class="mono">${fmt(D.realCount)}</b><span>登録している実在の会社（公開情報）</span></div>
     <div class="fig"><b class="mono">${fmt(D.realAbroad)}</b><span>うち海外の工場</span></div>
@@ -534,6 +544,19 @@ function renderHome(){
   bindHome();field();
   $$('[data-mode]').forEach(b=>b.onclick=()=>{if(S.mode===b.dataset.mode)return;S.mode=b.dataset.mode;track('switch_mode',{to:S.mode});if(S.mode==='guided')loadGDB();renderHome()});
   if(S.mode==='guided'){renderGuided();loadGDB()}
+  renderRank();
+}
+/* ランキング: 依頼の集計（stats.requests）ができたら「依頼の多いもの」、それまでは「登録している会社が多い分野」 */
+let STATS=null;
+async function renderRank(){const el=$('#rank');if(!el)return;
+  if(!STATS){try{STATS=await (await fetch('data/stats.json')).json()}catch(e){STATS=window.KATACHI_STATS||null}}
+  if(!STATS||!$('#rank'))return;
+  const req=STATS.requests&&Object.keys(STATS.requests).length?STATS.requests:null;
+  const rows=GC.map(c=>[c,req?(req[c.k]||0):c.proc.flatMap(p=>p[1]).reduce((a,code)=>Math.max(a,STATS.caps[code]||0),0)]).filter(x=>x[1]>0).sort((a,b)=>b[1]-a[1]).slice(0,6);
+  if(!rows.length)return;const mx=rows[0][1];
+  $('#rank').innerHTML=`<div class="rhead"><div class="eyebrow">Ranking</div><h2>${req?'依頼の多いもの':'登録している会社が多い分野'}</h2><p class="muted">${req?'KATACHIに届いた見積の依頼から集計しています。':'まだ依頼の実績が少ないため、いまは登録している会社の数で並べています。依頼がたまったら「依頼の多いもの」に切り替えます。'}</p></div>
+    <ol class="rlist">${rows.map(([c,n],i)=>`<li><button type="button" data-rank="${c.k}"><span class="mono rno">${i+1}</span><span class="rt"><b>${esc(c.t)}</b><small>${esc(c.d)}</small></span><span class="rbar"><i style="width:${Math.max(6,n/mx*100)}%"></i></span><span class="mono rn">${req?fmt(n)+'件':fmt(n)+'社'}</span></button></li>`).join('')}</ol>`;
+  $$('[data-rank]').forEach(b=>b.onclick=()=>{track('ranking_click',{category:b.dataset.rank});S.mode='guided';S.g={step:1,cat:b.dataset.rank};renderHome();$('#gw')?.scrollIntoView({behavior:'smooth',block:'center'})});
 }
 function bindHome(){
   const f=$('#cmp'),ta=$('#idea');
@@ -787,10 +810,18 @@ async function renderMatch(){
   const qmax={proto:10,small:500,mass:1e9}[S.qty]||500;
   const secs=A.codes.map(c=>{let list=rankFor([c],{qmax});if(!list.length&&c.includes('.'))list=rankFor([c.split('.').slice(0,-1).join('.')],{qmax});return {c,list}});
   const total=new Set(secs.flatMap(s=>s.list.map(r=>r[0]))).size;
+  // 1社でまとめて頼める会社: 読み取った工程のうち多くを1社で持っている会社（OEM・EMS・組立の会社を優先）
+  const stepIdx=secs.map(s=>{const own=GDB.caps.indexOf(s.c);const par=s.c.includes('.')?GDB.caps.indexOf(s.c.split('.').slice(0,-1).join('.')):-1;return [own,par]});
+  const INTEG=['manufacturing.assembly','apparel.garment_oem','food.processed_oem','food.beverage_oem','food.pet_food','cosmetics.oem','cosmetics.household'].map(c=>GDB.caps.indexOf(c));
+  let one=[];if(secs.length>=2){const seen=new Map();secs.forEach(s=>s.list.forEach(r=>{if(!seen.has(r[0]))seen.set(r[0],r)}));
+    for(const r of seen.values()){const cov=stepIdx.filter(([a,b])=>r[5].includes(a)||(b>=0&&r[5].includes(b))).length;if(cov<2)continue;
+      one.push([cov+(r[5].some(i=>INTEG.includes(i))?.5:0)+(r[10]==='pub'?.3:0),cov,r])}
+    one.sort((a,b)=>b[0]-a[0]);one=one.slice(0,S.gmore.__one||5)}
+  const integ=secs.find(s=>s.c==='manufacturing.assembly')||secs.find(s=>/oem$/.test(s.c))||secs.find(s=>/^(manufacturing\.textile|apparel)/.test(s.c))||secs.filter(s=>/^(manufacturing|crafts|packaging)/.test(s.c)).slice(-1)[0];
   track('text_analyze',{steps:A.codes.length,companies:total,chars:S.idea.length});
   $('#app').innerHTML=`<section class="gut"><div class="wrap gpick">
     <div class="gtop"><div style="min-width:0;flex:1"><div class="eyebrow">Your request</div><h1 class="gh1" translate="no" style="font-size:clamp(20px,2.6vw,28px)">${esc(S.idea.length>120?S.idea.slice(0,120)+'…':S.idea)}</h1>
-      <div class="gchips">${A.codes.length?`<span class="chip">${A.codes.length}工程</span>`:''}<span class="chip">${esc({proto:'試作',small:'小ロット',mass:'量産'}[S.qty])}</span><button type="button" class="glink" id="mEdit">書き直す</button></div></div>
+      <div class="gchips">${A.codes.length?`<span class="chip">${A.codes.length}工程</span>`:''}${secs.length===1?'<span class="chip">1社で作れる内容です</span>':''}<span class="chip">${esc({proto:'試作',small:'小ロット',mass:'量産'}[S.qty])}</span><button type="button" class="glink" id="mEdit">書き直す</button></div></div>
       <div class="gcount"><b class="mono">${fmt(total)}</b><span>社が候補</span></div></div>
     <div class="empty" style="margin-top:16px"><b>書いた内容から、必要な工程をキーワードで読み取りました</b>AIによる詳しい解析は準備中です。工程が足りない・違うと思ったら、そのまま見積を依頼してください。担当者があなたの文章を読んで、工程と会社を組み直してお届けします。</div>
     ${A.notices.map(n=>`<div class="empty" style="margin-top:10px;border-color:var(--amber)"><b>KATACHIでは扱っていない工程があります</b>${esc(n)}</div>`).join('')}
@@ -799,7 +830,14 @@ async function renderMatch(){
       <label class="chk"><input type="checkbox" id="gProto" ${S.gf.proto?'checked':''}><span>試作に対応と書いている会社だけ</span></label><span class="sp"></span>
       <span class="muted" style="font-size:12.5px">工程ごとに見積を取りたい会社を選べます（合計8社まで）。選ばずに依頼すると、担当者が選んで打診します。</span></div>`:
       `<div class="empty" style="margin-top:16px"><b>文章から工程を読み取れませんでした</b>このまま見積を依頼すれば、担当者が内容を読んで工程と会社を探します。型が決まっているもの（部品・ノベルティ・袋物など）なら「選んで探す」が早いです。<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn" id="mGuided">選んで探す</button></div></div>`}
-    ${secs.map((s,i)=>{const k=S.gmore[s.c]||5;return `<section class="mstep" data-step="${esc(CAPN[s.c]||s.c)}"><div class="mhead"><span class="mono mno">${String(i+1).padStart(2,'0')}</span><h2>${esc(CAPN[s.c]||s.c)}</h2><span class="muted">${fmt(s.list.length)}社</span></div>
+    ${secs.length>=2?`<section class="mstep" data-step="まとめて依頼"><div class="mhead"><span class="mono mno">A</span><h2>1社でまとめて頼む</h2><span class="muted">${one.length?'おすすめ':''}</span></div>
+      <p class="muted" style="margin:0 0 12px;font-size:13.5px">窓口が1つで済み、部品の受け渡しで起きる食い違いや責任の分かれ目が減ります。単一の加工で作れるものや、1社で揃うものはこちらが向いています。</p>
+      ${one.length?`<ol class="glist">${one.map(([,cov,r])=>coCard(r,A.codes).replace('<div class="gcaps">',`<div class="gcaps"><span class="chip on">${secs.length}工程中 ${cov}工程</span>`)).join('')}</ol>`:'<p class="muted" style="font-size:13px">読み取った工程を1社でまとめて受けられそうな会社は、一覧からは見つかりませんでした。担当者が、取りまとめを引き受ける会社を探すこともできます。</p>'}</section>
+    <section class="mstep"><div class="mhead"><span class="mono mno">B</span><h2>工程ごとに分けて頼む</h2><span class="muted">比べるための案</span></div>
+      <p class="muted" style="margin:0 0 12px;font-size:13.5px">1社では揃わない技術が混ざるときや、工程ごとに得意な会社を選ぶと安く・良くなるときの案です。</p>
+      <div class="integ"><div><b>組み立てて仕上げる会社</b><span>${integ?`「${esc(CAPN[integ.c]||integ.c)}」の会社が、ほかの会社から部品を受け取って組み立て・検査・出荷まで受け持ちます。`:'最後の工程の会社が、部品を受け取って仕上げ・検査・出荷まで受け持ちます。'}</span></div>
+        <div><b>取りまとめ</b><span>会社同士で受け渡す寸法・データ・日程を決め、進み具合を見るのはKATACHIの担当者です。不具合が出たときに、どの工程の問題かを切り分けます。</span></div></div></section>`:''}
+    ${secs.map((s,i)=>{const k=S.gmore[s.c]||5;return `<section class="mstep" data-step="${esc(CAPN[s.c]||s.c)}"><div class="mhead"><span class="mono mno">${String(i+1).padStart(2,'0')}</span><h2>${esc(CAPN[s.c]||s.c)}</h2><span class="muted">${fmt(s.list.length)}社</span>${integ&&integ.c===s.c&&secs.length>=2?'<span class="chip on">組み立てて仕上げる</span>':''}</div>
       ${s.list.length?`<ol class="glist">${s.list.slice(0,k).map(r=>coCard(r,A.codes)).join('')}</ol>${s.list.length>k?`<button class="glink" data-more="${esc(s.c)}" style="margin-top:10px">さらに表示 · 残り ${fmt(s.list.length-k)}社</button>`:''}`:`<p class="muted" style="font-size:13px">この工程の会社は、まだ一覧にありません。担当者が探してお声がけします。</p>`}</section>`}).join('')}
     <p class="muted" style="font-size:12.5px;margin-top:24px">一覧は公開情報から集めたものです。「要確認」の会社は、見積の依頼で対応できるかを確かめます。順番は、確認の度合い・試作や数量への合い方・所在地で決めています。</p>
   </div></section>`;
@@ -1041,7 +1079,7 @@ function rfq(names){
   track('open_inquiry',{type:'rfq',companies:names.length,overseas:names.filter(n=>abroad(D.companies[n])).length});
   const r=R();const qty=S.scen==='guided'&&S.src==='guided'&&S.g.qty?S.g.qty:{proto:'試作 1〜10個',small:'小ロット 〜500個',mass:'量産 500個〜'}[S.qty];
   const G=S.scen==='guided';
-  const roles=n=>G?(S.src==='guided'?(S.g.proc&&S.g.proc!==OMAKASE?S.g.proc:gCat()?.t||''):(S.gstep[n]||'')):Object.entries(S.assign).filter(([,v])=>v===n).map(([k])=>r.per_requirement.find(p=>p.requirement.id===k)?.requirement.purpose).filter(Boolean).join('、');
+  const roles=n=>G?(S.src==='guided'?(S.g.proc&&S.g.proc!==OMAKASE?S.g.proc:gCat()?.t||''):(S.gstep[n]==='まとめて依頼'?'まとめて（'+(S.anal?.codes||[]).map(c=>CAPN[c]||c).join('、')+'）':(S.gstep[n]||''))):Object.entries(S.assign).filter(([,v])=>v===n).map(([k])=>r.per_requirement.find(p=>p.requirement.id===k)?.requirement.purpose).filter(Boolean).join('、');
   sheet(`${head('Request for quote','見積を依頼する')}
     ${S.files.length?`<div class="blk"><h4>取り込んだ設計データ</h4><ul class="list"><li><b style="font-weight:600">添付する設計データ</b><span class="s">${S.files.map(f=>esc(f.name)).join('、')}</span></li></ul></div>`:''}
     <p class="muted" style="margin:0;font-size:13px">必須は5つだけです。ほかは、わかる範囲で選ぶか空けておけば「相談したい」として届きます。</p>

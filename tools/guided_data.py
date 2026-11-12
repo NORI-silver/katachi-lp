@@ -51,3 +51,9 @@ EXTRA_KW = {
 kws = [list(k) + [x for x in EXTRA_KW.get(c, []) if x not in k] for c, p, n, st, k in CAPABILITIES]
 json.dump({'caps': codes, 'names': [n for c, p, n, *_ in CAPABILITIES], 'kw': kws, 'regs': REGULATION_HINTS, 'deferred': DEFERRED, 'deferred_kw': DEFERRED_KEYWORDS, 'c': rows}, open(out, 'w'), ensure_ascii=False, separators=(',', ':'))
 print(len(rows))
+
+# トップのランキング用の小さな集計（社数）。依頼の集計ができたら "requests" に入れる
+import os, collections
+cnt = collections.Counter(i for r in rows for i in set(r[5]))
+json.dump({'caps': {codes[i]: n for i, n in cnt.items()}, 'requests': None},
+          open(os.path.join(os.path.dirname(out), 'stats.json'), 'w'), ensure_ascii=False, separators=(',', ':'))

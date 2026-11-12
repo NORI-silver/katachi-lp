@@ -513,3 +513,27 @@ T.update({
 "この工程の会社は、まだ一覧にありません。担当者が探してお声がけします。": ("No companies for this step in our list yet. Our staff will find some for you.", "此工序的公司尚未收录。工作人员会帮您寻找。"),
 "小ロット": ("Small batch", "小批量"),
 })
+
+# ---- 2026-11-12 1社でまとめる案・取りまとめ役・ランキング
+T.update({
+"1社でまとめて頼む": ("Have one company do it all", "交给一家公司统一完成"),
+"おすすめ": ("Recommended", "推荐"),
+"窓口が1つで済み、部品の受け渡しで起きる食い違いや責任の分かれ目が減ります。単一の加工で作れるものや、1社で揃うものはこちらが向いています。": ("One point of contact, and fewer mismatches or unclear responsibility when parts change hands. Best for things made with one process or that one company can fully cover.", "只需一个窗口，减少零件交接中的偏差和责任不清。适合单一加工即可完成，或一家公司就能覆盖的产品。"),
+"中": ("of", "中"),
+"読み取った工程を1社でまとめて受けられそうな会社は、一覧からは見つかりませんでした。担当者が、取りまとめを引き受ける会社を探すこともできます。": ("We couldn't find a company in our list that covers all of these steps. Our staff can look for one that will coordinate the whole job.", "列表中没有找到能一家承接这些工序的公司。工作人员也可以帮您寻找愿意统筹的公司。"),
+"工程ごとに分けて頼む": ("Split the work by step", "按工序分别委托"),
+"比べるための案": ("For comparison", "供比较的方案"),
+"1社では揃わない技術が混ざるときや、工程ごとに得意な会社を選ぶと安く・良くなるときの案です。": ("For products that mix skills no single company has, or when choosing the best company for each step makes it cheaper or better.", "适用于混合了一家公司无法覆盖的技术，或按工序选择擅长的公司能更便宜、更好的情况。"),
+"組み立てて仕上げる会社": ("Final assembly company", "负责最终组装的公司"),
+"組み立てて仕上げる": ("Final assembly", "最终组装"),
+"取りまとめ": ("Coordination", "统筹"),
+"会社同士で受け渡す寸法・データ・日程を決め、進み具合を見るのはKATACHIの担当者です。不具合が出たときに、どの工程の問題かを切り分けます。": ("KATACHI staff set the dimensions, data and schedule passed between companies and track progress. If something goes wrong, they work out which step caused it.", "由KATACHI工作人员确定公司间交接的尺寸、数据和日程，并跟进进度。出现问题时，负责判断是哪道工序的原因。"),
+"最後の工程の会社が、部品を受け取って仕上げ・検査・出荷まで受け持ちます。": ("The company doing the last step receives the parts and handles finishing, inspection and shipping.", "最后一道工序的公司接收零件，负责完成、检验和出货。"),
+"の会社が、ほかの会社から部品を受け取って組み立て・検査・出荷まで受け持ちます。": (" company receives parts from the others and handles assembly, inspection and shipping.", "的公司从其他公司接收零件，负责组装、检验和出货。"),
+"1社で作れる内容です": ("One company can make this", "一家公司即可完成"),
+"まとめて依頼": ("Whole job", "统一委托"),
+"登録している会社が多い分野": ("Fields with the most registered companies", "登记公司最多的领域"),
+"依頼の多いもの": ("Most requested", "委托最多的品类"),
+"まだ依頼の実績が少ないため、いまは登録している会社の数で並べています。依頼がたまったら「依頼の多いもの」に切り替えます。": ("We don't have many requests yet, so this is ranked by the number of registered companies. Once requests build up, we'll switch to 'Most requested'.", "目前委托实绩还少，暂按登记公司数量排序。委托累积后会切换为“委托最多的品类”。"),
+"KATACHIに届いた見積の依頼から集計しています。": ("Based on quote requests sent through KATACHI.", "根据KATACHI收到的报价委托统计。"),
+})
