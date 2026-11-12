@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>射出成形を小ロットで頼むには｜型代の考え方と頼み方</title><meta name="description" content="樹脂の部品やケースを射出成形で小ロットからつくりたい中小企業向けに、型代と単価の考え方、アルミの試作型と量産型の違い、3Dプリントや切削との分かれ目、設計の注意点、型の所有と保管の決まりをまとめました。">
+<link rel="canonical" href="https://katachi.shiokonbu.com/guide/injection-molding-small-lot/">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-3C2RRECKB8"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date());gtag("config","G-3C2RRECKB8");gtag("config","G-ZYX17VBTWB");</script>
+<style>:root{--bg:#fff;--fg:#0d1424;--mute:#566176;--line:rgba(16,28,58,.12);--ice:#2350c8}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font-family:"IBM Plex Sans JP","Hiragino Sans","Noto Sans JP",system-ui,sans-serif;line-height:1.85;font-size:15.5px}
+header,main,footer{max-width:760px;margin:0 auto;padding:0 20px}header{display:flex;align-items:center;gap:10px;height:64px;border-bottom:1px solid var(--line);max-width:none}
+header a{color:var(--fg);text-decoration:none;font-weight:700;letter-spacing:.18em;font-size:14px;display:flex;gap:10px;align-items:center}
+main{padding-top:28px;padding-bottom:40px}h1{font-size:26px;line-height:1.4;margin:10px 0 6px}h2{font-size:18px;margin:34px 0 8px;padding-top:12px;border-top:1px solid var(--line)}
+p,li,dd{color:#1f2a40}ol,ul{padding-left:1.4em}a{color:var(--ice)}.lead{color:var(--mute)}dt{font-weight:600;margin-top:12px}dd{margin:2px 0 0}
+footer{border-top:1px solid var(--line);padding:22px 20px 40px;font-size:12.5px;color:var(--mute);display:flex;gap:18px;flex-wrap:wrap}footer a{color:var(--mute)}</style><style>.crumb{font-size:12.5px;color:var(--mute);margin:0}.crumb a{color:var(--mute)}.upd{font-size:12.5px;color:var(--mute);margin:4px 0 18px}
+.points{background:#f3f6fd;border:1px solid var(--line);border-radius:10px;padding:14px 18px;margin:18px 0}.points b{display:block;margin-bottom:4px}
+.points ul{margin:0}h3{font-size:16px;margin:22px 0 4px}.cta{margin:36px 0 10px;padding:20px;border:1px solid var(--ice);border-radius:12px}
+.cta a.btn{display:inline-block;margin-top:8px;background:var(--ice);color:#fff;text-decoration:none;padding:10px 18px;border-radius:8px;font-weight:600}
+.tbl{overflow-x:auto;margin:12px 0}.tbl table{border-collapse:collapse;min-width:100%;font-size:14px;line-height:1.6}.tbl th,.tbl td{border:1px solid var(--line);padding:6px 9px;text-align:left;vertical-align:top}.tbl th{background:#f3f6fd;white-space:nowrap}.src{font-size:13px;color:var(--mute)}.src li{color:var(--mute)}
+.list a{font-weight:600}.list p{margin:2px 0 18px;color:var(--mute)}</style><meta property="og:type" content="article"><meta property="og:site_name" content="KATACHI"><meta property="og:title" content="射出成形を小ロットで頼むには｜型代の考え方と頼み方"><meta property="og:description" content="樹脂の部品やケースを射出成形で小ロットからつくりたい中小企業向けに、型代と単価の考え方、アルミの試作型と量産型の違い、3Dプリントや切削との分かれ目、設計の注意点、型の所有と保管の決まりをまとめました。"><meta property="og:url" content="https://katachi.shiokonbu.com/guide/injection-molding-small-lot/"><meta property="og:image" content="https://katachi.shiokonbu.com/og.png"><meta property="og:locale" content="ja_JP"><meta name="twitter:card" content="summary_large_image"><script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@type": "Organization", "@id": "https://katachi.shiokonbu.com/#org", "name": "KATACHI", "url": "https://katachi.shiokonbu.com/", "logo": "https://katachi.shiokonbu.com/apple-touch-icon.png"}, {"@type": "Article", "headline": "射出成形を小ロットで頼む：型代と単価の考え方、アルミ型、設計と型の保管の注意点", "description": "樹脂の部品やケースを射出成形で小ロットからつくりたい中小企業向けに、型代と単価の考え方、アルミの試作型と量産型の違い、3Dプリントや切削との分かれ目、設計の注意点、型の所有と保管の決まりをまとめました。", "dateModified": "2026-11-13", "datePublished": "2026-11-13", "inLanguage": "ja", "mainEntityOfPage": "https://katachi.shiokonbu.com/guide/injection-molding-small-lot/", "author": {"@id": "https://katachi.shiokonbu.com/#org"}, "publisher": {"@id": "https://katachi.shiokonbu.com/#org"}, "image": "https://katachi.shiokonbu.com/og.png"}, {"@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "KATACHI", "item": "https://katachi.shiokonbu.com/"}, {"@type": "ListItem", "position": 2, "name": "ガイド", "item": "https://katachi.shiokonbu.com/guide/"}, {"@type": "ListItem", "position": 3, "name": "射出成形を小ロットで頼む：型代と単価の考え方、アルミ型、設計と型の保管の注意点", "item": "https://katachi.shiokonbu.com/guide/injection-molding-small-lot/"}]}, {"@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "射出成形は何個から頼めますか？", "acceptedAnswer": {"@type": "Answer", "text": "依頼先と型の種類によって違います。型代がかかるため、数が少ないほど1個あたりが高くなります。数量ごとに「型代＋単価×数量」の合計を出してもらい、3Dプリントや切削の見積と比べて決めましょう。"}}, {"@type": "Question", "name": "アルミの型と鋼の型はどう違いますか？", "acceptedAnswer": {"@type": "Answer", "text": "一般に、アルミの型は早く安くつくりやすく、鋼の型は硬くて長持ちします。小ロットや試作ではアルミの型がよく使われます。保証される打ち数や保管の期間が型の種類で違うことがあるので、見積のときに確かめてください。"}}, {"@type": "Question", "name": "型は誰のものになりますか？", "acceptedAnswer": {"@type": "Answer", "text": "契約によります。型代を払った発注側のものにすることが多いですが、はっきり書いていないとトラブルのもとになります。持ち主、保管の期間と費用、廃棄の条件、ほかの工場に移せるかを、契約や注文書で決めておきましょう。"}}, {"@type": "Question", "name": "3Dデータがなくても射出成形を頼めますか？", "acceptedAnswer": {"@type": "Answer", "text": "型をつくるには3Dデータや図面が必要です。データがない場合は、射出成形を前提にした設計から引き受ける会社に頼むか、先に3Dデータの作成を依頼します。"}}]}]}</script></head><body>
+<header><a href="/"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><path d="M3 3h7v7H3z" fill="#2350c8"/><path d="M12 3h7v7h-7z" fill="none" stroke="#2350c8" stroke-width="1.5"/><path d="M3 12h7v7H3z" fill="none" stroke="#2350c8" stroke-width="1.5" stroke-dasharray="2 2"/><path d="M12 12h7v7h-7z" fill="#2350c8" opacity=".45"/></svg>KATACHI</a></header>
+<main><p class="crumb"><a href="/">KATACHI</a> › <a href="/guide/">ガイド</a></p><h1>射出成形を小ロットで頼む：型代と単価の考え方、アルミ型、設計と型の保管の注意点</h1><p class="upd">更新日：2026/11/13</p><p>射出成形は小ロットでも頼めますが、<strong>最初に型（金型）をつくる費用がかかるので、「型代＋単価×数量」の合計で、3Dプリントや切削とどちらが安いかを比べて決める</strong>のが基本です。少ない数なら、安く早くつくれるアルミの型を使う方法もあります。この記事では、設計部門のない中小企業が樹脂の部品やケースを射出成形で小ロットからつくるときに、型代と単価の考え方、型の種類、設計で気をつけること、型の所有と保管の決まりをまとめます。</p><div class="points"><b>この記事の要点</b><ul><li>射出成形は、溶かした樹脂を型に流し込んで固める方法。型代は最初に1回、そのあとは1個あたりの単価が安い</li><li>小ロットでは、型代を数量で割った分が1個あたりに大きく乗る。「型代＋単価×数量」で3Dプリント・切削・注型と比べる</li><li>アルミの型は鋼の型より早く安くつくりやすい。試作用の型は保証される打ち数（ショット数）が少ないなど、条件を確かめる</li><li>型から抜ける形（抜き勾配）、肉の厚さをそろえる、引っかかる形（アンダーカット）を減らす、で型代と不良が下がる</li><li>型の持ち主・保管の期間と費用・廃棄を契約で決める。2026年1月施行の取適法では、型の無償保管が違反になるおそれがある</li></ul></div><h2>射出成形 小ロットとは：型代と単価のしくみ</h2><p>射出成形は、樹脂のつぶ（ペレット）を熱で溶かし、金属の型の中に押し込んで冷やし固める加工です。テレビのリモコンのケース、容器のふた、機械のカバー、つまみなど、身の回りの樹脂部品の多くがこの方法でつくられています。</p>
+<p>費用は大きく2つに分かれます。</p>
+<ul>
+<li><strong>型代（初期費用）</strong>：部品の形を彫り込んだ型をつくる費用。形が複雑なほど、大きいほど高くなります。1回払えば、型が使えるあいだは何個でもつくれます。</li>
+<li><strong>単価（1個あたりの費用）</strong>：材料費と、成形機を動かす時間の費用。1回の成形（1ショット）で数秒〜数十秒でできるため、数が多いほど1個あたりが安くなります。</li>
+</ul>
+<p>このほか、成形のたびに機械の段取り（型の取り付けや温度合わせ）の費用がかかることがあります。小ロットの注文を何回にも分けると、そのたびに段取りの費用が乗るので注意します。</p>
+<p>小ロットで射出成形を考えるときは、「型代を何個で割るか」がすべての出発点です。たとえば数十個なら、型代を割った分が1個あたりに重く乗るため、型の要らない方法のほうが合計で安くなることがよくあります。</p><h2>小ロットならどの工法？射出成形・3Dプリント・切削・注型の分かれ目</h2><div class="tbl"><table><tr><th>工法</th><th>型</th><th>向いている数量と場面</th><th>気をつけること</th></tr>
+<tr><td>3Dプリント</td><td>不要</td><td>1個〜少量。形の確認、機能を試す試作</td><td>数が増えても1個あたりが下がりにくい。表面や強さは方式と素材による</td></tr>
+<tr><td>切削（削り出し）</td><td>不要</td><td>1個〜少量。強さや寸法の精度が要る部品</td><td>削れない形がある。複雑な形ほど時間と費用がかかる</td></tr>
+<tr><td>注型（シリコン型）</td><td>シリコンの簡易な型</td><td>数個〜数十個程度。量産品に近い見た目の試作</td><td>型が傷みやすく、つくれる数に限りがある。材料は量産と同じ樹脂ではない</td></tr>
+<tr><td>射出成形</td><td>金属の型（アルミ・鋼）</td><td>まとまった数。量産と同じ樹脂・同じつくり方で確かめたいとき</td><td>型代が先にかかる。型から抜ける形にする設計が要る</td></tr></table></div>
+<p>表の数量は目安の考え方で、境目は形・大きさ・材料・依頼先で変わります。判断するには、<strong>同じ3Dデータで「3Dプリント（または切削）で何個つくると合計いくらか」と「射出成形の型代＋単価×数量」の両方の見積を取り、数量ごとに合計を比べる</strong>のが確実です。</p>
+<p>はじめは3Dプリントで形を確かめ、形が決まってから射出成形の型をつくる、という順番がよく使われます。3Dプリントの頼み方は<a href="/guide/3d-print-request/">3Dプリンターの依頼・外注ガイド</a>にまとめています。</p><h2>アルミ金型の試作型と量産型の違い：小ロットの型の選び方</h2><p>型の材料には、主にアルミと鋼（鉄の合金）があります。一般に、アルミは削りやすく早くつくれる一方、鋼のほうが硬く長持ちします。小ロットでは、アルミの型や、試作向けの型で始める方法があります。</p>
+<p>型の条件は依頼先ごとに違うため、公開されている例を1つ見てみます。米国の試作会社 Protolabs は、射出成形の型を「試作用の型」と「オンデマンド生産用の型」に分けて公開しています。</p>
+<div class="tbl"><table><tr><th>項目</th><th>試作用の型</th><th>オンデマンド生産用の型</th></tr>
+<tr><td>型の材料</td><td>アルミ</td><td>アルミ</td></tr>
+<tr><td>1つの型で取れる数</td><td>1個取り（1回の成形で1個）</td><td>1個取りと多数個取りを選べる</td></tr>
+<tr><td>保証される型の寿命</td><td>少なくとも2,000ショット</td><td>制限なし</td></tr>
+<tr><td>標準の納期</td><td>最短7日</td><td>15日以内</td></tr>
+<tr><td>使われないときの型の保管</td><td>18か月</td><td>3年</td></tr>
+<tr><td>型代と単価</td><td>型代は安く、単価は高い</td><td>型代は高く、単価は安い</td></tr></table></div>
+<p class="src">出典：Protolabs「Prototype Tooling for Injection Molding」「Production Injection Molding」（英語、2026年11月13日確認）。成形のたびに段取りの費用がかかると書かれている。</p>
+<p>この例からわかるのは、<strong>型の種類によって「何回打てるか」「どれだけ保管してもらえるか」「型代と単価のバランス」が変わる</strong>ということです。国内の依頼先でも、簡易型・試作型・量産型などの名前で分けていることがあります。見積を取るときは、型の材料、保証される打ち数、1回で取れる個数、保管の期間を必ずそろえて比べます。</p>
+<p>別の部品の型の一部（入れ子）だけを差し替えて使う方法や、依頼先が持っている標準の型を使える部品（ケースなど）もあります。数が少ないときは、こうした方法が使えるかも聞いてみます。</p><h2>射出成形の設計で気をつけること：型代と不良を減らす形</h2><p>射出成形は、形によって型代や不良の出やすさが大きく変わります。3Dプリント用につくった形をそのまま型にすると、うまくいかないことがあります。依頼先の設計者に確認してもらう前提で、次の点を知っておくと話が早く進みます。</p>
+<ul>
+<li><strong>抜き勾配</strong>：型から部品を取り出すために、壁にわずかな傾きをつけます。まっすぐな壁は型から抜けにくくなります。</li>
+<li><strong>肉の厚さをそろえる</strong>：厚いところと薄いところが混じると、冷えるときに縮み方が変わり、へこみ（ヒケ）や反り（ソリ）が出やすくなります。</li>
+<li><strong>アンダーカットを減らす</strong>：型を開く向きに対して引っかかる形（横穴・内側のツメなど）は、型に動く部品を足す必要があり、型代が上がります。</li>
+<li><strong>樹脂の入り口（ゲート）の位置</strong>：樹脂を流し込む口の跡が部品に残ります。見た目の面に跡が出ないよう、依頼先と位置を決めます。</li>
+<li><strong>材料</strong>：ABS・PP（ポリプロピレン）・PC（ポリカーボネート）・POM・ナイロンなど、強さ・熱・薬品・見た目で選びます。食品に触れる部品は、食品用の規格に合った材料と検査が必要です。</li>
+</ul>
+<p>社内に設計者がいない場合は、射出成形の設計（型を前提にした形の修正）から引き受ける会社に頼みます。図面やデータがないときの進め方は<a href="/guide/no-drawing/">図面がなくても加工は頼める？</a>と<a href="/guide/prototype-outsourcing/">試作の外注の進め方</a>を見てください。</p><h2>型の所有と保管：取適法で変わったこと</h2><p>射出成形の型は、費用を払った発注側のものになる契約が多い一方、型は成形する工場に置いておくのがふつうです。ここでトラブルになりやすいのが、<strong>注文が止まった型を、工場にずっと無料で保管させてしまうこと</strong>です。</p>
+<p>2026年1月1日に、これまでの下請法が改正されて「取適法」として施行されました。中小企業庁の資料では、次の点が示されています。</p>
+<ul>
+<li>対象の「型」に、金型だけでなく木型や治具（加工のときに物を固定する道具）も加わった。</li>
+<li>発注がない型を、受託する側に無償で保管させることは、不当な経済上の利益の提供の要請にあたるおそれがある。</li>
+<li>受託する側が代金の協議を求めたのに応じず、一方的に代金を決めることは禁止。手形での支払いも認められない。</li>
+<li>支払期日は、物を受け取った日から60日以内のできるだけ短い期間で決める。</li>
+<li>対象かどうかは資本金に加えて従業員数でも判断する（製造委託は300人が基準）。</li>
+</ul>
+<p class="src">出典：中小企業庁「取適法の概要 ー改正のポイントー」。</p>
+<p>自社が法律の対象になるかは、資本金と従業員数の組み合わせで決まります。対象かどうかにかかわらず、<strong>型の持ち主、保管の期間と費用、最後に注文してから何年たったら廃棄するか、ほかの工場に移せるか</strong>を、最初の契約や注文書に書いておくと安心です。</p><h2>射出成形の見積で確かめること</h2><ul>
+<li><strong>型代と単価を分けて</strong>：型代、1個あたりの単価、成形1回ごとの段取りの費用を分けて出してもらう。</li>
+<li><strong>型の条件</strong>：アルミか鋼か、1回で何個取れるか、保証される打ち数、保管の期間。</li>
+<li><strong>最小ロット</strong>：1回の成形で受ける最小の数量と、数量ごとの単価の段階。</li>
+<li><strong>材料と色</strong>：指定した樹脂と色で受けられるか。色をつける場合の最小量。</li>
+<li><strong>試し打ちと修正</strong>：最初の試し打ち（トライ）の品の確認、型の修正は何回まで含まれるか。</li>
+<li><strong>後の工程</strong>：ゲート跡の処理、印刷、組み立て、検査、梱包まで頼めるか。</li>
+<li><strong>型の所有と保管</strong>：上の取適法の章のとおり。</li>
+</ul>
+<p>同じ3Dデータと同じ数量で2〜3社に見積を取り、「型代＋単価×数量」の合計で比べます。成形だけでなく、組み立てや電子部品まで含む製品は、工程ごとに頼み先を分けて考えると進めやすくなります。実際にどんな加工が多く頼まれているかは<a href="/guide/what-gets-ordered/">試作・製造の依頼で多いもの</a>にまとめています。</p><h2>よくある質問</h2><dl><dt>射出成形は何個から頼めますか？</dt><dd>依頼先と型の種類によって違います。型代がかかるため、数が少ないほど1個あたりが高くなります。数量ごとに「型代＋単価×数量」の合計を出してもらい、3Dプリントや切削の見積と比べて決めましょう。</dd><dt>アルミの型と鋼の型はどう違いますか？</dt><dd>一般に、アルミの型は早く安くつくりやすく、鋼の型は硬くて長持ちします。小ロットや試作ではアルミの型がよく使われます。保証される打ち数や保管の期間が型の種類で違うことがあるので、見積のときに確かめてください。</dd><dt>型は誰のものになりますか？</dt><dd>契約によります。型代を払った発注側のものにすることが多いですが、はっきり書いていないとトラブルのもとになります。持ち主、保管の期間と費用、廃棄の条件、ほかの工場に移せるかを、契約や注文書で決めておきましょう。</dd><dt>3Dデータがなくても射出成形を頼めますか？</dt><dd>型をつくるには3Dデータや図面が必要です。データがない場合は、射出成形を前提にした設計から引き受ける会社に頼むか、先に3Dデータの作成を依頼します。</dd></dl><div class="cta"><b>つくりたいものを書くだけで、工程ごとに頼める会社をさがせます</b>
+<p>KATACHIでは、AIが作り方を工程に分け、図面なし・試作・小ロットで相談できる会社を組み合わせて提案します。工程の整理・会社の検索・見積の依頼は無料です。</p>
+<a class="btn" href="/">工場チームを組んでみる</a></div><h2>出典</h2><p class="src">数字はいずれも次の公開資料から（2026年11月13日に確認）。</p><ol class="src"><li><a href="https://www.protolabs.com/services/injection-molding/prototyping/" target="_blank" rel="noopener">Protolabs「Prototype Tooling for Injection Molding」</a></li><li><a href="https://www.protolabs.com/services/injection-molding/production/" target="_blank" rel="noopener">Protolabs「Production Injection Molding」</a></li><li><a href="https://www.chusho.meti.go.jp/keiei/torihiki/2026/260727001/001.pdf" target="_blank" rel="noopener">中小企業庁「取適法の概要 ー改正のポイントー」</a></li></ol><h2>関連するガイド</h2><ul><li><a href="/guide/resin-prototype/">樹脂の試作を小ロットで頼む：切削・真空注型・3Dプリント・簡易型の選び方</a></li><li><a href="/guide/3d-print-request/">3Dプリンターの依頼・外注ガイド：頼み先と方式の選び方、データがないときの頼み方</a></li><li><a href="/guide/what-gets-ordered/">試作・製造の依頼で、実際に何が頼まれているのか：公開データで見る注文の中身</a></li></ul></main>
+<footer><a href="/">トップ</a><a href="/guide/">ガイド</a><a href="/terms/">利用規約</a><a href="/privacy/">プライバシーポリシー</a><a href="/privacy/#operator">運営者情報</a><span>© 2026 KATACHI</span></footer>
+</body></html>
