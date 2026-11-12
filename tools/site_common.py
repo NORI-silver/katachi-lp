@@ -1,6 +1,6 @@
 """サブページ（規約・ガイドなど）の共通の見た目。legal.py と seo_pages.py から使う。"""
 import os
-GA = "G-ZYX17VBTWB"
+GA = ["G-3C2RRECKB8", "G-ZYX17VBTWB"]  # KATACHI専用, shiokonbu.com 総合（どちらも消さない）
 CSS = """:root{--bg:#fff;--fg:#0d1424;--mute:#566176;--line:rgba(16,28,58,.12);--ice:#2350c8}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font-family:"IBM Plex Sans JP","Hiragino Sans","Noto Sans JP",system-ui,sans-serif;line-height:1.85;font-size:15.5px}
 header,main,footer{max-width:760px;margin:0 auto;padding:0 20px}header{display:flex;align-items:center;gap:10px;height:64px;border-bottom:1px solid var(--line);max-width:none}
@@ -15,8 +15,8 @@ def page(OUT, path, title, desc, body, noindex=False, head='', full_title=False)
 <title>{title if full_title else title + '｜KATACHI'}</title><meta name="description" content="{desc}">
 {'<meta name="robots" content="noindex">' if noindex else f'<link rel="canonical" href="https://katachi.shiokonbu.com{path}">'}
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-<script async src="https://www.googletagmanager.com/gtag/js?id={GA}"></script>
-<script>window.dataLayer=window.dataLayer||[];function gtag(){{dataLayer.push(arguments)}}gtag("js",new Date());gtag("config","{GA}");</script>
+<script async src="https://www.googletagmanager.com/gtag/js?id={GA[0]}"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){{dataLayer.push(arguments)}}gtag("js",new Date());{''.join(f'gtag("config","{g}");' for g in GA)}</script>
 <style>{CSS}</style>{head}</head><body>
 <header><a href="/">{LOGO}KATACHI</a></header>
 <main>{body}</main>

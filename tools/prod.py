@@ -5,7 +5,7 @@ import sys, json, re
 S, OUT = sys.argv[1], sys.argv[2]
 FORM = sys.argv[3] if len(sys.argv) > 3 else ''
 SITE = 'https://katachi.shiokonbu.com/'
-GA = ['G-ZYX17VBTWB']  # shiokonbu.com 総合（全サブドメイン共通）。KATACHI単体のIDができたら足す
+GA = ['G-3C2RRECKB8', 'G-ZYX17VBTWB']  # KATACHI専用（2026-11-12）, shiokonbu.com 総合（全サブドメイン共通）
 s = open(S + '/katachi.html').read()
 d = json.loads(re.search(r'window\.KATACHI_DATA=(\{.*?\});\n', s, re.S).group(1))
 N = d['realCount']; NA = d['realAbroad']
