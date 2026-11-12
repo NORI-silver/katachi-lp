@@ -18,6 +18,7 @@ CSS = """<style>.crumb{font-size:12.5px;color:var(--mute);margin:0}.crumb a{colo
 .points{background:#f3f6fd;border:1px solid var(--line);border-radius:10px;padding:14px 18px;margin:18px 0}.points b{display:block;margin-bottom:4px}
 .points ul{margin:0}h3{font-size:16px;margin:22px 0 4px}.cta{margin:36px 0 10px;padding:20px;border:1px solid var(--ice);border-radius:12px}
 .cta a.btn{display:inline-block;margin-top:8px;background:var(--ice);color:#fff;text-decoration:none;padding:10px 18px;border-radius:8px;font-weight:600}
+.tbl{overflow-x:auto;margin:12px 0}.tbl table{border-collapse:collapse;min-width:100%;font-size:14px;line-height:1.6}.tbl th,.tbl td{border:1px solid var(--line);padding:6px 9px;text-align:left;vertical-align:top}.tbl th{background:#f3f6fd;white-space:nowrap}.src{font-size:13px;color:var(--mute)}.src li{color:var(--mute)}
 .list a{font-weight:600}.list p{margin:2px 0 18px;color:var(--mute)}</style>"""
 CTA = """<div class="cta"><b>つくりたいものを書くだけで、工程ごとに頼める会社をさがせます</b>
 <p>KATACHIでは、AIが作り方を工程に分け、図面なし・試作・小ロットで相談できる会社を組み合わせて提案します。工程の整理・会社の検索・見積の依頼は無料です。</p>
@@ -35,13 +36,17 @@ def article(a):
     faq = ""
     if a.get("faq"):
         faq = "<h2>よくある質問</h2><dl>" + "".join(f"<dt>{q}</dt><dd>{ans}</dd>" for q, ans in a["faq"]) + "</dl>"
+    src = ""
+    if a.get("sources"):
+        src = (f'<h2>出典</h2><p class="src">数字はいずれも次の公開資料から（{a["checked"]}に確認）。</p><ol class="src">'
+               + "".join(f'<li><a href="{u}" target="_blank" rel="noopener">{t}</a></li>' for t, u in a["sources"]) + "</ol>")
     rel = ""
     if a.get("related"):
         by = {x["slug"]: x for x in ARTICLES}
         rel = "<h2>関連するガイド</h2><ul>" + "".join(f'<li><a href="/guide/{s}/">{by[s]["h1"]}</a></li>' for s in a["related"] if s in by) + "</ul>"
     body = (f'<p class="crumb"><a href="/">KATACHI</a> › <a href="/guide/">ガイド</a></p><h1>{a["h1"]}</h1>'
             f'<p class="upd">更新日：{a["updated"].replace("-", "/")}</p>{a["lead"]}'
-            f'<div class="points"><b>この記事の要点</b><ul>{pts}</ul></div>{secs}{faq}{CTA}{rel}')
+            f'<div class="points"><b>この記事の要点</b><ul>{pts}</ul></div>{secs}{faq}{CTA}{src}{rel}')
     graph = [ORG,
              {"@type": "Article", "headline": a["h1"], "description": a["desc"], "dateModified": a["updated"],
               "datePublished": a.get("published", a["updated"]), "inLanguage": "ja", "mainEntityOfPage": url,
