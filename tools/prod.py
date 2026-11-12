@@ -35,6 +35,7 @@ head = f'''<!doctype html>
 <title>{TITLE}</title>
 <meta name="description" content="{DESC}">
 <link rel="canonical" href="{SITE}">
+<meta name="google-site-verification" content="MmM3OGz9LIPxBOmE4jR8GdP4vACP_FrchZwBLT3W0sM" />  <!-- Search Console（URLプレフィックス）の確認。消さない -->
 <link rel="alternate" hreflang="ja" href="{SITE}">
 <meta name="theme-color" content="#ffffff">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
