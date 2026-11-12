@@ -801,7 +801,7 @@ function fld(f){const [id,l,k,rq,o]=f;const tag=rq==='req'?'<span class="req">�
     `<input id="${id}" type="${k==='email'?'email':k==='tel'?'tel':'text'}" ${['f-qty'].includes(id)||/^f-q\d/.test(id)?`value="${esc(o)}" placeholder="${id==='f-qty'?'':'未回答なら「相談したい」と伝えます'}"`:`placeholder="${esc(o)}"`} ${k==='email'?'autocomplete="email"':''}>`;
   return `<label for="${id}"><span>${/^f-q\d/.test(id)?esc(l):l}${tag}</span>${ctl}</label>`}
 const PRIV=['f-who','f-org','f-name','f-mail','f-tel','f-file'];
-const FORM_URL="";const TERMS_URL='/terms/';const PRIVACY_URL='/privacy/';
+const FORM_URL="https://script.google.com/macros/s/AKfycbz-tcsKOOAI7HKegzVCGPtMG5nLjfdh-ttPPd5wRFFdBGl8N_q8-M4ME5fg31-YIO5wIQ/exec";const TERMS_URL='/terms/';const PRIVACY_URL='/privacy/';
 let lastSent=false;
 async function sendForm(payload){lastSent=false;if(!FORM_URL||/claude(usercontent)?\.(ai|com)$/.test(location.hostname))return false;
   try{await fetch(FORM_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});lastSent=true;return true}catch(e){return false}}
