@@ -1,0 +1,62 @@
+"""利用規約・プライバシーポリシー・404 を作る。python3 legal.py <出力フォルダ>"""
+import sys, os
+OUT = sys.argv[1]
+GA = "G-ZYX17VBTWB"
+CSS = """:root{--bg:#fff;--fg:#0d1424;--mute:#566176;--line:rgba(16,28,58,.12);--ice:#2350c8}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font-family:"IBM Plex Sans JP","Hiragino Sans","Noto Sans JP",system-ui,sans-serif;line-height:1.85;font-size:15.5px}
+header,main,footer{max-width:760px;margin:0 auto;padding:0 20px}header{display:flex;align-items:center;gap:10px;height:64px;border-bottom:1px solid var(--line);max-width:none}
+header a{color:var(--fg);text-decoration:none;font-weight:700;letter-spacing:.18em;font-size:14px;display:flex;gap:10px;align-items:center}
+main{padding-top:28px;padding-bottom:40px}h1{font-size:26px;line-height:1.4;margin:10px 0 6px}h2{font-size:18px;margin:34px 0 8px;padding-top:12px;border-top:1px solid var(--line)}
+p,li,dd{color:#1f2a40}ol,ul{padding-left:1.4em}a{color:var(--ice)}.lead{color:var(--mute)}dt{font-weight:600;margin-top:12px}dd{margin:2px 0 0}
+footer{border-top:1px solid var(--line);padding:22px 20px 40px;font-size:12.5px;color:var(--mute);display:flex;gap:18px;flex-wrap:wrap}footer a{color:var(--mute)}"""
+LOGO = '<svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><path d="M3 3h7v7H3z" fill="#2350c8"/><path d="M12 3h7v7h-7z" fill="none" stroke="#2350c8" stroke-width="1.5"/><path d="M3 12h7v7H3z" fill="none" stroke="#2350c8" stroke-width="1.5" stroke-dasharray="2 2"/><path d="M12 12h7v7h-7z" fill="#2350c8" opacity=".45"/></svg>'
+def page(path, title, desc, body, noindex=False):
+    html = f'''<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{title}｜KATACHI</title><meta name="description" content="{desc}">
+{'<meta name="robots" content="noindex">' if noindex else f'<link rel="canonical" href="https://katachi.shiokonbu.com{path}">'}
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<script async src="https://www.googletagmanager.com/gtag/js?id={GA}"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){{dataLayer.push(arguments)}}gtag("js",new Date());gtag("config","{GA}");</script>
+<style>{CSS}</style></head><body>
+<header><a href="/">{LOGO}KATACHI</a></header>
+<main>{body}</main>
+<footer><a href="/">トップ</a><a href="/terms/">利用規約</a><a href="/privacy/">プライバシーポリシー</a><a href="/privacy/#operator">運営者情報</a><span>© 2026 KATACHI</span></footer>
+</body></html>
+'''
+    d = OUT + path
+    os.makedirs(d, exist_ok=True) if path.endswith('/') else None
+    open((d + 'index.html') if path.endswith('/') else d, 'w').write(html)
+
+terms = '''<h1>利用規約</h1><p class="lead">KATACHI（以下「当サイト」）をご利用いただく前に、お読みください。</p>
+<h2>第1条（この規約について）</h2><ol><li>この規約は、当サイトが提供する、製品をつくりたい事業者・個人（以下「利用者」）が試作・製造を頼める会社をさがし、見積の依頼や相談ができるサービス（以下「本サービス」）の利用条件を定めるものです。</li><li>利用者は、この規約と<a href="/privacy/">プライバシーポリシー</a>に同意のうえで本サービスを利用します。</li><li>未成年の方は、保護者の同意を得てからご利用ください。</li></ol>
+<h2>第2条（本サービスの内容）</h2><ol><li>本サービスは、利用者が入力した構想をAIと当サイトの担当者が工程に整理し、対応できる可能性のある工場・開発企業（以下「企業」）を紹介するものです。一社で対応できない場合は、複数社の組合せを提案します。</li><li>工程の整理、企業の検索、見積の依頼と相談は無料です。有料のサービスを始めるときは、内容と料金を申込みの前にこのページなどで示し、それ以前のご依頼にさかのぼって請求することはありません。</li><li>当サイトは、企業との契約の当事者、代理人または保証人にはなりません。試作・製造などの契約と代金の支払いは、利用者と企業が直接行い、当サイトは代金を預かりません。</li><li>見積の依頼や相談を送っても、その時点で契約は成立しません。届いた見積や返事を見て、依頼するかどうかは利用者が決めます。</li></ol>
+<h2>第3条（AIの整理と専門家の判断）</h2><ol><li>本サービスは、情報の確かさを「公式サイトで確認」「報道で確認」「掲載ページで確認」「AIの推定」「要確認」などに分けて表示します。</li><li>AIによる工程の整理、技術課題、法規制の指摘などは参考情報です。安全性・適法性・認証の要否などの最終判断は、契約する企業や専門家の確認のうえで、利用者が行います。</li><li>当サイトは、紹介した企業が案件を引き受けること、提示された価格・納期・品質が実現すること、製品が利用者の目的に合うことを保証しません。</li></ol>
+<h2>第4条（利用者が提供する情報）</h2><ol><li>構想、仕様、図面、設計データ、写真など利用者が提供した情報（以下「案件情報」）の権利は、利用者（または正当な権利者）に残ります。当サイトは案件情報の権利を取得しません。</li><li>当サイトは、案件情報を、本サービスの提供（工程の整理、企業の紹介、見積依頼書の作成）に必要な範囲でのみ使い、利用者が選んだ企業と、担当者が打診する企業にだけ渡します。</li><li>海外の企業に案件情報を渡す場合は、所在国を示して利用者の同意を得ます。</li><li>当サイトは、特定の利用者や案件を識別できない形に加工した統計情報を、本サービスの改善に使うことがあります。案件情報そのものをAIの学習に使うことはありません。</li><li>利用者は、第三者の権利（特許、意匠、著作権、商標、営業秘密など）を侵害する情報を提供しないものとします。</li><li>発明や意匠を出願する予定がある場合は、企業への開示の前に出願または秘密保持契約の締結を検討してください。当サイトは、新規性の喪失を防ぐことまでは保証できません。</li></ol>
+<h2>第5条（企業とのやり取りと契約）</h2><ol><li>見積もりや契約条件（価格、納期、最小ロット、材料の手配、知的財産の帰属、金型の所有、不良時の対応など）は、契約前に企業と書面で確認してください。</li><li>企業との契約の履行や品質、代金に関する紛争は、当事者間で解決します。当サイトは、必要と判断した場合に情報の整理や連絡の橋渡しを行うことがあります。</li><li>当サイトは、成約の有無と満足度を確認するため、利用者に問い合わせることがあります。</li></ol>
+<h2>第6条（取り扱わない分野）</h2><p>酒類、医薬品、医療機器、武器など、紹介するだけでも当サイトに許可・免許が必要になる分野や、法令で取引が制限される分野は、現在取り扱っていません。</p>
+<h2>第7条（禁止事項）</h2><ol><li>法令に反する製品・用途のために本サービスを使うこと</li><li>他人の情報を使った依頼や、虚偽の依頼、いたずらの依頼</li><li>紹介された企業の見積もりや技術情報を、その企業の承諾なく第三者に渡すこと</li><li>本サービスの企業情報を許可なく転載したり、機械で大量に取り出したりすること、または運営を妨げること</li><li>そのほか、法令または公序良俗に反する行為</li></ol><p>これらにあたると当サイトが判断した場合、ご依頼をお断りしたり、今後のご利用をお断りしたりすることがあります。</p>
+<h2>第8条（責任の範囲）</h2><ol><li>当サイトは、システムの保守や障害などにより、本サービスを止めることがあります。</li><li>当サイトに載せている企業の情報は、確認した時点のものです。正確さや最新であることを保証しません。</li><li>本サービスの利用によって利用者に生じた損害について、当サイトは、当サイトの故意または重大な過失による場合はその損害を賠償し、それ以外の過失による場合は、利用者に直接かつ通常生じた損害に限って賠償します。</li></ol>
+<h2>第9条（規約の変更）</h2><p>当サイトは、民法第548条の4にもとづき、変更の内容と変更の日を、変更の日より前にこのページでお知らせしたうえで、この規約を変更することがあります。</p>
+<h2>第10条（準拠法・裁判管轄）</h2><p>この規約は日本の法律にしたがって解釈します。本サービスについて争いが生じた場合は、運営者の住所地を管轄する地方裁判所または簡易裁判所を、第一審の専属的合意管轄裁判所とします。</p>
+<p>2026年11月12日 制定</p>'''
+
+privacy = '''<h1>プライバシーポリシー</h1><p class="lead">KATACHI（以下「当サイト」）は、お預かりする個人情報を次のとおり取り扱います。</p>
+<h2>1. お預かりする情報</h2><ul><li>見積の依頼・相談のフォームに入力された、メールアドレス、会社名・お名前、電話番号、依頼者の区分、つくりたいものの内容（仕様、数量、時期、予算など）と、選んだ会社</li><li>受付のメールへの返信でお送りいただいた図面・写真・設計データ</li><li>取り込んだ設計ファイルは、名前と大きさ・外形寸法の読み取りだけをお使いの端末の中で行います。ファイルそのものは、フォームから当サイトに送られません。</li></ul>
+<h2>2. 使う目的</h2><ul><li>工程の整理、会社の紹介、見積依頼書の作成と、会社への見積・相談の打診</li><li>会社からの返事のお知らせ、お問い合わせへの対応、重要なお知らせ</li><li>成約したかどうかと満足度の確認</li><li>不正利用の防止と、個人が特定できない形での集計によるサービスの改善</li></ul><p>ご本人の同意なく、この目的のほかに使うことはありません。</p>
+<h2>3. 会社へのお伝え（第三者提供）</h2><ol><li>見積・相談の内容は、担当者が確認してから、お客さまが選んだ会社と、担当者が打診する会社にお伝えします。会社名・お名前・連絡先は、会社とのやり取りに必要になった段階でお伝えします。</li><li>日本の国外にある会社へお伝えするのは、フォームで同意をいただいた場合だけです。移転先の国の個人情報保護の制度は、<a href="https://www.ppc.go.jp/personalinfo/legal/kaiseihogohou/#gaikoku" target="_blank" rel="noopener">個人情報保護委員会</a>が公開しています。</li><li>前2項のほか、法令にもとづく場合を除き、ご本人の同意なく第三者に提供しません。</li></ol>
+<h2>4. 安全な管理と保管の期間</h2><ul><li>フォームの送信内容は、暗号化された通信（HTTPS）でお送りいただきます。</li><li>お預かりした情報は、安全対策の整った大手クラウドサービス上で保管し、見られるのは運営者だけに限っています。保管先のサーバーは、日本の国外（アメリカ合衆国など）にある場合があります。</li><li>連絡先と依頼の内容は、最後のやり取りから2年たったら消します。成約の確認と会計の記録に必要な項目（日付・会社・金額）は残します。</li><li>漏えいなどが起きた場合は、法令にしたがって個人情報保護委員会への報告とご本人への通知を行います。</li></ul>
+<h2>5. ほかのサービスに送られる情報（外部送信）</h2><dl>
+<dt>Google LLC（アメリカ）：アクセス解析</dt><dd>送られる情報：見たページのURL、ひとつ前に見たページ、ボタンなどの操作、フォームの項目をいくつ入力したか（入力した中身は送りません）、ブラウザや端末の種類、IPアドレス、クッキーなどのID。目的：個人が特定できない形で集計し、サイトをよくするため。止めたいときは、ブラウザでクッキーを止めるか、<a href="https://tools.google.com/dlpage/gaoptout?hl=ja" target="_blank" rel="noopener">解析を止める追加機能</a>をお使いください。</dd>
+<dt>Google LLC（アメリカ）：文字のデザイン（フォント）</dt><dd>送られる情報：IPアドレス、ブラウザの情報。目的：文字を表示するため。</dd>
+<dt>Google LLC（アメリカ）：クラウドサービス（フォームの受付と保管、メールの送信）</dt><dd>送られる情報：フォームに入力した内容。目的：見積の依頼・相談を受け付け、ご連絡するため。</dd>
+<dt>GitHub, Inc.（アメリカ）：サイトの配信</dt><dd>送られる情報：IPアドレス、ブラウザの情報、見たページのURL。目的：このサイトを表示するため。</dd></dl>
+<p>言語の設定などは、お使いの端末のブラウザの中だけに保存します（当サイトには届きません）。</p>
+<h2>6. 開示・訂正・利用停止のご請求</h2><p>ご本人から、保有個人データの開示、訂正、利用停止、第三者提供の記録の開示などのご請求があったときは、ご本人であることを確かめたうえで、遅滞なく対応します。受付のメールにご返信いただくか、サイトの「相談する」からお知らせください。</p>
+<h2 id="operator">7. 運営者情報</h2><dl><dt>運営者</dt><dd>KATACHI</dd><dt>サイト</dt><dd>https://katachi.shiokonbu.com/</dd><dt>サービス内容</dt><dd>試作・製造を頼める会社をさがし、見積の依頼や相談ができるサイトです（無料）。試作・製造は各企業が行います。</dd><dt>運営者の氏名・住所</dt><dd>個人情報を取り扱う運営者の氏名・住所は、お問い合わせいただければ遅滞なくお答えします。</dd><dt>お問い合わせ</dt><dd>サイトの「相談する」から、または受付のメールへのご返信でどうぞ。</dd></dl>
+<p>この内容は、必要に応じて見直すことがあります。変更したときはこのページでお知らせします。（2026年11月12日 制定）</p>'''
+
+page('/terms/', '利用規約', 'KATACHIの利用規約です。', terms)
+page('/privacy/', 'プライバシーポリシー', 'KATACHIのプライバシーポリシーと運営者情報です。', privacy)
+page('/404.html', 'ページが見つかりません', 'ページが見つかりません。', '<h1>ページが見つかりません</h1><p>URLが変わったか、ページがなくなった可能性があります。</p><p><a href="/">トップへ戻る</a></p>', noindex=True)
+print('ok')
