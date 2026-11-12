@@ -17,3 +17,4 @@
 ## ガイド
 - [試作の外注の進め方：図面がなくても自社製品はつくれる](https://katachi.shiokonbu.com/guide/prototype-outsourcing/): 図面のない中小企業が試作を外注する5つの手順、依頼書に書くこと、見積の比べ方、よくある失敗。
 - [試作・製造の依頼で、実際に何が頼まれているのか：公開データで見る注文の中身](https://katachi.shiokonbu.com/guide/what-gets-ordered/): Protolabs・Xometryの決算資料と国内の商談会の発注案件から、試作・製造の依頼で実際に多い加工・数量・素材と、まだ少ない依頼をまとめた記事。
+- [製造の委託先の探し方と選び方：図面がない中小企業のための7つの探し先と比べ方](https://katachi.shiokonbu.com/guide/find-manufacturer/): 製造の委託先を探す7つの方法（受発注サイト・即時見積・展示会・公的機関など）の向き不向きと、候補の比べ方・最初の依頼で確かめること。
