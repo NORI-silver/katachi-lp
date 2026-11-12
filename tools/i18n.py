@@ -590,6 +590,10 @@ T.update({
 "ファイルは送れませんでした": ("Files could not be sent", "文件未能发送"),
 "送れなかったファイル：": ("Not sent: ", "未能发送的文件："),
 "受付メールへの返信で送るか、Googleドライブなどの共有リンクを補足に書いてください。": ("Please send them by replying to the confirmation email, or put a Google Drive (or similar) share link in the notes.", "请回复确认邮件发送，或在补充说明中填写 Google 云端硬盘等的共享链接。"),
+"YouTube・Instagram・TikTok などのリンクを貼る": ("Paste a YouTube, Instagram, TikTok or other link", "粘贴 YouTube・Instagram・TikTok 等链接"),
+"リンクを追加": ("Add link", "添加链接"), "楽天": ("Rakuten", "乐天"),
+"動画やSNSの投稿は、リンクだけでも送れます。非公開の投稿は担当者が見られないので、公開か「限定公開」にしてください。": ("Videos and social posts can be sent as just a link. Our staff cannot see private posts, so please make them public or unlisted.", "视频和社交媒体帖子只发链接也可以。工作人员无法查看非公开的帖子，请设为公开或“不公开列出”。"),
+"ChatGPT・Gemini・Claude の共有リンクや会話の本文、YouTube・Instagram・TikTok などの動画のリンクを貼り付け": ("Paste a ChatGPT, Gemini or Claude share link or chat text, or a YouTube, Instagram, TikTok or other video link", "粘贴 ChatGPT・Gemini・Claude 的分享链接或对话内容，或 YouTube・Instagram・TikTok 等视频链接"),
 "担当者だけが見られる場所に保存し、見積を頼む会社にだけ渡します。": ("They are stored where only our staff can see them, and shared only with the companies we ask for quotes.", "文件保存在只有工作人员能查看的位置，只会提供给我们请求报价的公司。"),
 })
 # 概算の目安（estimates.py の文言）

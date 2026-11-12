@@ -292,6 +292,7 @@ table.cmp{border-collapse:separate;border-spacing:0;width:100%;min-width:760px;f
 .ready .rc span.on{border:1px solid var(--ice);background:var(--ice);color:#fff}
 .aihelp{border:1px dashed var(--line2);border-radius:10px;padding:10px 12px;font-size:13px}.aihelp summary{cursor:pointer;color:var(--fg)}
 .paste .aihelp{margin-top:8px}
+.mlink{display:flex;gap:8px}.mlink input{flex:1;min-width:0}
 .fth{width:22px;height:22px;object-fit:cover;border-radius:4px;flex:none}
 .upbar{height:8px;border-radius:99px;background:var(--bg2);overflow:hidden}.upbar i{display:block;height:100%;background:var(--ice);transition:width .3s}
 @media (max-width:560px){.mi{grid-template-columns:56px minmax(0,1fr) auto}.mth{width:56px;height:56px}.mfi{grid-template-columns:1fr}}
@@ -532,7 +533,7 @@ function renderHome(){
       <label for="idea" class="eyebrow" style="position:absolute;left:-9999px">つくりたいもの</label>
       <textarea id="idea" rows="3" placeholder="例：散歩中の犬の心拍を測れる首輪を、まず5個だけ試作したい">${esc(S.idea)}</textarea>
       <div class="files" id="files"></div>
-      <div class="paste" id="paste"><textarea id="pasteT" placeholder="ChatGPT・Gemini・Claude の共有リンク、または会話の本文を貼り付け"></textarea><div><button type="button" class="btn sm" id="pasteGo">取り込む</button></div>${aiHelp()}</div>
+      <div class="paste" id="paste"><textarea id="pasteT" placeholder="ChatGPT・Gemini・Claude の共有リンクや会話の本文、YouTube・Instagram・TikTok などの動画のリンクを貼り付け"></textarea><div><button type="button" class="btn sm" id="pasteGo">取り込む</button></div>${aiHelp()}</div>
       <div class="cbar">
         <button type="button" class="clip" id="pick" title="AIで作った仕様書・画像・3D/CAD・回路図・コードを取り込む"><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M10.5 4.5 5.8 9.2a1.5 1.5 0 0 0 2.1 2.1l5-5a3 3 0 0 0-4.2-4.2l-5 5a4.5 4.5 0 0 0 6.4 6.4l4.2-4.2" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>AIの設計を取り込む</button>
         <button type="button" class="clip" id="pasteBtn">会話を貼る</button>
@@ -600,6 +601,8 @@ function bindHome(){
   f.addEventListener('drop',e=>[...(e.dataTransfer?.files||[])].forEach(addFile));
   f.onsubmit=e=>{e.preventDefault();if(!ta.value.trim()&&!S.files.length){ta.focus();ta.placeholder='つくりたいものを、ひとことでも書いてください';track('form_error',{form:'idea',reason:'empty'});return}track('form_cta',{form:'idea',quantity:S.qty,files:S.files.length,chars:ta.value.trim().length});go(null)};
   ta.onkeydown=e=>{if(e.key==='Enter'&&(e.metaKey||e.ctrlKey)){e.preventDefault();f.requestSubmit()}};
+  ta.addEventListener('paste',e=>{const t=(e.clipboardData?.getData('text')||'').trim();if(!/^https?:\/\/\S+$/.test(t))return;let h='';try{h=new URL(t).hostname.replace(/^www\.|^m\./,'').toLowerCase()}catch(x){return}
+    if(PLATS.some(p=>p[0].test(h))&&addLink(t)){e.preventDefault();renderFiles()}});
   renderFiles();
 }
 /* AI design import */
@@ -618,7 +621,20 @@ function addFile(file){
   else if(/\.(md|txt|html?|json|ya?ml|csv)$/i.test(file.name)){r.onload=()=>{const t=String(r.result);it.m=fmt(t.length)+'字';const ta=$('#idea');if(ta&&!ta.value.trim()){ta.value=sumText(t);ta.oninput()}renderFiles()};r.readAsText(file)}
   renderFiles();
 }
+/* 動画・SNS・共有フォルダのリンク（YouTube・Instagram・TikTok など）。中身は取りに行かず、URLを依頼に添える */
+const PLATS=[[/(^|\.)youtube\.com$|^youtu\.be$/,'YouTube'],[/(^|\.)instagram\.com$|^instagr\.am$/,'Instagram'],[/(^|\.)tiktok\.com$/,'TikTok'],[/(^|\.)(x|twitter)\.com$/,'X'],[/(^|\.)vimeo\.com$/,'Vimeo'],[/(^|\.)facebook\.com$|^fb\.watch$/,'Facebook'],[/(^|\.)pinterest\.[a-z.]+$|^pin\.it$/,'Pinterest'],[/^(drive|docs|photos)\.google\.com$|^photos\.app\.goo\.gl$/,'Google'],[/(^|\.)dropbox\.com$/,'Dropbox'],[/(^|\.)onedrive\.live\.com$|^1drv\.ms$/,'OneDrive'],[/(^|\.)amazon\.[a-z.]+$|^amzn\.(to|asia)$/,'Amazon'],[/(^|\.)rakuten\.co\.jp$/,'楽天']];
+const AI_HOST=/^(chatgpt\.com|chat\.openai\.com|gemini\.google\.com|g\.co|claude\.ai)$/i;
+function ytId(u){try{const x=new URL(u);if(/youtu\.be$/.test(x.hostname))return x.pathname.slice(1,12);if(x.searchParams.get('v'))return x.searchParams.get('v').slice(0,11);const m=x.pathname.match(/\/(shorts|embed|live|v)\/([\w-]{11})/);return m?m[2]:''}catch(e){return ''}}
+function addLink(u){let x;try{x=new URL(u)}catch(e){return false}if(!/^https?:$/.test(x.protocol))return false;
+  if(S.files.some(f=>f.url===x.href))return true;
+  const host=x.hostname.replace(/^www\.|^m\./,'').toLowerCase();const k=(PLATS.find(p=>p[0].test(host))||[0,'URL'])[1];
+  const id=k==='YouTube'?ytId(x.href):'';
+  S.files.push({name:x.href.replace(/^https?:\/\/(www\.)?/,'').slice(0,80),k,url:x.href,m:'',role:'',dim:'',memo:'',thumb:/^[\w-]{11}$/.test(id)?'https://i.ytimg.com/vi/'+id+'/hqdefault.jpg':''});
+  track('import_design',{file_kind:'media_link',source:k});return true}
+const urlsIn=t=>(t.match(/https?:\/\/[^\s<>"'）)」』]+/g)||[]).map(u=>u.replace(/[.,、。]+$/,''));
 function pasteIn(){const t=$('#pasteT').value.trim();if(!t)return;
+  const us=urlsIn(t);
+  if(us.length&&!us.some(u=>{try{return AI_HOST.test(new URL(u).hostname)}catch(e){return false}})&&t.replace(/https?:\/\/\S+/g,'').trim().length<40){us.forEach(addLink);$('#pasteT').value='';$('#paste').classList.remove('on');renderFiles();return}
   const m=t.match(/https?:\/\/(chatgpt\.com|chat\.openai\.com|gemini\.google\.com|g\.co|claude\.ai)\S*/i);
   track('import_design',{file_kind:m?'share_link':'pasted_chat',source:m?m[1].toLowerCase():''});
   if(m){S.files.push({name:({'chatgpt.com':'ChatGPT','chat.openai.com':'ChatGPT','gemini.google.com':'Gemini','g.co':'Gemini','claude.ai':'Claude'}[m[1].toLowerCase()])+'の会話',k:'LINK',m:'',text:t.slice(0,20000)})}
@@ -631,7 +647,7 @@ function renderFiles(){const el=$('#files');if(!el)return;
 // ファイルは見積の依頼・相談を送ったときだけ、受付（GAS）経由で運営者の Google ドライブの非公開フォルダへ送る。AIのAPIは使わない。
 const UP={files:20,total:300*1048576,file:200*1048576,chunk:4*1048576};
 const MROLE=['写っているものを選ぶ','つくりたい物に近い参考品','手描きのスケッチ・図','今ある試作品・現物（直したい）','使う場面・取り付ける場所','その他'];
-const isVis=f=>['画像','動画','3D','CAD'].includes(f.k);
+const isVis=f=>['画像','動画','3D','CAD'].includes(f.k)||!!f.url;
 const mb=n=>n>=1048576?(n/1048576).toFixed(n>=10485760?0:1)+'MB':Math.max(1,Math.round(n/1024))+'KB';
 const tmm=s=>Math.floor(s/60)+':'+String(Math.floor(s%60)).padStart(2,'0');
 async function imgThumb(file){try{const b=await createImageBitmap(file);const c=document.createElement('canvas');const s=Math.min(1,320/Math.max(b.width,b.height));
@@ -655,10 +671,10 @@ function upList(){const list=[],skipped=[];let bytes=0;
     if(f.file){if(f.size<=UP.file&&bytes+f.size<=UP.total&&list.length<UP.files)push(f.name,f.file.type,f.file);
       else if(f.frames&&f.frames.length){skipped.push(f.name+'（静止画'+f.frames.length+'枚を代わりに送ります）');f.frames.forEach((b,i)=>push(f.name.replace(/\.[^.]+$/,'')+'_'+(i+1)+'.jpg','image/jpeg',b,f.name))}
       else skipped.push(f.name)}
-    else if(f.text)push(f.k==='LINK'?'link.txt':'pasted-chat.txt','text/plain',new Blob([f.text],{type:'text/plain'}))});
+    else if(f.text&&!f.url)push(f.k==='LINK'?'link.txt':'pasted-chat.txt','text/plain',new Blob([f.text],{type:'text/plain'}))});
   return {list,skipped,bytes}}
-function mediaVals(){return S.files.map((f,i)=>{const v=[f.role&&f.role!==MROLE[0]?f.role:'',f.dim?'大きさ '+f.dim:'',f.m&&f.k==='3D'?'外形 '+f.m:'',f.memo||''].filter(Boolean).join(' ／ ');
-  return v?{id:'m-'+i,label:'添付「'+f.name+'」',value:v.slice(0,1000)}:null}).filter(Boolean)}
+function mediaVals(){return S.files.map((f,i)=>{const v=[f.url?'URL '+f.url:'',f.role&&f.role!==MROLE[0]?f.role:'',f.dim?'大きさ '+f.dim:'',f.m&&f.k==='3D'?'外形 '+f.m:'',f.memo||''].filter(Boolean).join(' ／ ');
+  return v?{id:'m-'+i,label:f.url?'リンク（'+f.k+'）':'添付「'+f.name+'」',value:v.slice(0,1000)}:null}).filter(Boolean)}
 const rkey=()=>{const A='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';return [...crypto.getRandomValues(new Uint8Array(32))].map(b=>A[b%62]).join('')};
 const b64=blob=>new Promise((ok,ng)=>{const r=new FileReader();r.onload=()=>ok(String(r.result).split(',')[1]||'');r.onerror=ng;r.readAsDataURL(blob)});
 let blindUp=false;
@@ -711,16 +727,20 @@ function wireAiHelp(root){(root||document).querySelectorAll('[data-aicp]').forEa
 function renderMedia(){const el=$('#mediaBox');if(!el)return;const rfqMode=!!$('#rf');
   el.innerHTML=`${rfqMode?'<div id="readyBox"></div>':''}
     <div class="mlist">${S.files.map((f,i)=>`<div class="mi">
-      <div class="mth">${f.thumb?`<img src="${f.thumb}" alt="">`:`<span class="mono">${esc(f.k)}</span>`}${f.k==='動画'?'<i class="play">▶</i>':''}</div>
-      <div class="mf"><div class="mn"><b translate="no">${esc(f.name)}</b><span class="muted mono">${[f.size?mb(f.size):'',f.m].filter(Boolean).map(esc).join(' · ')}</span></div>
+      <div class="mth">${f.thumb?`<img src="${f.thumb}" alt="">`:`<span class="mono">${esc(f.k)}</span>`}${f.k==='動画'||f.k==='YouTube'?'<i class="play">▶</i>':''}</div>
+      <div class="mf"><div class="mn"><b translate="no">${f.url?`<a href="${esc(f.url)}" target="_blank" rel="noopener noreferrer">${esc(f.name)}</a>`:esc(f.name)}</b><span class="muted mono">${[f.size?mb(f.size):'',f.m].filter(Boolean).map(esc).join(' · ')}</span></div>
         ${f.thumbs&&f.thumbs.length>1?`<div class="mfr">${f.thumbs.map(t=>`<img src="${t}" alt="">`).join('')}</div>`:''}
-        ${f.k==='画像'||f.k==='動画'?`<div class="mfi"><select data-mr="${i}" aria-label="写っているもの">${MROLE.map((r,j)=>`<option value="${j?esc(r):''}" ${f.role===r?'selected':''}>${esc(r)}</option>`).join('')}</select>
+        ${f.k==='画像'||f.k==='動画'||f.url?`<div class="mfi"><select data-mr="${i}" aria-label="写っているもの">${MROLE.map((r,j)=>`<option value="${j?esc(r):''}" ${f.role===r?'selected':''}>${esc(r)}</option>`).join('')}</select>
           <input data-md="${i}" value="${esc(f.dim||'')}" placeholder="写っている物の大きさ 例：幅120×奥行40×高さ30mm"><input data-mm="${i}" value="${esc(f.memo||'')}" placeholder="見てほしい所・変えたい所"></div>`:''}</div>
       <button type="button" class="mx" data-mx="${i}" aria-label="外す">×</button></div>`).join('')}</div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><button type="button" class="btn sm" id="mAdd">＋ 写真・動画・図面を追加</button><input type="file" id="mIn" multiple hidden><span class="muted" style="font-size:12px">1回で20件・合計300MBまで（動画は1本200MBまで）</span></div>
+    <div class="mlink"><input id="mUrl" type="url" inputmode="url" placeholder="YouTube・Instagram・TikTok などのリンクを貼る"><button type="button" class="btn sm" id="mUrlGo">リンクを追加</button></div>
+    <p class="muted" style="margin:0;font-size:12.5px">動画やSNSの投稿は、リンクだけでも送れます。非公開の投稿は担当者が見られないので、公開か「限定公開」にしてください。</p>
     <p class="muted" style="margin:0;font-size:12.5px">送ったファイルは担当者だけが見られる場所に保存し、見積を頼む会社にだけ渡します。人の顔や住所などが写っている場合は、見えないようにしてから送ってください。</p>
     ${aiHelp()}`;
   $('#mAdd').onclick=()=>$('#mIn').click();
+  const goUrl=()=>{const us=urlsIn($('#mUrl').value);if(!us.length){$('#mUrl').classList.add('bad');return}us.forEach(addLink);renderFiles();renderMedia()};
+  $('#mUrlGo').onclick=goUrl;$('#mUrl').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();goUrl()}};
   $('#mIn').onchange=e=>{[...e.target.files].forEach(addFile);e.target.value='';renderMedia()};
   $$('[data-mx]').forEach(b=>b.onclick=()=>{S.files.splice(+b.dataset.mx,1);renderFiles();renderMedia()});
   $$('[data-mr]').forEach(s=>s.onchange=()=>{S.files[+s.dataset.mr].role=s.value});
