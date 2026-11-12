@@ -523,3 +523,16 @@ ARTICLES = [
         ],
     },
 ]
+
+# 分野ごとの記事は tools/guides_<分野>.py の ARTICLES に書く（ここで読み込んで後ろに足す）。
+def _load_more():
+    import glob, importlib.util, os
+    here = os.path.dirname(os.path.abspath(__file__))
+    for f in sorted(glob.glob(os.path.join(here, "guides_*.py"))):
+        spec = importlib.util.spec_from_file_location(os.path.basename(f)[:-3], f)
+        m = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(m)
+        ARTICLES.extend(m.ARTICLES)
+
+
+_load_more()
