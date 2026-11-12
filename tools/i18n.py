@@ -555,6 +555,43 @@ T.update({
 "認定・表彰・補助金・特許の記録は見つかりませんでした。載っていなくても、無いとは限りません。": ("No approvals, awards, subsidies or patents were found. Not being listed doesn't mean there are none.", "未找到认定、表彰、补贴或专利记录。未列出并不代表没有。"),
 "経済産業省のgBizINFOに公開されている記録です。KATACHIの評価ではなく、品質や取引のしやすさを保証するものでもありません。": ("These are records published on gBizINFO by Japan's Ministry of Economy, Trade and Industry. They are not KATACHI's rating and do not guarantee quality or how easy the company is to work with.", "这些是日本经济产业省gBizINFO公开的记录，并非KATACHI的评价，也不保证品质或合作的顺畅程度。"),
 })
+# 写真・動画のアップロードと「見積できる仕様」へのまとめ（2026-11-12）
+T.update({
+"画像": ("Image", "图片"), "動画": ("Video", "视频"),
+"写真・動画・図面": ("Photos, videos, drawings", "照片・视频・图纸"),
+"見積の精度が上がります": ("Makes quotes more accurate", "让报价更准确"),
+"写真・動画・測定データ": ("Photos, videos, measurements", "照片・视频・测量数据"),
+"材質の希望": ("Preferred material", "希望的材质"),
+"例：ABS樹脂、ステンレス、綿100%、わからない": ("e.g. ABS plastic, stainless steel, 100% cotton, not sure", "例：ABS树脂、不锈钢、100%棉、不确定"),
+"見積に必要な4点": ("4 things a quote needs", "报价需要的4项"),
+"形": ("Shape", "形状"), "寸法": ("Size", "尺寸"), "材質": ("Material", "材质"),
+"写真・スケッチ・3D": ("Photo, sketch or 3D", "照片・草图・3D"),
+"工場は写真だけでは見積を出しにくく、形・寸法・材質・数量がそろうと見積が返ってきやすくなります。わからない所は空けておけば、担当者が一緒に詰めます。": ("Factories find it hard to quote from photos alone. With shape, size, material and quantity, quotes come back much more often. Leave anything you don't know blank and our staff will work it out with you.", "工厂很难只凭照片报价。形状、尺寸、材质、数量齐全时，更容易收到报价。不清楚的地方可以留空，工作人员会和你一起确定。"),
+"写っているものを選ぶ": ("What does it show?", "选择拍摄的内容"),
+"つくりたい物に近い参考品": ("A reference close to what I want", "接近想做的东西的参考品"),
+"手描きのスケッチ・図": ("Hand sketch or diagram", "手绘草图・示意图"),
+"今ある試作品・現物（直したい）": ("My current prototype or item (to improve)", "现有的试制品・实物（想改进）"),
+"使う場面・取り付ける場所": ("Where it is used or mounted", "使用场景・安装位置"),
+"その他": ("Other", "其他"),
+"写っているもの": ("What it shows", "拍摄的内容"),
+"写っている物の大きさ 例：幅120×奥行40×高さ30mm": ("Size of the item shown, e.g. W120 × D40 × H30 mm", "拍摄物的尺寸 例：宽120×深40×高30mm"),
+"見てほしい所・変えたい所": ("What to look at / what to change", "希望关注或修改的地方"),
+"外す": ("Remove", "移除"),
+"＋ 写真・動画・図面を追加": ("+ Add photos, videos, drawings", "＋ 添加照片・视频・图纸"),
+"1回で20件・合計300MBまで（動画は1本200MBまで）": ("Up to 20 files and 300 MB per request (videos up to 200 MB each)", "每次最多20个文件、合计300MB（视频每个最多200MB）"),
+"送ったファイルは担当者だけが見られる場所に保存し、見積を頼む会社にだけ渡します。人の顔や住所などが写っている場合は、見えないようにしてから送ってください。": ("Files you send are stored where only our staff can see them, and are shared only with the companies we ask for quotes. If faces or addresses appear, please hide them before sending.", "发送的文件保存在只有工作人员能查看的位置，只会提供给我们请求报价的公司。如果拍到了人脸或地址等，请先遮挡再发送。"),
+"写真・動画を、お使いのAIで仕様メモにする（無料）": ("Turn photos and videos into a spec memo with your own AI (free)", "用你自己的AI把照片・视频整理成规格备忘（免费）"),
+"お使いの ChatGPT・Claude・Gemini に写真や動画を添付し、指示文を貼って送ると、見積に必要な項目（形・寸法・材質・数量など）を書き出してくれます。できた文章を「製品の概要」か「補足」に貼ってください。KATACHIにAIの費用はかかりません。": ("Attach your photos or videos in your own ChatGPT, Claude or Gemini, paste the prompt and send. It will write out what a quote needs (shape, size, material, quantity and so on). Paste the result into “Product summary” or “Notes”. KATACHI charges nothing for this.", "在你自己的 ChatGPT・Claude・Gemini 中附上照片或视频，粘贴提示词后发送，它会写出报价所需的项目（形状、尺寸、材质、数量等）。把结果粘贴到“产品概要”或“补充说明”即可。KATACHI 不收取AI费用。"),
+"指示文をコピー": ("Copy prompt", "复制提示词"), "コピーしました": ("Copied", "已复制"), "コピーできませんでした": ("Could not copy", "复制失败"),
+"ChatGPTを開く": ("Open ChatGPT", "打开 ChatGPT"), "Claudeを開く": ("Open Claude", "打开 Claude"), "Geminiを開く": ("Open Gemini", "打开 Gemini"),
+"ファイルを送っています": ("Sending files", "正在发送文件"),
+"依頼の内容は届きました。続けて写真・動画などのファイルを送っています。終わるまで、この画面を閉じずにお待ちください。": ("Your request has arrived. We are now sending your photos, videos and other files. Please keep this screen open until it finishes.", "委托内容已送达。正在继续发送照片・视频等文件，完成前请不要关闭此画面。"),
+"送ったファイル": ("Files sent", "已发送的文件"),
+"ファイルは送れませんでした": ("Files could not be sent", "文件未能发送"),
+"送れなかったファイル：": ("Not sent: ", "未能发送的文件："),
+"受付メールへの返信で送るか、Googleドライブなどの共有リンクを補足に書いてください。": ("Please send them by replying to the confirmation email, or put a Google Drive (or similar) share link in the notes.", "请回复确认邮件发送，或在补充说明中填写 Google 云端硬盘等的共享链接。"),
+"担当者だけが見られる場所に保存し、見積を頼む会社にだけ渡します。": ("They are stored where only our staff can see them, and shared only with the companies we ask for quotes.", "文件保存在只有工作人员能查看的位置，只会提供给我们请求报价的公司。"),
+})
 # 概算の目安（estimates.py の文言）
 from estimates import T_EST
 T.update({k: v for k, v in T_EST.items() if k not in T})

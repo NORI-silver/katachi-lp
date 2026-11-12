@@ -22,15 +22,22 @@ var CONFIG = {
   ADMIN_EMAIL: '',
   // 1日に受け付ける上限（いたずら対策）
   DAILY_LIMIT: 200,
+  // 写真・動画などのアップロード（受付番号ごとに Google ドライブの非公開フォルダへ保存）
+  UPLOAD_MAX_FILES: 20,             // 1件の依頼で送れるファイルの数
+  UPLOAD_MAX_BYTES: 300 * 1048576,  // 1件の依頼で送れる合計（300MB）
+  UPLOAD_FILE_MAX: 200 * 1048576,   // 1ファイルの上限（200MB、動画を想定）
+  UPLOAD_FOLDER_NAME: 'KATACHI 受付ファイル',
   // 入力ログ（文章で書く・選んで探す）の1日の上限
   LOG_DAILY_LIMIT: 3000,
 };
 
 var HEAD = ['受付番号', '受付日時', '種類', '言語', 'メール', '会社名・お名前', '依頼者の区分', '電話', 'つくりたいもの（入力文）',
-  '製品の概要', '段階と数量', '希望の時期', '送り先（工程: 会社）', '海外への提供に同意', 'その他の項目', '取り込んだ設計ファイル名', '状態'];
+  '製品の概要', '段階と数量', '希望の時期', '送り先（工程: 会社）', '海外への提供に同意', 'その他の項目', '取り込んだ設計ファイル名', '状態', 'アップロードしたファイル'];
 
 function setup() {
   sheet_();
+  uploadRoot_();  // 写真・動画の保存先フォルダ（ここでGoogleドライブの権限の確認が出ます）
+  UrlFetchApp.getRequest('https://www.googleapis.com/');  // 大きいファイルの小分け保存に使う権限の確認
   Logger.log('準備できました: ' + SpreadsheetApp.openById(prop_('SHEET_ID')).getUrl());
 }
 
@@ -39,6 +46,7 @@ function doPost(e) {
   try {
     var p = JSON.parse((e && e.postData && e.postData.contents) || '{}');
     if (p.type === 'idea') return json_(logIdea_(p));
+    if (p.type === 'file') return json_(saveChunk_(p));
     if (!limit_()) return json_({ok: false, error: 'busy'});
     if (p.type !== 'rfq' && p.type !== 'consult') return json_({ok: false, error: 'type'});
     var f = {};
@@ -49,11 +57,11 @@ function doPost(e) {
     var team = (p.team || []).map(function (t) { return t.step + ': ' + t.company + (t.country && t.country !== 'JP' ? '（' + t.country + '）' : ''); }).join('\n');
     var known = ['f-mail', 'f-org', 'f-name', 'f-who', 'f-tel', 'f-sum', 'f-qty', 'f-due'];
     var other = (p.fields || []).filter(function (x) { return known.indexOf(x.id) < 0; }).map(function (x) { return x.label + ': ' + x.value; });
-    if (p.type === 'consult') other = ['相談したいこと: ' + (p.topic || ''), 'いまの状況: ' + (p.body || ''), '相談先: ' + (p.to || []).join('、'), '会社: ' + (p.company || '')];
+    if (p.type === 'consult') other = ['相談したいこと: ' + (p.topic || ''), 'いまの状況: ' + (p.body || ''), '相談先: ' + (p.to || []).join('、'), '会社: ' + (p.company || '')].concat((p.fields || []).map(function (x) { return x.label + ': ' + x.value; }));
     var row = [id, new Date(), p.type === 'rfq' ? '見積の依頼' : '相談', p.lang || 'ja', email,
       p.type === 'rfq' ? [f['f-org'], f['f-name']].filter(String).join(' / ') : (p.org || ''),
       f['f-who'] || '', f['f-tel'] || '', String(p.idea || '').slice(0, 4000), f['f-sum'] || '', f['f-qty'] || '', f['f-due'] || '',
-      team, p.abroad_ok ? 'はい' : '', other.join('\n').slice(0, 45000), (p.files || []).join('、'), '未対応'];
+      team, p.abroad_ok ? 'はい' : '', other.join('\n').slice(0, 45000), (p.files || []).join('、'), '未対応', openUpload_(id, p.upload)];
     var sh = sheet_();
     sh.appendRow(row.map(safe_));
     notifyAdmin_(id, row, sh);
@@ -110,6 +118,7 @@ var MAIL_TEXT = {
     steps_consult: [['受付', 'いま'], ['内容の確認', '1〜2営業日'], ['専門家・工場へ相談', '担当者が連絡'], ['返事が届く', 'ふつう1週間前後']],
     sum_h: 'お送りいただいた内容', k_sum: '製品の概要', k_idea: 'つくりたいもの', k_qty: '段階と数量', k_due: '希望の時期', k_team: '打診する予定の会社', k_topic: '相談したいこと', k_to: '相談先',
     att_h: '図面・写真・設計データはありますか？', att: 'このメールにそのまま返信して添付してください（合計20MBまで）。手描きのスケッチやスマホの写真でもかまいません。見積の精度が上がります。',
+    att_up_h: '送っていただいたファイル', att_up: '{n}件のファイルをお預かりしました。担当者だけが見られる場所に保存し、見積を頼む会社にだけ渡します。あとから足したいファイルは、このメールへの返信で送れます。',
     note: 'まだ発注は決まっていません。見積や返事を見てから、依頼するかどうかをお決めください。工程の整理・会社の検索・見積の依頼は無料です。',
     btn: 'KATACHI を開く', foot: 'このメールは KATACHI のフォームから送信された方にお送りしています。お心当たりがない場合は、このメールに返信してお知らせください。'
   },
@@ -122,6 +131,7 @@ var MAIL_TEXT = {
     steps_consult: [['Received', 'Now'], ['Review', '1–2 business days'], ['Ask experts', 'By our staff'], ['Replies arrive', 'Usually about 1 week']],
     sum_h: 'What you sent', k_sum: 'Product summary', k_idea: 'What you want to make', k_qty: 'Stage and quantity', k_due: 'Desired timing', k_team: 'Companies we plan to contact', k_topic: 'Topic', k_to: 'Ask',
     att_h: 'Do you have drawings, photos or design files?', att: 'Just reply to this email with them attached (up to 20 MB in total). Hand sketches and phone photos are fine, and they make quotes more accurate.',
+    att_up_h: 'Files you sent', att_up: 'We received {n} file(s). They are stored where only our staff can see them, and are shared only with the companies we ask for quotes. To add more files later, just reply to this email.',
     note: 'Nothing has been ordered yet. You can decide whether to proceed after seeing the quotes. Organizing the process, searching companies and requesting quotes are free.',
     btn: 'Open KATACHI', foot: 'You received this email because this address was entered in a KATACHI form. If this was not you, please reply and let us know.'
   },
@@ -134,6 +144,7 @@ var MAIL_TEXT = {
     steps_consult: [['受理', '现在'], ['确认内容', '1〜2个工作日'], ['咨询专家・工厂', '由工作人员联系'], ['收到回复', '通常1周左右']],
     sum_h: '您提交的内容', k_sum: '产品概要', k_idea: '想做的东西', k_qty: '阶段与数量', k_due: '希望时间', k_team: '计划联系的公司', k_topic: '咨询内容', k_to: '咨询对象',
     att_h: '有图纸、照片或设计文件吗？', att: '请直接回复本邮件并附上（合计20MB以内）。手绘草图或手机照片也可以，能让报价更准确。',
+    att_up_h: '您发送的文件', att_up: '已收到{n}个文件。文件保存在只有工作人员能查看的位置，只会提供给我们请求报价的公司。之后如需补充文件，请直接回复本邮件。',
     note: '目前尚未下单。看到报价或回复后，再决定是否委托即可。整理工序、搜索公司、委托报价均免费。',
     btn: '打开 KATACHI', foot: '您收到此邮件是因为有人在 KATACHI 的表单中填写了此邮箱。如非本人操作，请回复告知我们。'
   }
@@ -154,6 +165,8 @@ function buildReplyMail_(id, p, f) {
   var subject = (rfq ? L.subj_rfq : L.subj_consult).replace('{id}', id);
   var title = rfq ? L.title_rfq : L.title_consult;
   var steps = rfq ? L.steps_rfq : L.steps_consult;
+  var upN = p.upload && Number(p.upload.count) > 0 ? Math.min(Number(p.upload.count), CONFIG.UPLOAD_MAX_FILES) : 0;
+  var attH = upN ? L.att_up_h : L.att_h, attT = upN ? L.att_up.replace('{n}', upN) : L.att;
 
   // 内容のまとめ
   var rows = [];
@@ -232,8 +245,8 @@ function buildReplyMail_(id, p, f) {
     summary +
     // 添付のお願い
     '<tr><td style="padding:0 32px 24px;"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border:1.5px dashed ' + C.ice + ';border-radius:10px;"><tr><td style="padding:16px 20px;">' +
-    '<div style="font:700 14px/1.5 ' + FONT + ';color:' + C.ink + ';">&#128206; ' + esc_(L.att_h) + '</div>' +
-    '<div style="margin-top:4px;font:13px/1.7 ' + FONT + ';color:' + C.mute + ';">' + esc_(L.att) + '</div></td></tr></table></td></tr>' +
+    '<div style="font:700 14px/1.5 ' + FONT + ';color:' + C.ink + ';">&#128206; ' + esc_(attH) + '</div>' +
+    '<div style="margin-top:4px;font:13px/1.7 ' + FONT + ';color:' + C.mute + ';">' + esc_(attT) + '</div></td></tr></table></td></tr>' +
     // 注意とボタン
     '<tr><td style="padding:0 32px 30px;">' +
     '<p style="margin:0 0 20px;font:13px/1.8 ' + FONT + ';color:' + C.mute + ';">' + esc_(L.note) + '</p>' +
@@ -251,7 +264,7 @@ function buildReplyMail_(id, p, f) {
     rows.length || team.length ? '■ ' + L.sum_h : '',
     rows.map(function (r) { return r[0] + ': ' + r[1]; }).join('\n'),
     team.length ? L.k_team + ':\n' + team.map(function (t) { return '  - ' + t.step + ': ' + t.company; }).join('\n') : '', '',
-    '■ ' + L.att_h, L.att, '', L.note, '', CONFIG.SITE_URL].filter(function (x, i, a) { return !(x === '' && a[i - 1] === ''); }).join('\n');
+    '■ ' + attH, attT, '', L.note, '', CONFIG.SITE_URL].filter(function (x, i, a) { return !(x === '' && a[i - 1] === ''); }).join('\n');
 
   return {subject: subject, html: html, text: text};
 }
@@ -278,7 +291,9 @@ function sheet_() {
     s0.appendRow(HEAD);
     s0.setFrozenRows(1);
   }
-  return ss.getSheetByName('受付');
+  var sh = ss.getSheetByName('受付');
+  if (sh.getLastColumn() < HEAD.length) sh.getRange(1, 1, 1, HEAD.length).setValues([HEAD]);  // 列が増えたときの見出し
+  return sh;
 }
 
 function prop_(k) { return PropertiesService.getScriptProperties().getProperty(k); }
@@ -296,3 +311,104 @@ function limit_(prefix, max) {
 function safe_(v) { return (typeof v === 'string' && /^[=+\-@]/.test(v)) ? "'" + v : v; }
 
 function json_(o) { return ContentService.createTextOutput(JSON.stringify(o)).setMimeType(ContentService.MimeType.JSON); }
+
+// ---------- 写真・動画などのアップロード ----------
+// サイトは見積の依頼・相談と一緒に upload = {key, count, bytes} を送り、続けてファイルを小分け（4MBずつ）で type:'file' として送る。
+// key は送った本人のブラウザだけが知っている使い捨ての合言葉（6時間有効）。宣言した数と大きさを超えるものは受け付けない。
+// ファイルは「KATACHI 受付ファイル / 受付番号」の非公開フォルダに入る（共有しない限り、このGoogleアカウントの人しか見られない）。
+function openUpload_(id, up) {
+  try {
+    if (!up || !/^[A-Za-z0-9]{24,64}$/.test(String(up.key || ''))) return '';
+    var n = Math.floor(Number(up.count) || 0), bytes = Math.floor(Number(up.bytes) || 0);
+    if (n < 1 || n > CONFIG.UPLOAD_MAX_FILES || bytes < 1 || bytes > CONFIG.UPLOAD_MAX_BYTES) return '';
+    var folder = uploadRoot_().createFolder(id);
+    CacheService.getScriptCache().put('up_' + up.key, JSON.stringify({id: id, folder: folder.getId(), n: n, bytes: bytes, used: 0, done: []}), 21600);
+    return folder.getUrl() + '\n（' + n + '件を送信中）';
+  } catch (err) {
+    console.error(err);
+    return '';
+  }
+}
+
+function uploadRoot_() {
+  var props = PropertiesService.getScriptProperties();
+  var fid = props.getProperty('UPLOAD_FOLDER_ID'), f = null;
+  if (fid) { try { f = DriveApp.getFolderById(fid); } catch (e) { f = null; } }
+  if (!f) {
+    f = DriveApp.createFolder(CONFIG.UPLOAD_FOLDER_NAME);
+    props.setProperty('UPLOAD_FOLDER_ID', f.getId());
+  }
+  return f;
+}
+
+function saveChunk_(p) {
+  var lock = LockService.getScriptLock();
+  if (!lock.tryLock(20000)) return {ok: false, error: 'busy'};
+  try {
+    var key = String(p.key || '');
+    if (!/^[A-Za-z0-9]{24,64}$/.test(key)) return {ok: false, error: 'key'};
+    var cache = CacheService.getScriptCache();
+    var st = JSON.parse(cache.get('up_' + key) || 'null');
+    if (!st) return {ok: false, error: 'expired'};
+    var idx = Math.floor(Number(p.index)), size = Math.floor(Number(p.size)), off = Math.floor(Number(p.offset)) || 0;
+    if (!(idx >= 0 && idx < st.n) || st.done.indexOf(idx) >= 0) return {ok: false, error: 'index'};
+    if (!(size > 0 && size <= CONFIG.UPLOAD_FILE_MAX)) return {ok: false, error: 'size'};
+    var bytes = Utilities.base64Decode(String(p.data || ''));
+    var len = bytes.length;
+    if (!len || off + len > size || st.used + len > st.bytes + 1048576) return {ok: false, error: 'size'};
+    var name = (idx < 9 ? '0' : '') + (idx + 1) + '_' + String(p.name || 'file').replace(/[\\\/:*?"<>|\u0000-\u001f]/g, '_').slice(0, 120);
+    var mime = /^[\w.+-]+\/[\w.+-]+$/.test(String(p.mime || '')) ? String(p.mime) : 'application/octet-stream';
+    var finished = false;
+    if (off === 0 && len === size) {
+      DriveApp.getFolderById(st.folder).createFile(Utilities.newBlob(bytes, mime, name));
+      finished = true;
+    } else {
+      // 大きいファイルは Google ドライブの「再開可能なアップロード」で小分けに書き足す
+      var sk = 'us_' + key + '_' + idx, token = ScriptApp.getOAuthToken();
+      var session = cache.get(sk);
+      if (off === 0) {
+        var start = UrlFetchApp.fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable', {
+          method: 'post', contentType: 'application/json; charset=UTF-8',
+          headers: {Authorization: 'Bearer ' + token, 'X-Upload-Content-Type': mime, 'X-Upload-Content-Length': String(size)},
+          payload: JSON.stringify({name: name, parents: [st.folder]}), muteHttpExceptions: true
+        });
+        var hd = start.getAllHeaders();
+        session = hd['Location'] || hd['location'];
+        if (!session) { console.error(start.getResponseCode() + ' ' + start.getContentText()); return {ok: false, error: 'drive'}; }
+        cache.put(sk, session, 21600);
+      }
+      if (!session) return {ok: false, error: 'expired'};
+      var res = UrlFetchApp.fetch(session, {
+        method: 'put', contentType: mime, payload: bytes, muteHttpExceptions: true,
+        headers: {'Content-Range': 'bytes ' + off + '-' + (off + len - 1) + '/' + size}
+      });
+      var code = res.getResponseCode();
+      if (code === 200 || code === 201) finished = true;
+      else if (code !== 308) { console.error(code + ' ' + res.getContentText()); return {ok: false, error: 'drive'}; }
+    }
+    st.used += len;
+    if (finished) {
+      st.done.push(idx);
+      noteUpload_(st, name);
+    }
+    cache.put('up_' + key, JSON.stringify(st), 21600);
+    return {ok: true, done: finished};
+  } catch (err) {
+    console.error(err);
+    return {ok: false, error: 'unavailable'};
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+// 受付の行の「アップロードしたファイル」に、届いたファイル名を書き足す
+function noteUpload_(st, name) {
+  var sh = sheet_();
+  var hit = sh.getRange(1, 1, sh.getLastRow(), 1).createTextFinder(st.id).matchEntireCell(true).findNext();
+  if (!hit) return;
+  var cell = sh.getRange(hit.getRow(), HEAD.length);
+  var url = 'https://drive.google.com/drive/folders/' + st.folder;
+  var names = String(cell.getValue() || '').split('\n').filter(function (x) { return x && x.indexOf('https://') !== 0 && !/^（.*）$/.test(x); });
+  names.push(name);
+  cell.setValue([url, '（' + st.done.length + '/' + st.n + '件 届いた）'].concat(names).join('\n'));
+}

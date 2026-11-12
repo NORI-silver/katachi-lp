@@ -33,6 +33,9 @@
 | open_inquiry | 見積依頼・相談の画面を開いた | type (rfq/consult), companies | |
 | translate_preview | 依頼書の翻訳を確認 | | |
 | generate_lead | 見積依頼・相談を送信 | type, companies, quantity, files, requester, optional_filled/optional_total, nda, overseas_ok | ◎（最重要） |
+| upload_files | 見積依頼・相談と一緒にファイルを送り終えた | files, sent, failed, skipped, mb（件数と大きさだけ。ファイル名は送らない） | |
+| ai_prompt_copy | 「写真・動画を、お使いのAIで仕様メモにする」の指示文をコピー | ok | |
+| ai_prompt_open | 同じ欄から ChatGPT/Claude/Gemini を開いた | ai | |
 | lang_change | 言語切替 | from, to | |
 | view_estimate | 概算の目安を表示（タブ・選択式・文章入力） | scenario | |
 | estimate_qty | 概算の数量を変えた | qty_bucket (1-10/11-100/101-1000/1001+) | |
