@@ -536,6 +536,20 @@ T.update({
 "依頼の多いもの": ("Most requested", "委托最多的品类"),
 "まだ依頼の実績が少ないため、いまは登録している会社の数で並べています。依頼がたまったら「依頼の多いもの」に切り替えます。": ("We don't have many requests yet, so this is ranked by the number of registered companies. Once requests build up, we'll switch to 'Most requested'.", "目前委托实绩还少，暂按登记公司数量排序。委托累积后会切换为“委托最多的品类”。"),
 "KATACHIに届いた見積の依頼から集計しています。": ("Based on quote requests sent through KATACHI.", "根据KATACHI收到的报价委托统计。"),
+"国の公開データ": ("Government public records", "政府公开数据"),
+"gBizINFOで確認": ("Checked on gBizINFO", "已在gBizINFO确认"),
+"取得日": ("Retrieved", "获取日期"),
+"設立": ("Founded", "成立"),
+"資本金": ("Capital", "注册资本"),
+"従業員数": ("Employees", "员工人数"),
+"国の認定・届出": ("Government approvals", "政府认定・备案"),
+"表彰": ("Awards", "表彰"),
+"補助金の採択": ("Subsidies awarded", "获批补贴"),
+"特許・意匠・商標": ("Patents, designs & trademarks", "专利・外观设计・商标"),
+"官公庁からの受注": ("Government contracts", "政府订单"),
+"gBizINFOで全件を見る": ("See all on gBizINFO", "在gBizINFO查看全部"),
+"認定・表彰・補助金・特許の記録は見つかりませんでした。載っていなくても、無いとは限りません。": ("No approvals, awards, subsidies or patents were found. Not being listed doesn't mean there are none.", "未找到认定、表彰、补贴或专利记录。未列出并不代表没有。"),
+"経済産業省のgBizINFOに公開されている記録です。KATACHIの評価ではなく、品質や取引のしやすさを保証するものでもありません。": ("These are records published on gBizINFO by Japan's Ministry of Economy, Trade and Industry. They are not KATACHI's rating and do not guarantee quality or how easy the company is to work with.", "这些是日本经济产业省gBizINFO公开的记录，并非KATACHI的评价，也不保证品质或合作的顺畅程度。"),
 })
 # 概算の目安（estimates.py の文言）
 from estimates import T_EST

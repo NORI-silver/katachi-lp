@@ -1089,6 +1089,24 @@ function closeSheet(){$('#ov').innerHTML='';removeEventListener('keydown',escK)}
 const escK=e=>{if(e.key==='Escape')closeSheet()};
 const head=(eb,t)=>`<div class="sh"><div><div class="eyebrow">${eb}</div><h2 style="margin-top:6px">${t}</h2></div><button class="x" data-x aria-label="閉じる">×</button></div>`;
 
+/* 国の公開データ（gBizINFO）: 会社を開いたときに data/rec/NN.json を読む。作り方は tools/public_records.py */
+const CORP=/株式会社|有限会社|合同会社|合資会社|合名会社|一般社団法人|一般財団法人|\(株\)|\(有\)|㈱|㈲/g;
+const recKey=n=>String(n||'').normalize('NFKC').replace(CORP,'').replace(/[\s・･.,，。「」"'’]/g,'').toLowerCase();
+const RECP={};
+function pubRec(name,co){const k=recKey(name);if(!k)return Promise.resolve(null);let h=0;for(const ch of k)h=(h*31+ch.codePointAt(0))>>>0;
+  const i=String(h%32).padStart(2,'0');
+  return (RECP[i]||(RECP[i]=fetch(`data/rec/${i}.json`).then(r=>r.ok?r.json():{}).catch(()=>({})))).then(j=>{
+    const l=j[k]||[];if(l.length===1&&(!co.pref||!l[0].pref||l[0].pref===co.pref))return l[0];
+    const m=l.filter(x=>co.pref&&x.pref===co.pref);return m.length===1?m[0]:null})}
+const RK=[['certification','国の認定・届出'],['commendation','表彰'],['subsidy','補助金の採択'],['patent','特許・意匠・商標'],['procurement','官公庁からの受注']];
+const yen=v=>v>=1e8?(Math.round(v/1e7)/10)+'億円':v>=1e4?fmt(Math.round(v/1e4))+'万円':fmt(v)+'円';
+function pubBlk(p){const r=p.r||{};const has=RK.filter(([k])=>r[k]?.n);track('view_public_records',{kinds:has.length});
+  return `<div class="blk"><h4>国の公開データ ${mk('pub','gBizINFOで確認')} <span>取得日 ${esc(p.at||'—')}</span></h4>
+    <div class="facts">${fact('設立',p.est?p.est+'年':null)}${fact('資本金',p.cap?yen(p.cap):null)}${fact('従業員数',p.emp?fmt(p.emp)+'人':null)}${has.map(([k,l])=>fact(l,r[k].n+'件')).join('')}</div>
+    ${has.length?`<ul class="list">${has.map(([k,l])=>r[k].top.map(x=>`<li><b style="font-weight:600">${esc(x.t)}</b><span class="s"><span>${l}</span>${x.by?` · <span>${esc(x.by)}</span>`:''}${x.d?` · <span class="mono">${esc(String(x.d).slice(0,10))}</span>`:''}${x.amt?` · <span>${yen(x.amt)}</span>`:''}</span></li>`).join('')).join('')}</ul>`
+      :`<p class="muted" style="margin:0;font-size:12.5px">認定・表彰・補助金・特許の記録は見つかりませんでした。載っていなくても、無いとは限りません。</p>`}
+    <p class="muted" style="margin:0;font-size:12px"><span>経済産業省のgBizINFOに公開されている記録です。KATACHIの評価ではなく、品質や取引のしやすさを保証するものでもありません。</span> <a href="https://info.gbiz.go.jp/hojin/ichiran?hojinBango=${encodeURIComponent(p.cn)}" target="_blank" rel="noopener">gBizINFOで全件を見る</a></p></div>`}
+
 function company(name){
   const co=D.companies[name];if(!co)return;const isDemo=co.level==='demo';track('view_partners',{company_level:co.level,overseas:abroad(co),from_tab:S.tab});
   const roles=R().per_requirement.filter(p=>p.candidates.some(c=>c.company===name)).map(p=>({id:p.requirement.id,pu:p.requirement.purpose,s:p.candidates.find(c=>c.company===name).score}));
@@ -1100,6 +1118,7 @@ function company(name){
     <div class="blk"><h4>受注条件 <span>確認日 ${esc(co.checked||'—')}</span></h4><div class="facts">${(t=>fact('試作',yn(t,'accepts_prototype'))+fact('図面なし相談',yn(t,'accepts_no_drawing'))+fact('材料の調達',matTxt(t))+fact('最小ロット',lot(t))+fact('改良の相談',conTxt(t))+fact('個人からの依頼',yn(t,'accepts_individual')))(co.terms||{})}</div>
       ${co.terms?.consultation_note?`<p class="muted" style="margin:0;font-size:12.5px">相談について：「${esc(co.terms.consultation_note)}」</p>`:''}</div>
     ${roles.length?`<div class="blk"><h4>この製品で担当できそうな工程 ${mk('ai','AI推定')}</h4><ul class="list">${roles.map(r=>`<li><span>${esc(r.pu)} <b class="lat" style="color:var(--amber);float:right">${Math.round(r.s*100)}</b></span></li>`).join('')}</ul></div>`:''}
+    <div id="pubrec"></div>
     <div class="blk"><h4>品質の裏付け</h4>
       ${(co.certs||[]).length?`<ul class="list">${co.certs.map(c=>`<li>${esc(typeof c==='string'?c:(c.name||''))}</li>`).join('')}</ul>`:''}
       ${isDemo?`<div class="rev"><div style="display:flex;justify-content:space-between;gap:8px"><b>KATACHI受入検査（試作1回目）</b>${mk('demo','記入例')}</div><span class="muted">寸法 12/12項目 合格 · 防水 IP67相当 合格 · 写真記録あり</span></div>`:`<div class="empty"><b>検査記録はまだありません</b>KATACHIで試作すると、受入検査の結果と写真がここに残り、次に頼む人の判断材料になります。</div>`}</div>
@@ -1110,6 +1129,7 @@ function company(name){
     <div class="blk"><h4>出典</h4><ul class="list"><li>${co.src?`<a href="${esc(co.src)}" target="_blank" rel="noopener" style="word-break:break-all">${esc(co.src)}</a>`:'架空データ（出典なし）'}${co.web&&co.web!==co.src?`<span class="s">公式サイト：<a href="${esc(co.web)}" target="_blank" rel="noopener">${esc(co.web)}</a></span>`:''}<span class="s">${esc(LV[co.level]?.[2]||'')}</span></li></ul></div>
     <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" id="cC">相談する</button><button class="btn pri" id="cR">この会社に見積を依頼</button></div>`);
   $('#cC').onclick=()=>consult(name);$('#cR').onclick=()=>rfq([name]);
+  if(!isDemo&&!abroad(co))pubRec(name,co).then(p=>{const el=$('#pubrec');if(p&&el&&D.companies[name]===co)el.outerHTML=pubBlk(p)});
   $$('.sheet a[href^="http"]').forEach(a=>a.addEventListener('click',()=>track('official_site',{company_level:co.level,link_domain:(()=>{try{return new URL(a.href).hostname}catch(e){return ''}})()})));
 }
 
@@ -1225,7 +1245,8 @@ function done(t,body){
 
 /* ---------- i18n: dictionary + AI translation for everything else ---------- */
 const DICT=window.KATACHI_I18N, LI={en:0,zh:1};
-const UNIT={en:{'工程':n=>n+' steps','社':n=>n+(n==='1'?' company':' companies'),'件':n=>n,'個〜':n=>n+'+ units','個':n=>n+' units','週':n=>n+(n==='1'?' week':' weeks'),'字':n=>n+' chars'},zh:{'工程':n=>n+'道工序','社':n=>n+'家','件':n=>n+'条','個〜':n=>n+'个起','個':n=>n+'个','週':n=>n+'周','字':n=>n+'字'}};
+const YEN=(n,m)=>{const v=parseFloat(String(n).replace(/,/g,''))*m;return '¥'+(v>=1e9?(v/1e9).toFixed(1).replace(/\.0$/,'')+'B':v>=1e6?(v/1e6).toFixed(1).replace(/\.0$/,'')+'M':v.toLocaleString('en'))};
+const UNIT={en:{'年':n=>n,'人':n=>n+' people','万円':n=>YEN(n,1e4),'億円':n=>YEN(n,1e8),'工程':n=>n+' steps','社':n=>n+(n==='1'?' company':' companies'),'件':n=>n,'個〜':n=>n+'+ units','個':n=>n+' units','週':n=>n+(n==='1'?' week':' weeks'),'字':n=>n+' chars'},zh:{'年':n=>n+'年','人':n=>n+'人','万円':n=>n+'万日元','億円':n=>n+'亿日元','工程':n=>n+'道工序','社':n=>n+'家','件':n=>n+'条','個〜':n=>n+'个起','個':n=>n+'个','週':n=>n+'周','字':n=>n+'字'}};
 const KEYS=Object.keys(DICT).filter(k=>k.length>=4).sort((a,b)=>b.length-a.length);
 const RE=new RegExp(KEYS.map(k=>k.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|'),'g');
 const NAMES=Object.keys(D.companies).sort((a,b)=>b.length-a.length);
@@ -1245,7 +1266,7 @@ function tx(src){
   // short labels: translate token by token when every token is known
   const parts=src.split(/(\s*[·\/、]\s*|\s+|^[←→]\s*|^難所：|^確かめ方：)/);let ok=true;
   const tp=parts.map(t=>{if(!t||!JA.test(t))return t;const k=t.trim();if(DICT[k])return t.replace(k,DICT[k][L]);if(NAMES.includes(k))return t;
-    const m=k.match(/^(\d[\d,]*)(社|件|個〜|個|週|字|工程)$/);if(m)return UNIT[LANG][m[2]](m[1]);ok=false;return t});
+    const m=k.match(/^(\d[\d,.]*)(社|件|個〜|個|週|字|工程|年|人|万円|億円)$/);if(m)return UNIT[LANG][m[2]](m[1]);ok=false;return t});
   if(ok)return tp.join('');
   // longer text: replace known phrases (4+ chars) around company names
   const keep=[];let w=src;

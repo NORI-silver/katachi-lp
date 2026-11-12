@@ -27,6 +27,7 @@
 | select_tab | 表で比べる/作り方 | tab | |
 | demo_toggle | 見積後の画面の切替 | on | |
 | view_partners | 会社の詳細を開いた | company_level, overseas | |
+| view_public_records | 会社の詳細で国の公開データ（gBizINFO）が出た | kinds（記録のある種類の数） | |
 | official_site | 出典・公式サイトのリンク | link_domain | |
 | header_cta | 下部の相談/見積ボタン | cta, place | |
 | open_inquiry | 見積依頼・相談の画面を開いた | type (rfq/consult), companies | |
