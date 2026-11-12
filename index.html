@@ -702,7 +702,7 @@ async function postChunk(body){
   for(let a=0;a<3;a++){
     if(blindUp){try{await fetch(FORM_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body});return true}catch(e){}}
     else{let res;try{res=await fetch(FORM_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body})}catch(e){blindUp=true;return true}// 返事が読めない環境では、届いたものとして続ける（同じものを2回送らない）
-      try{const j=await res.json();if(j.ok)return true;if(['key','expired','index','size'].includes(j.error))return false}catch(e){}}
+      try{const j=await res.json();if(j.ok)return true;if(['key','expired','index','size','type'].includes(j.error))return false}catch(e){}}
     await new Promise(r=>setTimeout(r,1500*(a+1)))}
   return false}
 async function sendFiles(key,list,prog){let sent=0;const tot=list.reduce((a,x)=>a+x.blob.size,0),bad=[];let okN=0;
