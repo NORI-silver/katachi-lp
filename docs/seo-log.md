@@ -2,6 +2,9 @@
 
 効果の判定は変更から14日以上たってから（28日が理想）。Search Console は shiokonbu.com のドメインプロパティ（sc-domain:shiokonbu.com）で katachi.shiokonbu.com も見られる。
 
+## 2026-11-13
+- 記事18本を追加（Nori 2026-11-12「戦略キーワードで記事を量産」「11/14中に」）：化粧品OEM 9本（tools/guides_cosmetics.py：化粧品 OEM 小ロット・許可・サロン・化粧水・シャンプー・石鹸・入浴剤・ヘアオイル・ハンドクリーム）、アパレル・グッズ 9本（tools/guides_goods.py：アパレル OEM 小ロット・ユニフォーム・バッグ・スポーツウェア・小ロット グッズ・ノベルティ・店舗グッズ・ペット用品・アウトドア用品）。数字は公式の出典のみ、相場の数字は書かない。sportswear-oem の JFA 規程は2016年施行版の数字なので、新しい版が出ていれば直す。
+
 ## 2026-11-12
 - 記事：/guide/3d-print-request/（狙う語「3Dプリンター 依頼」月1,000〜1万、副「3Dプリント 外注／代行」「3Dプリンター 試作」「3Dプリンター 依頼 個人」各月100〜1,000、競合「高」）。根拠はキーワードプランナー（DMM.make 3Dプリント起点）。
 - キーワードプランナー3回目（DMM.make 3Dプリント・Protolabs Network・Fictiv起点）：DMMは日本語で3Dプリント依頼の語がまとまって多い。後の2つは英語のみ。CSVはプロジェクトファイル katachi-seo/keyword-planner/。
