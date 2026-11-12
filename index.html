@@ -511,7 +511,7 @@ function bindFbar(){const re=k=>{track('filter_company',{filter:k,active_filters
 /* ---------- analytics (GA4) ----------
    測定IDを GA_IDS に入れるだけで動く。ペットサイトと同じく、サイト専用プロパティ＋総合プロパティの両方に送れる。
    claude.ai の試作版では外部スクリプトが読めないため、イベントは dataLayer に積むだけ（GAには届かない）。 */
-const GA_IDS=["G-ZYX17VBTWB"];
+const GA_IDS=["G-3C2RRECKB8", "G-ZYX17VBTWB"];
 window.dataLayer=window.dataLayer||[];
 function gtag(){window.dataLayer.push(arguments)}
 (function(){const host=location.hostname;if(!GA_IDS.length||!host||/claude\.ai$|claudeusercontent\.com$|^localhost$/.test(host))return;
