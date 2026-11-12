@@ -537,3 +537,6 @@ T.update({
 "まだ依頼の実績が少ないため、いまは登録している会社の数で並べています。依頼がたまったら「依頼の多いもの」に切り替えます。": ("We don't have many requests yet, so this is ranked by the number of registered companies. Once requests build up, we'll switch to 'Most requested'.", "目前委托实绩还少，暂按登记公司数量排序。委托累积后会切换为“委托最多的品类”。"),
 "KATACHIに届いた見積の依頼から集計しています。": ("Based on quote requests sent through KATACHI.", "根据KATACHI收到的报价委托统计。"),
 })
+# 概算の目安（estimates.py の文言）
+from estimates import T_EST
+T.update({k: v for k, v in T_EST.items() if k not in T})

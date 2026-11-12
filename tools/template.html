@@ -236,6 +236,14 @@ table.cmp{border-collapse:separate;border-spacing:0;width:100%;min-width:760px;f
 .cmp .q{color:var(--dim)}
 
 /* plan tab */
+.ecols{grid-template-columns:minmax(0,5fr) minmax(0,7fr)}
+.est .eq{display:flex;align-items:center;gap:10px;font-size:13.5px}.est .eq input{width:120px;height:38px;border:1px solid var(--line2);border-radius:9px;padding:0 10px;font:inherit;background:var(--panel);color:var(--fg)}
+.etot .big{font-size:clamp(22px,3vw,30px);font-weight:700;letter-spacing:-.01em;line-height:1.3}
+.elist{list-style:none;margin:0;padding:0;display:grid;gap:8px}.elist li{display:flex;justify-content:space-between;gap:12px;border-top:1px solid var(--line);padding-top:8px;font-size:13.5px}.elist li small{display:block;color:var(--mute);font-size:11.5px;margin-top:2px}.elist .num{white-space:nowrap;font-weight:600}
+.ed{border-top:1px solid var(--line);padding:10px 0}.ed summary{cursor:pointer;font-weight:600;font-size:14px}
+.etab{width:100%;border-collapse:collapse;margin-top:8px;font-size:12.5px}.etab th,.etab td{text-align:left;vertical-align:top;padding:6px 6px 6px 0;border-top:1px solid var(--line)}.etab th{white-space:nowrap;color:var(--mute);font-weight:500}.etab .r{white-space:nowrap;font-weight:600}.etab a{color:var(--fg)}
+@media (max-width:900px){.ecols{grid-template-columns:minmax(0,1fr)}.etab,.etab tbody,.etab tr,.etab th,.etab td{display:block}.etab tr{border-top:1px solid var(--line);padding:6px 0}.etab th,.etab td{border:0;padding:1px 0}}
+.estbox.compact{margin-top:16px}.estbox.compact .card{gap:10px}.edall{margin-top:10px;border:1px solid var(--line);border-radius:var(--r);background:var(--panel);padding:12px 16px}.edall>summary{cursor:pointer;font-weight:600;font-size:14px}.edall .card{border:0;padding:8px 0 0}
 .cols{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:22px;padding-bottom:120px}
 .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:20px;display:grid;gap:12px;align-content:start}
 .card h3{font-size:16px;font-weight:700;display:flex;justify-content:space-between;gap:8px;align-items:center}
@@ -824,6 +832,7 @@ async function renderMatch(){
       <div class="gchips">${A.codes.length?`<span class="chip">${A.codes.length}工程</span>`:''}${secs.length===1?'<span class="chip">1社で作れる内容です</span>':''}<span class="chip">${esc({proto:'試作',small:'小ロット',mass:'量産'}[S.qty])}</span><button type="button" class="glink" id="mEdit">書き直す</button></div></div>
       <div class="gcount"><b class="mono">${fmt(total)}</b><span>社が候補</span></div></div>
     <div class="empty" style="margin-top:16px"><b>書いた内容から、必要な工程をキーワードで読み取りました</b>AIによる詳しい解析は準備中です。工程が足りない・違うと思ったら、そのまま見積を依頼してください。担当者があなたの文章を読んで、工程と会社を組み直してお届けします。</div>
+    ${A.codes.length?'<div id="mEst"></div>':''}
     ${A.notices.map(n=>`<div class="empty" style="margin-top:10px;border-color:var(--amber)"><b>KATACHIでは扱っていない工程があります</b>${esc(n)}</div>`).join('')}
     ${A.regs.length?`<div class="blk" style="margin-top:16px"><h4>確かめておきたい法規制・認証</h4><ul class="list">${A.regs.map(x=>`<li>${esc(x)}</li>`).join('')}</ul><p class="muted" style="margin:6px 0 0;font-size:12px">キーワードから当たりを付けた参考情報です。正式な判断は専門家・認証機関が行います。</p></div>`:''}
     ${A.codes.length?`<div class="gflt"><label>地域<select id="gArea"><option value="">すべて</option><option value="JP">国内だけ</option><option value="ABROAD">海外だけ</option></select></label>
@@ -842,6 +851,7 @@ async function renderMatch(){
     <p class="muted" style="font-size:12.5px;margin-top:24px">一覧は公開情報から集めたものです。「要確認」の会社は、見積の依頼で対応できるかを確かめます。順番は、確認の度合い・試作や数量への合い方・所在地で決めています。</p>
   </div></section>`;
   pickDock();bindPicks();
+  if($('#mEst')&&typeof window.KATACHI_EST_CARD==='function'){try{$('#mEst').innerHTML=window.KATACHI_EST_CARD(A.codes,qmax,+((S.idea.match(/(\d[\d,]*)\s*(個|台|枚|本|着|セット|pcs|units)/i)||[])[1]||'').replace(/,/g,''))||''}catch(e){}}
   $('#mEdit').onclick=()=>{S.mode='free';location.hash=''};
   $('#mGuided')&&($('#mGuided').onclick=()=>{S.mode='guided';S.g={step:0};location.hash=''});
   $('#gArea')&&($('#gArea').value=S.gf.area,$('#gArea').onchange=e=>{S.gf.area=e.target.value;track('filter_company',{filter:'area',source:'text'});renderMatch()});
@@ -886,7 +896,7 @@ function renderResult(){
     ${note?`<div class="notice">${note}</div>`:''}
     ${S.files.length?`<div class="notice" style="border-left-color:var(--ice);background:color-mix(in srgb,var(--ice) 7%,transparent)">取り込んだ設計（${S.files.map(f=>esc(f.name)).join('、')}）は見積依頼に添付されます。中身をマッチングに反映するのは本番版からです。</div>`:''}
     <div class="tabs" role="tablist">
-      ${[['team','チームを組む'],['table','表で比べる'],['plan','作り方と法規制']].map(([k,t])=>`<button role="tab" data-tab="${k}" aria-selected="${S.tab===k}">${t}</button>`).join('')}
+      ${[['team','チームを組む'],['table','表で比べる'],['est','概算・最低ロット'],['plan','作り方と法規制']].map(([k,t])=>`<button role="tab" data-tab="${k}" aria-selected="${S.tab===k}">${t}</button>`).join('')}
       <span class="sp"></span>
       <button class="switch" role="switch" id="demoSw" aria-checked="${demo()}"><span class="tg"></span>見積が届いた後の画面</button>
     </div>
@@ -897,7 +907,7 @@ function renderResult(){
   renderTab();renderDock();
   if(!S.viewSent){S.viewSent=true;const r2=R();track('view_team',{scenario:S.scen,match_type:S.matched||'',steps:r2.per_requirement.length,companies:teamNames().length,gaps:(r2.gaps||[]).length})}
 }
-function renderTab(){({team:tabTeam,table:tabTable,plan:tabPlan})[S.tab]()}
+function renderTab(){({team:tabTeam,table:tabTable,est:tabEst,plan:tabPlan})[S.tab]()}
 
 function tabTeam(){
   const r=R();const gaps=new Set((r.gaps||[]).map(g=>g.id));
@@ -1001,6 +1011,61 @@ function tabTable(){
   </tbody></table></div>`;
   $$('#tabBody [data-co]').forEach(b=>b.onclick=()=>company(b.dataset.co));
 }
+
+/* rough cost guide (tools/estimates.py)。estimate(codes,qty) と estCard(codes,qty) は選択式の入口からも呼べる */
+const ELV={official:['ok','公式の料金表'],article:['pub','報道・記事'],listing:['pub','業者・まとめサイトの掲載'],rough:['ai','根拠の記載がない目安']};
+const EKIND={init:'初期費用',unit:'単価',moq:'最低ロット',min:'最低発注額',fee:'費用',note:'補足'};
+function fmtU(v,u){const L=typeof LANG==='undefined'?'ja':LANG;const n=x=>x.toLocaleString('en',{maximumFractionDigits:4});
+  if(u==='usd')return '$'+n(v);
+  if(u==='pcs')return L==='en'?n(v)+(v===1?' unit':' units'):L==='zh'?n(v)+'个':n(v)+'個';
+  if(u==='yen_cm3')return L==='en'?'¥'+n(v)+'/cm³':L==='zh'?n(v)+'日元/cm³':n(v)+'円/cm³';
+  if(L==='en')return '¥'+n(Math.round(v));
+  const y=L==='zh'?'日元':'円';if(v>=10000){const m=v/10000;return (m>=100?Math.round(m):Math.round(m*10)/10).toLocaleString('en')+'万'+y}return n(Math.round(v))+y}
+function rngTxt(lo,hi,u){const L=typeof LANG==='undefined'?'ja':LANG;if(hi==null)return fmtU(lo,u)+(L==='en'?'+':L==='zh'?'起':'〜');if(lo===hi)return fmtU(lo,u);return fmtU(lo,u)+(L==='en'?' – ':L==='zh'?'～':'〜')+fmtU(hi,u)}
+const rng=(lo,hi,u)=>`<span class="num" translate="no" data-r="${esc(JSON.stringify([lo,hi,u]))}">${rngTxt(lo,hi,u)}</span>`;
+function refreshNums(){$$('[data-r]').forEach(el=>{const [a,b,u]=JSON.parse(el.dataset.r);el.textContent=rngTxt(a,b,u)})}
+function estimate(codes,qty){const E=D.est;if(!E)return null;const fx=E.usdjpy;const o={rows:[],lo:0,hi:0,missing:[],skip:[],qty};
+  for(const c of [...new Set(codes)]){const k=(E.rows[c]||{}).calc;
+    if(!k||(k.usd_fixed&&k.qmax&&qty>k.qmax)){o.missing.push(c);continue} // 格安基板サービスの例は10枚まで。超えたら見積が必要
+    if((k.qmax&&qty>k.qmax)||(k.qmin&&qty<k.qmin)){o.skip.push(c);continue}
+    let lo=0,hi=0,below=false;
+    if(k.init){lo+=k.init[0];hi+=k.init[1]}
+    if(k.fixed){lo+=k.fixed[0];hi+=k.fixed[1]}
+    if(k.usd_fixed){lo+=k.usd_fixed[0]*fx;hi+=k.usd_fixed[1]*fx}
+    if(k.unit){lo+=k.unit[0]*qty;hi+=k.unit[1]*qty}
+    if(k.tiers){let t=k.tiers[0];for(const x of k.tiers)if(qty>=x[0])t=x;below=qty<k.tiers[0][0];const q=Math.max(qty,k.tiers[0][0]);lo+=t[1]*q;hi+=t[2]*q}
+    lo=Math.round(lo);hi=Math.round(hi);o.rows.push({code:c,lo,hi,below,assume:k.assume});o.lo+=lo;o.hi+=hi}
+  return o}
+function estQty(){const r=R();const codes=r.per_requirement.map(p=>p.requirement.capability_code);return (S.estKey===JSON.stringify([...new Set(codes)])+(S.idea||'')+S.scen&&S.estQty)||(S.matched==='example'||demo()||!S.matched?r.qty:({proto:5,small:100,mass:1000}[S.qty]||r.qty))}
+const ecn=c=>esc((typeof CAPN!=='undefined'&&CAPN[c])||D.cap[c]||c);
+function estCard(codes,qty){const E=D.est;if(!E)return '';const o=estimate(codes,qty);const cn=ecn;
+  return `<div class="card est"><h3>概算の目安 ${mk('ai','AIの目安')}</h3>
+    <div class="notice" style="margin:0"><b>確定の見積ではありません</b><br>公開されている料金表・記事に書かれた数字だけを集め、工程ごとに並べたAIの目安です。形・材料・数量・納期で大きく変わります。正式な金額は工場の見積で決まります。</div>
+    <label class="eq" for="estQ"><span>数量</span><input id="estQ" type="number" min="1" step="1" inputmode="numeric" value="${qty}"></label>
+    <div class="etot"><div class="muted" style="font-size:12.5px">この数量での概算</div><div class="big">${o.rows.length?rng(o.lo,o.hi,'yen'):'—'}</div><div class="muted" style="font-size:12.5px">相場がわかる工程だけの合計</div></div>
+    ${o.rows.length?`<ul class="elist">${o.rows.map(x=>`<li><span>${cn(x.code)}${x.below?` <span class="q">最低ロットに届いていません</span>`:''}<small><span>計算の前提</span>：<span>${esc(x.assume)}</span></small></span>${rng(x.lo,x.hi,'yen')}</li>`).join('')}</ul>`:''}
+    ${o.skip.length?`<div><div style="font-weight:600;font-size:13.5px">この数量では合計に入れていない工程</div><p class="muted" style="margin:4px 0 8px;font-size:12.5px">試作と量産で作り方が変わるため、出典が示す向く数量の外では合計に入れていません。</p><div class="meta">${o.skip.map(c=>`<span class="chip">${cn(c)}</span>`).join('')}</div></div>`:''}
+    ${o.missing.length?`<div><div style="font-weight:600;font-size:13.5px">見積が必要な工程</div><p class="muted" style="margin:4px 0 8px;font-size:12.5px">公開された相場が見つかっていないため、金額に入れていません。</p><div class="meta">${o.missing.map(c=>`<span class="chip">${cn(c)}</span>`).join('')}</div></div>`:''}
+    <p class="muted" style="margin:0;font-size:12px"><span>部品代・材料費・送料・税は、出典に含まれない限り入っていません。</span> <span>1ドル＝150円で換算（仮定）</span> · <span>調べた日</span> <span translate="no">${esc(E.retrieved)}</span></p></div>`}
+function estDetail(codes){const E=D.est;const cn=ecn;
+  return `<div class="card"><h3>工程ごとの目安</h3>${[...new Set(codes)].map(c=>{const e=E.rows[c];const db=E.db[c];
+    return `<details class="ed" ${e?'open':''}><summary>${cn(c)}${e?'':` <span class="q">公開相場なし・見積が必要</span>`}</summary>
+      ${e?`<table class="etab"><tbody>${e.rows.map(r=>{const s=r.s&&E.src[r.s];const lv=s&&ELV[s.level];
+        return `<tr><th>${EKIND[r.k]}</th><td>${esc(r.t)}</td><td class="r">${r.u==='none'?'':rng(r.lo,r.hi,r.u)}</td><td>${s?`<a href="${esc(s.url)}" target="_blank" rel="noopener">${esc(s.t)}</a>${s.date?` <span class="muted" translate="no">${esc(s.date)}</span>`:''} ${mk(lv[0],lv[1])}`:''}</td></tr>`}).join('')}</tbody></table>`:''}
+      ${db?`<p class="muted" style="margin:8px 0 0;font-size:12.5px"><span>掲載企業の最小ロット</span> ${mk('pub','業者・まとめサイトの掲載')} <span>最小ロットの記載がある会社</span> <span translate="no">${db.n}</span> · <span>1個から受ける会社</span> <span translate="no">${db.n1}</span> · <span>中央値</span> ${rng(db.med,db.med,'pcs')}</p>`:''}
+    </details>`}).join('')}</div>`}
+function estBox(codes,qty,compact){codes=[...new Set(codes||[])];if(!D.est||!codes.length)return '';
+  return `<div class="estbox${compact?' compact':''}" data-codes="${esc(JSON.stringify(codes))}">${compact?`${estCard(codes,qty)}<details class="edall"><summary>工程ごとの目安</summary>${estDetail(codes)}</details>`:`<div class="cols ecols">${estCard(codes,qty)}${estDetail(codes)}</div>`}</div>`}
+document.addEventListener('change',e=>{const q=e.target;if(!q||q.id!=='estQ')return;const box=q.closest('.estbox');if(!box)return;
+  const v=Math.max(1,Math.round(+q.value||1));S.estQty=v;S.estKey=box.dataset.codes+(S.idea||'')+S.scen;const codes=JSON.parse(box.dataset.codes);const compact=box.classList.contains('compact');
+  track('estimate_qty',{qty_bucket:v<=10?'1-10':v<=100?'11-100':v<=1000?'101-1000':'1001+'});
+  setTimeout(()=>{if(box.isConnected){box.outerHTML=estBox(codes,v,compact)}})});
+const estQ0=(codes,qmax,q)=>(S.estKey===JSON.stringify([...new Set(codes||[])])+(S.idea||'')+S.scen&&S.estQty)||(q>0?q:qmax==null?100:qmax>=1e6?1001:qmax);
+/* 選択式・文章入力の画面から呼ぶ: 工程コード, 数量の上限, (わかれば)数量 → HTML */
+window.KATACHI_EST_CARD=(codes,qmax,qty)=>{if(!S.estSent){S.estSent=true;track('view_estimate',{scenario:'guided'})}return estBox(codes,estQ0(codes,qmax,qty),true)};
+function tabEst(){const codes=R().per_requirement.map(p=>p.requirement.capability_code);
+  $('#tabBody').innerHTML=estBox(codes,estQty(),false);
+  if(!S.estSent){S.estSent=true;track('view_estimate',{scenario:S.scen})}}
 
 /* plan & regulations */
 function tabPlan(){
@@ -1218,7 +1283,7 @@ async function runMT(){
   mtBusy=false;translateTree(document.body);mtUI();if(pending.size&&!mtOff)scheduleMT();
 }
 function setLang(l,byUser){LANG=l;if(byUser){explicit=true;try{localStorage.setItem('katachi-lang',JSON.stringify({lang:l}))}catch(e){}}
-  document.documentElement.lang=l==='zh'?'zh-Hans':l;$$('[data-lang]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.lang===l));pending.clear();translateTree(document.body)}
+  document.documentElement.lang=l==='zh'?'zh-Hans':l;$$('[data-lang]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.lang===l));pending.clear();refreshNums();translateTree(document.body)}
 $$('[data-lang]').forEach(b=>b.onclick=()=>{track('lang_change',{to:b.dataset.lang,from:LANG});setLang(b.dataset.lang,true)});
 (async()=>{try{sampleFn=window.claude?await window.claude.use('sample'):null}catch(e){sampleFn=null}scheduleMT()})();
 window.KATACHI_LANG=()=>LANG;
