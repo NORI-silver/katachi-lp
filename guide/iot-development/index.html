@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>IoT製品の開発を委託するには｜工程の分け方・委託先・認証</title><meta name="description" content="センサーや通信を使うIoT製品の開発を外部に委託したい中小企業向けに、デバイス・組み込みソフト・通信・クラウド・アプリへの分け方、委託先の選び方、技適・PSE・セキュリティの制度、費用の見方、契約で決めることをまとめました。">
+<link rel="canonical" href="https://katachi.shiokonbu.com/guide/iot-development/">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-3C2RRECKB8"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date());gtag("config","G-3C2RRECKB8");gtag("config","G-ZYX17VBTWB");</script>
+<style>:root{--bg:#fff;--fg:#0d1424;--mute:#566176;--line:rgba(16,28,58,.12);--ice:#2350c8}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font-family:"IBM Plex Sans JP","Hiragino Sans","Noto Sans JP",system-ui,sans-serif;line-height:1.85;font-size:15.5px}
+header,main,footer{max-width:760px;margin:0 auto;padding:0 20px}header{display:flex;align-items:center;gap:10px;height:64px;border-bottom:1px solid var(--line);max-width:none}
+header a{color:var(--fg);text-decoration:none;font-weight:700;letter-spacing:.18em;font-size:14px;display:flex;gap:10px;align-items:center}
+main{padding-top:28px;padding-bottom:40px}h1{font-size:26px;line-height:1.4;margin:10px 0 6px}h2{font-size:18px;margin:34px 0 8px;padding-top:12px;border-top:1px solid var(--line)}
+p,li,dd{color:#1f2a40}ol,ul{padding-left:1.4em}a{color:var(--ice)}.lead{color:var(--mute)}dt{font-weight:600;margin-top:12px}dd{margin:2px 0 0}
+footer{border-top:1px solid var(--line);padding:22px 20px 40px;font-size:12.5px;color:var(--mute);display:flex;gap:18px;flex-wrap:wrap}footer a{color:var(--mute)}</style><style>.crumb{font-size:12.5px;color:var(--mute);margin:0}.crumb a{color:var(--mute)}.upd{font-size:12.5px;color:var(--mute);margin:4px 0 18px}
+.points{background:#f3f6fd;border:1px solid var(--line);border-radius:10px;padding:14px 18px;margin:18px 0}.points b{display:block;margin-bottom:4px}
+.points ul{margin:0}h3{font-size:16px;margin:22px 0 4px}.cta{margin:36px 0 10px;padding:20px;border:1px solid var(--ice);border-radius:12px}
+.cta a.btn{display:inline-block;margin-top:8px;background:var(--ice);color:#fff;text-decoration:none;padding:10px 18px;border-radius:8px;font-weight:600}
+.tbl{overflow-x:auto;margin:12px 0}.tbl table{border-collapse:collapse;min-width:100%;font-size:14px;line-height:1.6}.tbl th,.tbl td{border:1px solid var(--line);padding:6px 9px;text-align:left;vertical-align:top}.tbl th{background:#f3f6fd;white-space:nowrap}.src{font-size:13px;color:var(--mute)}.src li{color:var(--mute)}
+.list a{font-weight:600}.list p{margin:2px 0 18px;color:var(--mute)}</style><meta property="og:type" content="article"><meta property="og:site_name" content="KATACHI"><meta property="og:title" content="IoT製品の開発を委託するには｜工程の分け方・委託先・認証"><meta property="og:description" content="センサーや通信を使うIoT製品の開発を外部に委託したい中小企業向けに、デバイス・組み込みソフト・通信・クラウド・アプリへの分け方、委託先の選び方、技適・PSE・セキュリティの制度、費用の見方、契約で決めることをまとめました。"><meta property="og:url" content="https://katachi.shiokonbu.com/guide/iot-development/"><meta property="og:image" content="https://katachi.shiokonbu.com/og.png"><meta property="og:locale" content="ja_JP"><meta name="twitter:card" content="summary_large_image"><script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@type": "Organization", "@id": "https://katachi.shiokonbu.com/#org", "name": "KATACHI", "url": "https://katachi.shiokonbu.com/", "logo": "https://katachi.shiokonbu.com/apple-touch-icon.png"}, {"@type": "Article", "headline": "IoT製品の開発を委託する：工程の分け方、委託先の選び方、技適とセキュリティ、契約で決めること", "description": "センサーや通信を使うIoT製品の開発を外部に委託したい中小企業向けに、デバイス・組み込みソフト・通信・クラウド・アプリへの分け方、委託先の選び方、技適・PSE・セキュリティの制度、費用の見方、契約で決めることをまとめました。", "dateModified": "2026-11-13", "datePublished": "2026-11-13", "inLanguage": "ja", "mainEntityOfPage": "https://katachi.shiokonbu.com/guide/iot-development/", "author": {"@id": "https://katachi.shiokonbu.com/#org"}, "publisher": {"@id": "https://katachi.shiokonbu.com/#org"}, "image": "https://katachi.shiokonbu.com/og.png"}, {"@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "KATACHI", "item": "https://katachi.shiokonbu.com/"}, {"@type": "ListItem", "position": 2, "name": "ガイド", "item": "https://katachi.shiokonbu.com/guide/"}, {"@type": "ListItem", "position": 3, "name": "IoT製品の開発を委託する：工程の分け方、委託先の選び方、技適とセキュリティ、契約で決めること", "item": "https://katachi.shiokonbu.com/guide/iot-development/"}]}, {"@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "IoT製品の開発は1社にまとめて頼めますか？", "acceptedAnswer": {"@type": "Answer", "text": "ハードからクラウドまで一括で受ける会社もありますが、数は限られます。分けて頼む場合は、つなぎ目の仕様と、うまく動かないときの調べ方の分担を最初に決めましょう。"}}, {"@type": "Question", "name": "IoT製品の開発費はどれくらいかかりますか？", "acceptedAnswer": {"@type": "Answer", "text": "機能、台数、通信方式、クラウドやアプリの規模で大きく変わるため、一概には言えません。工程ごとに見積を分けてもらい、通信料やクラウドの利用料などの運用費も含めて比べてください。"}}, {"@type": "Question", "name": "Wi-FiやBluetoothを使う製品に技適は必要ですか？", "acceptedAnswer": {"@type": "Answer", "text": "日本で電波を出す機器は原則として技適が必要です。技適を取った無線モジュールを、電波の質に影響しない状態で組み込み、モジュールの表示が見やすいところにあれば、原則として新たな証明は要りません。アンテナの構成を変えるなどの場合は別に証明が必要です。"}}, {"@type": "Question", "name": "IoT製品のセキュリティはどこまで対策すればいいですか？", "acceptedAnswer": {"@type": "Answer", "text": "製品と使われ方によります。インターネットの回線に直接つながる機器は、設定の前にパスワードなどを確かめる機能、初期のパスワードの変更を促す機能、ファームウェアを更新できる機能などが技術基準で求められています。2025年3月に始まったJC-STARの★1は、最低限の要件を満たすことをメーカー自身が宣言する形で、対策の目安になります。"}}]}]}</script></head><body>
+<header><a href="/"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><path d="M3 3h7v7H3z" fill="#2350c8"/><path d="M12 3h7v7h-7z" fill="none" stroke="#2350c8" stroke-width="1.5"/><path d="M3 12h7v7H3z" fill="none" stroke="#2350c8" stroke-width="1.5" stroke-dasharray="2 2"/><path d="M12 12h7v7h-7z" fill="#2350c8" opacity=".45"/></svg>KATACHI</a></header>
+<main><p class="crumb"><a href="/">KATACHI</a> › <a href="/guide/">ガイド</a></p><h1>IoT製品の開発を委託する：工程の分け方、委託先の選び方、技適とセキュリティ、契約で決めること</h1><p class="upd">更新日：2026/11/13</p><p>IoT製品の開発を委託するときは、<strong>製品を「デバイス（基板とケース）・組み込みソフト・通信・クラウド・アプリ」に分け、どこまでを1社に任せ、どこを別の会社に頼むかを決める</strong>ことが出発点です。全部を1社で引き受けられる会社は限られ、分けて頼むなら、つなぎ目の責任をだれが持つかを決める必要があります。この記事では、工程の分け方、委託先の選び方、無線・電源・セキュリティの制度、費用の見方、契約で決めることをまとめます。</p><div class="points"><b>この記事の要点</b><ul><li>IoT製品は、デバイス（基板・ケース）、組み込みソフト、通信、クラウド、アプリの5つに分けて考えると、委託先を選びやすい</li><li>最初は、目的を確かめる小さな試作（PoC）から始め、うまくいったら量産向けの設計に進む</li><li>無線を使うなら技適を取ったモジュールを使うのが近道。コンセントにつなぐ電源は電気用品安全法がかかわる</li><li>セキュリティは、2025年3月に始まったIoT製品のラベリング制度（JC-STAR）があり、★1は最低限の要件を自分で宣言する形</li><li>契約では、成果物、ソースコードや回路データの権利、発売後のアップデートと保守、不具合の責任の分担を決める</li></ul></div><h2>IoT製品の開発を委託する前に：5つの工程に分ける</h2><div class="tbl"><table><tr><th>工程</th><th>中身</th><th>頼み先の例</th></tr>
+<tr><td>デバイス（ハード）</td><td>センサー・マイコン・電源・無線の基板、ケース</td><td>電子回路の受託設計の会社、基板メーカー、樹脂や板金の会社</td></tr>
+<tr><td>組み込みソフト</td><td>機器の中のマイコンで動くプログラム。センサーの値を読み、送る</td><td>組み込みソフトの開発会社、回路の受託設計の会社</td></tr>
+<tr><td>通信</td><td>Wi-Fi・Bluetooth・携帯電話の回線（LTE など）・省電力の無線などの選定と接続</td><td>通信モジュールの会社、通信回線の会社、受託設計の会社</td></tr>
+<tr><td>クラウド</td><td>データを受け取り、ためて、計算するサーバー側のしくみ</td><td>システム開発の会社、クラウドの開発会社</td></tr>
+<tr><td>アプリ・画面</td><td>スマートフォンのアプリや、管理画面</td><td>アプリ・ウェブの開発会社</td></tr></table></div>
+<p>ハードとソフトの両方を引き受ける会社もありますが、多くの場合はどこかで分かれます。<strong>分けて頼むときは、つなぎ目（基板とソフト、機器とクラウド）の仕様をだれが決め、うまく動かないときにだれが調べるか</strong>を最初に決めておくのが大事です。基板の試作については<a href="/guide/pcb-prototype/">基板の試作を小ロットで頼む</a>、ケースは<a href="/guide/injection-molding-small-lot/">射出成形を小ロットで頼む</a>や<a href="/guide/sheet-metal-prototype/">板金の試作を小ロットで頼む</a>にまとめています。</p><h2>IoT製品の開発の進め方：PoCから量産まで</h2><ol>
+<li><strong>目的と条件を決める</strong>：何を測り、だれが、どこで、どう使うか。電源（電池かコンセントか）、通信できる場所、設置の環境（屋外・水・温度）、台数、1台の目標原価、月々の運用費の上限。</li>
+<li><strong>PoC（考えの確認）</strong>：市販の開発用ボードやモジュールで、目的のデータが取れるか、通信できるかを小さく確かめます。</li>
+<li><strong>試作</strong>：専用の基板とケースをつくり、実際の場所で使ってみます。電池の持ち、通信の安定、使い勝手を確かめます。</li>
+<li><strong>量産向けの設計</strong>：部品の入手性、つくりやすさ、検査のしかた、認証を考えて設計を直します。</li>
+<li><strong>認証と表示</strong>：無線・電源・安全・セキュリティなど、必要な制度に合わせます（次の章）。</li>
+<li><strong>量産と運用</strong>：製造、出荷前の検査、発売後のソフトの更新、問い合わせへの対応。</li>
+</ol>
+<p>はじめから量産品の形を目指すより、<strong>PoCで「本当に欲しいデータが取れるか」を安く確かめてから</strong>試作に進むほうが、全体の費用とやり直しが減ります。試作全体の考え方は<a href="/guide/prototype-outsourcing/">試作の外注の進め方</a>を見てください。</p><h2>IoT製品の技適・電源・セキュリティ：かかわる制度</h2><p>IoT製品には、ハード・通信・ソフトのそれぞれに制度がかかわります。主なものをまとめます。</p>
+<div class="tbl"><table><tr><th>制度</th><th>かかわる場面</th><th>中身（公式の説明から）</th></tr>
+<tr><td>電波法の技適</td><td>Wi-Fi・Bluetooth・携帯の回線など、電波を出す機器</td><td>技適を取った無線モジュールを、電波の質に影響しない状態で組み込み、適合表示が見やすいところにあれば、原則として新たな証明は要らない。改造したら表示を外す。アンテナの構成が変わる場合などは別に証明が必要</td></tr>
+<tr><td>電気通信事業法の端末機器の技術基準</td><td>IP（インターネットの通信方式）で回線に直接つながり、回線経由で設定を変えられる機器（ルーターやウェブカメラなど）</td><td>2020年4月1日から、設定を変える前にパスワードなどを確かめる機能、初期のパスワードの変更を促す機能（または機器ごとに違う値にする）、ファームウェアを更新できる機能、電源が切れても設定や更新が元に戻らないことが求められる</td></tr>
+<tr><td>電気用品安全法（PSE）</td><td>コンセントにつなぐ機器や電源（ACアダプターなど）</td><td>対象の電気用品を製造・輸入する事業者は、事業を始めて30日以内の届出、技術上の基準への適合、自主検査と記録などが義務。PSEマークのない対象品は販売できない</td></tr>
+<tr><td>JC-STAR（IoT製品のセキュリティラベリング）</td><td>インターネットにつながるIoT製品</td><td>2025年3月25日に運用開始。★1は最低限のセキュリティ要件を満たすことをメーカー自身が宣言し、IPAに申請してラベルを付ける。★3・★4は政府機関や重要インフラ向けで、第三者が評価する</td></tr></table></div>
+<p class="src">出典：総務省 電波利用ポータル「基準認証制度についてよくある質問（FAQ）」、総務省「電気通信事業法に基づく端末機器の基準認証に関するガイドライン（第3版）」（2025年10月1日）、経済産業省「電気用品安全法の概要」、IPA「IoT製品に対するセキュリティラベリング制度（JC-STAR）の運用を開始しました」（2025年3月25日）。</p>
+<p>端末機器の技術基準は、パソコンやスマートフォンのように利用者が自由にソフトを入れられる機器は対象外で、ほかの機器（ルーターなど）を通してつながる機器も対象になりません。<strong>自社の製品が回線に直接つながるかどうか</strong>で変わるので、通信のしかたを決める段階で委託先と確かめます。</p>
+<p>どの制度も、量産の直前に気づくと設計のやり直しになることがあります。<strong>委託先を選ぶときに、技適を取ったモジュールの採用、PSEの対象かどうかの確認、セキュリティの機能をどこまで入れるかを、見積の前提として話し合う</strong>のが安全です。最終的な判断は、総務省・経済産業省・IPAの窓口で確かめてください。</p><h2>IoT開発の費用の見方：初期費用と運用費を分ける</h2><p>IoT製品の費用は、製品と使い方で大きく変わるため、ここでは相場ではなく、見積の見方を整理します。</p>
+<div class="tbl"><table><tr><th>区分</th><th>中身</th></tr>
+<tr><td>開発費（1回だけ）</td><td>回路・ケース・組み込みソフト・クラウド・アプリの設計と開発、試作品の製作、評価、認証の費用</td></tr>
+<tr><td>量産の費用（台数に比例）</td><td>部品代、基板の製造と実装、ケース、組み立て、検査、梱包。ケースを成形でつくるなら型代も</td></tr>
+<tr><td>運用費（毎月・毎年）</td><td>通信回線の料金、クラウドの利用料、ソフトの更新、問い合わせ対応、保守</td></tr></table></div>
+<p>見積を比べるときは、<strong>工程ごとに分けて出してもらい、運用費を含めて数年分の合計</strong>で考えます。台数が少ない製品では、開発費を台数で割った分が1台あたりに大きく乗ります。市販のモジュールや開発用の基板をうまく使うと、開発費を抑えられることがあります。</p><h2>IoT開発の委託契約で決めること</h2><ul>
+<li><strong>成果物</strong>：回路図、基板のデータ、ケースの3Dデータ、ソースコード、取扱説明、試験の記録など、何を受け取るか。</li>
+<li><strong>権利</strong>：ソースコードや設計データの権利がどちらに残るか。ほかの会社に保守を移すとき、使い続けられるか。</li>
+<li><strong>契約の形</strong>：完成を約束する請負か、作業を任せる準委任か。PoCのように結果がわからない段階は、作業を任せる形になることが多い。</li>
+<li><strong>発売後</strong>：ソフトの不具合を直す期間、セキュリティの更新をどれくらいの期間続けるか、その費用。</li>
+<li><strong>部品の入手</strong>：部品が生産終了になったときの代わりの部品の選定をだれがするか。</li>
+<li><strong>秘密保持</strong>：アイデアや仕様を話す前に、秘密保持契約（NDA）を結ぶ。</li>
+</ul>
+<p>委託先の探し方は<a href="/guide/find-manufacturer/">製造の委託先の探し方</a>にまとめています。</p><h2>IoT製品の開発委託でよくある失敗</h2><ul>
+<li><strong>通信できる場所を確かめていない</strong>：設置する場所が地下や金属の箱の中で、電波が届かないことがあります。PoCで実際の場所を試します。</li>
+<li><strong>電池の持ちを見込みすぎる</strong>：通信の回数や方式で電池の減りは大きく変わります。</li>
+<li><strong>運用費を考えていない</strong>：通信とクラウドの費用は、売ったあとも毎月かかります。</li>
+<li><strong>無線モジュールを改造してしまう</strong>：アンテナを替えるなどの変更で、技適をあらためて取る必要が出ることがあります。</li>
+<li><strong>ソースコードを受け取っていない</strong>：委託先が変わったときに直せなくなります。契約で決めておきます。</li>
+</ul><h2>よくある質問</h2><dl><dt>IoT製品の開発は1社にまとめて頼めますか？</dt><dd>ハードからクラウドまで一括で受ける会社もありますが、数は限られます。分けて頼む場合は、つなぎ目の仕様と、うまく動かないときの調べ方の分担を最初に決めましょう。</dd><dt>IoT製品の開発費はどれくらいかかりますか？</dt><dd>機能、台数、通信方式、クラウドやアプリの規模で大きく変わるため、一概には言えません。工程ごとに見積を分けてもらい、通信料やクラウドの利用料などの運用費も含めて比べてください。</dd><dt>Wi-FiやBluetoothを使う製品に技適は必要ですか？</dt><dd>日本で電波を出す機器は原則として技適が必要です。技適を取った無線モジュールを、電波の質に影響しない状態で組み込み、モジュールの表示が見やすいところにあれば、原則として新たな証明は要りません。アンテナの構成を変えるなどの場合は別に証明が必要です。</dd><dt>IoT製品のセキュリティはどこまで対策すればいいですか？</dt><dd>製品と使われ方によります。インターネットの回線に直接つながる機器は、設定の前にパスワードなどを確かめる機能、初期のパスワードの変更を促す機能、ファームウェアを更新できる機能などが技術基準で求められています。2025年3月に始まったJC-STARの★1は、最低限の要件を満たすことをメーカー自身が宣言する形で、対策の目安になります。</dd></dl><div class="cta"><b>つくりたいものを書くだけで、工程ごとに頼める会社をさがせます</b>
+<p>KATACHIでは、AIが作り方を工程に分け、図面なし・試作・小ロットで相談できる会社を組み合わせて提案します。工程の整理・会社の検索・見積の依頼は無料です。</p>
+<a class="btn" href="/">工場チームを組んでみる</a></div><h2>出典</h2><p class="src">数字はいずれも次の公開資料から（2026年11月13日に確認）。</p><ol class="src"><li><a href="https://www.tele.soumu.go.jp/j/sys/equ/tech/faq/index.htm" target="_blank" rel="noopener">総務省 電波利用ポータル「基準認証制度についてよくある質問（FAQ）」</a></li><li><a href="https://www.meti.go.jp/policy/consumer/seian/denan/act_outline.html" target="_blank" rel="noopener">経済産業省「電気用品安全法の概要」</a></li><li><a href="https://www.soumu.go.jp/main_content/001034595.pdf" target="_blank" rel="noopener">総務省「電気通信事業法に基づく端末機器の基準認証に関するガイドライン（第3版）」（2025年10月1日）</a></li><li><a href="https://www.ipa.go.jp/pressrelease/2024/press20250325.html" target="_blank" rel="noopener">IPA「IoT製品に対するセキュリティラベリング制度（JC-STAR）の運用を開始しました」（2025年3月25日）</a></li></ol><h2>関連するガイド</h2><ul><li><a href="/guide/pcb-prototype/">基板の試作を小ロットで頼む：設計から実装までの流れ、必要なデータ、費用の決まり方</a></li><li><a href="/guide/prototype-outsourcing/">試作の外注の進め方：図面がなくても自社製品はつくれる</a></li><li><a href="/guide/own-product-development/">中小企業の自社製品の開発：設計部門がなくても進められる6つの手順と、先に知っておく責任</a></li></ul></main>
+<footer><a href="/">トップ</a><a href="/guide/">ガイド</a><a href="/terms/">利用規約</a><a href="/privacy/">プライバシーポリシー</a><a href="/privacy/#operator">運営者情報</a><span>© 2026 KATACHI</span></footer>
+</body></html>

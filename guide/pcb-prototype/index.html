@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>基板の試作を小ロットで頼むには｜流れ・必要なデータ・費用の決まり方</title><meta name="description" content="電子回路のプリント基板を1枚〜小ロットで試作したい中小企業向けに、回路設計から基板製造・部品実装までの流れ、頼み先、必要なデータ、費用が決まる要素、無線や電源を使う製品の法令の注意点をまとめました。">
+<link rel="canonical" href="https://katachi.shiokonbu.com/guide/pcb-prototype/">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-3C2RRECKB8"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date());gtag("config","G-3C2RRECKB8");gtag("config","G-ZYX17VBTWB");</script>
+<style>:root{--bg:#fff;--fg:#0d1424;--mute:#566176;--line:rgba(16,28,58,.12);--ice:#2350c8}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font-family:"IBM Plex Sans JP","Hiragino Sans","Noto Sans JP",system-ui,sans-serif;line-height:1.85;font-size:15.5px}
+header,main,footer{max-width:760px;margin:0 auto;padding:0 20px}header{display:flex;align-items:center;gap:10px;height:64px;border-bottom:1px solid var(--line);max-width:none}
+header a{color:var(--fg);text-decoration:none;font-weight:700;letter-spacing:.18em;font-size:14px;display:flex;gap:10px;align-items:center}
+main{padding-top:28px;padding-bottom:40px}h1{font-size:26px;line-height:1.4;margin:10px 0 6px}h2{font-size:18px;margin:34px 0 8px;padding-top:12px;border-top:1px solid var(--line)}
+p,li,dd{color:#1f2a40}ol,ul{padding-left:1.4em}a{color:var(--ice)}.lead{color:var(--mute)}dt{font-weight:600;margin-top:12px}dd{margin:2px 0 0}
+footer{border-top:1px solid var(--line);padding:22px 20px 40px;font-size:12.5px;color:var(--mute);display:flex;gap:18px;flex-wrap:wrap}footer a{color:var(--mute)}</style><style>.crumb{font-size:12.5px;color:var(--mute);margin:0}.crumb a{color:var(--mute)}.upd{font-size:12.5px;color:var(--mute);margin:4px 0 18px}
+.points{background:#f3f6fd;border:1px solid var(--line);border-radius:10px;padding:14px 18px;margin:18px 0}.points b{display:block;margin-bottom:4px}
+.points ul{margin:0}h3{font-size:16px;margin:22px 0 4px}.cta{margin:36px 0 10px;padding:20px;border:1px solid var(--ice);border-radius:12px}
+.cta a.btn{display:inline-block;margin-top:8px;background:var(--ice);color:#fff;text-decoration:none;padding:10px 18px;border-radius:8px;font-weight:600}
+.tbl{overflow-x:auto;margin:12px 0}.tbl table{border-collapse:collapse;min-width:100%;font-size:14px;line-height:1.6}.tbl th,.tbl td{border:1px solid var(--line);padding:6px 9px;text-align:left;vertical-align:top}.tbl th{background:#f3f6fd;white-space:nowrap}.src{font-size:13px;color:var(--mute)}.src li{color:var(--mute)}
+.list a{font-weight:600}.list p{margin:2px 0 18px;color:var(--mute)}</style><meta property="og:type" content="article"><meta property="og:site_name" content="KATACHI"><meta property="og:title" content="基板の試作を小ロットで頼むには｜流れ・必要なデータ・費用の決まり方"><meta property="og:description" content="電子回路のプリント基板を1枚〜小ロットで試作したい中小企業向けに、回路設計から基板製造・部品実装までの流れ、頼み先、必要なデータ、費用が決まる要素、無線や電源を使う製品の法令の注意点をまとめました。"><meta property="og:url" content="https://katachi.shiokonbu.com/guide/pcb-prototype/"><meta property="og:image" content="https://katachi.shiokonbu.com/og.png"><meta property="og:locale" content="ja_JP"><meta name="twitter:card" content="summary_large_image"><script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@type": "Organization", "@id": "https://katachi.shiokonbu.com/#org", "name": "KATACHI", "url": "https://katachi.shiokonbu.com/", "logo": "https://katachi.shiokonbu.com/apple-touch-icon.png"}, {"@type": "Article", "headline": "基板の試作を小ロットで頼む：設計から実装までの流れ、必要なデータ、費用の決まり方", "description": "電子回路のプリント基板を1枚〜小ロットで試作したい中小企業向けに、回路設計から基板製造・部品実装までの流れ、頼み先、必要なデータ、費用が決まる要素、無線や電源を使う製品の法令の注意点をまとめました。", "dateModified": "2026-11-13", "datePublished": "2026-11-13", "inLanguage": "ja", "mainEntityOfPage": "https://katachi.shiokonbu.com/guide/pcb-prototype/", "author": {"@id": "https://katachi.shiokonbu.com/#org"}, "publisher": {"@id": "https://katachi.shiokonbu.com/#org"}, "image": "https://katachi.shiokonbu.com/og.png"}, {"@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "KATACHI", "item": "https://katachi.shiokonbu.com/"}, {"@type": "ListItem", "position": 2, "name": "ガイド", "item": "https://katachi.shiokonbu.com/guide/"}, {"@type": "ListItem", "position": 3, "name": "基板の試作を小ロットで頼む：設計から実装までの流れ、必要なデータ、費用の決まり方", "item": "https://katachi.shiokonbu.com/guide/pcb-prototype/"}]}, {"@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "基板は1枚から試作できますか？", "acceptedAnswer": {"@type": "Answer", "text": "できます。ネット通販の基板メーカーには1枚から製造するところがあります。ただし、データの準備や機械の段取りの費用は枚数が少なくてもかかるため、1枚あたりは高くなります。"}}, {"@type": "Question", "name": "回路図がなくても基板の試作を頼めますか？", "acceptedAnswer": {"@type": "Answer", "text": "回路設計から受ける会社に頼めます。何をする基板か、使う場所、電源、大きさ、必要な機能を文章で伝えれば、回路とレイアウトの設計から相談できます。"}}, {"@type": "Question", "name": "基板の製造と実装は同じ会社に頼むべきですか？", "acceptedAnswer": {"@type": "Answer", "text": "まとめて頼めると、部品の手配や基板とのつき合わせの手間が減ります。一方、設計・製造・実装を得意な会社に分けて頼む方法もあります。試作の段階では、まとめて頼めるかどうかも見積で確かめましょう。"}}, {"@type": "Question", "name": "無線を使う試作品はそのまま使えますか？", "acceptedAnswer": {"@type": "Answer", "text": "日本で電波を出すには、原則として技適マークの付いた無線設備を使う必要があります。技適を取った無線モジュールを使うのが近道です。短期間の実験などだけを目的とする場合は、届出をして技適のない機器を使える「技適未取得機器を用いた実験等の特例制度」もあるので、条件を総務省の案内で確かめてください。"}}]}]}</script></head><body>
+<header><a href="/"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><path d="M3 3h7v7H3z" fill="#2350c8"/><path d="M12 3h7v7h-7z" fill="none" stroke="#2350c8" stroke-width="1.5"/><path d="M3 12h7v7H3z" fill="none" stroke="#2350c8" stroke-width="1.5" stroke-dasharray="2 2"/><path d="M12 12h7v7h-7z" fill="#2350c8" opacity=".45"/></svg>KATACHI</a></header>
+<main><p class="crumb"><a href="/">KATACHI</a> › <a href="/guide/">ガイド</a></p><h1>基板の試作を小ロットで頼む：設計から実装までの流れ、必要なデータ、費用の決まり方</h1><p class="upd">更新日：2026/11/13</p><p>基板の試作は、<strong>回路図と基板のレイアウトのデータ（ガーバーデータ）があれば、ネット通販の基板メーカーに1枚から頼めます</strong>。データがなければ、回路やレイアウトの設計から受ける会社に頼みます。基板そのものの製造と、部品を載せてはんだ付けする実装は別の工程で、頼み先も分かれることがあります。この記事では、基板の試作の流れ、工程ごとの頼み先、必要なデータ、費用が決まる要素、無線や電源を使う製品で気をつける法令をまとめます。</p><div class="points"><b>この記事の要点</b><ul><li>基板の試作は「回路設計→レイアウト設計→基板製造→部品の調達→実装→動作確認」の流れ。設計と製造・実装で頼み先が分かれることが多い</li><li>基板の製造にはガーバーデータ、実装には部品表（BOM）と部品の位置のデータが要る</li><li>ネット通販の基板メーカーでは1枚から頼め、片面・2層の基板を最短で実働1日で出荷するコースもある（P板.com）</li><li>費用は、層の数・大きさ・枚数・細かさ・納期、実装なら部品の点数と種類、部品の調達で決まる</li><li>無線を使う製品は電波法の技適、コンセントにつなぐ電源などは電気用品安全法がかかわる。試作の段階から確かめる</li></ul></div><h2>基板の試作の流れと頼み先</h2><div class="tbl"><table><tr><th>工程</th><th>中身</th><th>頼み先の例</th></tr>
+<tr><td>回路設計</td><td>どんな部品をどうつなぐかを決め、回路図をつくる</td><td>電子回路の受託設計の会社</td></tr>
+<tr><td>レイアウト設計（アートワーク）</td><td>基板の上の部品の配置と、配線の道すじを決める</td><td>受託設計の会社、基板メーカーの設計サービス</td></tr>
+<tr><td>基板の製造</td><td>銅の配線のある板（部品を載せる前の基板）をつくる</td><td>基板メーカー（ネット通販を含む）</td></tr>
+<tr><td>部品の調達</td><td>部品表のとおりに部品をそろえる</td><td>自社、実装の会社の調達代行、部品の商社</td></tr>
+<tr><td>実装</td><td>部品を基板に載せてはんだ付けする</td><td>実装の会社、基板メーカーの実装サービス</td></tr>
+<tr><td>動作確認・ソフト</td><td>電源を入れて動きを確かめる。マイコンのプログラムを書き込む</td><td>受託設計の会社、組み込みソフトの会社</td></tr></table></div>
+<p>回路図もレイアウトもない段階なら、まず回路設計から受ける会社に「何をする基板か」を相談します。データがそろっていれば、製造と実装は基板メーカーにまとめて頼めることもあります。基板だけでなく、ケースやアプリまで含む製品なら、工程ごとに頼み先を組み合わせます（<a href="/guide/iot-development/">IoT製品の開発を委託する</a>も参照）。</p><h2>基板の試作を頼むのに必要なデータ</h2><ul>
+<li><strong>ガーバーデータ</strong>：基板の配線・穴・文字などの層ごとの形を表す、基板の製造に使う標準的なデータ。レイアウト設計のソフトから書き出します。</li>
+<li><strong>穴あけのデータ</strong>：穴の位置と大きさ。ガーバーデータと一緒に出すのが一般的です。</li>
+<li><strong>基板の仕様</strong>：層の数、大きさ、板の厚さ、銅の厚さ、表面の処理、レジスト（表面の保護膜）の色、枚数。</li>
+<li><strong>部品表（BOM）</strong>：載せる部品の型番・数・メーカー。実装を頼むときに要ります。</li>
+<li><strong>部品の位置のデータ（座標データ）</strong>：どの部品をどこに、どの向きで載せるか。機械で実装するときに使います。</li>
+<li><strong>回路図</strong>：実装のあとの確認や、不具合の相談に使います。</li>
+</ul>
+<p>必要なデータの種類や形式は依頼先ごとに決まっているので、注文の前に依頼先の案内を確かめます。データがない、または一部しかない場合は、設計から受ける会社に頼みます。図面やデータがないときの考え方は<a href="/guide/no-drawing/">図面がなくても加工は頼める？</a>にもまとめています。</p><h2>基板の試作の費用が決まる要素</h2><p>費用は条件で大きく変わるため、ここでは相場ではなく、何で決まるかを整理します。</p>
+<div class="tbl"><table><tr><th>工程</th><th>費用が決まる要素</th></tr>
+<tr><td>基板の製造</td><td>層の数（片面・2層・4層・6層…）、大きさ、枚数、配線の細かさ・穴の小ささ、板の厚さ、表面の処理、納期</td></tr>
+<tr><td>実装</td><td>部品の点数と種類、片面か両面か、細かい部品や裏に端子がある部品（BGAなど）の有無、手はんだか機械か、はんだを塗るための型（メタルマスク）</td></tr>
+<tr><td>部品</td><td>部品代、最小購入数、入手しにくい部品の手配</td></tr>
+<tr><td>設計</td><td>回路設計とレイアウト設計の手間、修正の回数</td></tr></table></div>
+<p>ネット通販の基板メーカーの例として、P板.com は基板を1枚から製造し、片面・2層の基板は「ウルトラクイックコース」で最短で実働1日出荷（出荷の翌日に到着、一部の遠い地域を除く）と案内しています。層の数は片面・2層・4層・6層・8層が案内されていて、8層は最短のコースの対象外です。</p>
+<p class="src">出典：P板.com「基板製造サービスのメリット」（2026年11月13日確認）。</p>
+<p>急ぐコースほど高くなるのが一般的なので、<strong>何を確かめる試作か、いつまでに要るかを決めて納期を選ぶ</strong>と費用を抑えられます。最初の試作は枚数を少なくし、修正が終わってから枚数を増やすのが基本です。</p><h2>無線や電源を使う基板の試作で気をつける法令</h2><p>基板そのものに許可は要りませんが、<strong>無線を使う製品と、コンセントの電気を使う製品</strong>は、試作の段階から法令を意識しておくと、あとで設計をやり直さずにすみます。</p>
+<h3>無線（Wi-Fi・Bluetooth など）を使うなら：電波法の技適</h3>
+<p>日本で電波を出す機器は、原則として技術基準に適合していることの証明（いわゆる技適）が必要です。総務省のよくある質問では、次のように説明されています。</p>
+<ul>
+<li>技適を取った無線モジュールを、電波の質に影響しない状態で製品に組み込む場合は、モジュールの適合表示が見やすいところに付いていれば、原則として新たな証明は要らない。</li>
+<li>モジュールを改造した場合は、その表示を外さなければならない。基板の形のモジュールを組み込んでアンテナの構成が変わる場合などは、別に証明が必要。</li>
+<li>証明の表示がない無線設備を使うには、原則として無線局の免許が必要。</li>
+</ul>
+<p class="src">出典：総務省 電波利用ポータル「基準認証制度についてよくある質問（FAQ）」。</p>
+<p>はじめての無線製品なら、<strong>技適を取った無線モジュールを使い、アンテナを含めてモジュールのまま組み込む</strong>のが、試作から量産まで進めやすい方法です。</p>
+<h3>コンセントにつなぐなら：電気用品安全法（PSE）</h3>
+<p>経済産業省によると、電気用品安全法の対象の電気用品を製造・輸入する事業者は、事業を始めてから30日以内の届出、技術上の基準への適合、自主検査と記録の保存などが義務で、それを果たした事業者だけがPSEマークを付けられます。PSEマークのない対象の電気用品は販売できません。直流電源装置（ACアダプターなど）は、とくに安全上の注意が要る「特定電気用品」の例に挙がっていて、販売の前に登録検査機関の検査が要ります。</p>
+<p class="src">出典：経済産業省「電気用品安全法の概要」。</p>
+<p>試作の段階では、<strong>PSEマークの付いた市販のACアダプターから電気を取り、基板は低い電圧で動かす</strong>設計にすると、製品の安全の確認がしやすくなります。自社の製品が対象になるかは、経済産業省の品目の一覧で確かめるか、相談窓口に問い合わせてください。</p><h2>基板の試作から量産へ：部品と検査で気をつけること</h2><ul>
+<li><strong>部品が手に入り続けるか</strong>：試作で使った部品が生産終了になったり、品薄になったりすることがあります。量産を考えるなら、入手しやすい部品や代わりの部品を設計の段階で選んでおきます。</li>
+<li><strong>実装の方法</strong>：試作は手はんだでも、量産は機械の実装になります。機械で載せやすい部品と配置にしておくと、量産で直す手間が減ります。</li>
+<li><strong>検査のしかた</strong>：量産では1枚ずつ動作を確かめる検査が要ります。検査のための端子や手順を試作の段階で考えておきます。</li>
+<li><strong>ケースとの組み合わせ</strong>：基板の大きさや取り付け穴は、ケースの形と合わせて決めます。ケースの試作は<a href="/guide/injection-molding-small-lot/">射出成形を小ロットで頼む</a>も参照してください。</li>
+</ul><h2>基板の試作を依頼するときに伝えること</h2><ul>
+<li>何をする基板か（目的・使う場所・電源）</li>
+<li>手元にあるもの（回路図・レイアウト・ガーバーデータ・部品表、または仕様の文章だけ）</li>
+<li>枚数（試作の枚数と、量産で見込む数）</li>
+<li>実装まで頼むか、部品は誰が用意するか</li>
+<li>無線や電源の有無と、取りたい認証</li>
+<li>納期と予算の目安</li>
+</ul>
+<p>同じ条件で2〜3社に見積を取り、設計・製造・部品・実装・検査の費用を分けて比べます。製品全体の試作の進め方は<a href="/guide/prototype-outsourcing/">試作の外注の進め方</a>にまとめています。</p><h2>よくある質問</h2><dl><dt>基板は1枚から試作できますか？</dt><dd>できます。ネット通販の基板メーカーには1枚から製造するところがあります。ただし、データの準備や機械の段取りの費用は枚数が少なくてもかかるため、1枚あたりは高くなります。</dd><dt>回路図がなくても基板の試作を頼めますか？</dt><dd>回路設計から受ける会社に頼めます。何をする基板か、使う場所、電源、大きさ、必要な機能を文章で伝えれば、回路とレイアウトの設計から相談できます。</dd><dt>基板の製造と実装は同じ会社に頼むべきですか？</dt><dd>まとめて頼めると、部品の手配や基板とのつき合わせの手間が減ります。一方、設計・製造・実装を得意な会社に分けて頼む方法もあります。試作の段階では、まとめて頼めるかどうかも見積で確かめましょう。</dd><dt>無線を使う試作品はそのまま使えますか？</dt><dd>日本で電波を出すには、原則として技適マークの付いた無線設備を使う必要があります。技適を取った無線モジュールを使うのが近道です。短期間の実験などだけを目的とする場合は、届出をして技適のない機器を使える「技適未取得機器を用いた実験等の特例制度」もあるので、条件を総務省の案内で確かめてください。</dd></dl><div class="cta"><b>つくりたいものを書くだけで、工程ごとに頼める会社をさがせます</b>
+<p>KATACHIでは、AIが作り方を工程に分け、図面なし・試作・小ロットで相談できる会社を組み合わせて提案します。工程の整理・会社の検索・見積の依頼は無料です。</p>
+<a class="btn" href="/">工場チームを組んでみる</a></div><h2>出典</h2><p class="src">数字はいずれも次の公開資料から（2026年11月13日に確認）。</p><ol class="src"><li><a href="https://www.p-ban.com/services/product/" target="_blank" rel="noopener">P板.com「基板製造サービスのメリット」</a></li><li><a href="https://www.tele.soumu.go.jp/j/sys/equ/tech/faq/index.htm" target="_blank" rel="noopener">総務省 電波利用ポータル「基準認証制度についてよくある質問（FAQ）」</a></li><li><a href="https://www.meti.go.jp/policy/consumer/seian/denan/act_outline.html" target="_blank" rel="noopener">経済産業省「電気用品安全法の概要」</a></li><li><a href="https://www.denpa.soumu.go.jp/support/faq/app/FAQS0089/index.html" target="_blank" rel="noopener">総務省 電波利用電子申請「技適未取得機器に関する届出の手続き」（よくあるご質問）</a></li></ol><h2>関連するガイド</h2><ul><li><a href="/guide/iot-development/">IoT製品の開発を委託する：工程の分け方、委託先の選び方、技適とセキュリティ、契約で決めること</a></li><li><a href="/guide/prototype-outsourcing/">試作の外注の進め方：図面がなくても自社製品はつくれる</a></li><li><a href="/guide/find-manufacturer/">製造の委託先の探し方と選び方：図面がない中小企業のための7つの探し先と比べ方</a></li></ul></main>
+<footer><a href="/">トップ</a><a href="/guide/">ガイド</a><a href="/terms/">利用規約</a><a href="/privacy/">プライバシーポリシー</a><a href="/privacy/#operator">運営者情報</a><span>© 2026 KATACHI</span></footer>
+</body></html>
