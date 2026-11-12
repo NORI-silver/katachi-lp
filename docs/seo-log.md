@@ -14,3 +14,4 @@
 - 1本目の記事：/guide/prototype-outsourcing/（狙う語「試作 外注」、副「図面なし 試作」「自社製品 開発 外注」）。
 - 公開時点で katachi.shiokonbu.com/ は Google に未認識（URL検査「URL が Google に認識されていません」）。
 - 2026-11-12 /guide/3d-print-request/ に「どんな企業が何に使っているか」を追記（Protolabs 3DP Trend Report 2024・MONOist 2024年7月調査）。Nori依頼。
+- 2026-11-12 seed語でキーワードプランナー（3シート）。実需は「◯◯ OEM 小ロット」に集中 → 計画を並べ替え。記事6本目 /guide/small-lot-oem/（狙う語「OEM 小ロット」）。
