@@ -12,6 +12,10 @@ N = d['realCount']; NA = d['realAbroad']
 TITLE = 'KATACHI｜設計部門がなくても、自社製品をつくる工場チームが見つかる'
 DESC = (f'つくりたいものを書くだけで、AIが作り方を工程に分け、国内外{N:,}社の中から工程ごとに得意な会社を組み合わせて提案します。'
         '図面なし・試作・小ロットから。料金・ロット・確かめられる品質を比べて選べます。見積の依頼は無料。')
+# 本文の「よくある質問」と構造化データ（FAQPage）の両方に使う
+FAQ = [("費用はかかりますか", "工程の整理、会社の検索、見積の依頼は無料です。試作・製造の代金は、依頼する会社に直接お支払いいただきます。"),
+       ("図面がなくても頼めますか", "はい。文章や写真、AIで作った仕様書から始められます。図面なしの相談を受ける会社を絞り込めます。"),
+       ("海外の工場も選べますか", "はい。中国・台湾・ベトナムなどの会社も候補に出ます。依頼書は相手の言語に合わせて届けます。")]
 def rep(a, b, cnt=1):
     global s
     assert s.count(a) == cnt, (s.count(a), a[:80]); s = s.replace(a, b)
@@ -19,8 +23,10 @@ def rep(a, b, cnt=1):
 ld = {"@context": "https://schema.org", "@graph": [
   {"@type": "WebSite", "@id": SITE + "#site", "url": SITE, "name": "KATACHI", "inLanguage": ["ja", "en", "zh-Hans"], "description": DESC},
   {"@type": "Service", "name": "KATACHI 工場チームのマッチング", "url": SITE, "serviceType": "製造委託先・試作先のマッチング", "areaServed": ["JP", "CN", "TW", "VN"],
-   "provider": {"@type": "Organization", "name": "KATACHI", "url": SITE}, "description": DESC,
-   "offers": {"@type": "Offer", "price": "0", "priceCurrency": "JPY", "description": "工程の整理・会社の検索・見積の依頼は無料"}}]}
+   "provider": {"@id": SITE + "#org"}, "description": DESC,
+   "offers": {"@type": "Offer", "price": "0", "priceCurrency": "JPY", "description": "工程の整理・会社の検索・見積の依頼は無料"}},
+  {"@type": "Organization", "@id": SITE + "#org", "name": "KATACHI", "url": SITE, "logo": SITE + "apple-touch-icon.png"},
+  {"@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": q, "acceptedAnswer": {"@type": "Answer", "text": a}} for q, a in FAQ]}]}
 head = f'''<!doctype html>
 <html lang="ja">
 <head>
@@ -47,6 +53,7 @@ rep('<title>KATACHI 試作版</title>\n<meta name="claude:viewport-fit-sides" co
 rep('const GA_IDS=[/* \'G-XXXXXXXXXX\' (KATACHI専用), \'G-YYYYYYYYYY\' (総合) */];', 'const GA_IDS=' + json.dumps(GA) + ';')
 rep("const FORM_URL='';const TERMS_URL='';const PRIVACY_URL='';", f"const FORM_URL={json.dumps(FORM)};const TERMS_URL='/terms/';const PRIVACY_URL='/privacy/';")
 rep('<span class="tag">PROTOTYPE</span>', '<span class="tag">BETA</span>')
+FAQ_HTML = '\n'.join(f'<dt>{q}</dt><dd>{a}</dd>' for q, a in FAQ)
 # 検索エンジン・AI向けに、JSが動く前から読める本文（描画で置き換わる）
 static = f'''<main id="app"><section style="max-width:760px;margin:40px auto;padding:0 20px;line-height:1.8">
 <h1>アイデアを、製品のかたちに。</h1>
@@ -56,12 +63,11 @@ static = f'''<main id="app"><section style="max-width:760px;margin:40px auto;pad
 <h2>情報の確かさ</h2>
 <p>会社の情報は、公式サイト・報道・掲載ページで確認したものと、AIの推定、要確認のものを分けて表示します。見積や口コミを作り上げることはありません。</p>
 <h2>よくある質問</h2>
-<dl><dt>費用はかかりますか</dt><dd>工程の整理、会社の検索、見積の依頼は無料です。試作・製造の代金は、依頼する会社に直接お支払いいただきます。</dd>
-<dt>図面がなくても頼めますか</dt><dd>はい。文章や写真、AIで作った仕様書から始められます。図面なしの相談を受ける会社を絞り込めます。</dd>
-<dt>海外の工場も選べますか</dt><dd>はい。中国・台湾・ベトナムなどの会社も候補に出ます。依頼書は相手の言語に合わせて届けます。</dd></dl>
+<dl>{FAQ_HTML}</dl>
+<p><a href="/guide/">試作・製造の外注ガイドを読む</a></p>
 </section></main>'''
 rep('<main id="app"></main>', static)
-foot = '''<footer class="sfoot" id="sfoot"><div><a href="/terms/">利用規約</a><a href="/privacy/">プライバシーポリシー</a><a href="/privacy/#operator">運営者情報</a></div><small>© 2026 KATACHI</small></footer>
+foot = '''<footer class="sfoot" id="sfoot"><div><a href="/guide/">ガイド</a><a href="/terms/">利用規約</a><a href="/privacy/">プライバシーポリシー</a><a href="/privacy/#operator">運営者情報</a></div><small>© 2026 KATACHI</small></footer>
 <style>.sfoot{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;max-width:1240px;margin:40px auto 0;padding:24px 20px 120px;border-top:1px solid var(--line);font-size:12.5px;color:var(--mute)}.sfoot div{display:flex;gap:18px;flex-wrap:wrap}.sfoot a{color:var(--mute)}</style>'''
 rep('<div id="ov"></div>', '<div id="ov"></div>\n' + foot)
 s = s.rstrip() + '\n</body>\n</html>\n' if '</html>' not in s else s
