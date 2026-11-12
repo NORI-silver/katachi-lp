@@ -1,0 +1,33 @@
+# main に入ったら、本文が変わったページを IndexNow（Bing など。ChatGPT の検索や Copilot は Bing の索引を使う）に知らせる。
+# GitHub Pages の公開が終わるのを待ってから送る。失敗してもサイトの公開には影響しない。
+name: IndexNow
+
+on:
+  push:
+    branches: [main]
+    paths: ['sitemap.xml', 'llms.txt']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  indexnow:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: 公開を待つ
+        run: sleep 120
+      - name: 変わったページを送る
+        env:
+          BEFORE: ${{ github.event.before }}
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            python3 tools/indexnow.py --all
+          else
+            python3 tools/indexnow.py "$BEFORE"
+          fi

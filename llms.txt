@@ -10,5 +10,9 @@
 
 ## ページ
 - [トップ（入力と工場チームの提案）](https://katachi.shiokonbu.com/)
+- [ガイド一覧](https://katachi.shiokonbu.com/guide/)
 - [利用規約](https://katachi.shiokonbu.com/terms/)
 - [プライバシーポリシー・運営者情報](https://katachi.shiokonbu.com/privacy/)
+
+## ガイド
+- [試作の外注の進め方：図面がなくても自社製品はつくれる](https://katachi.shiokonbu.com/guide/prototype-outsourcing/): 図面のない中小企業が試作を外注する5つの手順、依頼書に書くこと、見積の比べ方、よくある失敗。
