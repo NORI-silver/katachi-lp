@@ -3,6 +3,8 @@
 効果の判定は変更から14日以上たってから（28日が理想）。Search Console は shiokonbu.com のドメインプロパティ（sc-domain:shiokonbu.com）で katachi.shiokonbu.com も見られる。
 
 ## 2026-11-12
+- 記事：/guide/3d-print-request/（狙う語「3Dプリンター 依頼」月1,000〜1万、副「3Dプリント 外注／代行」「3Dプリンター 試作」「3Dプリンター 依頼 個人」各月100〜1,000、競合「高」）。根拠はキーワードプランナー（DMM.make 3Dプリント起点）。
+- キーワードプランナー3回目（DMM.make 3Dプリント・Protolabs Network・Fictiv起点）：DMMは日本語で3Dプリント依頼の語がまとまって多い。後の2つは英語のみ。CSVはプロジェクトファイル katachi-seo/keyword-planner/。
 - 記事：/guide/no-drawing/（狙う語「図面 加工」月100〜1,000、副「板金 図面」月100〜1,000、「板金 曲げ 図面 書き方」月100〜1,000）。根拠はキーワードプランナー（Kabuku Connect 起点、2025/11〜2026/10）。
 - キーワードプランナー2回目（プラッとものづくり・Kabuku Connect・Xometry起点）：依頼系は小さい（板金 見積・工場 おすすめ・ものづくり 会社 が月100〜1,000、ものづくり 依頼・工場 依頼・試作 制作 は月10〜100）。Xometry は英語のみ。
 - 記事：/guide/find-manufacturer/（狙う語「製造委託先 探し方」、副「OEM 委託先 探し方」「工場 探し方」）。数字なし。
