@@ -330,6 +330,52 @@ details.grp>.in{display:grid;gap:12px;padding:0 14px 14px}
   .fchip .n{max-width:140px}
 }
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+.mstep{margin-top:28px;padding-top:20px;border-top:1px solid var(--line)}
+.mhead{display:flex;align-items:baseline;gap:12px;margin-bottom:12px}.mhead h2{font-size:19px;margin:0}.mno{font-size:12px;color:var(--ice)}
+/* guided (選んで探す) */
+.modes{display:grid;grid-template-columns:1fr 1fr;gap:8px;max-width:760px;margin:0 0 12px}
+.modes button{display:grid;gap:2px;text-align:left;padding:12px 16px;border:1px solid var(--line2);border-radius:14px;background:color-mix(in srgb,var(--panel) 80%,transparent);transition:border-color .15s,background .15s}
+.modes button b{font-size:15px;font-weight:700}
+.modes button small{font-size:12px;color:var(--mute)}
+.modes button[aria-selected="true"]{border-color:var(--ice);box-shadow:inset 0 0 0 1px var(--ice);background:var(--panel)}
+.modes button[aria-selected="true"] b{color:var(--ice)}
+.gw{padding:18px 20px 16px}
+.gbar{display:flex;gap:4px;margin-bottom:12px}.gbar i{flex:1;height:3px;border-radius:2px;background:var(--line)}.gbar i.on{background:var(--ice)}.gbar i.cur{background:color-mix(in srgb,var(--ice) 45%,transparent)}
+.ghead{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--mute)}.ghead .sp{flex:1}.gno{font-size:11.5px;color:var(--dim)}
+.gq{font-size:18px;margin:14px 0 12px;font-weight:700}
+.gcats{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px}
+.gcat{display:grid;gap:3px;text-align:left;padding:12px 14px;border:1px solid var(--line2);border-radius:12px;background:var(--panel);transition:border-color .15s,background .15s}
+.gcat:hover,.gopt:hover{border-color:var(--ice);background:var(--hover)}
+.gcat b{font-size:14px}.gcat small{font-size:12px;color:var(--mute);line-height:1.5}
+.gcat[aria-pressed="true"],.gopt[aria-pressed="true"]{border-color:var(--ice);box-shadow:inset 0 0 0 1px var(--ice);background:var(--hover)}
+.gcat.soft,.gopt.soft{border-style:dashed}
+.gopts{display:flex;flex-wrap:wrap;gap:8px}
+.gopt{padding:9px 16px;border:1px solid var(--line2);border-radius:99px;background:var(--panel);font-size:14px}
+.glink{font-size:13px;color:var(--ice);text-decoration:underline;text-underline-offset:3px}
+.gfoot{margin-top:16px;padding-top:12px;border-top:1px solid var(--line)}
+.gsum{display:grid;grid-template-columns:auto 1fr;gap:6px 16px;margin:0 0 14px;font-size:14px}.gsum dt{color:var(--mute)}.gsum dd{margin:0}
+.gnote{display:grid;gap:6px;font-size:13px;color:var(--mute)}.gnote textarea{width:100%;border:1px solid var(--line2);border-radius:10px;padding:10px 12px;font:inherit;font-size:14px;color:var(--fg);background:var(--panel);resize:vertical}
+.gact{display:flex;justify-content:flex-end;margin-top:14px}
+.gpick{padding:36px 0 140px}
+.gtop{display:flex;justify-content:space-between;gap:24px;align-items:flex-end;flex-wrap:wrap;padding-bottom:20px;border-bottom:1px solid var(--line)}
+.gh1{font-size:clamp(24px,3.4vw,34px);margin:8px 0 10px;display:flex;flex-wrap:wrap;gap:4px 14px;align-items:baseline}.gh1 span{font-size:.55em;color:var(--mute);font-weight:500}
+.gchips{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.gcount{display:grid;justify-items:end}.gcount b{font-size:34px;font-weight:500;color:var(--ice);line-height:1}.gcount span{font-size:13px;margin-top:4px}.gcount small{font-size:12px;color:var(--mute)}
+.gflt{display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center;padding:16px 0}.gflt .sp{flex:1}
+.gflt label{display:flex;align-items:center;gap:8px;font-size:13px}.gflt select{height:36px;border:1px solid var(--line2);border-radius:9px;padding:0 10px;background:var(--panel);font:inherit;font-size:13px;color:var(--fg)}
+.glist{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.gco{display:flex;gap:14px;padding:14px 16px;border:1px solid var(--line);border-radius:12px;background:var(--panel);transition:border-color .15s}
+.gco.on{border-color:var(--ice);box-shadow:inset 0 0 0 1px var(--ice)}
+.gsel{padding-top:2px}.gsel input{width:18px;height:18px;accent-color:var(--ice)}
+.gbody{flex:1;min-width:0;display:grid;gap:5px}
+.gname{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center}.gname b{font-size:15px}
+.gmeta{font-size:12.5px;color:var(--mute)}.gmeta span{color:var(--fg)}
+.gcaps{display:flex;flex-wrap:wrap;gap:5px}
+.gsumtxt{margin:0;font-size:13px;color:var(--mute);line-height:1.6}
+.glinks{display:flex;gap:14px;font-size:12.5px}
+.gdl{display:grid;min-width:0}.gdl b{font-size:14px}.gdl small{font-size:12px;color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media (max-width:640px){.modes{grid-template-columns:1fr 1fr}.modes button{padding:10px 12px}.modes button small{font-size:11px}.gcats{grid-template-columns:1fr 1fr}.gcat{padding:10px 12px}.gcount{justify-items:start}.gco{padding:12px}}
 </style>
 
 <nav class="nav gut"><div class="wrap">
@@ -432,7 +478,7 @@ const demoR=n=>{const h=hash(n);return Array.from({length:1+h%3},(_,i)=>({t:REV[
 const ravg=r=>+(r.reduce((a,x)=>a+x.ax.reduce((p,c)=>p+c,0)/4,0)/r.length).toFixed(1);
 
 /* ---------- routing ---------- */
-function route(){const h=location.hash.slice(1);if(h==='result'){renderResult();pageview('/result','チーム編成')}else{renderHome();pageview('/','トップ')}window.scrollTo(0,0)}
+function route(){const h=location.hash.slice(1);if(h==='result'){renderResult();pageview('/result','チーム編成')}else if(h==='pick'){renderPick();pageview('/pick','候補の会社（選択式）')}else if(h==='match'){renderMatch();pageview('/match','工程ごとの候補（文章）')}else{renderHome();pageview('/','トップ')}window.scrollTo(0,0)}
 addEventListener('hashchange',route);
 
 /* ---------- HOME ---------- */
@@ -444,7 +490,9 @@ function renderHome(){
     <div class="eyebrow" style="margin-bottom:18px">AI × 町工場 × あなた</div>
     <h1>アイデアを、<br>製品のかたちに。</h1>
     <p class="sub">設計部門がなくても大丈夫。つくりたいものを書くだけで、AIが作り方を工程に分け、全国と海外の工場から、それぞれを得意とする会社でチームを組みます。比べて、選ぶのはあなたです。</p>
-    <form class="composer" id="cmp" autocomplete="off">
+    ${modeTabs()}
+    <div class="composer gw" id="gw" ${S.mode==='guided'?'':'hidden'}></div>
+    <form class="composer" id="cmp" autocomplete="off" ${S.mode==='guided'?'hidden':''}>
       <label for="idea" class="eyebrow" style="position:absolute;left:-9999px">つくりたいもの</label>
       <textarea id="idea" rows="3" placeholder="例：散歩中の犬の心拍を測れる首輪を、まず5個だけ試作したい">${esc(S.idea)}</textarea>
       <div class="files" id="files"></div>
@@ -458,7 +506,7 @@ function renderHome(){
       </div>
       <input type="file" id="fileIn" multiple hidden>
     </form>
-    <div class="examples"><span>試す</span>${EX.map(([k,t])=>`<button class="ex" data-ex="${k}">${t}</button>`).join('')}</div>
+    <div class="examples" ${S.mode==='guided'?'hidden':''}><span>試す</span>${EX.map(([k,t])=>`<button class="ex" data-ex="${k}">${t}</button>`).join('')}</div>
   </div></section>
   <section class="gut"><div class="wrap figs">
     <div class="fig"><b class="mono">${fmt(D.realCount)}</b><span>登録している実在の会社（公開情報）</span></div>
@@ -484,6 +532,8 @@ function renderHome(){
     </dl>
   </div></div></section>`;
   bindHome();field();
+  $$('[data-mode]').forEach(b=>b.onclick=()=>{if(S.mode===b.dataset.mode)return;S.mode=b.dataset.mode;track('switch_mode',{to:S.mode});if(S.mode==='guided')loadGDB();renderHome()});
+  if(S.mode==='guided'){renderGuided();loadGDB()}
 }
 function bindHome(){
   const f=$('#cmp'),ta=$('#idea');
@@ -550,11 +600,223 @@ function field(){
   draw();
 }
 
+/* ---------- GUIDED (選んで探す): 型があるものを、選んで絞る ---------- */
+// cap はマッチングDBの技術分類コード（katachi/taxonomy.py）。提携フォームの「できること」と同じ分類。
+const GC=[
+ {k:'novelty',t:'ノベルティ・販促品',d:'ロゴ入りグッズ、アクリル、トートバッグ',
+  proc:[['プリント・刺繍・染色',['apparel.print_embroidery']],['日用品・雑貨OEM',['cosmetics.household']],['射出成形',['manufacturing.injection_molding']],['金属製品・鋳造・アクセサリー',['crafts.metal_goods']],['ラベル・シール・印刷物',['packaging.label_print']],['縫製・布・革製品',['manufacturing.textile']]],
+  mat:['樹脂・アクリル','布','金属','紙','木','陶磁器・ガラス']},
+ {k:'case',t:'ケース・筐体・樹脂部品',d:'機器のケース、カバー、つまみ、ゴム部品',
+  proc:[['試作(3Dプリント・簡易型)',['manufacturing.rapid_proto']],['射出成形',['manufacturing.injection_molding']],['シリコーン・ゴム成形',['manufacturing.silicone_molding']],['筐体・機構設計',['mechanical.enclosure_design','mechanical.waterproof']]],
+  mat:['ABS','PP・PE','ポリカーボネート','アクリル','ナイロン','シリコーン・ゴム']},
+ {k:'metal',t:'金属部品・補修部品',d:'機械の部品、ブラケット、廃番部品の作り直し',
+  proc:[['切削加工(CNC)',['manufacturing.cnc']],['板金加工',['manufacturing.sheet_metal']],['金属製品・鋳造・アクセサリー',['crafts.metal_goods']],['試作(3Dプリント・簡易型)',['manufacturing.rapid_proto']]],
+  mat:['アルミ','ステンレス','鉄','真鍮・銅','チタン']},
+ {k:'textile',t:'布製品・バッグ・衣類',d:'ユニフォーム、バッグ、ペット用品、小物',
+  proc:[['衣料品OEM(企画・パターン・縫製)',['apparel.garment_oem']],['縫製・布・革製品',['manufacturing.textile']],['革製品・バッグ・靴',['apparel.leather']],['ニット・編み立て',['apparel.knit']],['プリント・刺繍・染色',['apparel.print_embroidery']]],
+  mat:['綿','ポリエステル','ナイロン','革・合皮','ウール・ニット','帆布']},
+ {k:'pkg',t:'パッケージ・ラベル',d:'化粧箱、シール、ボトル・容器',
+  proc:[['化粧箱・紙器・パッケージ',['packaging.box']],['ラベル・シール・印刷物',['packaging.label_print']],['ボトル・容器',['packaging.container']]],
+  mat:['紙・段ボール','フィルム・パウチ','プラスチック容器','ガラス瓶']},
+ {k:'craft',t:'木工・陶磁器・家具・金属雑貨',d:'店舗什器、食器、インテリア',
+  proc:[['木工・家具',['crafts.wood_furniture']],['陶磁器・ガラス',['crafts.ceramics_glass']],['金属製品・鋳造・アクセサリー',['crafts.metal_goods']]],
+  mat:['木','陶器・磁器','ガラス','金属']},
+ {k:'elec',t:'電子機器・基板',d:'基板の実装、組立、小型のIoT機器',
+  proc:[['基板実装(PCBA)',['electronics.pcba']],['回路・基板設計',['electronics.pcb_design']],['組立・検査(EMS)',['manufacturing.assembly']],['組込みファームウェア',['electronics.firmware']],['無線通信(BLE/LTE-M/LoRa等)',['electronics.wireless']]],
+  mat:['部品は工場で手配','部品は自分で用意']},
+ {k:'food',t:'食品・飲料・ペットフード',d:'お菓子、調味料、飲料、サプリ、おやつ',
+  proc:[['加工食品OEM',['food.processed_oem']],['清涼飲料・健康食品OEM',['food.beverage_oem']],['ペットフードOEM',['food.pet_food']]],
+  mat:['お菓子','調味料','レトルト・冷凍','飲料','サプリ','ペットフード']},
+ {k:'cos',t:'化粧品・日用品',d:'スキンケア、ヘアケア、洗剤、キャンドル',
+  proc:[['化粧品OEM',['cosmetics.oem']],['日用品・雑貨OEM',['cosmetics.household']]],
+  mat:['スキンケア','ヘアケア','洗剤','キャンドル・アロマ']},
+];
+const GQ=[['1〜10個（試作）','proto',10],['11〜100個','small',100],['101〜1,000個','small',1000],['1,001個以上','mass',1e9]];
+const GDR=['図面・データがある','見本・現物がある','写真・スケッチだけ','まだ何もない'];
+const GDUE=['1か月以内','1〜3か月','3か月以上','決まっていない'];
+const GREG=['海外の工場もよい','国内の工場だけ'];
+const OMAKASE='おまかせ（わからない）',GUNK='わからない・相談したい';
+const GSTEPS=['つくるもの','加工方法','素材','数量と図面','時期と地域','確認'];
+S.mode=S.mode||'free';S.g=S.g||{step:0};
+const gCat=()=>GC.find(c=>c.k===S.g.cat);
+function gCodes(){const c=gCat();if(!c)return[];const p=c.proc.find(x=>x[0]===S.g.proc);return p?p[1]:c.proc.flatMap(x=>x[1])}
+function gLines(){const g=S.g,c=gCat();return [['つくるもの',c?.t],['加工方法',g.proc],['素材',g.mat],['数量',g.qty],['手元にあるもの',g.draw],['希望の時期',g.due],['依頼先',g.reg],['補足',g.note]].filter(x=>x[1])}
+const gSum=()=>gLines().map(([l,v])=>tx(l)+': '+(l==='補足'?v:tx(v))).join('\n');
+function gToFree(){const t=gLines().map(([l,v])=>l+'：'+v).join('\n');S.mode='free';S.idea=t;track('switch_mode',{to:'free',from_step:S.g.step});renderHome();const ta=$('#idea');if(ta){ta.focus();ta.oninput()}}
+function modeTabs(){return `<div class="modes" role="tablist" aria-label="はじめ方">
+  <button type="button" role="tab" data-mode="free" aria-selected="${S.mode==='free'}"><b>文章で書く</b><small>新しいもの・まだ形が決まっていないもの</small></button>
+  <button type="button" role="tab" data-mode="guided" aria-selected="${S.mode==='guided'}"><b>選んで探す</b><small>ノベルティ・部品・袋物など、型があるもの</small></button></div>`}
+function gChoice(key,opts,extra){const cur=S.g[key];return `<div class="gopts">${opts.map(o=>`<button type="button" class="gopt" data-g="${key}" data-v="${esc(o)}" aria-pressed="${cur===o}">${esc(o)}</button>`).join('')}${extra?`<button type="button" class="gopt soft" data-g="${key}" data-v="${esc(extra)}" aria-pressed="${cur===extra}">${esc(extra)}</button>`:''}</div>`}
+function renderGuided(){
+  const el=$('#gw');if(!el)return;const g=S.g,c=gCat();const st=g.step;
+  const bar=`<div class="gbar">${GSTEPS.map((s,i)=>`<i class="${i<st?'on':i===st?'cur':''}"></i>`).join('')}</div>
+    <div class="ghead"><span class="mono gno">${st+1} / ${GSTEPS.length}</span><b>${esc(GSTEPS[st])}</b><span class="sp"></span>${st?'<button type="button" class="glink" id="gBack">← 戻る</button>':''}</div>`;
+  let body='';
+  if(st===0)body=`<h3 class="gq">何をつくりますか？</h3><div class="gcats">${GC.map(x=>`<button type="button" class="gcat" data-cat="${x.k}" aria-pressed="${g.cat===x.k}"><b>${esc(x.t)}</b><small>${esc(x.d)}</small></button>`).join('')}
+    <button type="button" class="gcat soft" id="gOther"><b>どれにも当てはまらない</b><small>文章で書いて相談する</small></button></div>`;
+  else if(st===1)body=`<h3 class="gq">どの加工で作りますか？</h3>${gChoice('proc',c.proc.map(p=>p[0]),OMAKASE)}`;
+  else if(st===2)body=`<h3 class="gq">${c.k==='elec'?'部品の手配は？':c.k==='food'||c.k==='cos'?'どんな種類ですか？':'素材は？'}</h3>${gChoice('mat',c.mat,GUNK)}`;
+  else if(st===3)body=`<h3 class="gq">いくつ作りますか？</h3>${gChoice('qty',GQ.map(q=>q[0]))}<h3 class="gq" style="margin-top:20px">手元にあるものは？</h3>${gChoice('draw',GDR)}`;
+  else if(st===4)body=`<h3 class="gq">いつまでに必要ですか？</h3>${gChoice('due',GDUE)}<h3 class="gq" style="margin-top:20px">依頼先の範囲</h3>${gChoice('reg',GREG)}`;
+  else body=`<h3 class="gq">この内容で候補を探します</h3><dl class="gsum">${gLines().filter(x=>x[0]!=='補足').map(([l,v])=>`<dt>${esc(l)}</dt><dd>${esc(v)}</dd>`).join('')}</dl>
+    <label class="gnote"><span>補足（任意）</span><textarea id="gNote" rows="2" placeholder="例：大きさ 80×50mm、黒、ロゴを1色で入れたい">${esc(g.note||'')}</textarea></label>
+    <div class="gact"><button type="button" class="btn pri" id="gGo">候補の会社を見る<svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div>`;
+  el.innerHTML=bar+body+(st?`<div class="gfoot"><button type="button" class="glink" id="gFree">文章で書くに切り替える（ここまでの内容は引き継ぎます）</button></div>`:'');
+  $$('[data-cat]').forEach(b=>b.onclick=()=>{if(S.g.cat!==b.dataset.cat)S.g={step:0,cat:b.dataset.cat};S.g.step=1;track('guided_step',{step:'category',value:b.dataset.cat});renderGuided()});
+  $('#gOther')&&($('#gOther').onclick=gToFree);
+  $$('[data-g]').forEach(b=>b.onclick=()=>{const k=b.dataset.g;S.g[k]=b.dataset.v;track('guided_step',{step:k});
+    const need={1:['proc'],2:['mat'],3:['qty','draw'],4:['due','reg']}[st]||[];
+    if(need.every(n=>S.g[n]))S.g.step=st+1;renderGuided()});
+  $('#gBack')&&($('#gBack').onclick=()=>{S.g.step=Math.max(0,st-1);renderGuided()});
+  $('#gFree')&&($('#gFree').onclick=()=>{if($('#gNote'))S.g.note=$('#gNote').value.trim();gToFree()});
+  $('#gGo')&&($('#gGo').onclick=()=>{S.g.note=$('#gNote').value.trim();const q=GQ.find(x=>x[0]===S.g.qty);S.qty=q?q[1]:'small';
+    S.src='guided';S.gstep={};track('form_cta',{form:'guided',category:S.g.cat,quantity:S.qty});location.hash='pick'});
+}
+/* 会社の一覧は「選んで探す」を使ったときだけ読み込む（data/companies.json） */
+let GDB=null,gdbP=null;
+function loadGDB(){if(GDB)return Promise.resolve(GDB);if(window.KATACHI_COMPANIES){GDB=window.KATACHI_COMPANIES;fillCAPN();return Promise.resolve(GDB)}
+  return gdbP||(gdbP=fetch('data/companies.json').then(r=>r.json()).then(j=>{GDB=j;fillCAPN();return j}).catch(()=>{gdbP=null;return null}))}
+function gRank(){const codes=gCodes(),idx=codes.map(c=>GDB.caps.indexOf(c)).filter(i=>i>=0),allIdx=gCat().proc.flatMap(p=>p[1]).map(c=>GDB.caps.indexOf(c));
+  const q=GQ.find(x=>x[0]===S.g.qty),qmax=q?q[2]:1e9,jpOnly=S.g.reg==='国内の工場だけ',noDraw=/写真|まだ/.test(S.g.draw||'');
+  const out=[];for(const r of GDB.c){const[n,ct,pref,city,web,caps,proto,nodraw,ml,mat,lv]=r;
+    if(!caps.some(i=>idx.includes(i)))continue;if(jpOnly&&ct!=='JP')continue;
+    if(S.gf.area&&(S.gf.area==='JP'?ct!=='JP':S.gf.area==='ABROAD'?ct==='JP':(ct==='JP'?pref!==S.gf.area:ct!==S.gf.area)))continue;
+    if(S.gf.proto&&!proto)continue;
+    let s=caps.filter(i=>idx.includes(i)).length*2+caps.filter(i=>allIdx.includes(i)&&!idx.includes(i)).length*.5+(lv==='pub'?3:0)+(proto&&qmax<=10?1.5:0)+(nodraw&&noDraw?1:0)+(ml!=null&&ml<=qmax?1:0)-(ml!=null&&ml>qmax?3:0)+(ct==='JP'?2:0);
+    out.push([s,r])}
+  return out.sort((a,b)=>b[0]-a[0]).map(x=>x[1])}
+function gAreas(list){const m=new Map();for(const r of list){const k=r[1]==='JP'?(r[2]||''):r[1];if(k)m.set(k,(m.get(k)||0)+1)}return[...m].sort((a,b)=>b[1]-a[1])}
+async function renderPick(){
+  $('#dock').innerHTML='';
+  if(!gCat()||!S.g.qty){location.hash='';return}
+  S.gf=S.gf||{area:'',proto:false};S.gsel=S.gsel||[];S.gshow=S.gshow||20;
+  $('#app').innerHTML=`<section class="gut build"><div><div class="eyebrow">Searching</div><h2 style="margin-top:10px">候補の会社を探しています</h2></div></section>`;
+  const db=await loadGDB();
+  if(!db){$('#app').innerHTML=`<section class="gut"><div class="wrap" style="padding:60px 0"><h2>会社の一覧を読み込めませんでした</h2><p class="muted">通信の状態を確かめて、もう一度お試しください。</p><button class="btn" onclick="location.reload()">再読み込み</button></div></section>`;return}
+  const all=gRank();const base=(()=>{const f=S.gf;S.gf={area:'',proto:false};const b=gRank();S.gf=f;return b})();
+  const areas=gAreas(base);const nJP=base.filter(r=>r[1]==='JP').length;
+  const list=all.slice(0,S.gshow);const lvTag=lv=>lv==='pub'?mk('pub','公式サイト等で確認'):mk('unk','要確認');
+  $('#app').innerHTML=`<section class="gut"><div class="wrap gpick">
+    <div class="gtop"><div><div class="eyebrow">Your request</div><h1 class="gh1">${esc(gCat().t)}<span>${esc(S.g.proc&&S.g.proc!==OMAKASE?S.g.proc:'加工方法はおまかせ')}</span></h1>
+      <div class="gchips">${gLines().filter(x=>!['つくるもの','加工方法','補足'].includes(x[0])).map(([l,v])=>`<span class="chip">${esc(l)} · ${esc(v)}</span>`).join('')}<button type="button" class="glink" id="gEdit">条件を変える</button></div></div>
+      <div class="gcount"><b class="mono">${fmt(all.length)}</b><span>社が候補</span><small>国内 ${fmt(nJP)} · 海外 ${fmt(base.length-nJP)}</small></div></div>
+    <div id="gEst"></div>
+    <div class="gflt"><label>地域<select id="gArea"><option value="">すべて</option><option value="JP">国内だけ</option>${S.g.reg==='国内の工場だけ'?'':'<option value="ABROAD">海外だけ</option>'}${areas.slice(0,30).map(([k,n])=>`<option value="${esc(k)}">${esc(CTRY[k]||k)} · ${n}社</option>`).join('')}</select></label>
+      <label class="chk"><input type="checkbox" id="gProto" ${S.gf.proto?'checked':''}><span>試作に対応と書いている会社だけ</span></label>
+      <span class="sp"></span><span class="muted" style="font-size:12.5px">見積を取りたい会社を最大5社まで選べます。選ばずに依頼すると、担当者が候補から選んで打診します。</span></div>
+    <ol class="glist">${list.map(r=>{const[n,ct,pref,city,web,caps,proto,nodraw,ml,mat,lv,sum,src]=r;const on=S.gsel.includes(n);
+      return `<li class="gco ${on?'on':''}"><label class="gsel"><input type="checkbox" data-pick="${esc(n)}" ${on?'checked':''} aria-label="${esc(n)}を選ぶ"></label>
+        <div class="gbody"><div class="gname"><b translate="no">${esc(n)}</b>${lvTag(lv)}</div>
+        <div class="gmeta">${esc(ct==='JP'?[pref,city].filter(Boolean).join(' ')||'国内':(CTRY[ct]||ct))}${proto?' · <span>試作に対応</span>':''}${nodraw?' · <span>図面なしで相談可</span>':''}${ml!=null?` · <span>最小ロット ${fmt(ml)}個</span>`:''}${mat==='factory'||mat==='both'?' · <span>材料を手配</span>':''}</div>
+        <div class="gcaps">${caps.map(i=>GDB.caps[i]).filter(c=>gCodes().includes(c)||gCat().proc.some(p=>p[1].includes(c))).map(c=>`<span class="chip">${esc(CAPN[c]||c)}</span>`).join('')}</div>
+        ${sum?`<p class="gsumtxt" translate="no">${esc(sum)}</p>`:''}
+        <div class="glinks">${web?`<a href="${esc(web)}" target="_blank" rel="noopener">公式サイト</a>`:''}${src&&src!==web?`<a href="${esc(src)}" target="_blank" rel="noopener">出典</a>`:''}</div></div></li>`}).join('')}</ol>
+    ${all.length>list.length?`<div style="text-align:center;margin:18px 0"><button class="btn" id="gMore">さらに表示 · 残り ${fmt(all.length-list.length)}社</button></div>`:''}
+    ${!all.length?`<div class="empty"><b>条件に合う会社が見つかりませんでした</b>地域や「試作に対応」の絞り込みを外すか、このまま依頼してください。担当者が探してお声がけします。</div>`:''}
+    <p class="muted" style="font-size:12.5px;margin-top:24px">一覧は公開情報から集めたものです。「要確認」の会社は、見積の依頼で対応できるかを確かめます。順番は、選んだ加工への対応・確認の度合い・数量への合い方で決めています。</p>
+  </div></section>`;
+  const dock=()=>{$('#dock').innerHTML=`<div class="dock gut"><div class="wrap"><div class="gdl"><b>${S.gsel.length?`${S.gsel.length}社 · 選択中`:'会社選びは担当者に任せる'}</b><small translate="${S.gsel.length?'no':'yes'}">${S.gsel.length?S.gsel.map(esc).join('、'):'候補から合いそうな会社を選んで打診します'}</small></div><span class="sp"></span><button class="btn pri" id="gRfq">見積を依頼する</button></div></div>`;$('#gRfq').onclick=gRfq};dock();
+  $('#gEdit').onclick=()=>{S.mode='guided';S.g.step=1;location.hash=''};
+  $('#gArea').value=S.gf.area;$('#gArea').onchange=e=>{S.gf.area=e.target.value;S.gshow=20;track('filter_company',{filter:'area',source:'guided'});renderPick()};
+  $('#gProto').onchange=e=>{S.gf.proto=e.target.checked;S.gshow=20;track('filter_company',{filter:'proto',source:'guided'});renderPick()};
+  $('#gMore')&&($('#gMore').onclick=()=>{S.gshow+=20;renderPick()});
+  $$('[data-pick]').forEach(b=>b.onchange=()=>{const n=b.dataset.pick;if(b.checked){if(S.gsel.length>=5){b.checked=false;return}S.gsel.push(n)}else S.gsel=S.gsel.filter(x=>x!==n);b.closest('.gco').classList.toggle('on',b.checked);track('select_company',{source:'guided',selected:S.gsel.length});dock()});
+  if(typeof window.KATACHI_EST_CARD==='function'){try{$('#gEst').innerHTML=window.KATACHI_EST_CARD(gCodes(),(GQ.find(x=>x[0]===S.g.qty)||[])[2])||''}catch(e){}}
+}
+const CAPN={};const fillCAPN=()=>{if(GDB&&GDB.names)GDB.caps.forEach((c,i)=>CAPN[c]=GDB.names[i])};
+function gRfq(){
+  // 選択式でも、文章で書いたときと同じ見積依頼書（RFQ）にまとめる
+  for(const n of S.gsel){if(D.companies[n])continue;const r=GDB.c.find(x=>x[0]===n);if(!r)continue;
+    D.companies[n]={name:n,country:r[1],pref:r[2],city:r[3],web:r[4],summary:r[11],level:r[10],src:r[12],checked:r[13],terms:{},caps:[],solved:[],certs:[]}}
+  const GS=S.src==='guided';const sum=GS?gSum():S.idea;
+  D.scen.guided={idea:sum,summary:sum,per_requirement:[],teams:[],open_questions:[]};
+  S.scen='guided';S.matched=GS?'guided':'text';S.idea=sum;S.assign={};
+  rfq(S.gsel.slice());
+  if(!GS)return;
+  const set=(id,v)=>{const el=$('#'+id);if(el&&v)el.value=v};
+  set('f-due',S.g.due&&S.g.due!=='決まっていない'?tx(S.g.due):'');
+  if(S.g.reg==='国内の工場だけ')set('f-abr','国内の工場だけ');
+  if(S.g.mat==='部品は自分で用意')set('f-mat','自分で用意する');
+}
+
+/* ---------- 文章から工程を読み取る（マッチングエンジンのルール解析 analyze_with_rules と同じ考え方） ---------- */
+function analyzeText(text){
+  const t=String(text||'').toLowerCase(),C=GDB.caps;
+  const leaf=c=>!C.some(o=>o.startsWith(c+'.'));
+  let hit=[];C.forEach((c,i)=>{if(leaf(c)&&GDB.kw[i].some(k=>t.includes(k.toLowerCase())))hit.push(c)});
+  const notices=[];
+  for(const c of Object.keys(GDB.deferred||{}))if(hit.includes(c)){hit=hit.filter(x=>x!==c);notices.push(GDB.deferred[c])}
+  for(const [kws,msg] of GDB.deferred_kw||[])if(kws.some(k=>t.includes(k.toLowerCase())))notices.push(msg);
+  const hw=hit.some(c=>/^(sensing|electronics)/.test(c));
+  if(!hw)hit=hit.filter(c=>c!=='testing.animal_trial');
+  if(hw)for(const c of ['electronics.pcb_design','electronics.firmware','electronics.low_power','mechanical.enclosure_design','manufacturing.rapid_proto','electronics.pcba','manufacturing.assembly'])if(!hit.includes(c))hit.push(c);
+  if(hit.includes('electronics.wireless')&&!hit.includes('testing.radio_cert'))hit.push('testing.radio_cert');
+  if(hit.includes('electronics.low_power')&&!hit.includes('testing.battery_safety'))hit.push('testing.battery_safety');
+  // 試作・設計・製造・試験の順に並べる
+  const order=['sensing','electronics','mechanical','software','manufacturing','apparel','crafts','packaging','food','cosmetics','testing'];
+  hit.sort((a,b)=>order.indexOf(a.split('.')[0])-order.indexOf(b.split('.')[0]));
+  const regs=(GDB.regs||[]).filter(([kws])=>kws.some(k=>t.includes(k.toLowerCase()))).map(x=>x[1]);
+  return {codes:hit,regs,notices:[...new Set(notices)]};
+}
+function rankFor(codes,opts){const idx=codes.map(c=>GDB.caps.indexOf(c)).filter(i=>i>=0);const qmax=opts.qmax||1e9;const out=[];
+  for(const r of GDB.c){const[n,ct,pref,city,web,caps,proto,nodraw,ml,mat,lv]=r;if(!caps.some(i=>idx.includes(i)))continue;
+    if(S.gf.area&&(S.gf.area==='JP'?ct!=='JP':S.gf.area==='ABROAD'?ct==='JP':(ct==='JP'?pref!==S.gf.area:ct!==S.gf.area)))continue;
+    if(S.gf.proto&&!proto)continue;
+    const s=(lv==='pub'?3:0)+(proto&&qmax<=10?1.5:0)+(nodraw?1:0)+(ml!=null&&ml<=qmax?1:0)-(ml!=null&&ml>qmax?3:0)+(ct==='JP'?2:0)+(opts.bonus?opts.bonus(r):0);
+    out.push([s,r])}
+  return out.sort((a,b)=>b[0]-a[0]).map(x=>x[1])}
+function coCard(r,chipCodes){const[n,ct,pref,city,web,caps,proto,nodraw,ml,mat,lv,sum,src]=r;const on=S.gsel.includes(n);
+  return `<li class="gco ${on?'on':''}"><label class="gsel"><input type="checkbox" data-pick="${esc(n)}" ${on?'checked':''} aria-label="${esc(n)}"></label>
+    <div class="gbody"><div class="gname"><b translate="no">${esc(n)}</b>${lv==='pub'?mk('pub','公式サイト等で確認'):mk('unk','要確認')}</div>
+    <div class="gmeta">${esc(ct==='JP'?[pref,city].filter(Boolean).join(' ')||'国内':(CTRY[ct]||ct))}${proto?' · <span>試作に対応</span>':''}${nodraw?' · <span>図面なしで相談可</span>':''}${ml!=null?` · <span>最小ロット ${fmt(ml)}個</span>`:''}${mat==='factory'||mat==='both'?' · <span>材料を手配</span>':''}</div>
+    <div class="gcaps">${caps.map(i=>GDB.caps[i]).filter(c=>chipCodes.includes(c)).map(c=>`<span class="chip">${esc(CAPN[c]||c)}</span>`).join('')}</div>
+    ${sum?`<p class="gsumtxt" translate="no">${esc(sum)}</p>`:''}
+    <div class="glinks">${web?`<a href="${esc(web)}" target="_blank" rel="noopener">公式サイト</a>`:''}${src&&src!==web?`<a href="${esc(src)}" target="_blank" rel="noopener">出典</a>`:''}</div></div></li>`}
+function bindPicks(rerender){
+  $$('[data-pick]').forEach(b=>b.onchange=()=>{const n=b.dataset.pick;if(b.checked){if(S.gsel.length>=8){b.checked=false;return}S.gsel.push(n);S.gstep[n]=b.closest('[data-step]')?.dataset.step||S.gstep[n]}else S.gsel=S.gsel.filter(x=>x!==n);
+    b.closest('.gco').classList.toggle('on',b.checked);track('select_company',{source:S.src,selected:S.gsel.length});pickDock()})}
+function pickDock(){$('#dock').innerHTML=`<div class="dock gut"><div class="wrap"><div class="gdl"><b>${S.gsel.length?`${S.gsel.length}社 · 選択中`:'会社選びは担当者に任せる'}</b><small translate="${S.gsel.length?'no':'yes'}">${S.gsel.length?S.gsel.map(esc).join('、'):'候補から合いそうな会社を選んで打診します'}</small></div><span class="sp"></span><button class="btn pri" id="gRfq">見積を依頼する</button></div></div>`;$('#gRfq').onclick=gRfq}
+async function renderMatch(){
+  $('#dock').innerHTML='';
+  if(!S.idea){location.hash='';return}
+  S.gf=S.gf||{area:'',proto:false};S.gsel=S.gsel||[];S.gstep=S.gstep||{};S.gmore=S.gmore||{};
+  $('#app').innerHTML=`<section class="gut build"><div><div class="eyebrow">Building your team</div><h2 style="margin-top:10px">工程を読み取っています</h2></div></section>`;
+  const db=await loadGDB();
+  if(!db){$('#app').innerHTML=`<section class="gut"><div class="wrap" style="padding:60px 0"><h2>会社の一覧を読み込めませんでした</h2><p class="muted">通信の状態を確かめて、もう一度お試しください。</p><button class="btn" onclick="location.reload()">再読み込み</button></div></section>`;return}
+  const A=analyzeText(S.idea+' '+S.files.map(f=>f.name).join(' '));S.anal=A;
+  const qmax={proto:10,small:500,mass:1e9}[S.qty]||500;
+  const secs=A.codes.map(c=>{let list=rankFor([c],{qmax});if(!list.length&&c.includes('.'))list=rankFor([c.split('.').slice(0,-1).join('.')],{qmax});return {c,list}});
+  const total=new Set(secs.flatMap(s=>s.list.map(r=>r[0]))).size;
+  track('text_analyze',{steps:A.codes.length,companies:total,chars:S.idea.length});
+  $('#app').innerHTML=`<section class="gut"><div class="wrap gpick">
+    <div class="gtop"><div style="min-width:0;flex:1"><div class="eyebrow">Your request</div><h1 class="gh1" translate="no" style="font-size:clamp(20px,2.6vw,28px)">${esc(S.idea.length>120?S.idea.slice(0,120)+'…':S.idea)}</h1>
+      <div class="gchips">${A.codes.length?`<span class="chip">${A.codes.length}工程</span>`:''}<span class="chip">${esc({proto:'試作',small:'小ロット',mass:'量産'}[S.qty])}</span><button type="button" class="glink" id="mEdit">書き直す</button></div></div>
+      <div class="gcount"><b class="mono">${fmt(total)}</b><span>社が候補</span></div></div>
+    <div class="empty" style="margin-top:16px"><b>書いた内容から、必要な工程をキーワードで読み取りました</b>AIによる詳しい解析は準備中です。工程が足りない・違うと思ったら、そのまま見積を依頼してください。担当者があなたの文章を読んで、工程と会社を組み直してお届けします。</div>
+    ${A.notices.map(n=>`<div class="empty" style="margin-top:10px;border-color:var(--amber)"><b>KATACHIでは扱っていない工程があります</b>${esc(n)}</div>`).join('')}
+    ${A.regs.length?`<div class="blk" style="margin-top:16px"><h4>確かめておきたい法規制・認証</h4><ul class="list">${A.regs.map(x=>`<li>${esc(x)}</li>`).join('')}</ul><p class="muted" style="margin:6px 0 0;font-size:12px">キーワードから当たりを付けた参考情報です。正式な判断は専門家・認証機関が行います。</p></div>`:''}
+    ${A.codes.length?`<div class="gflt"><label>地域<select id="gArea"><option value="">すべて</option><option value="JP">国内だけ</option><option value="ABROAD">海外だけ</option></select></label>
+      <label class="chk"><input type="checkbox" id="gProto" ${S.gf.proto?'checked':''}><span>試作に対応と書いている会社だけ</span></label><span class="sp"></span>
+      <span class="muted" style="font-size:12.5px">工程ごとに見積を取りたい会社を選べます（合計8社まで）。選ばずに依頼すると、担当者が選んで打診します。</span></div>`:
+      `<div class="empty" style="margin-top:16px"><b>文章から工程を読み取れませんでした</b>このまま見積を依頼すれば、担当者が内容を読んで工程と会社を探します。型が決まっているもの（部品・ノベルティ・袋物など）なら「選んで探す」が早いです。<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn" id="mGuided">選んで探す</button></div></div>`}
+    ${secs.map((s,i)=>{const k=S.gmore[s.c]||5;return `<section class="mstep" data-step="${esc(CAPN[s.c]||s.c)}"><div class="mhead"><span class="mono mno">${String(i+1).padStart(2,'0')}</span><h2>${esc(CAPN[s.c]||s.c)}</h2><span class="muted">${fmt(s.list.length)}社</span></div>
+      ${s.list.length?`<ol class="glist">${s.list.slice(0,k).map(r=>coCard(r,A.codes)).join('')}</ol>${s.list.length>k?`<button class="glink" data-more="${esc(s.c)}" style="margin-top:10px">さらに表示 · 残り ${fmt(s.list.length-k)}社</button>`:''}`:`<p class="muted" style="font-size:13px">この工程の会社は、まだ一覧にありません。担当者が探してお声がけします。</p>`}</section>`}).join('')}
+    <p class="muted" style="font-size:12.5px;margin-top:24px">一覧は公開情報から集めたものです。「要確認」の会社は、見積の依頼で対応できるかを確かめます。順番は、確認の度合い・試作や数量への合い方・所在地で決めています。</p>
+  </div></section>`;
+  pickDock();bindPicks();
+  $('#mEdit').onclick=()=>{S.mode='free';location.hash=''};
+  $('#mGuided')&&($('#mGuided').onclick=()=>{S.mode='guided';S.g={step:0};location.hash=''});
+  $('#gArea')&&($('#gArea').value=S.gf.area,$('#gArea').onchange=e=>{S.gf.area=e.target.value;track('filter_company',{filter:'area',source:'text'});renderMatch()});
+  $('#gProto')&&($('#gProto').onchange=e=>{S.gf.proto=e.target.checked;track('filter_company',{filter:'proto',source:'text'});renderMatch()});
+  $$('[data-more]').forEach(b=>b.onclick=()=>{S.gmore[b.dataset.more]=(S.gmore[b.dataset.more]||5)+10;renderMatch()});
+}
+
 /* ---------- GO / LOADING ---------- */
 function pick(text){for(const [k,re] of [['collar',/犬|猫|ペット|首輪|動物|心拍/],['mimamori',/見守|高齢|ドア|開閉|室温|部屋/],['bike',/自転車|ライト|ハンドル|バイク/]])if(re.test(text))return[k,'near'];return['collar','fallback']}
 function go(ex){
   S.idea=$('#idea').value.trim()||S.files.map(f=>f.name).join('、');
-  if(ex){S.scen=ex;S.matched='example'}else{const[k,m]=pick(S.idea);S.scen=k;S.matched=m}
+  if(!ex){S.src='text';S.matched='text';S.gsel=[];S.gstep={};S.gmore={};S.gf={area:'',proto:false};loadGDB();location.hash='match';if(location.hash==='#match')renderMatch();return}
+  S.scen=ex;S.matched='example';S.src='example'
   S.lastReal=S.scen;S.plan=0;S.custom=false;S.tab='team';setPlan(0);S.viewSent=false;
   const R=D.scen[S.scen];const steps=['要件を読み取る',`${R.per_requirement.length}の工程に分ける`,`${fmt(D.realCount)}社から候補を探す`,'チームを組む'];
   $('#dock').innerHTML='';
@@ -777,8 +1039,9 @@ function rfqVals(r,qty){return RFQ(r,qty).flatMap(g=>g[1]).filter(f=>!PRIV.inclu
   const v=f[2]==='cks'?[...el.querySelectorAll('input:checked')].map(i=>i.value).join('、'):el.value.trim();return [f[1],v]}).filter(x=>x&&x[1])}
 function rfq(names){
   track('open_inquiry',{type:'rfq',companies:names.length,overseas:names.filter(n=>abroad(D.companies[n])).length});
-  const r=R();const qty={proto:'試作 1〜10個',small:'小ロット 〜500個',mass:'量産 500個〜'}[S.qty];
-  const roles=n=>Object.entries(S.assign).filter(([,v])=>v===n).map(([k])=>r.per_requirement.find(p=>p.requirement.id===k)?.requirement.purpose).filter(Boolean).join('、');
+  const r=R();const qty=S.scen==='guided'&&S.src==='guided'&&S.g.qty?S.g.qty:{proto:'試作 1〜10個',small:'小ロット 〜500個',mass:'量産 500個〜'}[S.qty];
+  const G=S.scen==='guided';
+  const roles=n=>G?(S.src==='guided'?(S.g.proc&&S.g.proc!==OMAKASE?S.g.proc:gCat()?.t||''):(S.gstep[n]||'')):Object.entries(S.assign).filter(([,v])=>v===n).map(([k])=>r.per_requirement.find(p=>p.requirement.id===k)?.requirement.purpose).filter(Boolean).join('、');
   sheet(`${head('Request for quote','見積を依頼する')}
     ${S.files.length?`<div class="blk"><h4>取り込んだ設計データ</h4><ul class="list"><li><b style="font-weight:600">添付する設計データ</b><span class="s">${S.files.map(f=>esc(f.name)).join('、')}</span></li></ul></div>`:''}
     <p class="muted" style="margin:0;font-size:13px">必須は5つだけです。ほかは、わかる範囲で選ぶか空けておけば「相談したい」として届きます。</p>
@@ -788,7 +1051,7 @@ function rfq(names){
       <label class="chk"><input type="checkbox" id="f-agree"><span>${TERMS_URL?`<a href="${TERMS_URL}" target="_blank" rel="noopener">利用規約</a>と<a href="${PRIVACY_URL}" target="_blank" rel="noopener">プライバシーポリシー</a>`:'利用規約とプライバシーポリシー'}に同意します<span class="req">必須</span></span></label>
       ${names.some(n=>abroad(D.companies[n]))?`<label class="chk"><input type="checkbox" id="f-abroad-ok"><span>海外の会社（${[...new Set(names.filter(n=>abroad(D.companies[n])).map(n=>CTRY[D.companies[n].country]||D.companies[n].country))].join('、')}）に依頼内容を渡すことに同意します<small>国外の会社に渡すときは、担当者が送る前にもう一度確認します。同意しない場合は、海外の会社には送りません。</small></span></label>`:''}
       <div class="ferr" id="rfErr" role="alert"></div>
-      <div class="blk"><h4>送り先 · ${names.length}社</h4><ul class="list">${names.map(n=>`<li><span style="display:flex;gap:10px;align-items:center">${avatar(n)}<span style="flex:1;min-width:0"><b style="font-weight:600">${esc(n)}</b><span class="s" style="display:block">${esc(roles(n))}</span></span><span class="chip">${esc(dlvLang(D.companies[n]))}</span></span></li>`).join('')}</ul></div>
+      <div class="blk"><h4>送り先 · ${names.length}社</h4>${names.length?'':'<p class="muted" style="margin:0;font-size:13px">会社は選ばれていません。担当者が候補から合いそうな会社を選んで打診します。</p>'}<ul class="list">${names.map(n=>`<li><span style="display:flex;gap:10px;align-items:center">${avatar(n)}<span style="flex:1;min-width:0"><b style="font-weight:600">${esc(n)}</b><span class="s" style="display:block">${esc(roles(n))}</span></span><span class="chip">${esc(dlvLang(D.companies[n]))}</span></span></li>`).join('')}</ul></div>
       <div class="blk"><h4>届ける言語</h4><p class="muted" style="margin:0;font-size:13px">海外の会社には、依頼書を相手の言語に翻訳して届けます。返事はあなたの言語に翻訳して表示します。</p>
         ${window.claude?'<div><button type="button" class="btn sm" id="trPrev">翻訳を見る</button></div>':''}<div id="trOut" style="display:grid;gap:8px"></div></div>
       <div class="empty"><b>送る前に、KATACHIの担当者が内容を確認します</b>伝わりにくい点や技術的に無理のある点がないかを人が見てから届けます。まだKATACHIに参加していない会社には、担当者から個別に打診します。</div>
@@ -814,8 +1077,8 @@ function rfq(names){
     const all=RFQ(r,qty).flatMap(g=>g[1]).filter(f=>f[3]!=='req');
     const btn=e.submitter||$('#rf button[type=submit]');btn.disabled=true;
     const abroadOk=!!$('#f-abroad-ok')?.checked;
-    const team=Object.entries(S.assign).map(([rid,n])=>({step:R().per_requirement.find(p=>p.requirement.id===rid)?.requirement.purpose||rid,company:n,country:D.companies[n]?.country||'JP'}));
-    const ok=await sendForm({type:'rfq',lang:window.KATACHI_LANG?window.KATACHI_LANG():'ja',idea:S.idea||r.idea,matched:S.matched||'',scenario:S.scen,plan:R().teams[S.plan]?.profile||'',fields:allVals(r,qty),team:team.filter(t=>abroadOk||!abroad(D.companies[t.company])),abroad_ok:abroadOk,files:S.files.map(f=>f.name),page:location.href.split('#')[0]});
+    const team=G?names.map(n=>({step:roles(n),company:n,country:D.companies[n]?.country||'JP'})):Object.entries(S.assign).map(([rid,n])=>({step:R().per_requirement.find(p=>p.requirement.id===rid)?.requirement.purpose||rid,company:n,country:D.companies[n]?.country||'JP'}));
+    const ok=await sendForm({type:'rfq',lang:window.KATACHI_LANG?window.KATACHI_LANG():'ja',idea:S.idea||r.idea,matched:S.matched||'',scenario:S.scen,plan:R().teams[S.plan]?.profile||'',steps:G&&S.src==='text'?(S.anal?.codes||[]).map(c=>CAPN[c]||c):undefined,guided:G&&S.src==='guided'?{category:gCat()?.t,process:S.g.proc,material:S.g.mat,quantity:S.g.qty,drawing:S.g.draw,due:S.g.due,region:S.g.reg,caps:gCodes()}:undefined,fields:allVals(r,qty),team:team.filter(t=>abroadOk||!abroad(D.companies[t.company])),abroad_ok:abroadOk,files:S.files.map(f=>f.name),page:location.href.split('#')[0]});
     btn.disabled=false;
     track('generate_lead',{type:'rfq',sent:ok,requester:$('#f-who').selectedIndex?'individual':'company',companies:names.length,quantity:S.qty,files:S.files.length,material:$('#f-mat').selectedIndex,optional_filled:rfqVals(r,qty).length,optional_total:all.length,nda:$('#f-nda').selectedIndex,overseas_ok:$('#f-abr').selectedIndex===0});done('見積の依頼を受け付けました',`<ol class="tl"><li class="now"><span><b>今日</b> 担当者が内容を確認</span></li><li><span><b>1〜3日</b> ${names.length}社へ打診</span></li><li><span><b>1〜2週間</b> 見積が届き、表に金額と納期が並ぶ</span></li><li><span><b>あなたが決める</b> 発注先を選んで試作へ</span></li></ol>`)};
 }
