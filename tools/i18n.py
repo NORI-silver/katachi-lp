@@ -514,6 +514,10 @@ T.update({
 "小ロット": ("Small batch", "小批量"),
 })
 
+T.update({
+"入力した内容は、サービスの改善と傾向の分析のために保存します。メールアドレスや電話番号は書かないでください。": ("What you enter is saved to improve the service and analyze trends. Please don't include email addresses or phone numbers.", "您输入的内容会被保存，用于改进服务和分析趋势。请不要填写邮箱或电话号码。"),
+})
+
 # ---- 2026-11-12 1社でまとめる案・取りまとめ役・ランキング
 T.update({
 "1社でまとめて頼む": ("Have one company do it all", "交给一家公司统一完成"),

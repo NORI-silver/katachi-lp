@@ -22,6 +22,8 @@ var CONFIG = {
   ADMIN_EMAIL: '',
   // 1日に受け付ける上限（いたずら対策）
   DAILY_LIMIT: 200,
+  // 入力ログ（文章で書く・選んで探す）の1日の上限
+  LOG_DAILY_LIMIT: 3000,
 };
 
 var HEAD = ['受付番号', '受付日時', '種類', '言語', 'メール', '会社名・お名前', '依頼者の区分', '電話', 'つくりたいもの（入力文）',
@@ -36,6 +38,7 @@ function doPost(e) {
   var out = {ok: false};
   try {
     var p = JSON.parse((e && e.postData && e.postData.contents) || '{}');
+    if (p.type === 'idea') return json_(logIdea_(p));
     if (!limit_()) return json_({ok: false, error: 'busy'});
     if (p.type !== 'rfq' && p.type !== 'consult') return json_({ok: false, error: 'type'});
     var f = {};
@@ -61,6 +64,31 @@ function doPost(e) {
     out = {ok: false, error: 'unavailable'};
   }
   return json_(out);
+}
+
+// 「文章で書く」「選んで探す」の入力を「入力ログ」タブに1行ずつ残す（傾向分析用。メールは送らない）
+var LOG_HEAD = ['日時', '入口', '言語', '入力文', '数量', '読み取った工程', '工程の数', '候補の社数', '各工程の1位', '扱わない分野', '選択式の内容', '補足', 'ファイルの種類', 'ページ'];
+function logIdea_(p) {
+  if (!limit_('i', CONFIG.LOG_DAILY_LIMIT)) return {ok: false, error: 'busy'};
+  var s = function (v, n) { return String(v == null ? '' : v).slice(0, n || 2000); };
+  var list = function (v) { return (v || []).map(String).join('\n').slice(0, 4000); };
+  var guided = p.mode === 'guided' ? [p.category, p.process, p.material, p.quantity, p.drawing, p.due, p.region].filter(String).join(' / ') : '';
+  var row = [new Date(), p.mode === 'guided' ? '選んで探す' : '文章で書く', s(p.lang, 5), s(p.text), s(p.quantity, 40),
+    list(p.steps), (p.steps || []).length, Number(p.companies) || '', list(p.top), list(p.notices), guided, s(p.note, 1000),
+    (p.file_kinds || []).join('、').slice(0, 200), s(p.page, 200)];
+  logSheet_().appendRow(row.map(safe_));
+  return {ok: true};
+}
+
+function logSheet_() {
+  var ss = sheet_().getParent();
+  var sh = ss.getSheetByName('入力ログ');
+  if (!sh) {
+    sh = ss.insertSheet('入力ログ');
+    sh.appendRow(LOG_HEAD);
+    sh.setFrozenRows(1);
+  }
+  return sh;
 }
 
 function doGet() { return json_({ok: true, service: CONFIG.SERVICE_NAME}); }
@@ -255,11 +283,11 @@ function sheet_() {
 
 function prop_(k) { return PropertiesService.getScriptProperties().getProperty(k); }
 
-function limit_() {
+function limit_(prefix, max) {
   var c = CacheService.getScriptCache();
-  var k = 'n' + Utilities.formatDate(new Date(), 'Asia/Tokyo', 'yyyyMMdd');
+  var k = (prefix || 'n') + Utilities.formatDate(new Date(), 'Asia/Tokyo', 'yyyyMMdd');
   var n = Number(c.get(k) || 0);
-  if (n >= CONFIG.DAILY_LIMIT) return false;
+  if (n >= (max || CONFIG.DAILY_LIMIT)) return false;
   c.put(k, String(n + 1), 21600);
   return true;
 }
