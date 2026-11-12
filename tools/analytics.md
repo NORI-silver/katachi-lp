@@ -33,6 +33,8 @@
 | translate_preview | 依頼書の翻訳を確認 | | |
 | generate_lead | 見積依頼・相談を送信 | type, companies, quantity, files, requester, optional_filled/optional_total, nda, overseas_ok | ◎（最重要） |
 | lang_change | 言語切替 | from, to | |
+| view_estimate | 概算の目安を表示（タブ・選択式・文章入力） | scenario | |
+| estimate_qty | 概算の数量を変えた | qty_bucket (1-10/11-100/101-1000/1001+) | |
 
 ペットサイトはキーイベントが0件のまま（2026-11-11時点のGA4レポート）。KATACHIでは最初から `generate_lead` をキーイベントに設定することを推奨。
 
