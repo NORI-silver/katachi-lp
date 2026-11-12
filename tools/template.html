@@ -350,6 +350,7 @@ details.grp>.in{display:grid;gap:12px;padding:0 14px 14px}
 .rno{font-size:18px;color:var(--ice)}.rt{display:grid;min-width:0}.rt b{font-size:14px}.rt small{font-size:12px;color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .rbar{height:6px;border-radius:3px;background:var(--bg2);overflow:hidden}.rbar i{display:block;height:100%;background:var(--ice);opacity:.55}.rn{font-size:12.5px;color:var(--mute);text-align:right}
 @media (max-width:760px){.integ,.rlist{grid-template-columns:1fr}.rlist button{grid-template-columns:24px 1fr 60px}.rbar{display:none}}
+.logn{max-width:760px;margin:10px 2px 0;font-size:11.5px;color:var(--dim)}
 /* guided (選んで探す) */
 .modes{display:grid;grid-template-columns:1fr 1fr;gap:8px;max-width:760px;margin:0 0 12px}
 .modes button{display:grid;gap:2px;text-align:left;padding:12px 16px;border:1px solid var(--line2);border-radius:14px;background:color-mix(in srgb,var(--panel) 80%,transparent);transition:border-color .15s,background .15s}
@@ -523,6 +524,7 @@ function renderHome(){
       </div>
       <input type="file" id="fileIn" multiple hidden>
     </form>
+    <p class="logn">入力した内容は、サービスの改善と傾向の分析のために保存します。メールアドレスや電話番号は書かないでください。</p>
     <div class="examples" ${S.mode==='guided'?'hidden':''}><span>試す</span>${EX.map(([k,t])=>`<button class="ex" data-ex="${k}">${t}</button>`).join('')}</div>
   </div></section>
   <section class="gut"><div class="wrap rank" id="rank"></div></section>
@@ -701,7 +703,9 @@ function renderGuided(){
   $('#gBack')&&($('#gBack').onclick=()=>{S.g.step=Math.max(0,st-1);renderGuided()});
   $('#gFree')&&($('#gFree').onclick=()=>{if($('#gNote'))S.g.note=$('#gNote').value.trim();gToFree()});
   $('#gGo')&&($('#gGo').onclick=()=>{S.g.note=$('#gNote').value.trim();const q=GQ.find(x=>x[0]===S.g.qty);S.qty=q?q[1]:'small';
-    S.src='guided';S.gstep={};track('form_cta',{form:'guided',category:S.g.cat,quantity:S.qty});location.hash='pick'});
+    S.src='guided';S.gstep={};track('form_cta',{form:'guided',category:S.g.cat,quantity:S.qty});
+    logInput({mode:'guided',category:gCat()?.t,process:S.g.proc,material:S.g.mat,quantity:S.g.qty,drawing:S.g.draw,due:S.g.due,region:S.g.reg,note:S.g.note||'',steps:gCodes().map(c=>CAPN[c]||c)});
+    location.hash='pick'});
 }
 /* 会社の一覧は「選んで探す」を使ったときだけ読み込む（data/companies.json） */
 let GDB=null,gdbP=null;
@@ -818,6 +822,7 @@ async function renderMatch(){
   const qmax={proto:10,small:500,mass:1e9}[S.qty]||500;
   const secs=A.codes.map(c=>{let list=rankFor([c],{qmax});if(!list.length&&c.includes('.'))list=rankFor([c.split('.').slice(0,-1).join('.')],{qmax});return {c,list}});
   const total=new Set(secs.flatMap(s=>s.list.map(r=>r[0]))).size;
+  if(S.loggedIdea!==S.idea+'|'+S.qty){S.loggedIdea=S.idea+'|'+S.qty;logInput({mode:'text',text:S.idea,quantity:S.qty,steps:A.codes.map(c=>CAPN[c]||c),companies:total,top:secs.map(s=>(CAPN[s.c]||s.c)+': '+(s.list[0]?.[0]||'-')),notices:A.notices,file_kinds:S.files.map(f=>f.k)})}
   // 1社でまとめて頼める会社: 読み取った工程のうち多くを1社で持っている会社（OEM・EMS・組立の会社を優先）
   const stepIdx=secs.map(s=>{const own=GDB.caps.indexOf(s.c);const par=s.c.includes('.')?GDB.caps.indexOf(s.c.split('.').slice(0,-1).join('.')):-1;return [own,par]});
   const INTEG=['manufacturing.assembly','apparel.garment_oem','food.processed_oem','food.beverage_oem','food.pet_food','cosmetics.oem','cosmetics.household'].map(c=>GDB.caps.indexOf(c));
@@ -1154,6 +1159,13 @@ function fld(f){const [id,l,k,rq,o]=f;const tag=rq==='req'?'<span class="req">�
 const PRIV=['f-who','f-org','f-name','f-mail','f-tel','f-file'];
 const FORM_URL='';const TERMS_URL='';const PRIVACY_URL='';
 let lastSent=false;
+/* 入力ログ: 「文章で書く」「選んで探す」の内容を、傾向分析のために受付（GAS）の「入力ログ」に残す。
+   メールアドレス・電話番号らしい文字は送る前に伏せる。同じ内容は1回だけ送る。GA には中身を送らない。 */
+const maskPII=t=>String(t||'').replace(/[\w.+-]+@[\w-]+(\.[\w-]+)+/g,'[メール]').replace(/(\+?\d[\d\s-]{8,}\d)/g,'[電話番号]');
+const LOGGED=new Set();
+function logInput(o){try{const body=Object.assign({type:'idea',lang:window.KATACHI_LANG?window.KATACHI_LANG():'ja',page:location.href.split('#')[0]},o);
+  if(body.text)body.text=maskPII(body.text).slice(0,2000);if(body.note)body.note=maskPII(body.note).slice(0,1000);
+  const k=JSON.stringify(body);if(LOGGED.has(k))return;LOGGED.add(k);sendForm(body)}catch(e){}}
 async function sendForm(payload){lastSent=false;if(!FORM_URL||/claude(usercontent)?\.(ai|com)$/.test(location.hostname))return false;
   try{await fetch(FORM_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});lastSent=true;return true}catch(e){return false}}
 function allVals(r,qty){return RFQ(r,qty).flatMap(g=>g[1]).filter(f=>f[2]!=='note').map(f=>{const el=$('#'+f[0]);if(!el)return null;
