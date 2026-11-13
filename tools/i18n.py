@@ -599,6 +599,9 @@ T.update({
 # 概算の目安（estimates.py の文言）
 from estimates import T_EST
 T.update({k: v for k, v in T_EST.items() if k not in T})
+# 製品イメージ案（concepts.py の文言）
+from concepts import T_CONCEPT
+T.update({k: v for k, v in T_CONCEPT.items() if k not in T})
 
 T.update({
 "文章の言葉が会社の説明に出てくる会社": ("Companies whose description mentions your words", "公司介绍中出现您所写词语的公司"),

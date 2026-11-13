@@ -304,6 +304,26 @@ table.cmp{border-collapse:separate;border-spacing:0;width:100%;min-width:760px;f
 .aic pre{margin:8px 0 0;white-space:pre-wrap;word-break:break-word;font:12.5px/1.6 var(--f-body);background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:12px;max-height:260px;overflow:auto}
 .aic .aiback{border-top:1px solid var(--line);padding-top:12px;display:grid;gap:8px}
 .aic .aiback b{font-size:14px}
+.aic.flash{box-shadow:0 0 0 3px color-mix(in srgb,var(--ice) 35%,transparent);transition:box-shadow .3s}
+/* 製品イメージ案 */
+.ccard{margin-top:18px;border:1px solid var(--line2);border-radius:16px;padding:20px;display:grid;gap:16px;background:#fff}
+.chd{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.chd h2{font-size:19px}
+.cgrid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:22px;align-items:start}
+.cfig{margin:0;background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:8px}
+.cfig svg{width:100%;height:auto;display:block}
+.cfig .o{fill:#fff;stroke:var(--fg);stroke-width:1.6;stroke-linejoin:round;stroke-linecap:round}.cfig .n{fill:none}.cfig .a{stroke:var(--ice)}.cfig .af{fill:color-mix(in srgb,var(--ice) 13%,#fff)}.cfig .h{stroke-dasharray:4 3}
+.cfig .d{stroke:var(--mute);stroke-width:1;fill:none}.cfig .d.a{stroke:var(--ice)}.cfig .g{fill:color-mix(in srgb,var(--mint) 14%,#fff)}.cfig .a2f{fill:var(--amber)}
+.cfig text{font:11px var(--f-mono);fill:var(--mute)}.cfig text.cap{fill:var(--fg);font-size:11.5px}.cfig text.a2{fill:var(--ice)}
+.cname{font-size:17px;margin-bottom:6px}.clead{margin:0 0 12px;font-size:14px}
+.cspec{display:grid;grid-template-columns:auto 1fr;gap:7px 16px;margin:0;font-size:13.5px}.cspec dt{color:var(--mute);white-space:nowrap}.cspec dd{margin:0}
+.cl{margin:0;padding-left:18px;font-size:13.5px;display:grid;gap:4px}.cl li::marker{color:var(--ice)}
+.ccols{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.ccard h4{margin:0 0 6px;font-size:14px;font-family:var(--f-jp)}
+.cvars{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px}
+.cvar{text-align:left;border:1px solid var(--line2);border-radius:10px;padding:10px 12px;display:grid;gap:2px;font-size:12.5px;color:var(--mute);line-height:1.55}.cvar b{color:var(--fg);font-size:13.5px}.cvar:hover{background:var(--hover)}
+.cvar.on{border-color:var(--ice);background:color-mix(in srgb,var(--ice) 7%,#fff);box-shadow:inset 0 0 0 1px var(--ice)}
+.cfoot{border-top:1px solid var(--line);padding-top:12px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}.cfoot p{margin:0;font-size:12.5px;flex:1;min-width:240px}
+@media(max-width:720px){.ccard{padding:16px}.cgrid,.ccols{grid-template-columns:1fr;gap:14px}.cspec{grid-template-columns:1fr;gap:0}.cspec dd{margin-bottom:8px}}
 .aic textarea{width:100%;min-height:92px;border:1px solid var(--line2);border-radius:10px;padding:10px 12px;font:14px/1.6 var(--f-body);resize:vertical;background:#fff;color:var(--fg)}
 .aic .aistat{font-size:12.5px;color:var(--mint)}
 @media(max-width:560px){.aicb .btn{flex:1 1 calc(50% - 8px)}.aicb [data-aiq]{flex-basis:100%}}
@@ -744,13 +764,13 @@ function wireAiHelp(root){(root||document).querySelectorAll('[data-aicp]').forEa
 /* 自分の ChatGPT・Claude で相談する（KATACHIはAIのAPIを使わない＝費用ゼロ）。質問文をURLで渡し、念のためクリップボードにも入れる */
 const KSITE='https://katachi.shiokonbu.com/';
 const AIQ={
- ja:{head:'次の製品を作りたいと考えています。私は製品づくりの専門家ではありません。製品開発と製造にくわしい相談相手として、わかりやすく助けてください。',idea:'作りたいもの',qty:'数量の段階',steps:'製造マッチングサイト KATACHI が文章からキーワードで読み取った工程（当たり付け）',nosteps:'（KATACHIでは工程を読み取れませんでした）',blk:'KATACHIで扱っていない点',blkask:'上の点はKATACHIでは工場の紹介をしていません。その部分は、必要な免許・許可・手続きの一般的な流れと注意点だけ教えてください。容器・ラベル・パッケージ・関連グッズなど、それ以外で外注できる部分があれば、そちらを中心に答えてください。',empty:'（まだ漠然としています。何を作るかから一緒に考えてください）',regs:'関係しそうな法規制・認証（KATACHIの当たり付け）',files:'手元にある資料',
+ ja:{head:'次の製品を作りたいと考えています。私は製品づくりの専門家ではありません。製品開発と製造にくわしい相談相手として、わかりやすく助けてください。',idea:'作りたいもの',qty:'数量の段階',steps:'製造マッチングサイト KATACHI が文章からキーワードで読み取った工程（当たり付け）',nosteps:'（KATACHIでは工程を読み取れませんでした）',blk:'KATACHIで扱っていない点',blkask:'上の点はKATACHIでは工場の紹介をしていません。その部分は、必要な免許・許可・手続きの一般的な流れと注意点だけ教えてください。容器・ラベル・パッケージ・関連グッズなど、それ以外で外注できる部分があれば、そちらを中心に答えてください。',empty:'（まだ漠然としています。何を作るかから一緒に考えてください）',regs:'関係しそうな法規制・認証（KATACHIの当たり付け）',files:'手元にある資料',concept:'KATACHIが製品の種類から作った製品イメージ案（たたき台）',dir:'選んだ方向性',cask:'まず、上の製品イメージ案を私の用途に合わせて直してください（外観・大きさ・素材・主な機能・想定スペック）。',iask:'まず、製品イメージ案（外観・大きさ・素材・主な機能・想定スペック）を2〜3通り出してください。',
   ask:'次の順に答えてください。\n1. 仕様の整理（用途・大きさ・材質・機能・使う環境）。決まっていない点は、私への質問の形で挙げてください\n2. 必要な工程。上の工程一覧に足りないもの・要らないものがあれば指摘してください\n3. 技術的に難しそうな点と、試作で確かめる方法\n4. 関係しそうな法規制・認証\n5. 試作→小ロット→量産の進め方\n6. 最後に、工場へ見積を頼むための「仕様メモ」（形・寸法・材質・数量・使う環境・決まっていない点）を箇条書きで\n\n料金・会社名・数値は推測で作らず、わからないことは「要確認」と書いてください。',
   back:'仕様メモができたら、KATACHI（'+KSITE+'）に戻って貼り付け、工場に見積を依頼します。',q:{proto:'試作（1〜10個）',small:'小ロット（〜500個）',mass:'量産（500個〜）'}},
- en:{head:'I want to make the product below. I am not a product development expert. Please help me clearly, as an advisor who knows product development and manufacturing.',idea:'What I want to make',qty:'Quantity stage',steps:'Manufacturing steps that the matchmaking site KATACHI picked up from my text by keywords (a rough guess)',nosteps:'(KATACHI could not pick up any steps)',blk:'What KATACHI does not handle',blkask:'KATACHI does not introduce factories for the point above. For that part, only explain the general flow of licenses, permits and procedures and what to watch out for. If other parts can be outsourced, such as containers, labels, packaging or related merchandise, focus your answer on those.',empty:'(Still vague. Please help me work out what to make, starting from scratch)',regs:'Regulations and certifications that may apply (KATACHI\'s rough guess)',files:'Materials I have',
+ en:{head:'I want to make the product below. I am not a product development expert. Please help me clearly, as an advisor who knows product development and manufacturing.',idea:'What I want to make',qty:'Quantity stage',steps:'Manufacturing steps that the matchmaking site KATACHI picked up from my text by keywords (a rough guess)',nosteps:'(KATACHI could not pick up any steps)',blk:'What KATACHI does not handle',blkask:'KATACHI does not introduce factories for the point above. For that part, only explain the general flow of licenses, permits and procedures and what to watch out for. If other parts can be outsourced, such as containers, labels, packaging or related merchandise, focus your answer on those.',empty:'(Still vague. Please help me work out what to make, starting from scratch)',regs:'Regulations and certifications that may apply (KATACHI\'s rough guess)',files:'Materials I have',concept:'Product concept KATACHI drafted from the product type (a starting point)',dir:'Direction I chose',cask:'First, adjust the product concept above to my use (look, size, materials, main functions, target specs).',iask:'First, propose 2-3 product concepts (look, size, materials, main functions, target specs).',
   ask:'Please answer in this order.\n1. Organize the spec (use, size, material, functions, environment of use). List undecided points as questions to me\n2. The manufacturing steps needed. Point out anything missing from or unnecessary in the list above\n3. Technically difficult points and how to test them in a prototype\n4. Regulations and certifications that may apply\n5. How to move from prototype to small batch to mass production\n6. Finally, a bullet-point "spec memo" for asking factories for a quote (shape, dimensions, material, quantity, environment of use, undecided points)\n\nDo not make up prices, company names or figures. Write "to be confirmed" for anything you do not know.',
   back:'When the spec memo is ready, I will go back to KATACHI ('+KSITE+'), paste it and ask factories for a quote.',q:{proto:'Prototype (1-10 units)',small:'Small batch (up to 500 units)',mass:'Mass production (500+ units)'}},
- zh:{head:'我想做下面这个产品。我不是产品开发方面的专家。请作为熟悉产品开发和制造的顾问，通俗易懂地帮助我。',idea:'想做的东西',qty:'数量阶段',steps:'制造匹配网站 KATACHI 根据关键词从我的描述中识别出的工序（初步判断）',nosteps:'（KATACHI 未能识别出工序）',blk:'KATACHI 不处理的内容',blkask:'对于上述内容，KATACHI 不介绍工厂。这部分请只说明所需执照、许可、手续的一般流程和注意事项。如果有容器、标签、包装、相关周边等其他可以外包的部分，请以这些为重点回答。',empty:'（还很模糊。请从做什么开始和我一起思考）',regs:'可能涉及的法规和认证（KATACHI 的初步判断）',files:'手头的资料',
+ zh:{head:'我想做下面这个产品。我不是产品开发方面的专家。请作为熟悉产品开发和制造的顾问，通俗易懂地帮助我。',idea:'想做的东西',qty:'数量阶段',steps:'制造匹配网站 KATACHI 根据关键词从我的描述中识别出的工序（初步判断）',nosteps:'（KATACHI 未能识别出工序）',blk:'KATACHI 不处理的内容',blkask:'对于上述内容，KATACHI 不介绍工厂。这部分请只说明所需执照、许可、手续的一般流程和注意事项。如果有容器、标签、包装、相关周边等其他可以外包的部分，请以这些为重点回答。',empty:'（还很模糊。请从做什么开始和我一起思考）',regs:'可能涉及的法规和认证（KATACHI 的初步判断）',files:'手头的资料',concept:'KATACHI 根据产品类型起草的产品构想（初稿）',dir:'我选择的方向',cask:'首先，请根据我的用途修改上面的产品构想（外观、尺寸、材料、主要功能、设想规格）。',iask:'首先，请提出2-3种产品构想（外观、尺寸、材料、主要功能、设想规格）。',
   ask:'请按以下顺序回答。\n1. 整理规格（用途、尺寸、材质、功能、使用环境）。尚未决定的地方，请以向我提问的形式列出\n2. 需要的工序。如果上面的工序列表有缺少或多余的，请指出\n3. 技术上可能较难的地方，以及在试制中如何验证\n4. 可能涉及的法规和认证\n5. 从试制到小批量再到量产的推进方法\n6. 最后，请用条目列出向工厂询价用的"规格备忘"（形状、尺寸、材质、数量、使用环境、未决定事项）\n\n价格、公司名称和数值不要凭推测编造，不清楚的请写"待确认"。',
   back:'规格备忘完成后，我会回到 KATACHI（'+KSITE+'）粘贴并向工厂询价。',q:{proto:'试制（1-10个）',small:'小批量（500个以内）',mass:'量产（500个以上）'}}};
 function aiQuestion(A,max){const L=AIQ[typeof LANG==='string'&&AIQ[LANG]?LANG:'ja'];const t=x=>typeof tx==='function'?tx(x):x;
@@ -760,7 +780,8 @@ function aiQuestion(A,max){const L=AIQ[typeof LANG==='string'&&AIQ[LANG]?LANG:'j
     ...(A?.notices?.length?['',`【${L.blk}】`,A.notices.filter(x=>!WEAPON.test(x)).map(x=>'- '+t(x)).join('\n'),L.blkask]:[]),
     ...(A?.regs?.length?['',`【${L.regs}】`,A.regs.map(x=>'- '+t(x)).join('\n')]:[]),
     ...(S.files?.length?['',`【${L.files}】`,S.files.map(f=>'- '+f.name).join('\n')]:[]),
-    '',L.ask,'',L.back].join('\n')}
+    ...(A?.concept?['',`【${L.concept}】`,t(A.concept.name),...A.concept.rows.map(([k,v])=>`- ${t(k)}: ${t(v)}`),...(cvarOf(A.concept)>=0?[`- ${L.dir}: ${t(A.concept.vars[cvarOf(A.concept)][0])} — ${t(A.concept.vars[cvarOf(A.concept)][1])}`]:[])]:[]),
+    '',...(A?.home?[]:[A?.concept?L.cask:L.iask]),L.ask,'',L.back].join('\n')}
 // URLが長すぎると開けないことがあるので、文章を短くして渡す（全文はクリップボードに入れる）
 function aiUrl(name,A){const base=name==='ChatGPT'?'https://chatgpt.com/?q=':'https://claude.ai/new?q=';
   for(const max of [4000,2000,1000,500]){const u=base+encodeURIComponent(aiQuestion(A,max));if(u.length<=14000)return u}
@@ -793,6 +814,56 @@ function wireAiConsult(A){const box=$('#mAi');if(!box)return;
     track('ai_answer_paste',{chars:v.length});S.idea=(S.idea||'').trim()+'\n\n【AIと整理した仕様メモ】\n'+v.slice(0,20000);S.loggedIdea='';
     if(location.hash!=='#match'){S.src='text';S.matched='text';S.gsel=[];S.gstep={};S.gmore={};S.gf={area:'',proto:false};loadGDB();location.hash='match';return}
     renderMatch().then(()=>{const st=$('#mAiSt');if(st)st.textContent='読み直しました';window.scrollTo({top:0,behavior:'smooth'})})}}
+/* ---------- 製品イメージ案（製品の種類ごとの典型例＝tools/concepts.py。AIのAPIは使わない） ---------- */
+const CONCEPTS=__CONCEPTS__;
+function pickConcept(text,A){if(!A||(A.notices.length&&!A.codes.length))return null;const t=String(text||'').toLowerCase();
+  for(const c of CONCEPTS){if(!c.kw)continue;try{if(new RegExp(c.kw,'i').test(t))return c}catch(e){}}
+  if(A.mach)return CONCEPTS.find(c=>c.id==='machine');
+  if(!A.fallback&&A.codes.some(c=>/^(sensing|electronics)/.test(c)))return CONCEPTS.find(c=>c.id==='device');
+  return null}
+const CDH=(x1,x2,y,l)=>`<path class="d" d="M${x1} ${y-5}v10M${x2} ${y-5}v10M${x1} ${y}H${x2}"/><text x="${(x1+x2)/2}" y="${y+14}" text-anchor="middle">${l}</text>`;
+const CDV=(x,y1,y2,l)=>`<path class="d" d="M${x-5} ${y1}h10M${x-5} ${y2}h10M${x} ${y1}V${y2}"/><text x="${x+8}" y="${(y1+y2)/2+4}">${l}</text>`;
+const CFIG={
+ crawler:f=>`<path class="g" d="M0 214L360 86V220H0Z"/><path class="d" d="M0 214L360 86"/><path class="d" d="M12 210H92"/><path class="d a" d="M78 210A66 66 0 0 0 74 188"/><text x="98" y="222" class="a2">${f.ang}</text>
+  <g transform="rotate(-19.6 180 150)"><rect class="o" x="98" y="120" width="164" height="30" rx="15"/><circle class="o" cx="113" cy="135" r="11"/><circle class="o" cx="247" cy="135" r="11"/><circle class="o" cx="153" cy="142" r="5"/><circle class="o" cx="180" cy="142" r="5"/><circle class="o" cx="207" cy="142" r="5"/>
+  <rect class="o af" x="110" y="88" width="140" height="32" rx="6"/><rect class="o" x="150" y="76" width="54" height="12" rx="3"/><path class="o n" d="M236 88V62"/><circle class="o" cx="236" cy="60" r="3"/><circle class="a2f" cx="126" cy="98" r="4"/>
+  <rect class="o n a h" x="136" y="146" width="88" height="8" rx="2"/>${CDH(98,262,172,'L '+f.l)}${CDV(276,76,150,'H '+f.h)}</g>`,
+ lawn:f=>`<path class="d" d="M20 192H340"/><path class="o af" d="M80 168Q86 110 168 104L250 108Q288 118 282 168Z"/><circle class="o" cx="112" cy="170" r="22"/><circle class="o" cx="112" cy="170" r="7"/><circle class="o" cx="252" cy="178" r="14"/><rect class="o" x="150" y="96" width="44" height="12" rx="4"/><path class="o n a h" d="M150 186H230"/>${CDH(80,282,208,'L '+f.l)}${CDV(310,96,192,'H '+f.h)}`,
+ cart:f=>`<path class="d" d="M20 186H340"/><rect class="o af" x="70" y="132" width="220" height="14" rx="3"/><rect class="o" x="84" y="146" width="192" height="18" rx="3"/><circle class="o" cx="102" cy="170" r="16"/><circle class="o" cx="258" cy="170" r="16"/><path class="o n" d="M288 132L300 56H322"/><rect class="o a" x="58" y="134" width="10" height="28" rx="3"/><rect class="o n h" x="110" y="96" width="70" height="36"/><rect class="o n h" x="186" y="108" width="60" height="24"/>${CDH(70,290,206,'L '+f.l)}<path class="d" d="M39 132h10M39 186h10M44 132V186"/><text x="6" y="163">H ${f.h}</text>`,
+ drone:f=>`<path class="o n" d="M180 110L100 50M180 110L260 50M180 110L100 170M180 110L260 170"/>${[[100,50],[260,50],[100,170],[260,170]].map(([x,y])=>`<circle class="o n a h" cx="${x}" cy="${y}" r="32"/><circle class="o" cx="${x}" cy="${y}" r="7"/>`).join('')}<rect class="o af" x="158" y="90" width="44" height="40" rx="10"/><circle class="o" cx="180" cy="122" r="5"/>${CDH(100,260,210,'W '+f.w)}`,
+ collar:f=>`<ellipse class="o n" cx="180" cy="112" rx="122" ry="56" style="stroke-width:12;stroke:#d9dfeb"/><ellipse class="o n" cx="180" cy="112" rx="128" ry="62"/><ellipse class="o n" cx="180" cy="112" rx="116" ry="50"/><rect class="o" x="48" y="96" width="22" height="34" rx="4"/><rect class="o af" x="148" y="140" width="64" height="44" rx="10"/><circle class="a2f" cx="198" cy="152" r="3.5"/>${CDH(148,212,204,'W '+f.w)}`,
+ band:f=>`<rect class="o" x="160" y="10" width="40" height="70" rx="6"/><rect class="o" x="160" y="160" width="40" height="56" rx="6"/><rect class="o" x="145" y="74" width="70" height="90" rx="18"/><rect class="o af" x="155" y="86" width="50" height="66" rx="10"/><path class="o n" d="M215 110h5v18h-5"/>${CDV(250,74,164,'L '+f.l)}`,
+ sensor:f=>`<path class="d" d="M110 20V200"/><rect class="o" x="140" y="56" width="100" height="100" rx="16"/><rect class="o af" x="150" y="66" width="80" height="80" rx="10"/><circle class="a2f" cx="218" cy="78" r="4"/><path class="o n" d="M168 128h44M168 120h44"/>${CDH(140,240,182,'W '+f.w)}${CDV(262,56,156,'L '+f.l)}`,
+ light:f=>`<path class="o n a h" d="M262 104L346 80M262 115H350M262 126L346 150"/><rect class="o af" x="100" y="95" width="152" height="40" rx="18"/><ellipse class="o" cx="252" cy="115" rx="8" ry="20"/><circle class="a2f" cx="130" cy="115" r="4"/><path class="o" d="M156 135h40l-6 18h-28z"/><circle class="o n" cx="176" cy="174" r="14"/><path class="o n" d="M162 160Q176 150 190 160"/>${CDH(100,252,72,'L '+f.l)}${CDV(80,95,135,'H '+f.h)}`,
+ case:f=>`<rect class="o af" x="130" y="18" width="100" height="184" rx="16"/><rect class="o" x="144" y="32" width="38" height="44" rx="10"/><circle class="o" cx="156" cy="46" r="6"/><circle class="o" cx="170" cy="62" r="6"/><path class="o n" d="M230 60v22"/>${CDH(130,230,212,'W '+f.w)}${CDV(254,18,202,'L '+f.l)}`,
+ bag:f=>`<path class="o n" d="M142 82C142 26 178 26 178 82M184 82C184 26 220 26 220 82"/><path class="o af" d="M110 82H250L262 196H98Z"/><rect class="o n a h" x="158" y="118" width="46" height="34" rx="3"/><path class="d" d="M250 82l12 -8M262 196l12 -8"/>${CDH(110,250,212,'W '+f.w)}${CDV(290,82,196,'H '+f.h)}<text x="268" y="70">D ${f.l}</text>`,
+ shirt:f=>`<path class="o af" d="M140 30L118 36L66 70L88 112L114 98V196H246V98L272 112L294 70L242 36L220 30Q180 62 140 30Z"/><rect class="o n a h" x="152" y="84" width="56" height="48" rx="3"/>${CDH(114,246,212,'W '+f.w)}${CDV(316,30,196,'H '+f.h)}`,
+ bottle:f=>`<path class="o n" d="M146 52h26v8"/><rect class="o" x="138" y="48" width="14" height="22" rx="2"/><path class="o af" d="M130 70h30l10 14v112a6 6 0 0 1-6 6h-38a6 6 0 0 1-6-6V84z"/><rect class="o n a h" x="126" y="112" width="38" height="56" rx="3"/><rect class="o" x="204" y="138" width="70" height="14" rx="4"/><rect class="o af" x="208" y="152" width="62" height="50" rx="8"/>${CDH(120,170,214,'W '+f.w)}${CDV(60,48,202,'H '+f.h)}`,
+ pouch:f=>`<path class="o af" d="M120 26H240L246 188Q180 206 114 188Z"/><path class="o n" d="M122 46H238"/><path class="o n" d="M120 34l6 4-6 4"/><ellipse class="o n a h" cx="180" cy="130" rx="34" ry="30"/><rect class="o n" x="150" y="64" width="60" height="22" rx="3"/>${CDH(120,240,212,'W '+f.w)}${CDV(270,26,196,'H '+f.h)}`,
+ acrylic:f=>`<path class="o af" d="M150 186V70Q150 28 180 28Q212 28 212 70V186Z" style="fill-opacity:.55"/><circle class="o" cx="181" cy="66" r="18"/><path class="o" d="M156 182Q160 102 181 96Q204 102 206 182Z"/><rect class="o" x="130" y="182" width="102" height="16" rx="4"/>${CDH(130,232,214,'W '+f.w)}${CDV(256,28,198,'H '+f.h)}`,
+ furniture:f=>`<path class="d" d="M20 200H340"/><rect class="o af" x="60" y="78" width="240" height="14" rx="2"/><rect class="o" x="76" y="92" width="10" height="108"/><rect class="o" x="274" y="92" width="10" height="108"/><path class="o n" d="M86 110H274"/>${CDH(60,300,60,'W '+f.w)}${CDV(322,78,200,'H '+f.h)}`,
+ machine:f=>`<path class="d" d="M20 196H340"/><rect class="o n" x="100" y="48" width="160" height="128"/><path class="o n" d="M100 112H260M140 48V176"/><rect class="o af" x="150" y="122" width="56" height="40" rx="6"/><circle class="o" cx="230" cy="80" r="16"/><circle class="o" cx="230" cy="80" r="5"/><rect class="o" x="108" y="58" width="26" height="40" rx="3"/><circle class="a2f" cx="121" cy="68" r="4"/>${[112,248].map(x=>`<circle class="o" cx="${x}" cy="186" r="9"/>`).join('')}${CDH(100,260,214,'W '+f.w)}${CDV(286,48,196,'H '+f.h)}`,
+ device:f=>`<path class="o" d="M110 82l20-14h140l-20 14z"/><path class="o" d="M250 82l20-14v86l-20 14z"/><rect class="o af" x="110" y="82" width="140" height="86" rx="6"/><rect class="o" x="124" y="94" width="72" height="44" rx="4"/><circle class="o" cx="222" cy="104" r="8"/><circle class="o" cx="222" cy="128" r="8"/><circle class="a2f" cx="236" cy="156" r="3.5"/>${CDH(110,250,196,'W '+f.w)}${CDV(292,68,168,'L '+f.l)}`};
+function cfig(f){const dims=[f.w&&'W '+f.w,f.l&&f.l!=='0'&&(f.k==='bag'?'D ':'L ')+f.l,f.h&&'H '+f.h].filter(Boolean).join(' × ');
+  return `<svg viewBox="0 0 360 224" role="img" aria-label="製品イメージ案">${(CFIG[f.k]||CFIG.device)(f)}<text x="8" y="16" class="cap">${dims} mm</text></svg>`}
+const cvarOf=c=>S.cvar&&S.cvar.id===c.id?S.cvar.i:-1;
+function conceptCard(c){const v=cvarOf(c);
+  return `<section class="ccard" id="mConcept"><div class="chd"><h2>製品イメージ案</h2>${mk('ai','AI推定・たたき台')}</div>
+    <div class="cgrid"><figure class="cfig">${cfig(c.fig)}</figure>
+      <div><h3 class="cname">${esc(c.name)}</h3><p class="clead">${esc(c.lead)}</p>
+      <dl class="cspec">${c.rows.map(([k,x])=>`<dt>${esc(k)}</dt><dd>${esc(x)}</dd>`).join('')}</dl></div></div>
+    <div class="ccols"><div><h4>主な機能</h4><ul class="cl">${c.feats.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>
+      <div><h4>試作で確かめること</h4><ul class="cl">${c.check.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div></div>
+    <div><h4>方向性を選ぶ</h4><div class="cvars">${c.vars.map(([n,d],i)=>`<button type="button" class="cvar${v===i?' on':''}" data-cvar="${i}" aria-pressed="${v===i}"><b>${esc(n)}</b><span>${esc(d)}</span></button>`).join('')}</div>
+      <p class="muted" style="margin:6px 0 0;font-size:12px">選んだ方向性は、AI相談の質問文にも入ります。</p></div>
+    <div><h4>作り方の目安</h4><dl class="cspec"><dt>試作</dt><dd>${esc(c.proto)}</dd><dt>量産</dt><dd>${esc(c.mass)}</dd></dl></div>
+    <div class="cfoot"><p class="muted">製品の種類ごとの典型例から、KATACHIが組み立てた案です（AIの推定）。寸法・素材・性能は、工場・専門家との打ち合わせと試作で決まります。図は大きさと形の目安で、設計図ではありません。</p><button type="button" class="btn sm" id="mCAi">この案をもとにAIで詰める</button></div></section>`}
+function wireConcept(A){const c=A.concept;if(!c||!$('#mConcept'))return;
+  $$('#mConcept [data-cvar]').forEach(b=>b.onclick=()=>{const i=+b.dataset.cvar;S.cvar=cvarOf(c)===i?null:{id:c.id,i};
+    $$('#mConcept [data-cvar]').forEach(x=>{const on=S.cvar&&+x.dataset.cvar===S.cvar.i;x.classList.toggle('on',!!on);x.setAttribute('aria-pressed',!!on)});
+    const pre=$('#mAi pre');if(pre&&pre.closest('details').open)pre.textContent=aiQuestion(A);track('concept_direction',{concept:c.id,direction:S.cvar?S.cvar.i:-1})});
+  const g=$('#mCAi');if(g)g.onclick=()=>{const box=$('#mAi');track('concept_ai',{concept:c.id});if(box){box.scrollIntoView({behavior:'smooth',block:'start'});box.classList.add('flash');setTimeout(()=>box.classList.remove('flash'),1600)}}}
+
 function renderMedia(){const el=$('#mediaBox');if(!el)return;const rfqMode=!!$('#rf');
   el.innerHTML=`${rfqMode?'<div id="readyBox"></div>':''}
     <div class="mlist">${S.files.map((f,i)=>`<div class="mi">
@@ -1009,7 +1080,7 @@ function analyzeText(text){
   const order=['sensing','electronics','mechanical','software','manufacturing','apparel','crafts','packaging','food','cosmetics','testing'];
   hit.sort((a,b)=>order.indexOf(a.split('.')[0])-order.indexOf(b.split('.')[0]));
   const regs=(GDB.regs||[]).filter(([kws])=>kws.some(k=>t.includes(k.toLowerCase()))).map(x=>x[1]);
-  return {codes:hit,regs,notices:[...new Set(notices)],fallback};
+  return {codes:hit,regs,notices:[...new Set(notices)],fallback,mach};
 }
 /* 工程が読み取れないときの手がかり: 入力の言葉を、会社名・会社の説明文から探す */
 const STOP=/^(オリジナル|自社|ブランド|作りたい|つくりたい|作る|つくる|作成|製作|制作|製造|依頼|相談|お願い|したい|ほしい|欲しい|小ロット|ロット|個|本|枚|探して|探している|のOEM|OEM|ODM)$/i;
@@ -1043,7 +1114,7 @@ async function renderMatch(){
   $('#app').innerHTML=`<section class="gut build"><div><div class="eyebrow">Building your team</div><h2 style="margin-top:10px">工程を読み取っています</h2></div></section>`;
   const db=await loadGDB();
   if(!db){$('#app').innerHTML=`<section class="gut"><div class="wrap" style="padding:60px 0"><h2>会社の一覧を読み込めませんでした</h2><p class="muted">通信の状態を確かめて、もう一度お試しください。</p><button class="btn" onclick="location.reload()">再読み込み</button></div></section>`;return}
-  const A=analyzeText(S.idea+' '+S.files.map(f=>f.name).join(' '));S.anal=A;
+  const A=analyzeText(S.idea+' '+S.files.map(f=>f.name).join(' '));A.concept=pickConcept(S.idea+' '+S.files.map(f=>f.name).join(' '),A);S.anal=A;
   const qmax={proto:10,small:500,mass:1e9}[S.qty]||500;
   const secs=A.codes.map(c=>{let list=rankFor([c],{qmax});if(!list.length&&c.includes('.'))list=rankFor([c.split('.').slice(0,-1).join('.')],{qmax});return {c,list}});
   const total=new Set(secs.flatMap(s=>s.list.map(r=>r[0]))).size;
@@ -1061,6 +1132,7 @@ async function renderMatch(){
     <div class="gtop"><div style="min-width:0;flex:1"><div class="eyebrow">Your request</div><h1 class="gh1" translate="no" style="font-size:clamp(20px,2.6vw,28px)">${esc(S.idea.length>120?S.idea.slice(0,120)+'…':S.idea)}</h1>
       <div class="gchips">${A.codes.length?`<span class="chip">${A.codes.length}工程</span>`:''}${secs.length===1?'<span class="chip">1社で作れる内容です</span>':''}<span class="chip">${esc({proto:'試作',small:'小ロット',mass:'量産'}[S.qty])}</span><button type="button" class="glink" id="mEdit">書き直す</button></div></div>
       <div class="gcount"><b class="mono">${fmt(total)}</b><span>社が候補</span></div></div>
+    ${A.concept?conceptCard(A.concept):A.notices.length?'':'<div class="empty" style="margin-top:16px">この文章からは、製品の種類を特定できませんでした。下の「AIで相談」を開くと、外観・サイズ・素材・機能の案も作ってもらえます。</div>'}
     ${A.fallback?`<div class="empty" style="margin-top:16px"><b>文章から工程を特定できませんでした</b>どんな製品でも最初に必要になる「設計・試作・組立」を受ける会社を出しています。下の「AIで相談」で仕様を詰めて読み直すか、そのまま見積を依頼すれば担当者が工程と会社を探します。型が決まっているもの（部品・ノベルティ・袋物など）なら「選んで探す」が早いです。<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn" id="mGuided">選んで探す</button></div></div>`:A.codes.length?`<div class="empty" style="margin-top:16px"><b>書いた内容から、必要な工程をキーワードで読み取りました</b>工程が足りない・違うと思ったら、下の「AIで相談」で仕様を詰めるか、そのまま見積を依頼してください。担当者があなたの文章を読んで、工程と会社を組み直してお届けします。</div>`:''}
     ${A.notices.length&&!A.codes.length||A.notices.some(n=>WEAPON.test(n))?'':aiConsult(A)}
     ${A.codes.length?'<div id="mEst"></div>':''}
@@ -1082,7 +1154,7 @@ async function renderMatch(){
       ${s.list.length?`<ol class="glist">${s.list.slice(0,k).map(r=>coCard(r,A.codes)).join('')}</ol>${s.list.length>k?`<button class="glink" data-more="${esc(s.c)}" style="margin-top:10px">さらに表示 · 残り ${fmt(s.list.length-k)}社</button>`:''}`:`<p class="muted" style="font-size:13px">この工程の会社は、まだ一覧にありません。担当者が探してお声がけします。</p>`}</section>`}).join('')}
     <p class="muted" style="font-size:12.5px;margin-top:24px">一覧は公開情報から集めたものです。「要確認」の会社は、見積の依頼で対応できるかを確かめます。順番は、確認の度合い・試作や数量への合い方・所在地で決めています。</p>
   </div></section>`;
-  if(!(A.notices.length&&!A.codes.length))pickDock();bindPicks();wireAiConsult(A);
+  if(!(A.notices.length&&!A.codes.length))pickDock();bindPicks();wireAiConsult(A);wireConcept(A);if(A.concept&&S.loggedConcept!==S.idea){S.loggedConcept=S.idea;track('concept_show',{concept:A.concept.id})}
   $$('[data-alt]').forEach(b=>b.onclick=()=>{track('blocked_alt',{alt:b.dataset.altk});S.idea=b.dataset.alt;S.loggedIdea='';S.gsel=[];S.gstep={};S.gmore={};renderMatch().then(()=>window.scrollTo({top:0,behavior:'smooth'}))});
   if($('#mEst')&&typeof window.KATACHI_EST_CARD==='function'){try{$('#mEst').innerHTML=window.KATACHI_EST_CARD(A.codes,qmax,+((S.idea.match(/(\d[\d,]*)\s*(個|台|枚|本|着|セット|pcs|units)/i)||[])[1]||'').replace(/,/g,''))||''}catch(e){}}
   $('#mEdit').onclick=()=>{S.mode='free';location.hash=''};
