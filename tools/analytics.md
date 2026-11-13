@@ -41,6 +41,7 @@
 | open_inquiry | 見積依頼・相談の画面を開いた | type (rfq/consult), companies | |
 | translate_preview | 依頼書の翻訳を確認 | | |
 | generate_lead | 見積依頼・相談を送信 | type, companies, quantity, files, requester, optional_filled/optional_total, nda, overseas_ok | ◎（最重要） |
+| add_photo | 「写真・動画を追加」でファイルを選んだ（トップ・選んで探す・結果・見積画面） | files（件数だけ） | |
 | upload_files | 見積依頼・相談と一緒にファイルを送り終えた | files, sent, failed, skipped, mb（件数と大きさだけ。ファイル名は送らない） | |
 | ai_prompt_copy | 「写真・動画を、お使いのAIで仕様メモにする」の指示文をコピー | ok | |
 | ai_prompt_open | 同じ欄から ChatGPT/Claude/Gemini を開いた | ai | |

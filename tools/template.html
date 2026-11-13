@@ -85,6 +85,7 @@ h1,h2,h3{margin:0;font-family:var(--f-jp);text-wrap:balance;line-height:1.3}
 .composer textarea::placeholder{color:var(--dim)}
 .cbar{display:flex;align-items:center;gap:8px;padding:6px 6px 6px 10px;flex-wrap:wrap}
 .cbar .sp{flex:1}
+.cbar>.btn.pri{margin-left:auto}
 .pillset{display:inline-flex;background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:3px}
 .pillset button{height:30px;padding:0 11px;border-radius:7px;font-size:12.5px;color:var(--mute)}
 .pillset button[aria-pressed="true"]{background:var(--panel2);color:var(--fg);box-shadow:inset 0 0 0 1px var(--line2)}
@@ -333,6 +334,17 @@ table.cmp{border-collapse:separate;border-spacing:0;width:100%;min-width:760px;f
 .aic .aistat{font-size:12.5px;color:var(--mint)}
 @media(max-width:560px){.aicb .btn{flex:1 1 calc(50% - 8px)}.aicb [data-aiq]{flex-basis:100%}}
 .mlink{display:flex;gap:8px}.mlink input{flex:1;min-width:0}
+.clip.cam{border:1.5px solid var(--ice);color:var(--ice);font-weight:700;background:color-mix(in srgb,var(--ice) 7%,transparent)}
+.clip.cam:hover{background:color-mix(in srgb,var(--ice) 14%,transparent);color:var(--ice)}
+.fnote{flex-basis:100%;font-size:12px;color:var(--mute);padding:2px 2px 0}
+.fstrip{display:flex;gap:14px;align-items:center;margin-top:16px;padding:12px 14px;border:1.5px dashed color-mix(in srgb,var(--ice) 45%,var(--line2));border-radius:14px;background:color-mix(in srgb,var(--ice) 4%,var(--panel))}
+.fstrip.on{border-style:solid}
+.fsth{display:flex;gap:4px;align-items:center;flex:none}.fsth img{width:44px;height:44px;object-fit:cover;border-radius:8px}.fsth span{font-size:12px;color:var(--mute);padding:0 4px}
+.fstt{display:grid;gap:2px;flex:1;min-width:0;font-size:13.5px}.fstt .muted{font-size:12.5px}
+.fstrip .btn{flex:none;display:inline-flex;align-items:center;gap:6px}
+.gphoto{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:14px;font-size:12.5px}
+.gw .files{padding:8px 0 0}
+@media (max-width:560px){.fstrip{flex-wrap:wrap}.fstrip .btn{width:100%;justify-content:center}}
 .fth{width:22px;height:22px;object-fit:cover;border-radius:4px;flex:none}
 .upbar{height:8px;border-radius:99px;background:var(--bg2);overflow:hidden}.upbar i{display:block;height:100%;background:var(--ice);transition:width .3s}
 @media (max-width:560px){.mi{grid-template-columns:56px minmax(0,1fr) auto}.mth{width:56px;height:56px}.mfi{grid-template-columns:1fr}}
@@ -631,7 +643,8 @@ function renderHome(){
       <div class="files" id="files"></div>
       <div class="paste" id="paste"><textarea id="pasteT" placeholder="ChatGPT・Gemini・Claude の共有リンクや会話の本文、YouTube・Instagram・TikTok などの動画のリンクを貼り付け"></textarea><div><button type="button" class="btn sm" id="pasteGo">取り込む</button></div>${aiHelp()}</div>
       <div class="cbar">
-        <button type="button" class="clip" id="pick" title="AIで作った仕様書・画像・3D/CAD・回路図・コードを取り込む"><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M10.5 4.5 5.8 9.2a1.5 1.5 0 0 0 2.1 2.1l5-5a3 3 0 0 0-4.2-4.2l-5 5a4.5 4.5 0 0 0 6.4 6.4l4.2-4.2" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>AIの設計を取り込む</button>
+        <button type="button" class="clip cam" data-photo><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 5.5A1.5 1.5 0 0 1 3.5 4h1.6l1-1.5h3.8l1 1.5h1.6A1.5 1.5 0 0 1 14 5.5v6A1.5 1.5 0 0 1 12.5 13h-9A1.5 1.5 0 0 1 2 11.5z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><circle cx="8" cy="8.5" r="2.4" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>写真・動画を追加</button>
+        <button type="button" class="clip" id="pick" title="AIで作った仕様書・画像・3D/CAD・回路図・コードを取り込む"><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M10.5 4.5 5.8 9.2a1.5 1.5 0 0 0 2.1 2.1l5-5a3 3 0 0 0-4.2-4.2l-5 5a4.5 4.5 0 0 0 6.4 6.4l4.2-4.2" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>図面・ファイル</button>
         <button type="button" class="clip" id="pasteBtn">会話を貼る</button>
         <span class="sp"></span>
         <div class="pillset" role="group" aria-label="数量">${[['proto','試作'],['small','小ロット'],['mass','量産']].map(([v,t])=>`<button type="button" data-qty="${v}" aria-pressed="${S.qty===v}">${t}</button>`).join('')}</div>
@@ -782,9 +795,19 @@ function pasteIn(){const t=$('#pasteT').value.trim();if(!t)return;
   if(m){S.files.push({name:({'chatgpt.com':'ChatGPT','chat.openai.com':'ChatGPT','gemini.google.com':'Gemini','g.co':'Gemini','claude.ai':'Claude'}[m[1].toLowerCase()])+'の会話',k:'LINK',m:'',text:t.slice(0,20000)})}
   else{S.files.push({name:'貼り付けた会話',k:'会話',m:fmt(t.length)+'字',text:t.slice(0,200000)});const ta=$('#idea');if(!ta.value.trim()){ta.value=sumText(t);ta.oninput()}}
   $('#pasteT').value='';$('#paste').classList.remove('on');renderFiles()}
-function renderFiles(){const el=$('#files');if(!el)return;
-  el.innerHTML=S.files.map((f,i)=>`<span class="fchip">${f.thumb?`<img class="fth" src="${f.thumb}" alt="">`:''}<span class="k">${esc(f.k)}</span><span class="n">${esc(f.name)}</span>${f.m?`<span class="m mono">${esc(f.m)}</span>`:''}<button type="button" aria-label="${esc(f.name)}を外す" data-rf="${i}">×</button></span>`).join('');
-  $$('[data-rf]').forEach(b=>b.onclick=()=>{S.files.splice(+b.dataset.rf,1);renderFiles()})}
+function renderFiles(){$$('.files').forEach(el=>{el.innerHTML=S.files.map((f,i)=>`<span class="fchip">${f.thumb?`<img class="fth" src="${f.thumb}" alt="">`:''}<span class="k">${esc(f.k)}</span><span class="n">${esc(f.name)}</span>${f.m?`<span class="m mono">${esc(f.m)}</span>`:''}<button type="button" aria-label="${esc(f.name)}を外す" data-rf="${i}">×</button></span>`).join('')+(S.files.length?`<span class="fnote">${PHOTO_NOTE}</span>`:'')});
+  $$('[data-rf]').forEach(b=>b.onclick=()=>{S.files.splice(+b.dataset.rf,1);renderFiles();renderMedia();renderStrip()})}
+/* 写真・動画の追加ボタン（どの画面からも同じ入れ物に入り、見積依頼までそのまま引き継ぐ）。スマホでは撮影も選べる */
+const PHOTO_NOTE='見積を頼むとき、そのまま添付されます。担当者・工場が写真を見て、形や大きさを確認します。';
+function photoInput(){let i=$('#photoG');if(!i){i=document.createElement('input');i.type='file';i.id='photoG';i.multiple=true;i.accept='image/*,video/*';i.hidden=true;document.body.appendChild(i);
+  i.onchange=e=>{const n=e.target.files.length;[...e.target.files].forEach(addFile);e.target.value='';track('add_photo',{files:n});renderFiles();renderMedia();renderStrip()}}return i}
+document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-photo]');if(b){e.preventDefault();photoInput().click()}});
+// 結果画面の帯：追加した写真・動画と、見積に引き継がれること
+function stripHTML(){const vis=S.files.filter(f=>f.thumb).slice(0,6);
+  return S.files.length?`<div class="fstrip on"><div class="fsth">${vis.map(f=>`<img src="${f.thumb}" alt="">`).join('')}${S.files.length>vis.length?`<span class="mono">+${S.files.length-vis.length}</span>`:''}</div>
+    <div class="fstt"><b><span>写真・動画・ファイル</span> <span class="mono">${S.files.length}</span></b><span class="muted">${PHOTO_NOTE}</span></div><button type="button" class="btn sm" data-photo>追加</button></div>`
+  :`<div class="fstrip"><div class="fstt"><b>写真や動画はありますか？</b><span class="muted">今あるもの・参考品・手描きのスケッチの写真や動画を足すと、見積が返ってきやすくなります。担当者・工場が写真を見て確認します。</span></div><button type="button" class="btn sm" data-photo><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 5.5A1.5 1.5 0 0 1 3.5 4h1.6l1-1.5h3.8l1 1.5h1.6A1.5 1.5 0 0 1 14 5.5v6A1.5 1.5 0 0 1 12.5 13h-9A1.5 1.5 0 0 1 2 11.5z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><circle cx="8" cy="8.5" r="2.4" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>写真・動画を追加</button></div>`}
+function renderStrip(){$$('#fstrip').forEach(el=>{el.innerHTML=stripHTML()})}
 /* ---------- 写真・動画のアップロードと「見積できる仕様」へのまとめ ---------- */
 // ファイルは見積の依頼・相談を送ったときだけ、受付（GAS）経由で運営者の Google ドライブの非公開フォルダへ送る。AIのAPIは使わない。
 const UP={files:20,total:300*1048576,file:200*1048576,chunk:4*1048576};
@@ -803,8 +826,8 @@ async function vidFrames(file,n=4){const url=URL.createObjectURL(file);const v=d
       const b=await new Promise(r=>c.toBlob(r,'image/jpeg',.85));if(b)frames.push(b);const tc=document.createElement('canvas');const s=200/Math.max(W,H);tc.width=Math.round(W*s);tc.height=Math.round(H*s);tc.getContext('2d').drawImage(c,0,0,tc.width,tc.height);thumbs.push(tc.toDataURL('image/jpeg',.75))}
     return {dur:d,frames,thumbs}}catch(e){return null}finally{v.removeAttribute('src');URL.revokeObjectURL(url)}}
 function mediaPrep(it){
-  if(it.k==='画像')imgThumb(it.file).then(t=>{it.thumb=t;renderFiles();renderMedia()});
-  if(it.k==='動画'){it.m='…';vidFrames(it.file).then(v=>{if(v){it.thumb=v.thumbs[0];it.thumbs=v.thumbs;it.frames=v.frames;it.m=tmm(v.dur)}else it.m='';renderFiles();renderMedia()})}
+  if(it.k==='画像')imgThumb(it.file).then(t=>{it.thumb=t;renderFiles();renderMedia();renderStrip()});
+  if(it.k==='動画'){it.m='…';vidFrames(it.file).then(v=>{if(v){it.thumb=v.thumbs[0];it.thumbs=v.thumbs;it.frames=v.frames;it.m=tmm(v.dur)}else it.m='';renderFiles();renderMedia();renderStrip()})}
 }
 // 送るファイルの一覧（数と大きさの上限を守る）
 function upList(){const list=[],skipped=[];let bytes=0;
@@ -1057,9 +1080,10 @@ function renderMedia(){const el=$('#mediaBox');if(!el)return;const rfqMode=!!$('
         ${f.k==='画像'||f.k==='動画'||f.url?`<div class="mfi"><select data-mr="${i}" aria-label="写っているもの">${MROLE.map((r,j)=>`<option value="${j?esc(r):''}" ${f.role===r?'selected':''}>${esc(r)}</option>`).join('')}</select>
           <input data-md="${i}" value="${esc(f.dim||'')}" placeholder="写っている物の大きさ 例：幅120×奥行40×高さ30mm"><input data-mm="${i}" value="${esc(f.memo||'')}" placeholder="見てほしい所・変えたい所"></div>`:''}</div>
       <button type="button" class="mx" data-mx="${i}" aria-label="外す">×</button></div>`).join('')}</div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><button type="button" class="btn sm" id="mAdd">＋ 写真・動画・図面を追加</button><input type="file" id="mIn" multiple hidden><span class="muted" style="font-size:12px">1回で20件・合計300MBまで（動画は1本200MBまで）</span></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><button type="button" class="btn sm pri" data-photo><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 5.5A1.5 1.5 0 0 1 3.5 4h1.6l1-1.5h3.8l1 1.5h1.6A1.5 1.5 0 0 1 14 5.5v6A1.5 1.5 0 0 1 12.5 13h-9A1.5 1.5 0 0 1 2 11.5z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><circle cx="8" cy="8.5" r="2.4" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>写真・動画を追加</button><button type="button" class="btn sm" id="mAdd">＋ 図面・ファイル</button><input type="file" id="mIn" multiple hidden><span class="muted" style="font-size:12px">1回で20件・合計300MBまで（動画は1本200MBまで）</span></div>
     <div class="mlink"><input id="mUrl" type="url" inputmode="url" placeholder="YouTube・Instagram・TikTok などのリンクを貼る"><button type="button" class="btn sm" id="mUrlGo">リンクを追加</button></div>
     <p class="muted" style="margin:0;font-size:12.5px">動画やSNSの投稿は、リンクだけでも送れます。非公開の投稿は担当者が見られないので、公開か「限定公開」にしてください。</p>
+    <p style="margin:0;font-size:13px"><b>担当者・工場が写真を見て、形や大きさを確認します。</b></p>
     <p class="muted" style="margin:0;font-size:12.5px">送ったファイルは担当者だけが見られる場所に保存し、見積を頼む会社にだけ渡します。人の顔や住所などが写っている場合は、見えないようにしてから送ってください。</p>
     ${aiHelp()}`;
   $('#mAdd').onclick=()=>$('#mIn').click();
@@ -1155,9 +1179,11 @@ function renderGuided(){
   else if(st===3)body=`<h3 class="gq">いくつ作りますか？</h3>${gChoice('qty',GQ.map(q=>q[0]))}<h3 class="gq" style="margin-top:20px">手元にあるものは？</h3>${gChoice('draw',GDR)}`;
   else if(st===4)body=`<h3 class="gq">いつまでに必要ですか？</h3>${gChoice('due',GDUE)}<h3 class="gq" style="margin-top:20px">依頼先の範囲</h3>${gChoice('reg',GREG)}`;
   else body=`<h3 class="gq">この内容で候補を探します</h3><dl class="gsum">${gLines().filter(x=>x[0]!=='補足').map(([l,v])=>`<dt>${esc(l)}</dt><dd>${esc(v)}</dd>`).join('')}</dl>
+    <div class="gphoto"><button type="button" class="clip cam" data-photo><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 5.5A1.5 1.5 0 0 1 3.5 4h1.6l1-1.5h3.8l1 1.5h1.6A1.5 1.5 0 0 1 14 5.5v6A1.5 1.5 0 0 1 12.5 13h-9A1.5 1.5 0 0 1 2 11.5z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><circle cx="8" cy="8.5" r="2.4" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>写真・動画を追加</button><span class="muted">任意。今あるもの・参考品・スケッチの写真や動画</span></div><div class="files"></div>
     <label class="gnote"><span>補足（任意）</span><textarea id="gNote" rows="2" placeholder="例：大きさ 80×50mm、黒、ロゴを1色で入れたい">${esc(g.note||'')}</textarea></label>
     <div class="gact"><button type="button" class="btn pri" id="gGo">候補の会社を見る<svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div>`;
   el.innerHTML=bar+body+(st?`<div class="gfoot"><button type="button" class="glink" id="gFree">文章で書くに切り替える（ここまでの内容は引き継ぎます）</button></div>`:'');
+  renderFiles();
   $$('[data-cat]').forEach(b=>b.onclick=()=>{if(S.g.cat!==b.dataset.cat)S.g={step:0,cat:b.dataset.cat};S.g.step=1;track('guided_step',{step:'category',value:b.dataset.cat});renderGuided()});
   $('#gOther')&&($('#gOther').onclick=gToFree);
   $$('[data-g]').forEach(b=>b.onclick=()=>{const k=b.dataset.g;S.g[k]=b.dataset.v;track('guided_step',{step:k});
@@ -1412,6 +1438,7 @@ async function renderMatch(){
     <div class="gtop"><div style="min-width:0;flex:1"><div class="eyebrow">Your request</div><h1 class="gh1" translate="no" style="font-size:clamp(20px,2.6vw,28px)">${esc(S.idea.length>120?S.idea.slice(0,120)+'…':S.idea)}</h1>
       <div class="gchips">${A.codes.length?`<span class="chip">${A.codes.length}工程</span>`:''}${secs.length===1?'<span class="chip">1社で作れる内容です</span>':''}<span class="chip">${esc({proto:'試作',small:'小ロット',mass:'量産'}[S.qty])}</span><button type="button" class="glink" id="mEdit">書き直す</button></div></div>
       <div class="gcount"><b class="mono">${fmt(total)}</b><span>社が候補</span></div></div>
+    <div id="fstrip">${stripHTML()}</div>
     ${A.concept?conceptCard(A.concept):A.notices.length?'':'<div class="empty" style="margin-top:16px">この文章からは、製品の種類を特定できませんでした。下の「AIで相談」を開くと、外観・サイズ・素材・機能の案も作ってもらえます。</div>'}
     ${A.fallback?`<div class="empty" style="margin-top:16px"><b>文章から工程を特定できませんでした</b>どんな製品でも最初に必要になる「設計・試作・組立」を受ける会社を出しています。下の「AIで相談」で仕様を詰めて読み直すか、そのまま見積を依頼すれば担当者が工程と会社を探します。型が決まっているもの（部品・ノベルティ・袋物など）なら「選んで探す」が早いです。<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn" id="mGuided">選んで探す</button></div></div>`:A.codes.length?`<div class="empty" style="margin-top:16px"><b>書いた内容から、必要な工程をキーワードで読み取りました</b>工程が足りない・違うと思ったら、下の「AIで相談」で仕様を詰めるか、そのまま見積を依頼してください。担当者があなたの文章を読んで、工程と会社を組み直してお届けします。</div>`:''}
     ${A.notices.length&&!A.codes.length||A.notices.some(n=>WEAPON.test(n))?'':aiConsult(A)}
@@ -1481,7 +1508,7 @@ function renderResult(){
     <h1>${esc(demo()?r.idea:(S.matched==='example'?r.idea:(S.idea||r.idea)))}</h1>
     <div class="meta"><span class="chip">${qty}</span><span class="chip">図面 ${S.drawing?'あり':'なし'}</span>${S.files.length?`<span class="chip">取り込んだ設計 ${S.files.length}件</span>`:''}<span class="chip">${r.per_requirement.length}工程</span>${demo()?mk('demo','架空の会社・見積・口コミ'):`<span class="chip">実在企業 · 公開情報 2026-11-11</span>`}</div>
     ${note?`<div class="notice">${note}</div>`:''}
-    ${S.files.length?`<div class="notice" style="border-left-color:var(--ice);background:color-mix(in srgb,var(--ice) 7%,transparent)">取り込んだ設計（${S.files.map(f=>esc(f.name)).join('、')}）は見積依頼に添付されます。中身をマッチングに反映するのは本番版からです。</div>`:''}
+    <div id="fstrip">${stripHTML()}</div>
     <div class="tabs" role="tablist">
       ${[['team','チームを組む'],['table','表で比べる'],['est','概算・最低ロット'],['plan','作り方と法規制']].map(([k,t])=>`<button role="tab" data-tab="${k}" aria-selected="${S.tab===k}">${t}</button>`).join('')}
       <span class="sp"></span>
