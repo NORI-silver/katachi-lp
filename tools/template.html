@@ -306,7 +306,12 @@ table.cmp{border-collapse:separate;border-spacing:0;width:100%;min-width:760px;f
 .aic .aiback b{font-size:14px}
 .aic.flash{box-shadow:0 0 0 3px color-mix(in srgb,var(--ice) 35%,transparent);transition:box-shadow .3s}
 /* 製品イメージ案 */
-.ccard{margin-top:18px;border:1px solid var(--line2);border-radius:16px;padding:20px;display:grid;gap:16px;background:#fff}
+.cchips{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:0 0 10px;font-size:12px}.cchips .chip{font-size:12px}
+.cchat .aicb .btn{white-space:normal}.cchat{min-width:0;grid-template-columns:minmax(0,1fr);border:1px solid color-mix(in srgb,var(--ice) 30%,var(--line));background:color-mix(in srgb,var(--ice) 4%,#fff);border-radius:12px;padding:14px;display:grid;gap:10px}
+.cchat h4{margin:0}.cq{display:flex;gap:10px;align-items:baseline;justify-content:space-between}.cq b{font-size:15px}
+.cdone{display:flex;gap:6px;flex-wrap:wrap;align-items:center;font-size:12.5px}
+.cfree{display:flex;gap:8px}.cfree input{flex:1;min-width:0;border:1px solid var(--line2);border-radius:10px;padding:8px 10px;font-size:14px;background:#fff}
+.ccard{margin-top:18px;border:1px solid var(--line2);border-radius:16px;padding:20px;display:grid;grid-template-columns:minmax(0,1fr);gap:16px;background:#fff}.ccard>*{min-width:0}
 .chd{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.chd h2{font-size:19px}
 .cgrid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:22px;align-items:start}
 .cfig{margin:0;background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:8px}
@@ -323,7 +328,7 @@ table.cmp{border-collapse:separate;border-spacing:0;width:100%;min-width:760px;f
 .cvar{text-align:left;border:1px solid var(--line2);border-radius:10px;padding:10px 12px;display:grid;gap:2px;font-size:12.5px;color:var(--mute);line-height:1.55}.cvar b{color:var(--fg);font-size:13.5px}.cvar:hover{background:var(--hover)}
 .cvar.on{border-color:var(--ice);background:color-mix(in srgb,var(--ice) 7%,#fff);box-shadow:inset 0 0 0 1px var(--ice)}
 .cfoot{border-top:1px solid var(--line);padding-top:12px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}.cfoot p{margin:0;font-size:12.5px;flex:1;min-width:240px}
-@media(max-width:720px){.ccard{padding:16px}.cgrid,.ccols{grid-template-columns:1fr;gap:14px}.cspec{grid-template-columns:1fr;gap:0}.cspec dd{margin-bottom:8px}}
+@media(max-width:720px){.ccard{padding:16px}.cgrid,.ccols{grid-template-columns:minmax(0,1fr);gap:14px}.cvars{grid-template-columns:minmax(0,1fr)}.cspec{grid-template-columns:1fr;gap:0}.cspec dd{margin-bottom:8px}}
 .aic textarea{width:100%;min-height:92px;border:1px solid var(--line2);border-radius:10px;padding:10px 12px;font:14px/1.6 var(--f-body);resize:vertical;background:#fff;color:var(--fg)}
 .aic .aistat{font-size:12.5px;color:var(--mint)}
 @media(max-width:560px){.aicb .btn{flex:1 1 calc(50% - 8px)}.aicb [data-aiq]{flex-basis:100%}}
@@ -852,7 +857,7 @@ function aiQuestion(A,max){const L=AIQ[typeof LANG==='string'&&AIQ[LANG]?LANG:'j
     ...(A?.notices?.length?['',`【${L.blk}】`,A.notices.filter(x=>!WEAPON.test(x)).map(x=>'- '+t(x)).join('\n'),L.blkask]:[]),
     ...(A?.regs?.length?['',`【${L.regs}】`,A.regs.map(x=>'- '+t(x)).join('\n')]:[]),
     ...(S.files?.length?['',`【${L.files}】`,S.files.map(f=>'- '+f.name).join('\n')]:[]),
-    ...(A?.concept?['',`【${L.concept}】`,t(A.concept.name),...A.concept.rows.map(([k,v])=>`- ${t(k)}: ${t(v)}`),...(cvarOf(A.concept)>=0?[`- ${L.dir}: ${t(A.concept.vars[cvarOf(A.concept)][0])} — ${t(A.concept.vars[cvarOf(A.concept)][1])}`]:[])]:[]),
+    ...(A?.concept?['',`【${L.concept}】`,t(A.concept.name),...A.concept.rows.map(([k,v])=>`- ${t(k)}: ${Array.isArray(v)?v.map(x=>JA.test(x)?t(x):x).join(''):t(v)}`),...(cvarOf(A.concept)>=0?[`- ${L.dir}: ${t(A.concept.vars[cvarOf(A.concept)][0])} — ${t(A.concept.vars[cvarOf(A.concept)][1])}`]:[])]:[]),
     '',...(A?.home?[]:[A?.concept?L.cask:L.iask]),L.ask,'',L.back].join('\n')}
 // URLが長すぎると開けないことがあるので、文章を短くして渡す（全文はクリップボードに入れる）
 // Gemini は質問文をURLで渡せないので、開くだけ（質問文はクリップボードに入れて貼ってもらう）
@@ -890,14 +895,89 @@ function wireAiConsult(A){const box=$('#mAi');if(!box)return;
     renderMatch().then(()=>{const st=$('#mAiSt');if(st)st.textContent='読み直しました';window.scrollTo({top:0,behavior:'smooth'})})}}
 /* ---------- 製品イメージ案（製品の種類ごとの典型例＝tools/concepts.py。AIのAPIは使わない） ---------- */
 const CONCEPTS=__CONCEPTS__;
-function pickConcept(text,A){if(!A||(A.notices.length&&!A.codes.length))return null;const t=String(text||'').toLowerCase();
-  for(const c of CONCEPTS){if(!c.kw)continue;try{if(new RegExp(c.kw,'i').test(t))return c}catch(e){}}
-  if(A.mach)return CONCEPTS.find(c=>c.id==='machine');
-  if(!A.fallback&&A.codes.some(c=>/^(sensing|electronics)/.test(c)))return CONCEPTS.find(c=>c.id==='device');
-  return null}
+/* 汎用ロジック（tools/concepts_generic.py）: どの典型例にも当たらなくても、形の言葉＋条件＋数字から必ず案を組み立てる */
+const CGEN=__CGEN__;
+const rx=(k,t)=>{try{return !!k&&new RegExp(k,'i').test(t)}catch(e){return false}};
+const MEMO='【相談で決めたこと】';
+function readConds(text){const t=String(text||'').toLowerCase();const R={conds:CGEN.conds.filter(c=>rx(c.kw,t))};
+  const n=(v,u)=>{v=parseFloat(v);return /^m$|メートル/.test(u)?v*1000:/cm|センチ/.test(u)?v*10:v};
+  const kg=t.match(/(\d+(?:\.\d+)?)\s*(kg|キロ)/);R.kgx=!!kg;R.kg=kg?+kg[1]:/大型犬/.test(t)?40:/中型犬/.test(t)?20:/小型犬|猫|ねこ/.test(t)?8:/人が乗|大人が乗|人が座/.test(t)?100:0;
+  const dim=w=>{const m=t.match(new RegExp('(?:'+w+')[^\\d\\n]{0,8}(\\d+(?:\\.\\d+)?)\\s*(mm|cm|m|センチ|ミリ|メートル)'));return m?n(m[1],m[2]):0};
+  R.h=dim('高さ|縁|ふち|段差');R.w=dim('幅');R.l=dim('長さ');R.d=dim('奥行');R.max=dim('大きさ');
+  R.pet=/大型犬/.test(t)?'L':/中型犬/.test(t)?'M':/小型犬|猫|ねこ|ネコ/.test(t)?'S':/犬|いぬ|イヌ|dog/.test(t)?'M':'';
+  R.water=R.conds.some(c=>c.water);if(R.kgx&&!R.conds.some(c=>c.id==='load'))R.conds.push(CGEN.conds.find(c=>c.id==='load'));
+  return R}
+const cm=mm=>Math.round(mm/10)+'cm';
+function shapeConcept(s,R){let[w,l,h]=s.dims;const big=R.pet==='L'||(R.kg>=60),sc=R.pet==='S'?.55:R.pet==='M'?.75:1;
+  if(s.scale==='pet'&&R.pet){w*=sc;l*=sc;h*=sc}
+  if(s.id==='slope'){h=R.h||(R.conds.some(c=>c.id==='pool')?760:400);l=Math.round(h*2.5/10)*10;w=R.pet?{S:350,M:450,L:600}[R.pet]:(R.kg>=60?800:600)}
+  if(s.id==='step'){h=R.h||h;l=Math.max(450,Math.round(h*1.2/10)*10);if(R.pet)w=R.pet==='L'?500:400}
+  if(s.id==='platform'&&R.h)h=R.h;
+  if(R.max&&!R.w&&!R.l&&!R.h){const f=R.max/Math.max(w,l,h);w*=f;l*=f;h*=f}
+  if(R.w)w=R.w;if(R.l)l=R.l;if(R.d&&!R.l)l=R.d;
+  [w,l,h]=[w,l,h].map(x=>Math.max(5,Math.round(x/10)*10));
+  const size=['幅',' ','約',cm(w),...(l>60?[' × ','長さ',' ','約',cm(l)]:[]),' × ','高さ',' ','約',cm(h)];
+  if(s.id==='slope')size.push(' / ','傾き',' ','約','22°');
+  if((s.id==='slope'||s.id==='step')&&!R.h)size.push(' ','高さは、お使いのものに合わせて測ってください（図は例）。');
+  const rows=[['サイズ（目安）',size],['主な素材',R.water&&s.matw?s.matw:s.mat]];
+  if(R.kg&&(R.kgx||s.scale==='load'))rows.push(['想定スペック',['乗る重さ',' '+R.kg+'kg',' / ','設計の目安',' '+R.kg*2+'kg','（安全率2倍）']]);
+  if(R.conds.some(c=>c.id==='power'))rows.push(['動力・電源',CGEN.conds.find(c=>c.id==='power').feats[0]]);
+  return {id:'g_'+s.id,gen:s,fig:{k:s.fig,w:String(w),l:String(l),h:String(h),ang:'22°',pool:R.conds.some(c=>c.id==='pool'),pet:!!R.pet},name:s.name,lead:s.lead,rows,
+    feats:s.feats.slice(),check:s.check.slice(),vars:s.vars,proto:s.proto,mass:s.mass}}
+function pickConcept(text,A){if(!A||(A.notices.length&&!A.codes.length))return null;const t=String(text||'').toLowerCase();const R=readConds(t);
+  let c=CONCEPTS.find(c=>rx(c.kw,t));
+  if(!c){const s=CGEN.shapes.find(s=>rx(s.kw,t));if(s)c=shapeConcept(s,R)}
+  if(!c&&A.mach)c=CONCEPTS.find(c=>c.id==='machine');
+  if(!c&&!A.fallback&&A.codes.some(c=>/^(sensing|electronics)/.test(c)))c=CONCEPTS.find(c=>c.id==='device');
+  if(!c)c=shapeConcept(CGEN.shapes.find(s=>s.id==='product'),R);
+  // 文章から読めた条件は、どの案にも足す（同じ項目は足さない）
+  c=Object.assign({},c,{feats:c.feats.slice(),check:c.check.slice(),chips:R.conds.map(x=>x.id==='load'?[x.chip,' '+R.kg+'kg']:x.chip)});
+  for(const x of R.conds){for(const f of x.feats)if(!c.feats.includes(f))c.feats.push(f);for(const f of x.check)if(!c.check.includes(f))c.check.push(f)}
+  return c}
+/* 相談しながら詰める（AIなし）: 形に合う質問を順に出し、答えを依頼の文章に足して組み直す */
+const ideaBase=()=>String(S.idea||'').split('\n\n'+MEMO)[0];
+function nextQuestion(c){const base=ideaBase(),t=String(S.idea||'').toLowerCase();S.chat=S.chat&&S.chat.base===base?S.chat:{base,ans:{},lab:{},skip:[]};
+  const id=(c.gen&&c.gen.id)||c.id,load=['slope','step','platform','house','bed','cart','lawn_mower','slope_mower','furniture','holder','machine'].includes(id),height=['slope','step','platform'].includes(id),
+    sized=!!(c.gen)&&!['slope','step'].includes(id);
+  const qs=CGEN.questions.filter(q=>(q.show==='all'||(q.show==='load'&&load)||(q.show==='height'&&height)||(q.show==='nosize'&&sized)));
+  const left=qs.filter(q=>!(q.id in S.chat.ans)&&!S.chat.skip.includes(q.id)&&!rx(q.skip,t));
+  return {q:left[0],done:qs.length-left.length,total:qs.length}}
+function chatBox(c){const {q,done,total}=nextQuestion(c);const ans=Object.entries(S.chat.ans);
+  return `<div class="cchat" id="mChat"><h4>相談しながら詰める</h4><p class="muted" style="margin:0 0 8px;font-size:12.5px">答えるたびに、製品イメージ案と候補の会社が変わります。答えた内容は見積の依頼にも入ります。</p>
+    ${ans.length?`<div class="cdone"><span class="muted">決めたこと</span>${ans.map(([k,v])=>`<span class="chip"${S.chat.lab[k]?'':' translate="no"'}>${esc(S.chat.lab[k]||v)}</span>`).join('')}<button type="button" class="glink" data-chatreset>やり直す</button></div>`:''}
+    ${q?`<div class="cq"><b>${esc(q.q)}</b><span class="mono muted" style="font-size:12px">${done+1}/${total}</span></div>
+      <div class="aicb">${q.opts.map(([l,m],i)=>`<button type="button" class="btn sm" data-chatans="${i}">${esc(l)}</button>`).join('')}<button type="button" class="glink" data-chatskip>とばす</button></div>
+      <div class="cfree"><input id="mChatFree" placeholder="自分の言葉で答える" aria-label="自分の言葉で答える"><button type="button" class="btn sm" data-chatfree>答える</button></div>`
+     :`<p class="muted" style="margin:0;font-size:13px">質問は以上です。もっと自由に相談したいときは、下の「AIで相談」を使ってください。</p>`}</div>`}
+function chatApply(qid,memo,lab){S.chat.ans[qid]=memo;if(lab)S.chat.lab[qid]=lab;else delete S.chat.lab[qid];const lines=Object.values(S.chat.ans);
+  S.idea=S.chat.base+(lines.length?'\n\n'+MEMO+'\n'+lines.map(x=>'- '+x).join('\n'):'');S.loggedIdea='';
+  renderMatch().then(()=>{const el=$('#mConcept');if(el)el.scrollIntoView({behavior:'smooth',block:'start'})})}
+function wireChat(c){const box=$('#mChat');if(!box)return;const {q}=nextQuestion(c);
+  box.querySelectorAll('[data-chatans]').forEach(b=>b.onclick=()=>{const[l,m]=q.opts[+b.dataset.chatans];track('concept_chat',{q:q.id,how:'option'});chatApply(q.id,m,l)});
+  const sk=box.querySelector('[data-chatskip]');if(sk)sk.onclick=()=>{S.chat.skip.push(q.id);track('concept_chat',{q:q.id,how:'skip'});const el=$('#mChat');el.outerHTML=chatBox(c);wireChat(c)};
+  const fr=box.querySelector('[data-chatfree]');if(fr)fr.onclick=()=>{const v=$('#mChatFree').value.trim();if(!v)return;track('concept_chat',{q:q.id,how:'free'});chatApply(q.id,q.q.replace(/[？?]$/,'')+'：'+v.slice(0,200))};
+  const inp=$('#mChatFree');if(inp)inp.onkeydown=e=>{if(e.key==='Enter'&&!e.isComposing){e.preventDefault();fr.click()}};
+  const rs=box.querySelector('[data-chatreset]');if(rs)rs.onclick=()=>{S.chat.ans={};S.chat.lab={};S.chat.skip=[];S.idea=S.chat.base;S.loggedIdea='';track('concept_chat',{q:'-',how:'reset'});renderMatch()}}
 const CDH=(x1,x2,y,l)=>`<path class="d" d="M${x1} ${y-5}v10M${x2} ${y-5}v10M${x1} ${y}H${x2}"/><text x="${(x1+x2)/2}" y="${y+14}" text-anchor="middle">${l}</text>`;
 const CDV=(x,y1,y2,l)=>`<path class="d" d="M${x-5} ${y1}h10M${x-5} ${y2}h10M${x} ${y1}V${y2}"/><text x="${x+8}" y="${(y1+y2)/2+4}">${l}</text>`;
 const CFIG={
+ slope:f=>`<path class="d" d="M8 200H352"/>${f.pool?`<rect class="o" x="278" y="96" width="10" height="104"/><path class="g" d="M288 118H352V200H288Z" style="fill:color-mix(in srgb,var(--ice) 16%,#fff)"/><path class="o n a" d="M292 118q8-5 16 0t16 0t16 0" /><path class="o n a h" d="M290 104L338 184"/>`:''}
+  <path class="o af" d="M40 200L262 100H278V108H264L50 200Z"/><path class="o n" d="M52 188L262 94"/>${[[150,151],[214,122]].map(([x,y])=>`<path class="o n" d="M${x} ${y}V200"/><rect class="o" x="${x-6}" y="197" width="12" height="5" rx="2"/>`).join('')}<path class="o n" d="M272 108V200"/><rect class="o" x="266" y="197" width="12" height="5" rx="2"/>
+  ${f.pet?`<g transform="rotate(-24.2 140 155)"><path class="o n" d="M124 140V155M131 141V155M150 141V155M157 140V155M119 133l-9-7"/><ellipse class="o" cx="140" cy="134" rx="23" ry="9"/><path class="o" d="M158 130l4-12h10l6 6l-2 6h-8z"/><path class="o n" d="M164 118l-3-6"/></g>`:''}
+  <path class="d a" d="M86 200A46 46 0 0 0 82 182"/><text x="92" y="197" class="a2">${f.ang}</text>${CDV(24,100,200,'H '+f.h)}${CDH(40,270,206,'L '+f.l)}`,
+ step:f=>`<path class="d" d="M20 200H340"/><path class="o af" d="M70 200V164H130V126H190V88H260V200Z"/><path class="o n" d="M70 164h60M130 126h60M190 88h70" style="stroke-width:3"/>${CDH(70,260,206,'L '+f.l)}${CDV(290,88,200,'H '+f.h)}`,
+ house:f=>`<path class="d" d="M20 200H340"/><path class="o" d="M78 96L180 40L282 96Z"/><rect class="o af" x="92" y="94" width="176" height="106"/><path class="o" d="M150 200V150Q180 118 210 150V200Z"/><rect class="o n" x="232" y="112" width="22" height="22"/>${CDH(92,268,206,'W '+f.w)}${CDV(306,40,200,'H '+f.h)}`,
+ fence:f=>`<path class="d" d="M10 200H350"/><rect class="o n" x="40" y="74" width="280" height="112" rx="4"/>${Array.from({length:13},(_,i)=>`<path class="o n" d="M${60+i*20} 74V186"/>`).join('')}<rect class="o af" x="150" y="80" width="60" height="100" rx="3" style="fill-opacity:.6"/><rect class="o" x="30" y="186" width="30" height="10" rx="3"/><rect class="o" x="300" y="186" width="30" height="10" rx="3"/>${CDH(40,320,208,'W '+f.w)}`,
+ bed:f=>`<path class="d" d="M20 196H340"/><rect class="o af" x="60" y="124" width="240" height="70" rx="26"/><rect class="o" x="86" y="118" width="188" height="48" rx="18"/>${CDH(60,300,208,'W '+f.w)}${CDV(320,118,194,'H '+f.h)}`,
+ mat:f=>`<path class="o af" d="M60 160L250 160L310 104L120 104Z"/><path class="o" d="M60 160v8h190l60-56v-8"/>${Array.from({length:6},(_,i)=>`<path class="o n a h" d="M${92+i*30} 154L${142+i*30} 110"/>`).join('')}${CDH(60,250,186,'W '+f.w)}<text x="286" y="150">L ${f.l}</text>`,
+ cover:f=>`<path class="d" d="M20 200H340"/><path class="o af" d="M56 100Q180 30 304 100Z"/><path class="o n" d="M80 98V200M280 98V200"/><path class="o n a h" d="M80 110L40 200M280 110L320 200"/>${CDH(80,280,206,'W '+f.w)}${CDV(330,58,200,'H '+f.h)}`,
+ platform:f=>`<path class="d" d="M20 200H340"/><rect class="o af" x="70" y="104" width="220" height="16" rx="3"/>${[82,272].map(x=>`<rect class="o" x="${x}" y="120" width="10" height="76"/><rect class="o" x="${x-3}" y="194" width="16" height="6" rx="2"/>`).join('')}<path class="o n" d="M92 176L272 140"/>${CDH(70,290,208,'W '+f.w)}${CDV(312,104,200,'H '+f.h)}`,
+ box:f=>`<path class="o" d="M100 100l32-26h140l-32 26z"/><path class="o" d="M240 100l32-26v92l-32 26z"/><rect class="o af" x="100" y="100" width="140" height="92"/><path class="o n" d="M100 118H240"/><rect class="o" x="152" y="130" width="36" height="10" rx="5"/>${CDH(100,240,206,'W '+f.w)}${CDV(296,74,192,'H '+f.h)}`,
+ holder:f=>`<path class="d" d="M120 30V200"/><path class="o af" d="M150 40V186H254V168H168V40Z"/><circle class="o" cx="159" cy="70" r="5"/><circle class="o" cx="159" cy="140" r="5"/><path class="o n a h" d="M200 168V120M232 168V120"/>${CDH(150,254,206,'W '+f.w)}${CDV(280,40,186,'H '+f.h)}`,
+ bowl:f=>`<path class="o af" d="M90 104Q98 176 150 176H210Q262 176 270 104Z"/><ellipse class="o" cx="180" cy="104" rx="90" ry="20"/><ellipse class="o n a h" cx="180" cy="106" rx="70" ry="13"/><rect class="o" x="128" y="174" width="104" height="8" rx="3"/>${CDH(90,270,204,'W '+f.w)}${CDV(298,84,182,'H '+f.h)}`,
+ toy:f=>`<path class="d" d="M20 196H340"/><rect class="o af" x="96" y="116" width="80" height="80" rx="10"/><circle class="o" cx="230" cy="160" r="36"/><path class="o af" d="M136 116L176 56L216 116Z"/><circle class="a2f" cx="230" cy="160" r="6"/>${CDH(96,266,208,'W '+f.w)}`,
+ tool:f=>`<rect class="o af" x="50" y="100" width="150" height="26" rx="13"/><path class="o" d="M200 104H300L318 113L300 122H200Z"/><path class="o n" d="M80 106v14M100 106v14M120 106v14"/>${CDH(50,318,160,'L '+f.l)}`,
+ product:f=>`<path class="d" d="M20 196H340"/><rect class="o af" x="104" y="66" width="152" height="122" rx="22"/><rect class="o n a h" x="124" y="86" width="112" height="82" rx="12"/><circle class="a2f" cx="236" cy="80" r="4"/>${CDH(104,256,206,'W '+f.w)}${CDV(282,66,188,'H '+f.h)}`,
  crawler:f=>`<path class="g" d="M0 214L360 86V220H0Z"/><path class="d" d="M0 214L360 86"/><path class="d" d="M12 210H92"/><path class="d a" d="M78 210A66 66 0 0 0 74 188"/><text x="98" y="222" class="a2">${f.ang}</text>
   <g transform="rotate(-19.6 180 150)"><rect class="o" x="98" y="120" width="164" height="30" rx="15"/><circle class="o" cx="113" cy="135" r="11"/><circle class="o" cx="247" cy="135" r="11"/><circle class="o" cx="153" cy="142" r="5"/><circle class="o" cx="180" cy="142" r="5"/><circle class="o" cx="207" cy="142" r="5"/>
   <rect class="o af" x="110" y="88" width="140" height="32" rx="6"/><rect class="o" x="150" y="76" width="54" height="12" rx="3"/><path class="o n" d="M236 88V62"/><circle class="o" cx="236" cy="60" r="3"/><circle class="a2f" cx="126" cy="98" r="4"/>
@@ -920,19 +1000,21 @@ const CFIG={
  device:f=>`<path class="o" d="M110 82l20-14h140l-20 14z"/><path class="o" d="M250 82l20-14v86l-20 14z"/><rect class="o af" x="110" y="82" width="140" height="86" rx="6"/><rect class="o" x="124" y="94" width="72" height="44" rx="4"/><circle class="o" cx="222" cy="104" r="8"/><circle class="o" cx="222" cy="128" r="8"/><circle class="a2f" cx="236" cy="156" r="3.5"/>${CDH(110,250,196,'W '+f.w)}${CDV(292,68,168,'L '+f.l)}`};
 function cfig(f){const dims=[f.w&&'W '+f.w,f.l&&f.l!=='0'&&(f.k==='bag'?'D ':'L ')+f.l,f.h&&'H '+f.h].filter(Boolean).join(' × ');
   return `<svg viewBox="0 0 360 224" role="img" aria-label="製品イメージ案">${(CFIG[f.k]||CFIG.device)(f)}<text x="8" y="16" class="cap">${dims} mm</text></svg>`}
+const frg=v=>Array.isArray(v)?v.map(x=>/^\s*$/.test(x)?x:`<span>${esc(x)}</span>`).join(''):esc(v);
 const cvarOf=c=>S.cvar&&S.cvar.id===c.id?S.cvar.i:-1;
 function conceptCard(c){const v=cvarOf(c);
   return `<section class="ccard" id="mConcept"><div class="chd"><h2>製品イメージ案</h2>${mk('ai','AI推定・たたき台')}</div>
     <div class="cgrid"><figure class="cfig">${cfig(c.fig)}</figure>
-      <div><h3 class="cname">${esc(c.name)}</h3><p class="clead">${esc(c.lead)}</p>
-      <dl class="cspec">${c.rows.map(([k,x])=>`<dt>${esc(k)}</dt><dd>${esc(x)}</dd>`).join('')}</dl></div></div>
+      <div><h3 class="cname">${esc(c.name)}</h3>${c.chips&&c.chips.length?`<div class="cchips"><span class="muted">あなたの文章から読み取った条件</span>${c.chips.map(x=>`<span class="chip">${frg(x)}</span>`).join('')}</div>`:''}<p class="clead">${esc(c.lead)}</p>
+      <dl class="cspec">${c.rows.map(([k,x])=>`<dt>${esc(k)}</dt><dd>${frg(x)}</dd>`).join('')}</dl></div></div>
     <div class="ccols"><div><h4>主な機能</h4><ul class="cl">${c.feats.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>
       <div><h4>試作で確かめること</h4><ul class="cl">${c.check.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div></div>
     <div><h4>方向性を選ぶ</h4><div class="cvars">${c.vars.map(([n,d],i)=>`<button type="button" class="cvar${v===i?' on':''}" data-cvar="${i}" aria-pressed="${v===i}"><b>${esc(n)}</b><span>${esc(d)}</span></button>`).join('')}</div>
       <p class="muted" style="margin:6px 0 0;font-size:12px">選んだ方向性は、AI相談の質問文にも入ります。</p></div>
     <div><h4>作り方の目安</h4><dl class="cspec"><dt>試作</dt><dd>${esc(c.proto)}</dd><dt>量産</dt><dd>${esc(c.mass)}</dd></dl></div>
+    ${chatBox(c)}
     <div class="cfoot"><p class="muted">製品の種類ごとの典型例から、KATACHIが組み立てた案です（AIの推定）。寸法・素材・性能は、工場・専門家との打ち合わせと試作で決まります。図は大きさと形の目安で、設計図ではありません。</p><button type="button" class="btn sm" id="mCAi">この案をもとにAIで詰める</button></div></section>`}
-function wireConcept(A){const c=A.concept;if(!c||!$('#mConcept'))return;
+function wireConcept(A){const c=A.concept;if(!c||!$('#mConcept'))return;wireChat(c);
   $$('#mConcept [data-cvar]').forEach(b=>b.onclick=()=>{const i=+b.dataset.cvar;S.cvar=cvarOf(c)===i?null:{id:c.id,i};
     $$('#mConcept [data-cvar]').forEach(x=>{const on=S.cvar&&+x.dataset.cvar===S.cvar.i;x.classList.toggle('on',!!on);x.setAttribute('aria-pressed',!!on)});
     const pre=$('#mAi pre');if(pre&&pre.closest('details').open)pre.textContent=aiQuestion(A);track('concept_direction',{concept:c.id,direction:S.cvar?S.cvar.i:-1})});

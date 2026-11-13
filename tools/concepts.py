@@ -243,7 +243,7 @@ concept('light', r'ライト|照明|ランプ|ランタン|懐中電灯|\bled\b|
   ("樹脂は射出成形、アルミは押出しと切削。LED基板は量産の実装", "Plastic by injection moulding, aluminium by extrusion and machining; LED boards mass-assembled", "树脂用注塑，铝用挤压和切削；LED 电路板量产贴片"))
 
 # ---------------------------------------------------------------- 樹脂の小物（ケース・スタンド・ホルダー）
-concept('case', r'スマホケース|ケース|スタンド|ホルダー|フック|収納|カバー|\bcase\b|\bholder\b|\bstand\b',
+concept('case', r'スマホケース|ケース|スタンド|ホルダー|\bcase\b|\bholder\b|\bstand\b',
   dict(k='case', w='75', l='155', h='12'),
   ("樹脂で作る小物（ケース・スタンド・ホルダー）", "Small plastic item (case, stand, holder)", "树脂小物件（外壳・支架・收纳夹）"),
   ("手に持つ・机に置く・壁に掛けるなどの小さな樹脂製品です。形は3Dプリントで確かめ、数がまとまったら金型で作ると1個あたりが大きく下がります。",
@@ -465,6 +465,8 @@ def _all_strings():
 
 
 T_CONCEPT = {ja: (en, zh) for ja, en, zh in _all_strings()}
+import concepts_generic as _g
+T_CONCEPT.update({k: v for k, v in _g.T_GENERIC.items() if k not in T_CONCEPT})
 
 
 def js():
@@ -477,6 +479,12 @@ def js():
                     'feats': [j(x) for x in c['feats']], 'vars': [[j(a), j(b)] for a, b in c['vars']],
                     'check': [j(x) for x in c['check']], 'proto': j(c['proto']), 'mass': j(c['mass'])})
     return json.dumps(out, ensure_ascii=False, separators=(',', ':'))
+
+
+def gen_js():
+    """template.html の __CGEN__ に入れる、汎用ロジックのデータ（日本語だけ）"""
+    d = _g.data(); d['questions'] = _g.qdata()
+    return json.dumps(d, ensure_ascii=False, separators=(',', ':'))
 
 
 if __name__ == '__main__':
