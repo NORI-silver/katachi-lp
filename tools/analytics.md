@@ -39,6 +39,9 @@
 | ai_consult_open | 文章入力の結果画面で「ChatGPTで相談」「Claudeで相談」を押した | ai, steps, short（URLに入りきらず全文をコピーだけで渡した） | |
 | ai_consult_copy | 同じ欄の「質問文をコピー」 | ok | |
 | ai_answer_paste | AIの回答を貼って「読み直す」 | chars（文字数だけ） | |
+| concept_show | 文章入力の結果画面に「製品イメージ案」が出た | concept（種類のID。例 slope_mower） | |
+| concept_direction | 製品イメージ案の「方向性」を選んだ・外した | concept, direction（0始まり、外したら -1） | |
+| concept_ai | 「この案をもとにAIで詰める」を押した | concept | |
 | blocked_alt | 扱わない分野（酒類）のとき「ラベル・化粧箱」「グラス・ノベルティ」の入口を押した | alt | |
 | lang_change | 言語切替 | from, to | |
 | view_estimate | 概算の目安を表示（タブ・選択式・文章入力） | scenario | |
