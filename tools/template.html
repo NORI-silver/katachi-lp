@@ -415,7 +415,9 @@ details.grp>.in{display:grid;gap:12px;padding:0 14px 14px}
 .icard:hover{border-color:var(--line2)}
 .itop{display:flex;gap:8px;align-items:center;justify-content:space-between;font-size:12px;color:var(--mute)}
 .iind{color:var(--ice)}.ilot{margin-left:auto;padding:2px 8px;border-radius:99px;background:var(--bg2);font-size:11.5px}
-.icard h3{font-size:16px;font-weight:700}.icard>p{margin:0;font-size:13px;color:var(--mute);line-height:1.6}
+.icard h3{font-size:16px;font-weight:700}.icard h3 a{color:inherit;text-decoration:none}.icard h3 a:hover{color:var(--ice)}
+.ifig{flex:none;width:38px;height:38px;border-radius:10px;background:var(--hover);color:var(--ice);display:grid;place-items:center}
+.imore{margin-left:auto;font-size:13px;color:var(--mute)}.icard>p{margin:0;font-size:13px;color:var(--mute);line-height:1.6}
 .ifoot{margin-top:auto;padding-top:10px;border-top:1px dashed var(--line2)}
 .ilab{display:flex;justify-content:space-between;gap:8px;font-size:11.5px;color:var(--dim);margin-bottom:4px}.ilab b{color:var(--fg);font-size:12px}
 .iest{list-style:none;margin:0;padding:0;display:grid;gap:4px}
@@ -655,46 +657,8 @@ async function renderRank(){const el=$('#rank');if(!el)return;
    白紙から考えにくい人のために、中小企業が作れるもののモデルケースを並べる。実在の他社事例ではなく「作例」。
    目安は tools/estimates.py の出典つきの数字（est: [工程コード, 行の文言]）か、企業DBの最小ロット（D.est.db）だけを出す。無ければ「見積が必要」。
    押すと文章入力に入れて、そのまま工程・候補の会社（#match）へ進む。ex があれば既存の作例（結果画面）へ。 */
-const IND=[['pick','おすすめ'],['pet','ペット用品・トリミング'],['outdoor','アウトドア・キャンプ'],['cafe','カフェ・飲食店'],['salon','美容室・サロン'],['hotel','宿泊・観光施設'],['shop','小売・ネットショップ'],['farm','農家・食品の店'],['mfg','町工場・製造業'],['hw','ハードウェアのスタートアップ']];
-const IDEAS=[
- {k:'pet_shampoo',ind:'pet',t:'自社ブランドの犬用シャンプー',d:'サロンで使っている品を、自社のボトルとラベルで店頭・ネット販売',lot:'300本',q:'small',code:'cosmetics.household',idea:'トリミングサロンで使っている犬用シャンプーを、自社ブランドのボトルとラベルで300本作り、店頭とネットで販売したい'},
- {k:'pet_treat',ind:'pet',t:'国産素材の犬用おやつ',d:'ジャーキーなどを自社ブランドの袋で',lot:'500袋',q:'small',code:'food.pet_food',idea:'国産の鶏肉を使った犬用ジャーキーを、自社ブランドの袋に入れて500袋作りたい'},
- {k:'pet_lead',ind:'pet',t:'ロゴ入りのリードと首輪',d:'色違いをそろえて、店のオリジナル商品に',lot:'各30本',q:'small',code:'apparel.leather',est:[['apparel.leather','革小物・布小物のOEM']],idea:'店のロゴを入れた犬用のリードと首輪を、革で3色・各30本作りたい'},
- {k:'pet_collar',ind:'pet',t:'健康を見守るスマート首輪',d:'センサー・基板・ケース・アプリを複数の会社で分担する作例',lot:'試作5個',q:'proto',code:'electronics.pcba',ex:'collar',idea:''},
- {k:'out_cup',ind:'outdoor',t:'刻印入りのシェラカップ',d:'キャンプ場の売店や自社ブランドのグッズに',lot:'100個',q:'small',code:'crafts.metal_goods',idea:'キャンプ場のロゴを刻印したステンレスのシェラカップを100個作り、売店で販売したい'},
- {k:'out_case',ind:'outdoor',t:'帆布のペグケース',d:'縫製の工場で小ロットから',lot:'100個',q:'small',code:'manufacturing.textile',idea:'帆布を縫って作るテント用のペグ入れの袋を、自社ブランドで100個作りたい'},
- {k:'out_hanger',ind:'outdoor',t:'アルミのランタンハンガー',d:'まず数個試作して、使い心地を確かめてから',lot:'試作5個',q:'proto',code:'manufacturing.sheet_metal',est:[['manufacturing.sheet_metal','1個の価格例（アルミ・鉄・ステンレスの曲げ品など）'],['manufacturing.sheet_metal','最低ロット']],idea:'アルミの板を曲げて作るキャンプ用のランタンハンガーを、まず5個試作したい。よければ300個作りたい'},
- {k:'out_board',ind:'outdoor',t:'焼印入りの木製カッティングボード',d:'キャンプ用品やギフトに',lot:'100枚',q:'small',code:'crafts.wood_furniture',idea:'キャンプで使う木製のカッティングボードに、ロゴの焼印を入れて100枚作りたい'},
- {k:'cafe_mug',ind:'cafe',t:'店のロゴ入りマグカップ',d:'店頭販売にも、常連さんへの記念品にも',lot:'100個',q:'small',code:'crafts.ceramics_glass',idea:'自分のカフェのロゴを入れた陶器のマグカップを100個作り、店頭で販売したい'},
- {k:'cafe_sweets',ind:'cafe',t:'人気の焼き菓子を通販・ギフトに',d:'店のレシピをもとに、食品の工場で作ってもらう',lot:'300個',q:'small',code:'food.processed_oem',est:[['food.processed_oem','菓子']],idea:'店で人気のクッキーを、食品の工場で作ってもらい、通販とギフト用に300個販売したい'},
- {k:'cafe_box',ind:'cafe',t:'焼き菓子のギフト箱',d:'ロゴを印刷した化粧箱を小ロットで',lot:'200個',q:'small',code:'packaging.box',est:[['packaging.box','キャラメル箱 50個（印刷あり）']],idea:'焼き菓子の詰め合わせに使う、ロゴを印刷した化粧箱を200個作りたい'},
- {k:'cafe_apron',ind:'cafe',t:'ロゴを刺繍したエプロン',d:'スタッフの制服や、物販のグッズに',lot:'30枚',q:'small',code:'manufacturing.textile',idea:'店のロゴを刺繍したスタッフ用のエプロンを30枚作りたい'},
- {k:'salon_lotion',ind:'salon',t:'サロン専売の化粧水',d:'自社ブランドのスキンケアを店頭で',lot:'100本',q:'small',code:'cosmetics.oem',est:[['cosmetics.oem','化粧水・美容液・乳液'],['cosmetics.oem','化粧水・美容液など 100個〜']],idea:'サロン専売の自社ブランドの化粧水を100本作り、店頭で販売したい'},
- {k:'salon_shampoo',ind:'salon',t:'自社ブランドのシャンプー',d:'香りや容器を選んで、オリジナルのヘアケアに',lot:'300本',q:'small',code:'cosmetics.oem',idea:'美容室の自社ブランドとして、シャンプーとトリートメントを各300本作りたい'},
- {k:'salon_candle',ind:'salon',t:'店の香りのアロマキャンドル',d:'店内の香りをそのまま持ち帰れる物販に',lot:'100個',q:'small',code:'cosmetics.household',idea:'サロンの香りに合わせたアロマキャンドルを100個作り、店頭で販売したい'},
- {k:'salon_towel',ind:'salon',t:'ロゴ入りのタオル',d:'施術用にも、物販にも',lot:'100枚',q:'small',code:'manufacturing.textile',idea:'サロンのロゴを刺繍したタオルを100枚作りたい'},
- {k:'hotel_soap',ind:'hotel',t:'オリジナルの固形石けん',d:'客室のアメニティや、お土産に',lot:'300個',q:'small',code:'cosmetics.oem',est:[['cosmetics.oem','固形石けん']],idea:'旅館オリジナルの化粧石けん（固形）を化粧品の工場で300個作り、客室のアメニティと売店で使いたい'},
- {k:'hotel_sweets',ind:'hotel',t:'ご当地のお菓子のお土産',d:'地元の素材を使って、売店のオリジナル品に',lot:'300個',q:'small',code:'food.processed_oem',est:[['food.processed_oem','菓子']],idea:'地元の果物を使ったオリジナルのお菓子を、旅館の売店のお土産として300個作りたい'},
- {k:'hotel_slipper',ind:'hotel',t:'ロゴ入りの館内スリッパ',d:'客室用に、刺繍やプリントで',lot:'200足',q:'small',code:'manufacturing.textile',idea:'ホテルのロゴを刺繍した客室用のスリッパを200足作りたい'},
- {k:'hotel_pin',ind:'hotel',t:'施設のピンバッジ',d:'記念品や、スタッフの名札に',lot:'300個',q:'small',code:'crafts.metal_goods',idea:'観光施設のロゴを入れた金属のピンバッジを300個作り、売店で販売したい'},
- {k:'shop_tshirt',ind:'shop',t:'オリジナルのTシャツ',d:'無地にプリントするなら10枚から',lot:'50枚',q:'small',code:'apparel.print_embroidery',est:[['apparel.print_embroidery','Tシャツ片面1色シルク印刷 10枚'],['apparel.print_embroidery','同 100枚']],idea:'店のロゴを1色でプリントしたオリジナルのTシャツを50枚作り、ネットショップで販売したい'},
- {k:'shop_tote',ind:'shop',t:'ロゴ入りの帆布トートバッグ',d:'ショップ袋代わりにも、商品にも',lot:'100枚',q:'small',code:'manufacturing.textile',idea:'店のロゴを印刷した帆布のトートバッグを100枚作りたい'},
- {k:'shop_sweets',ind:'shop',t:'自社ブランドのお菓子',d:'パッケージまでそろえてネットで販売',lot:'300個',q:'small',code:'food.processed_oem',est:[['food.processed_oem','菓子']],idea:'自社ブランドの焼き菓子を、パッケージも含めて300個作り、ネットショップで販売したい'},
- {k:'shop_supp',ind:'shop',t:'自社ブランドのサプリメント',d:'粒・粉などの形と原料から相談',lot:'1,000袋',q:'mass',code:'food.beverage_oem',idea:'自社ブランドのサプリメント（粒タイプ）を1,000袋作り、ネットショップで販売したい'},
- {k:'farm_juice',ind:'farm',t:'自家栽培の果物でジュース',d:'規格外の果物を、瓶詰めの商品に',lot:'500本',q:'small',code:'food.beverage_oem',est:[['food.beverage_oem','500mlびん'],['food.beverage_oem','200mlびん']],idea:'自分の農園で採れたりんごでジュースを作り、瓶詰めで500本販売したい'},
- {k:'farm_jam',ind:'farm',t:'果物のジャム',d:'加工を任せて、直売所やネットで',lot:'300個',q:'small',code:'food.processed_oem',idea:'自分の農園のいちごでジャムを作り、瓶詰めで300個販売したい'},
- {k:'farm_dry',ind:'farm',t:'規格外野菜のドライ野菜',d:'捨てていた野菜を、日持ちする商品に',lot:'300袋',q:'small',code:'food.processed_oem',idea:'規格外の野菜を加工食品の工場で乾燥させ、ドライ野菜として袋詰めで300袋作り販売したい'},
- {k:'farm_box',ind:'farm',t:'贈答用のギフト箱',d:'果物や加工品の詰め合わせに',lot:'1,000個',q:'mass',code:'packaging.box',est:[['packaging.box','無地のギフト箱 1,000個']],idea:'果物の贈答用に、農園の名前を入れたギフト箱を1,000個作りたい'},
- {k:'mfg_fire',ind:'mfg',t:'自社の加工技術で作る焚き火台',d:'下請けの技術を、自社ブランドの商品に',lot:'試作3個',q:'proto',code:'manufacturing.cnc',est:[['manufacturing.cnc','1個の価格例（50mm角の樹脂〜200mmのステンレス）'],['manufacturing.cnc','最低ロット']],idea:'自社の板金と切削の技術を使って、キャンプ用の焚き火台を自社ブランドで作りたい。まず3個試作したい'},
- {k:'mfg_scrap',ind:'mfg',t:'端材で作る金属の雑貨',d:'栓抜き・キーホルダーなど、捨てていた材料を商品に',lot:'100個',q:'small',code:'crafts.metal_goods',idea:'工場で出る金属の端材を使って、栓抜きとキーホルダーを100個作り販売したい'},
- {k:'mfg_jig',ind:'mfg',t:'社内の治具を製品化',d:'自社で使って便利だった道具を、他社にも売る',lot:'50個',q:'small',code:'manufacturing.sheet_metal',est:[['manufacturing.sheet_metal','1個の価格例（アルミ・鉄・ステンレスの曲げ品など）']],idea:'社内で使っている板金の治具を製品にして、他社にも販売したい。まず50個作りたい'},
- {k:'mfg_part',ind:'mfg',t:'廃番になった部品の作り直し',d:'現物から寸法を測って、少量だけ作る',lot:'10個',q:'proto',code:'manufacturing.cnc',est:[['manufacturing.cnc','丸物1個の価格例（φ50樹脂〜φ128鉄）']],idea:'廃番になった金属の部品を、現物から寸法を測って切削加工で10個作り直したい'},
- {k:'hw_sensor',ind:'hw',t:'スマホとつながる小型センサー',d:'基板・ケース・アプリ・電波の認証まで',lot:'試作10台',q:'proto',code:'electronics.pcba',est:[['electronics.pcba','基板10枚（10cm角まで）の製造'],['testing.radio_cert','技適（2.4GHz帯）申込の基本料']],idea:'温度と湿度を測ってBluetoothでスマホに送る小型のセンサーを、10台試作したい'},
- {k:'hw_case',ind:'hw',t:'基板を入れるケースの試作',d:'3Dプリントなら1個から',lot:'試作5個',q:'proto',code:'manufacturing.rapid_proto',est:[['manufacturing.rapid_proto','手のひら大のボディ1個（ナイロン造形）']],idea:'手のひらくらいの大きさの樹脂のケースを、3Dプリントで5個試作したい'},
- {k:'hw_mold',ind:'hw',t:'ケースを金型で量産',d:'試作のあと、射出成形に切り替える',lot:'1,000個',q:'mass',code:'manufacturing.injection_molding',est:[['manufacturing.injection_molding','試作・少量向けの金型（プロトラブズの例）']],idea:'3Dプリントで試作した樹脂のケースを、金型を作って1,000個量産したい'},
- {k:'hw_light',ind:'hw',t:'防水の自転車ライト',d:'回路・防水ケース・組立を組み合わせる作例',lot:'試作',q:'proto',code:'manufacturing.assembly',ex:'bike',idea:''},
-];
-const PICKS=['pet_shampoo','out_cup','cafe_mug','salon_lotion','hotel_soap','shop_tshirt','farm_juice','mfg_fire','hw_sensor'];
+const IDX=__IDEAS__;const IND=IDX.ind,IDEAS=IDX.ideas,PICKS=IDX.picks,IFIG=IDX.fig;
+const ifig=(k,n)=>`<svg width="${n}" height="${n}" viewBox="0 0 64 64" aria-hidden="true">${IFIG[k]||IFIG.box}</svg>`;
 function ideaEst(x){const E=D.est||{};const out=[];
   for(const [c,t] of (x.est||[])){const r=((E.rows||{})[c]||{rows:[]}).rows.find(r=>r.t===t);if(!r||r.lo==null)continue;const s=(E.src||{})[r.s]||{};const lv=ELV[s.level]||ELV.rough;
     out.push(`<li><span>${esc(EKIND[r.k]||'')}</span><b class="mono" data-r='${JSON.stringify([r.lo,r.hi,r.u])}'>${rngTxt(r.lo,r.hi,r.u)}</b><small>${esc(r.t)}</small>${s.url?`<a href="${esc(s.url)}" target="_blank" rel="noopener" title="${esc(s.t||'')}">${mk(lv[0],lv[1])}</a>`:mk(lv[0],lv[1])}</li>`)}
@@ -708,20 +672,29 @@ async function renderIdeas(){const el=$('#ideas');if(!el)return;S.ind=S.ind||'pi
   el.innerHTML=`<div class="rhead"><div class="eyebrow">Ideas</div><h2>何をつくるか、まだ決まっていなくても</h2><p class="muted">白紙からは思いつきにくいものです。業種を選ぶと、同じ立場の会社が作りやすいものを並べます。押すと、その内容で工程と候補の会社を探します。</p></div>
     <div class="inds" role="tablist" aria-label="業種">${IND.map(([k,t])=>`<button type="button" role="tab" data-ind="${k}" aria-selected="${S.ind===k}">${esc(t)}</button>`).join('')}</div>
     <div class="icards">${list.map(x=>{const n=STATS&&STATS.caps?STATS.caps[x.code]:0;return `<article class="icard">
-      <div class="itop">${S.ind==='pick'?`<span class="iind">${esc(indN(x.ind))}</span>`:''}<span class="ilot mono">${esc(x.lot)}</span></div>
-      <h3>${esc(x.t)}</h3><p>${esc(x.d)}</p>
+      <div class="itop"><span class="ifig">${ifig(x.fig,30)}</span>${S.ind==='pick'?`<span class="iind">${esc(indN(x.ind))}</span>`:''}<span class="ilot mono">${esc(x.lot)}</span></div>
+      <h3><a href="/idea/${x.k}/" data-imore="${x.k}">${esc(x.t)}</a></h3><p>${esc(x.d)}</p>
       <div class="ifoot"><div class="ilab"><span>目安</span>${n?`<span>対応する会社 <b class="mono">${fmt(n)}</b>社</span>`:''}</div>${ideaEst(x)}</div>
-      <div class="iact"><button type="button" class="btn sm pri" data-idea="${x.k}">この内容で探す<svg width="12" height="12" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>${x.ex?'':`<button type="button" class="glink" data-iedit="${x.k}">書き換えてから探す</button>`}</div>
+      <div class="iact"><button type="button" class="btn sm pri" data-idea="${x.k}">この内容で探す<svg width="12" height="12" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>${x.ex?'':`<button type="button" class="glink" data-iedit="${x.k}">書き換えてから探す</button>`}<a class="imore" href="/idea/${x.k}/" data-imore="${x.k}">詳しく見る</a></div>
     </article>`}).join('')}</div>
-    <p class="inote">作例（モデルケース）です。実在の会社の事例や見積ではありません。目安は公開されている料金表・記事と、掲載企業の最小ロットから出しています。期間は形・数量・工場の混み具合で変わるため、見積で確かめます。</p>`;
+    <p class="inote">作例（モデルケース）です。実在の会社の事例や見積ではありません。目安は公開されている料金表・記事と、掲載企業の最小ロットから出しています。期間は形・数量・工場の混み具合で変わるため、見積で確かめます。 <a href="/idea/">作例をすべて見る</a></p>`;
   {const r=el.querySelector('.inds'),c=r&&r.querySelector('[aria-selected="true"]');if(r&&c){const a=r.getBoundingClientRect(),z=c.getBoundingClientRect();r.scrollLeft+=z.left-a.left-(a.width-z.width)/2}}
   $$('[data-ind]').forEach(b=>b.onclick=()=>{S.ind=b.dataset.ind;track('idea_industry',{industry:S.ind});renderIdeas()});
   $$('[data-idea]').forEach(b=>b.onclick=()=>{const x=IDEAS.find(i=>i.k===b.dataset.idea);track('idea_click',{idea:x.k,industry:x.ind,picked_from:S.ind});S.qty=x.q;
     if(x.ex){S.mode='free';const ta=$('#idea');if(ta)ta.value=D.scen[x.ex].idea;go(x.ex);return}
     S.mode='free';S.files=S.files||[];const ta=$('#idea');ta.value=x.idea;go(null)});
-  $$('[data-iedit]').forEach(b=>b.onclick=()=>{const x=IDEAS.find(i=>i.k===b.dataset.iedit);track('idea_edit',{idea:x.k,industry:x.ind});S.mode='free';S.qty=x.q;S.idea=x.idea;renderHome();
-    const ta=$('#idea');if(ta){ta.scrollIntoView({behavior:'smooth',block:'center'});ta.focus();ta.setSelectionRange(ta.value.length,ta.value.length);ta.oninput()}});
+  $$('[data-iedit]').forEach(b=>b.onclick=()=>ideaEdit(b.dataset.iedit,'card'));
+  $$('[data-imore]').forEach(a=>a.onclick=()=>track('idea_more',{idea:a.dataset.imore}));
 }
+function ideaEdit(k,place){const x=IDEAS.find(i=>i.k===k);if(!x)return;track('idea_edit',{idea:x.k,industry:x.ind,place});S.mode='free';S.qty=x.q;S.idea=x.idea;renderHome();
+  const ta=$('#idea');if(ta){ta.scrollIntoView({behavior:'smooth',block:'center'});ta.focus();ta.setSelectionRange(ta.value.length,ta.value.length);ta.oninput()}}
+/* 作例のページ（/idea/<k>/）から ?idea=<k>（&edit=1）で来たとき */
+function ideaFromUrl(){let q;try{q=new URLSearchParams(location.search)}catch(e){return false}const k=q.get('idea');const x=k&&IDEAS.find(i=>i.k===k);if(!x)return false;
+  try{history.replaceState(null,'',location.pathname+location.hash)}catch(e){}
+  track('idea_from_page',{idea:x.k,edit:q.get('edit')==='1'});
+  if(q.get('edit')==='1'&&!x.ex){location.hash='';renderHome();ideaEdit(x.k,'page');return true}
+  S.qty=x.q;S.mode='free';location.hash='';renderHome();if(x.ex){$('#idea').value=D.scen[x.ex].idea;go(x.ex);return true}
+  $('#idea').value=x.idea;go(null);return true}
 function bindHome(){
   const f=$('#cmp'),ta=$('#idea');
   let started=false;const grow=()=>{ta.style.height='auto';ta.style.height=Math.min(ta.scrollHeight,260)+'px'};ta.oninput=()=>{grow();if(!started&&ta.value.trim()){started=true;track('form_input_start',{form:'idea'})}};grow();
@@ -1733,7 +1706,7 @@ $$('[data-lang]').forEach(b=>b.onclick=()=>{track('lang_change',{to:b.dataset.la
 (async()=>{try{sampleFn=window.claude?await window.claude.use('sample'):null}catch(e){sampleFn=null}scheduleMT()})();
 window.KATACHI_LANG=()=>LANG;
 
-route();
+if(!ideaFromUrl())route();
 setLang(LANG,false);
 })();
 </script>
