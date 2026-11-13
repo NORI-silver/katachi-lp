@@ -380,3 +380,14 @@ T_GENERIC.update({ja: (en, zh) for ja, en, zh in [
      "This concept is based on your chat with the AI built into Chrome on this computer (an AI estimate). Dimensions, materials and performance are settled with the factory or experts and through prototyping. The figure shows rough size and shape, not a design drawing.",
      "这是根据与本电脑 Chrome 内置 AI 的对话整理的构想（AI 推测）。尺寸、材料和性能需与工厂、专家商讨并通过试制确定。图示仅为大小和形状的参考，并非设计图。"),
 ]})
+
+# 製品イメージ案の3D表示
+T_GENERIC.update({ja: (en, zh) for ja, en, zh in [
+    ("寸法図", "Dimensions", "尺寸图"), ("表示", "View", "显示"),
+    ("製品イメージ案の3D表示", "3D view of the product concept", "产品构想的 3D 显示"),
+    ("ドラッグで回せます", "Drag to rotate", "拖动即可旋转"),
+    ("3Dを準備しています…", "Preparing 3D…", "正在准备 3D…"),
+    ("3Dを表示できませんでした。「寸法図」をご覧ください。", "Could not show 3D. Please see \"Dimensions\".", "无法显示 3D。请查看“尺寸图”。"),
+    ("3Dを読み込めませんでした。「寸法図」をご覧ください。", "Could not load 3D. Please see \"Dimensions\".", "无法加载 3D。请查看“尺寸图”。"),
+    ("拡大", "Zoom in", "放大"), ("縮小", "Zoom out", "缩小"), ("向きを戻す", "Reset view", "复原视角"),
+]})
