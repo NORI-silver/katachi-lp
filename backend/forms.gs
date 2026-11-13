@@ -29,6 +29,10 @@ var CONFIG = {
   UPLOAD_FOLDER_NAME: 'KATACHI 受付ファイル',
   // 入力ログ（文章で書く・選んで探す）の1日の上限
   LOG_DAILY_LIMIT: 3000,
+  // Googleの口コミ（Places API。ペットサイトと同じ方式）。スクリプトのプロパティ PLACES_API_KEY が無ければ動かず、サイトはGoogleマップへのリンクだけ出す
+  REVIEW_MONTHLY_LIMIT: 900,        // 1か月に口コミを取り寄せる回数（無料の範囲 1,000回に収める。超えたら月末までリンクだけ）
+  REVIEW_SEARCH_MONTHLY_LIMIT: 900, // 1か月に場所を探す回数（場所IDは覚えるので、同じ会社は2回目から探さない）
+  REVIEW_DAILY_LIMIT: 150,          // 1日の上限（いたずら対策）
 };
 
 var HEAD = ['受付番号', '受付日時', '種類', '言語', 'メール', '会社名・お名前', '依頼者の区分', '電話', 'つくりたいもの（入力文）',
@@ -48,6 +52,7 @@ function doPost(e) {
     if (p.type === 'idea') return json_(logIdea_(p));
     if (p.type === 'file') return json_(saveChunk_(p));
     if (p.type === 'partner') return json_(partner_(p));
+    if (p.type === 'reviews') return json_(reviews_(p));
     if (!limit_()) return json_({ok: false, error: 'busy'});
     if (p.type !== 'rfq' && p.type !== 'consult') return json_({ok: false, error: 'type'});
     var f = {};
@@ -496,3 +501,67 @@ function replyPartner_(id, email, lang, name, up) {
   var f = function (t) { return t.replace(/\{files\}/g, n ? L.files.replace('{n}', n) : L.nofiles).replace(/\{id\}/g, id).replace(/\{name\}/g, name).replace(/\{site\}/g, CONFIG.SITE_URL); };
   MailApp.sendEmail({to: email, subject: f(L.subj), body: f(L.body), name: CONFIG.SERVICE_NAME});
 }
+
+// ---------- Googleの口コミ（ペットサイト pet.shiokonbu.com と同じ方式） ----------
+// サイトの「Googleの口コミを見る」を押したときだけ、その会社の星・件数・口コミ（地図サービスが関連度の高い順に返す最大5件）を取り寄せて返す。
+// 規約により、口コミ・星は保存しない（毎回取り寄せる）。保存するのは場所のIDだけ（見つからなければ '-'）。
+// 書いた人（名前・アイコン・プロフィールへのリンク）と、口コミそれぞれの元のページへのリンクを一緒に返し、サイトは「Google Maps」の表示を付ける。
+function reviews_(p) {
+  var props = PropertiesService.getScriptProperties(), apiKey = props.getProperty('PLACES_API_KEY');
+  if (!apiKey) return {ok: false, error: 'off'};
+  var name = String(p.name || '').trim().slice(0, 80), pref = String(p.pref || '').trim().slice(0, 20), city = String(p.city || '').trim().slice(0, 40);
+  var jp = !p.country || p.country === 'JP';
+  var lang = {en: 'en', zh: 'zh-CN'}[p.lang] || 'ja';
+  if (!name) return {ok: false, error: 'name'};
+  if (!limit_('rv', CONFIG.REVIEW_DAILY_LIMIT)) return {ok: false, error: 'busy'};
+  var ym = Utilities.formatDate(new Date(), 'Asia/Tokyo', 'yyyyMM');
+  var key = 'PLACE_' + Utilities.base64EncodeWebSafe(Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, [name, pref, city].join('|'), Utilities.Charset.UTF_8)).slice(0, 16);
+  var placeId = props.getProperty(key);
+  if (placeId === '-') return {ok: false, error: 'notfound'};
+  try {
+    if (!placeId) {
+      var sk = 'REVIEW_SEARCH_' + ym, su = Number(props.getProperty(sk)) || 0;
+      if (su >= CONFIG.REVIEW_SEARCH_MONTHLY_LIMIT) return {ok: false, error: 'limit'};
+      props.setProperty(sk, String(su + 1));
+      var body = {textQuery: [name, jp ? pref : '', city].filter(String).join(' ')};
+      if (jp) body.regionCode = 'JP';
+      body.languageCode = lang;
+      var res = UrlFetchApp.fetch('https://places.googleapis.com/v1/places:searchText', {method: 'post', contentType: 'application/json', muteHttpExceptions: true,
+        headers: {'X-Goog-Api-Key': apiKey, 'X-Goog-FieldMask': 'places.id,places.displayName'}, payload: JSON.stringify(body)});
+      var found = {};
+      try { found = JSON.parse(res.getContentText()) || {}; } catch (e) {}
+      if (res.getResponseCode() !== 200) { Logger.log('口コミ：検索エラー ' + res.getResponseCode()); return {ok: false, error: 'unavailable'}; }
+      // 所在地が分からない会社は、同じ名前の別の会社を拾わないよう、名前が同じときだけにする
+      var core = placeNorm_(name), strict = !pref && !city;
+      var hit = (found.places || []).filter(function (x) {
+        var dn = placeNorm_((x.displayName || {}).text || '');
+        return dn && core && (strict ? dn === core : (dn.indexOf(core) >= 0 || core.indexOf(dn) >= 0));
+      })[0];
+      placeId = hit && hit.id ? hit.id : '-';
+      props.setProperty(key, placeId);
+      if (placeId === '-') return {ok: false, error: 'notfound'};
+    }
+    var mk = 'REVIEW_COUNT_' + ym, used = Number(props.getProperty(mk)) || 0;
+    if (used >= CONFIG.REVIEW_MONTHLY_LIMIT) return {ok: false, error: 'limit'};
+    props.setProperty(mk, String(used + 1));
+    var d = UrlFetchApp.fetch('https://places.googleapis.com/v1/places/' + encodeURIComponent(placeId) + '?languageCode=' + lang, {muteHttpExceptions: true,
+      headers: {'X-Goog-Api-Key': apiKey, 'X-Goog-FieldMask': 'displayName,formattedAddress,rating,userRatingCount,reviews,googleMapsUri'}});
+    if (d.getResponseCode() !== 200) { Logger.log('口コミ：取り寄せ失敗 ' + d.getResponseCode()); return {ok: false, error: 'unavailable'}; }
+    var v = JSON.parse(d.getContentText());
+    return {ok: true, rating: v.rating || 0, count: Number(v.userRatingCount) || 0, maps: v.googleMapsUri || '', place: (v.displayName || {}).text || '', address: v.formattedAddress || '', reviews: (v.reviews || []).slice(0, 5).map(function (x) {
+      var a = x.authorAttribution || {};
+      return {rating: x.rating || 0, when: x.relativePublishTimeDescription || '', text: ((x.text || x.originalText || {}).text || '').slice(0, 2000),
+        author: a.displayName || '', authorUrl: a.uri || '', photo: a.photoUri || '', url: x.googleMapsUri || ''};
+    })};
+  } catch (e) {
+    Logger.log('口コミ：エラー ' + e);
+    return {ok: false, error: 'unavailable'};
+  }
+}
+
+// 社名の照合用（全角・半角、空白、「株式会社」などの違いは気にしない）
+function placeNorm_(x) {
+  return String(x).normalize('NFKC').replace(/\s/g, '').toLowerCase()
+    .replace(/株式会社|有限会社|合同会社|合資会社|合名会社|\(株\)|\(有\)|co\.,?ltd\.?|inc\.?|corp(oration)?\.?|limited|ltd\.?|,/g, '');
+}
+

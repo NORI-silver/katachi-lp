@@ -375,6 +375,17 @@ table.cmp{border-collapse:separate;border-spacing:0;width:100%;min-width:760px;f
 .tbad span.q{background:var(--bg2);color:var(--mute)}.tbad span.ng{background:#fff1e6;color:#a15c00}
 .rmore summary{cursor:pointer;font-size:13px;color:var(--ice);margin:0 0 8px}
 .gmap{font-size:12px;color:var(--ice);text-decoration:none;justify-self:start}.gmap:hover{text-decoration:underline}
+.grv{display:grid;gap:6px;justify-items:start;min-width:0}.grv .gl{display:flex;flex-wrap:wrap;gap:4px 12px;align-items:center}
+.rvbtn{font:inherit;font-size:12.5px;padding:5px 11px;border:1px solid var(--line2);border-radius:99px;background:#fff;color:var(--ice);cursor:pointer}
+.rvbtn[aria-expanded="true"]{background:var(--hover)}
+.rvout{display:grid;gap:8px;width:100%;border:1px solid var(--line2);border-radius:12px;padding:10px 12px;background:#fff;font-size:13px}
+.rvout[hidden]{display:none}.rvsum{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}.rvsum b{font-size:16px}
+.rvst{color:#e8a200;letter-spacing:1px}.rvone{display:grid;gap:3px;border-top:1px solid var(--line);padding-top:8px}
+.rvwho{display:flex;gap:6px;align-items:center;font-size:12px;color:var(--mute)}.rvwho img{width:20px;height:20px;border-radius:50%}
+.rvwho a{color:var(--fg);text-decoration:none;font-weight:600}.rvtx{white-space:pre-wrap;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:6;-webkit-box-orient:vertical;overflow:hidden}
+.rvtx.all{display:block}.rvsrc{font-size:11.5px;color:var(--mute);text-decoration:none}
+.rvfoot{font-size:11.5px;color:var(--mute);display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.gattr{font-family:Roboto,Arial,sans-serif;font-size:12px;color:#5e5e5e}
 .rvw{font-size:12px;color:var(--mute);display:flex;gap:6px;align-items:center}
 .rec .rsel{font-size:12.5px;color:var(--ice);font-weight:600}
 .trust3{margin-top:10px;border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:12.5px;color:var(--mute);display:grid;gap:6px;background:var(--bg2)}
@@ -1635,10 +1646,35 @@ function qBar(total){const f=S.gf||{};
     <div class="qrow"><button type="button" class="axchip" data-qf="proto" aria-pressed="${!!f.proto}">試作に対応している会社だけ</button><button type="button" class="axchip" data-ax="lot" aria-pressed="${!!f.lot}">この数から受ける会社だけ</button></div>
     <p class="qcount"><b>${fmt(total)}社</b> <span>が条件に合います。</span> <span>最小ロットや試作対応の掲載がない会社は「要確認」として残し、見積で確かめます。</span></p></div>`}
 /* 会社ごとの「信頼の目安」: 確かめられた事実だけ。口コミは取引した人だけが書ける（まだ無い）ので作らない */
-/* 第三者の口コミ: Googleの口コミは転載・取得せず、Googleマップの検索へリンクするだけ（社名＋所在地） */
+/* 第三者の口コミ（ペットサイトと同じ方式）: 「Googleの口コミを見る」を押したときだけ、受付（Apps Script）が Google Places API から
+   星・件数・口コミ最大5件を取り寄せて見せる。保存しない・転載しない。書いた人と元の口コミへのリンク、「Google Maps」の表示を付ける。
+   受付が使えないとき・見つからないときは Googleマップの検索へのリンクだけ */
 const gmapUrl=r=>'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent([r[0],r[1]==='JP'?r[2]:'',r[3]].filter(Boolean).join(' '));
-const gmapA=(r,place)=>`<a class="gmap" href="${esc(gmapUrl(r))}" target="_blank" rel="noopener" data-gmap="${place}">Googleマップで口コミを見る ↗</a>`;
+const gmapA=(r,place)=>`<div class="grv"><div class="gl"><button type="button" class="rvbtn" aria-expanded="false" data-rv="${place}" data-n="${esc(r[0])}" data-c="${esc(r[1]||'')}" data-p="${esc(r[1]==='JP'?r[2]||'':'')}" data-t="${esc(r[3]||'')}">Googleの口コミを見る</button><a class="gmap" href="${esc(gmapUrl(r))}" target="_blank" rel="noopener" data-gmap="${place}">Googleマップ ↗</a></div><div class="rvout" hidden></div></div>`;
 addEventListener('click',e=>{const a=e.target.closest&&e.target.closest('[data-gmap]');if(a)track('review_link',{site:'google_maps',place:a.dataset.gmap})});
+const RVC={};
+const rvStars=n=>{const k=Math.round(n);return '★★★★★'.slice(0,k)+'☆☆☆☆☆'.slice(0,5-k)};
+async function rvFetch(b){const k=[b.dataset.n,b.dataset.p,b.dataset.t,LANG].join('|');if(RVC[k])return RVC[k];
+  if(!FORM_URL||/claude(usercontent)?\.(ai|com)$/.test(location.hostname))return {ok:false,error:'off'};
+  try{const res=await fetch(FORM_URL,{method:'POST',body:JSON.stringify({type:'reviews',lang:LANG,name:b.dataset.n,pref:b.dataset.p,city:b.dataset.t,country:b.dataset.c})});
+    const v=await res.json();if(v&&(v.ok||v.error==='notfound'))RVC[k]=v;return v||{ok:false}}catch(e){return {ok:false,error:'net'}}}
+function rvHTML(v,map){
+  if(!v.ok){return `<span>${v.error==='notfound'?'Googleマップでこの会社の登録が見つかりませんでした。':'いまは口コミを読み込めません。'}</span><a class="gmap" href="${esc(map)}" target="_blank" rel="noopener" data-gmap="fallback">Googleマップで探す ↗</a>`}
+  if(!v.rating)return `<span>Googleマップの口コミはまだありません</span>${v.place?`<div class="rvwho"><span>Googleマップでの登録：</span><span translate="no">${esc(v.place)}${v.address?'（'+esc(v.address)+'）':''}</span></div>`:''}<div class="rvfoot"><span></span><span class="gattr" translate="no">Google Maps</span></div>`;
+  const one=x=>`<div class="rvone"><div class="rvwho">${x.photo?`<img src="${esc(x.photo)}" alt="" loading="lazy" referrerpolicy="no-referrer">`:''}${x.authorUrl?`<a href="${esc(x.authorUrl)}" target="_blank" rel="noopener" translate="no">${esc(x.author)}</a>`:`<b translate="no">${esc(x.author)}</b>`}</div>
+    <div class="rvwho"><span class="rvst" aria-label="${x.rating}/5">${rvStars(x.rating)}</span><span translate="no">${esc(x.when)}</span></div>
+    ${x.text?`<div class="rvtx" translate="no">${esc(x.text)}</div>`:''}${x.url?`<a class="rvsrc" href="${esc(x.url)}" target="_blank" rel="noopener">元の口コミ ↗</a>`:''}</div>`;
+  return `<div class="rvsum"><b translate="no">${Number(v.rating).toFixed(1)}</b><span class="rvst">${rvStars(v.rating)}</span><span>口コミ</span> <span>${fmt(v.count)}件</span>${v.maps?`<a class="gmap" href="${esc(v.maps)}" target="_blank" rel="noopener" data-gmap="place">Googleマップで開く ↗</a>`:''}</div>
+    ${v.place?`<div class="rvwho"><span>Googleマップでの登録：</span><span translate="no">${esc(v.place)}${v.address?'（'+esc(v.address)+'）':''}</span></div>`:''}
+    ${(v.reviews||[]).map(one).join('')}
+    <div class="rvfoot"><span>関連度の高い順に最大5件（Googleの表示どおり）</span><span class="gattr" translate="no">Google Maps</span></div>`}
+addEventListener('click',async e=>{const t=e.target.closest&&e.target.closest('.rvtx');if(t){t.classList.toggle('all');return}
+  const b=e.target.closest&&e.target.closest('[data-rv]');if(!b)return;const out=b.closest('.grv').querySelector('.rvout');
+  const open=b.getAttribute('aria-expanded')!=='true';b.setAttribute('aria-expanded',open);out.hidden=!open;if(!open)return;
+  track('open_reviews',{place:b.dataset.rv});
+  if(out.dataset.done)return;out.innerHTML='<span>読み込み中…</span>';
+  const v=await rvFetch(b);const map=b.parentElement.querySelector('a.gmap').href;
+  out.innerHTML=rvHTML(v,map);if(v.ok)out.dataset.done=1;track('reviews_result',{place:b.dataset.rv,result:v.ok?(v.rating?'shown':'none'):(v.error||'error')})});
 function tBadges(r,qmax){const LIM=4;const[n,ct,pref,city,web,caps,proto,nodraw,ml,mat,lv]=r;const x=r[14]||{};const b=[];
   if(lv==='pub')b.push(['','公式サイト等で確認']);if(proto)b.push(['','試作に対応']);
   if(ml!=null)b.push([ml<=qmax?'':'ng','最小ロット '+fmt(ml)+'個']);else b.push(['q','最小ロット 要確認']);
@@ -1658,10 +1694,10 @@ function recBox(R3,secs,qmax){if(!R3||!R3.rows.length)return `<div class="empty"
   return `<section class="rec" id="mPlans"><span class="rtag">★ おすすめ</span><h3>${R3.title}</h3><p class="why">${R3.why}</p>
     ${(()=>{const li=x=>`<li><span class="rs">${esc(x.step)}</span><b translate="no">${esc(x.r[0])}</b>${tBadges(x.r,qmax)}${gmapA(x.r,'recommend')}</li>`;const N=4;
       return `<ul class="rcos">${R3.rows.slice(0,N).map(li).join('')}</ul>${R3.rows.length>N?`<details class="rmore"><summary>ほかの工程の会社も見る</summary><ul class="rcos">${R3.rows.slice(N).map(li).join('')}</ul></details>`:''}`})()}
-    <span class="rvw">KATACHIでの口コミ：まだありません（取引した人だけが書けます）。Googleの口コミは各社の「Googleマップで口コミを見る」から。</span>
+    <span class="rvw">KATACHIでの口コミ：まだありません（取引した人だけが書けます）。Googleの口コミは各社の「Googleの口コミを見る」から。</span>
     <div class="qrow">${picked?'<span class="rsel">✓ この会社を選択中。下の「見積を依頼する」で送れます</span>':'<button type="button" class="btn sm pri" data-plan-pick="rec">おすすめに戻す</button>'}</div>
     <div class="qrow"><button type="button" class="glink" data-recall>会社を入れ替える</button><button type="button" class="glink" data-recself>会社選びは担当者に任せる</button></div></section>`}
-function trustNote(){return `<div class="trust3"><b>口コミ・評価について</b><span>KATACHIで見積・取引をした人だけが、取引のあとに評価（納期・見積どおりか・連絡・また頼みたいか）を書けるようにします。まだ取引の評価はないため、いまは公式サイト等での確認・国の公開データ・認証の記載を「信頼の目安」として出しています。Googleなど第三者の口コミは、各社の「Googleマップで口コミを見る」から確かめられます（KATACHIは転載しません）。作った口コミは載せません。</span></div>`}
+function trustNote(){return `<div class="trust3"><b>口コミ・評価について</b><span>KATACHIで見積・取引をした人だけが、取引のあとに評価（納期・見積どおりか・連絡・また頼みたいか）を書けるようにします。まだ取引の評価はないため、いまは公式サイト等での確認・国の公開データ・認証の記載を「信頼の目安」として出しています。Googleの口コミは、各社の「Googleの口コミを見る」で、押したときにGoogleから取り寄せて表示します（KATACHIは保存・転載しません）。作った口コミは載せません。</span></div>`}
 /* ②の下のボタン: AIへ行って戻ってきたら「回答を貼る」が先 */
 function renderMatchDock(){const A=S.anal||{};const away=!!S.aiAway;const arrow='<svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   $('#dock').innerHTML=`<div class="dock gut"><div class="wrap">${away?`<button type="button" class="glink" id="mSkip" style="font-size:12.5px">貼らずに会社を探す</button><span class="sp"></span><button class="btn pri" id="mPaste">${esc(S.aiAway.ai)}の回答を貼る ↓</button>`
