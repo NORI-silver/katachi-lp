@@ -324,6 +324,20 @@ table.cmp{border-collapse:separate;border-spacing:0;width:100%;min-width:760px;f
 .aifold{max-width:760px;margin-top:12px}.aifold summary{cursor:pointer;font-size:13px;color:var(--mute)}.aifold .aihome{margin-top:8px}
 @media(max-width:480px){.dock .gdl.nx,.dock .gdl.nx+.sp{display:none}.dock .nxb{flex:1;justify-content:center}}
 @media(max-width:640px){.nexts{grid-template-columns:1fr 1fr}.alt2{grid-template-columns:1fr}.stepbar b{font-size:11px;flex-direction:column;gap:0}}
+.tune{margin-top:16px;border:1.5px solid color-mix(in srgb,var(--ice) 40%,var(--line));border-radius:16px;padding:16px;display:grid;gap:12px;background:linear-gradient(180deg,color-mix(in srgb,var(--ice) 5%,#fff),#fff)}
+.tune>*{min-width:0}.tune h3{font-size:17px;margin:0;display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}.tune h3 small{font-size:12px;font-weight:400;color:var(--mute)}
+.tune>p{margin:0;font-size:13px;color:var(--mute)}
+.tabs3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.tabs3 button{border:1px solid var(--line2);border-radius:12px;background:#fff;padding:10px 8px;font:inherit;color:var(--fg);cursor:pointer;display:grid;gap:2px;text-align:center}
+.tabs3 button b{font-size:13.5px}.tabs3 button small{font-size:11px;color:var(--mute)}
+.tabs3 button[aria-pressed="true"]{border-color:var(--ice);background:var(--hover);box-shadow:0 0 0 1px var(--ice) inset}
+.tune .cchat,.tune .aic{margin-top:0}
+.updn{margin-top:14px;border-radius:12px;background:#ecfdf3;border:1px solid #b7ebcd;padding:12px 14px;font-size:13.5px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.updn b{color:var(--mint)}
+.backai{margin-top:14px;border-radius:12px;background:var(--hover);border:1.5px solid var(--ice);padding:12px 14px;font-size:13.5px;display:grid;gap:8px}
+.cnext{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+#mUpd,#mTune,.aiback{scroll-margin-top:84px}
+@media(max-width:480px){.tabs3 button small{display:none}.tabs3 button{padding:10px 4px}.tabs3 button b{font-size:12.5px;white-space:nowrap}}
 .aic{margin-top:16px;border:1px solid color-mix(in srgb,var(--ice) 28%,var(--line));background:linear-gradient(180deg,color-mix(in srgb,var(--ice) 5%,#fff),#fff);border-radius:14px;padding:18px;display:grid;gap:12px}
 .aic h3{font-size:17px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}.aic h3 .chip{font-family:var(--f-body);font-size:11.5px}
 .aic p{margin:0;font-size:13.5px}
@@ -332,6 +346,7 @@ table.cmp{border-collapse:separate;border-spacing:0;width:100%;min-width:760px;f
 .aic pre{margin:8px 0 0;white-space:pre-wrap;word-break:break-word;font:12.5px/1.6 var(--f-body);background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:12px;max-height:260px;overflow:auto}
 .aic .aiback{border-top:1px solid var(--line);padding-top:12px;display:grid;gap:8px}
 .aic .aiback b{font-size:14px}
+.aiback.flash{box-shadow:0 0 0 3px color-mix(in srgb,var(--ice) 35%,transparent);border-radius:10px}
 .aic.flash{box-shadow:0 0 0 3px color-mix(in srgb,var(--ice) 35%,transparent);transition:box-shadow .3s}
 /* 製品イメージ案 */
 .cchips{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:0 0 10px;font-size:12px}.cchips .chip{font-size:12px}
@@ -659,6 +674,12 @@ function stepBar(n){return `<nav class="stepbar" aria-label="進み具合"><ol>$
   return `<li class="${cls}"${k===n?' aria-current="step"':''}>${k<n?`<button type="button" data-stepgo="${k}">${inner}</button>`:`<span>${inner}</span>`}</li>`}).join('')}</ol></nav>`}
 function bindStepBar(root){(root||document).querySelectorAll('[data-stepgo]').forEach(b=>b.onclick=()=>{const k=+b.dataset.stepgo;track('step_back',{to:k});if($('#ov .sheet'))closeSheet();
   if(k===1){S.mode='free';location.hash=''}else if(k===2)location.hash='match';else if(k===3)location.hash='co'})}
+/* 相談の続き: 外部のAIへ行って戻っても、書いた内容・答え・貼りかけの回答が消えないよう、この端末の sessionStorage に置く（どこにも送らない） */
+const SAVEK='katachi-flow';
+function saveFlow(){try{sessionStorage.setItem(SAVEK,JSON.stringify({idea:S.idea,qty:S.qty,chat:S.chat,cvar:S.cvar,folds:S.folds,tune:S.tune,aiAway:S.aiAway,aiDraft:S.aiDraft,nfiles:(S.files||[]).length,t:Date.now()}))}catch(e){}}
+function loadFlow(){try{const o=JSON.parse(sessionStorage.getItem(SAVEK)||'null');if(!o||!o.idea||Date.now()-o.t>864e5)return false;
+  Object.assign(S,{idea:o.idea,qty:o.qty||S.qty,chat:o.chat,cvar:o.cvar,folds:o.folds||{},tune:o.tune,aiAway:o.aiAway,aiDraft:o.aiDraft||'',src:'text',matched:'text',gsel:[],gstep:{},gmore:{},planPick:'',gf:{area:'',proto:false}});
+  if(o.nfiles&&!(S.files||[]).length)S.lostFiles=o.nfiles;return true}catch(e){return false}}
 /* 補助の機能は畳む。開いた状態は描き直しても保つ */
 const fold=(k,t,body,note)=>`<details class="fold" data-fold="${k}" ${(S.folds||{})[k]?'open':''}><summary><span>${t}</span>${note?`<small>${note}</small>`:''}</summary><div class="fb">${body}</div></details>`;
 function bindFolds(){S.folds=S.folds||{};$$('details[data-fold]').forEach(d=>d.ontoggle=()=>{S.folds[d.dataset.fold]=d.open;if(d.open)track('fold_open',{fold:d.dataset.fold})})}
@@ -968,13 +989,17 @@ function blockedNext(A){const weapon=A.notices.some(n=>WEAPON.test(n));const alc
     ${aiConsult(A)}`}
 async function aiCopy(t){try{await navigator.clipboard.writeText(t);return true}catch(e){try{const a=document.createElement('textarea');a.value=t;a.style.position='fixed';a.style.opacity='0';document.body.appendChild(a);a.select();const ok=document.execCommand('copy');a.remove();return ok}catch(e2){return false}}}
 function wireAiConsult(A){const box=$('#mAi');if(!box)return;
-  box.querySelectorAll('[data-aigo]').forEach(a=>a.onclick=()=>{const n=a.dataset.aigo;a.href=aiUrl(n,A);aiCopy(aiQuestion(A));track('ai_consult_open',{ai:n,steps:(A?.codes||[]).length,short:a.href.length>=14000||!/\?q=/.test(a.href)})});
+  box.querySelectorAll('[data-aigo]').forEach(a=>a.onclick=()=>{const n=a.dataset.aigo;a.href=aiUrl(n,A);aiCopy(aiQuestion(A));if(/^#(match|co)$/.test(location.hash)){S.aiAway={ai:n,t:Date.now()};saveFlow();setTimeout(()=>{if(location.hash==='#match')renderMatchDock()},300)}track('ai_consult_open',{ai:n,steps:(A?.codes||[]).length,short:a.href.length>=14000||!/\?q=/.test(a.href)})});
   const det=box.querySelector('details');det.ontoggle=()=>{if(det.open)det.querySelector('pre').textContent=aiQuestion(A)};
   const q=box.querySelector('[data-aiq]');q.onclick=async()=>{const ok=await aiCopy(aiQuestion(A));track('ai_consult_copy',{ok});q.textContent=ok?'コピーしました':'コピーできませんでした';setTimeout(()=>{q.textContent='質問文をコピー'},2500)};
   $('#mAiGo').onclick=()=>{const v=$('#mAiAns').value.trim();if(!v){$('#mAiSt').textContent='回答を貼り付けてください';return}
-    track('ai_answer_paste',{chars:v.length});S.idea=(S.idea||'').trim()+'\n\n【AIと整理した仕様メモ】\n'+v.slice(0,20000);S.loggedIdea='';
+    track('ai_answer_paste',{chars:v.length,after_away:!!S.aiAway});S.idea=(S.idea||'').trim()+'\n\n【AIと整理した仕様メモ】\n'+v.slice(0,20000);S.loggedIdea='';S.aiAway=null;S.aiDraft='';S.upd='ai';
     if(location.hash!=='#match'){S.src='text';S.matched='text';S.gsel=[];S.gstep={};S.gmore={};S.planPick='';S.gf={area:'',proto:false,to:(S.gf||{}).to||''};loadGDB();location.hash='match';return}
-    renderMatch().then(()=>{const st=$('#mAiSt');if(st)st.textContent='読み直しました';window.scrollTo({top:0,behavior:'smooth'})})}}
+    renderMatch().then(()=>{const st=$('#mAiSt');if(st)st.textContent='読み直しました';const u=$('#mUpd');u?u.scrollIntoView({behavior:'smooth',block:'start'}):window.scrollTo({top:0,behavior:'smooth'})})}
+  const ta=$('#mAiAns');if(ta){if(S.aiDraft&&!ta.value)ta.value=S.aiDraft;ta.oninput=()=>{S.aiDraft=ta.value;saveFlow()}}}
+/* AIのタブから戻ってきたら、貼る場所をすぐ出す */
+function gotoAiPaste(){S.tune='ai';const pane=$('#mTune');if(pane){setTune('ai')}const ta=$('#mAiAns');if(!ta)return;ta.scrollIntoView({block:'center'});const bx=ta.closest('.aiback');bx&&bx.classList.add('flash');setTimeout(()=>{bx&&bx.classList.remove('flash');try{ta.focus({preventScroll:true})}catch(e){}},700)}
+addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&S.aiAway&&location.hash==='#match'&&Date.now()-S.aiAway.t>1500){track('ai_return',{ai:S.aiAway.ai});renderMatchDock();gotoAiPaste()}});
 /* ---------- 製品イメージ案（製品の種類ごとの典型例＝tools/concepts.py。AIのAPIは使わない） ---------- */
 const CONCEPTS=__CONCEPTS__;
 /* 汎用ロジック（tools/concepts_generic.py）: どの典型例にも当たらなくても、形の言葉＋条件＋数字から必ず案を組み立てる */
@@ -1030,13 +1055,13 @@ function chatBox(c){const {q,done,total}=nextQuestion(c);const ans=Object.entrie
     ${q?`<div class="cq"><b>${esc(q.q)}</b><span class="mono muted" style="font-size:12px">${done+1}/${total}</span></div>
       <div class="aicb">${q.opts.map(([l,m],i)=>`<button type="button" class="btn sm" data-chatans="${i}">${esc(l)}</button>`).join('')}<button type="button" class="glink" data-chatskip>とばす</button></div>
       <div class="cfree"><input id="mChatFree" placeholder="自分の言葉で答える" aria-label="自分の言葉で答える"><button type="button" class="btn sm" data-chatfree>答える</button></div>`
-     :`<p class="muted" style="margin:0;font-size:13px">質問は以上です。もっと自由に相談したいときは、下の「AIで相談」を使ってください。</p>`}</div>`}
-function chatApply(qid,memo,lab){S.chat.ans[qid]=memo;if(lab)S.chat.lab[qid]=lab;else delete S.chat.lab[qid];const lines=Object.values(S.chat.ans);
+     :`<p class="muted" style="margin:0;font-size:13px">質問は以上です。もっと自由に詰めたいときは「AIに相談する」へ。</p><div class="cnext"><button type="button" class="btn pri sm" data-gonext>この案で会社を探す →</button><button type="button" class="btn sm" data-tune="ai">AIに相談する</button></div>`}</div>`}
+function chatApply(qid,memo,lab){S.chat.ans[qid]=memo;if(lab)S.chat.lab[qid]=lab;else delete S.chat.lab[qid];const lines=Object.values(S.chat.ans);S.upd='chat';
   S.idea=S.chat.base+(lines.length?'\n\n'+MEMO+'\n'+lines.map(x=>'- '+x).join('\n'):'');S.loggedIdea='';
-  renderMatch().then(()=>{const el=$('#mConcept');if(el)el.scrollIntoView({behavior:'smooth',block:'start'})})}
+  renderMatch().then(()=>{const el=$('#mUpd')||$('#mConcept');if(el)el.scrollIntoView({behavior:'smooth',block:'start'})})}
 function wireChat(c){const box=$('#mChat');if(!box)return;const {q}=nextQuestion(c);
   box.querySelectorAll('[data-chatans]').forEach(b=>b.onclick=()=>{const[l,m]=q.opts[+b.dataset.chatans];track('concept_chat',{q:q.id,how:'option'});chatApply(q.id,m,l)});
-  const sk=box.querySelector('[data-chatskip]');if(sk)sk.onclick=()=>{S.chat.skip.push(q.id);track('concept_chat',{q:q.id,how:'skip'});const el=$('#mChat');el.outerHTML=chatBox(c);wireChat(c)};
+  const sk=box.querySelector('[data-chatskip]');if(sk)sk.onclick=()=>{S.chat.skip.push(q.id);track('concept_chat',{q:q.id,how:'skip'});const el=$('#mChat');el.outerHTML=chatBox(c);wireChat(c);wireTune(S.anal)};
   const fr=box.querySelector('[data-chatfree]');if(fr)fr.onclick=()=>{const v=$('#mChatFree').value.trim();if(!v)return;track('concept_chat',{q:q.id,how:'free'});chatApply(q.id,q.q.replace(/[？?]$/,'')+'：'+v.slice(0,200))};
   const inp=$('#mChatFree');if(inp)inp.onkeydown=e=>{if(e.key==='Enter'&&!e.isComposing){e.preventDefault();fr.click()}};
   const rs=box.querySelector('[data-chatreset]');if(rs)rs.onclick=()=>{S.chat.ans={};S.chat.lab={};S.chat.skip=[];S.idea=S.chat.base;S.loggedIdea='';track('concept_chat',{q:'-',how:'reset'});renderMatch()}}
@@ -1094,8 +1119,7 @@ function conceptCard(c){const v=cvarOf(c);
     ${fold('cvar','方向性と、作り方の目安',`<div><h4>方向性を選ぶ</h4><div class="cvars">${c.vars.map(([n,d],i)=>`<button type="button" class="cvar${v===i?' on':''}" data-cvar="${i}" aria-pressed="${v===i}"><b>${esc(n)}</b><span>${esc(d)}</span></button>`).join('')}</div>
       <p class="muted" style="margin:6px 0 0;font-size:12px">選んだ方向性は、AI相談の質問文にも入ります。</p></div>
     <div><h4>作り方の目安</h4><dl class="cspec"><dt>試作</dt><dd>${esc(c.proto)}</dd><dt>量産</dt><dd>${esc(c.mass)}</dd></dl></div>`)}
-    ${fold('cchat','質問に答えて、案を詰める',chatBox(c),'任意')}
-    <div class="cfoot"><p class="muted">製品の種類ごとの典型例から、KATACHIが組み立てた案です（AIの推定）。寸法・素材・性能は、工場・専門家との打ち合わせと試作で決まります。図は大きさと形の目安で、設計図ではありません。</p><button type="button" class="btn sm" id="mCAi">この案をもとにAIで詰める</button></div></section>`}
+    <div class="cfoot"><p class="muted">製品の種類ごとの典型例から、KATACHIが組み立てた案です（AIの推定）。寸法・素材・性能は、工場・専門家との打ち合わせと試作で決まります。図は大きさと形の目安で、設計図ではありません。</p></div></section>`}
 function wireConcept(A){const c=A.concept;if(!c||!$('#mConcept'))return;wireChat(c);
   $$('#mConcept [data-cvar]').forEach(b=>b.onclick=()=>{const i=+b.dataset.cvar;S.cvar=cvarOf(c)===i?null:{id:c.id,i};
     $$('#mConcept [data-cvar]').forEach(x=>{const on=S.cvar&&+x.dataset.cvar===S.cvar.i;x.classList.toggle('on',!!on);x.setAttribute('aria-pressed',!!on)});
@@ -1471,14 +1495,16 @@ async function renderMatch(){
       <div class="gcount"><b class="mono">${fmt(total)}</b><span>社が候補</span></div></div>`;
   const notices=A.notices.map(n=>`<div class="empty" style="margin-top:10px;border-color:var(--amber)"><b>KATACHIでは扱っていない工程があります</b>${esc(n)}</div>`).join('');
   const readout=A.fallback?`<div class="empty"><b>文章から工程を特定できませんでした</b>どんな製品でも最初に必要になる「設計・試作・組立」を受ける会社を出しています。下の「AIで相談」で仕様を詰めて読み直すか、そのまま見積を依頼すれば担当者が工程と会社を探します。型が決まっているもの（部品・ノベルティ・袋物など）なら「選んで探す」が早いです。<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn" id="mGuided">選んで探す</button></div></div>`:A.codes.length?`<div class="empty"><b>書いた内容から、必要な工程をキーワードで読み取りました</b>工程が足りない・違うと思ったら、下の「AIで相談」で仕様を詰めるか、そのまま見積を依頼してください。担当者があなたの文章を読んで、工程と会社を組み直してお届けします。</div>`:'';
-  const aiBox=blocked||A.notices.some(n=>WEAPON.test(n))?'':fold('ai','AI（ChatGPT・Claude・Gemini）で相談する',aiConsult(A),'無料');
   let body;
   if(st===2){
+    const upd=S.upd==='ai'?'AIの回答をもとに、案と候補の会社を更新しました。':S.upd==='chat'?'答えをもとに、案と候補の会社を更新しました。':'';S.upd='';
     body=`${stepBar(2)}${head}
+    ${upd?`<div class="updn" id="mUpd"><b>✓ 更新しました</b><span>${upd}よければ、このまま会社選びへ進めます。</span></div>`:''}
+    ${S.lostFiles?`<div class="updn" style="background:#fff7e6;border-color:#f3d39b"><span>前に追加した写真・動画（${S.lostFiles}件）は、画面を開き直したため消えました。お手数ですが、もう一度追加してください。</span></div>`:''}
     <div id="fstrip">${stripHTML()}</div>
     ${A.concept?conceptCard(A.concept):blocked?'':'<div class="empty" style="margin-top:16px">この文章からは、製品の種類を特定できませんでした。下の「AIで相談」を開くと、外観・サイズ・素材・機能の案も作ってもらえます。</div>'}
     ${notices}
-    ${blocked?blockedNext(A):`<div style="margin-top:10px">${aiBox}</div>`}`;
+    ${blocked?blockedNext(A):tuneBox(A)}`;
   }else{
     const lists=`${secs.length>=2?`<section class="mstep" data-step="まとめて依頼"><div class="mhead"><span class="mono mno">A</span><h2>1社でまとめて頼む</h2><span class="muted">${one.length?'おすすめ':''}</span></div>
       <p class="muted" style="margin:0 0 12px;font-size:13.5px">窓口が1つで済み、部品の受け渡しで起きる食い違いや責任の分かれ目が減ります。単一の加工で作れるものや、1社で揃うものはこちらが向いています。</p>
@@ -1505,7 +1531,8 @@ async function renderMatch(){
   }
   $('#app').innerHTML=`<section class="gut"><div class="wrap gpick">${body}</div></section>`;
   bindStepBar($('#app'));bindFolds();
-  if(st===2){if(!blocked)$('#dock').innerHTML=`<div class="dock gut"><div class="wrap"><div class="gdl nx"><b>${A.concept?'この案でよければ、次は会社選び':'次は、作れる会社を選びます'}</b><small>${fmt(total)}社が候補</small></div><span class="sp"></span><button class="btn pri nxb" id="mNext">${A.concept?'この案で会社を探す':'会社を探す'}<svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div></div>`,$('#mNext').onclick=()=>{track('step_next',{to:3,concept:A.concept?A.concept.id:''});location.hash='co'}}
+  S.lostFiles=0;saveFlow();S.mTotal=total;
+  if(st===2){if(!blocked)renderMatchDock();wireTune(A);if(S.aiAway&&Date.now()-S.aiAway.t>1500)setTimeout(gotoAiPaste,200)}
   else pickDock();
   bindPicks();wireAiConsult(A);wireConcept(A);if(st===2&&A.concept&&S.loggedConcept!==S.idea){S.loggedConcept=S.idea;track('concept_show',{concept:A.concept.id})}
   $$('[data-alt]').forEach(b=>b.onclick=()=>{track('blocked_alt',{alt:b.dataset.altk});S.idea=b.dataset.alt;S.loggedIdea='';S.gsel=[];S.gstep={};S.gmore={};renderMatch().then(()=>window.scrollTo({top:0,behavior:'smooth'}))});
@@ -1518,11 +1545,30 @@ async function renderMatch(){
   if(A.codes.length){bindAxBar(()=>{S.gmore={};return renderMatch()},'text');bindPlans(renderMatch)}
 }
 
+/* ②の下のボタン: AIへ行って戻ってきたら「回答を貼る」が先 */
+function renderMatchDock(){const A=S.anal||{};const away=!!S.aiAway;const arrow='<svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  $('#dock').innerHTML=`<div class="dock gut"><div class="wrap">${away?`<button type="button" class="glink" id="mSkip" style="font-size:12.5px">貼らずに会社を探す</button><span class="sp"></span><button class="btn pri" id="mPaste">${esc(S.aiAway.ai)}の回答を貼る ↓</button>`
+    :`<div class="gdl nx"><b>${A.concept?'この案でよければ、次は会社選び':'次は、作れる会社を選びます'}</b><small>${fmt(S.mTotal||0)}社が候補</small></div><span class="sp"></span><button class="btn pri nxb" id="mNext">${A.concept?'この案で会社を探す':'会社を探す'}${arrow}</button>`}</div></div>`;
+  const nx=()=>{track('step_next',{to:3,concept:A.concept?A.concept.id:'',tuned:Object.keys((S.chat||{}).ans||{}).length});S.aiAway=null;saveFlow();location.hash='co'};
+  $('#mNext')&&($('#mNext').onclick=nx);$('#mSkip')&&($('#mSkip').onclick=nx);$('#mPaste')&&($('#mPaste').onclick=gotoAiPaste)}
+/* ②「この案を、相談して詰める」: 質問に答える（KATACHI内）／AIに相談（ChatGPT・Claude・Gemini）／人に相談（担当者・工場） */
+function tuneBox(A){const c=A.concept;const t=S.tune||(c?'q':'ai');
+  return `<section class="tune" id="mTune"><h3>この案を、相談して詰める<small>任意・何度でも</small></h3>
+    <p>答えたり、AIの回答を貼ったりするたびに、上の案と候補の会社が変わります。書いた内容は消えません。</p>
+    <div class="tabs3" role="group" aria-label="相談のしかた">${c?`<button type="button" data-tune="q" aria-pressed="${t==='q'}"><b>質問に答える</b><small>1問ずつ・すぐ反映</small></button>`:''}<button type="button" data-tune="ai" aria-pressed="${t==='ai'}"><b>AIに相談する</b><small>ChatGPT・Claude・Gemini</small></button><button type="button" data-tune="human" aria-pressed="${t==='human'}"><b>人に相談する</b><small>担当者・工場（無料）</small></button></div>
+    ${c?`<div data-pane="q" ${t==='q'?'':'hidden'}>${chatBox(c)}</div>`:''}
+    <div data-pane="ai" ${t==='ai'?'':'hidden'}>${A.notices.some(n=>WEAPON.test(n))?'':aiConsult(A)}<p class="muted" style="margin:8px 0 0;font-size:12.5px">AIは別のタブで開きます。AIが「仕様メモ」をまとめたら、このページに戻って上の欄に貼ってください。戻ると貼る場所が開きます。</p></div>
+    <div data-pane="human" ${t==='human'?'':'hidden'}><div class="aic" style="margin:0"><p>形・素材・作り方で迷ったら、KATACHIの担当者や工場に、写真を添えて相談できます（無料）。返事はメールで届きます。見積の前でも大丈夫です。</p><div class="aicb"><button type="button" class="btn pri" id="mHuman">担当者・工場に相談する</button></div></div></div></section>`}
+function setTune(t){S.tune=t;$$('#mTune [data-tune]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.tune===t));$$('#mTune [data-pane]').forEach(p=>p.hidden=p.dataset.pane!==t);saveFlow()}
+function wireTune(A){$$('[data-tune]').forEach(b=>b.onclick=()=>{track('tune_mode',{mode:b.dataset.tune});setTune(b.dataset.tune);if(!b.closest('.tabs3'))$('#mTune').scrollIntoView({behavior:'smooth',block:'start'})});
+  $$('[data-gonext]').forEach(b=>b.onclick=()=>$('#mNext')?.click());
+  const h=$('#mHuman');if(h)h.onclick=()=>{track('tune_human',{});consult('');const b=$('#c-b');if(b&&!b.value)b.value=ideaBase()}}
+
 /* ---------- GO / LOADING ---------- */
 function pick(text){for(const [k,re] of [['collar',/犬|猫|ペット|首輪|動物|心拍/],['mimamori',/見守|高齢|ドア|開閉|室温|部屋/],['bike',/自転車|ライト|ハンドル|バイク/]])if(re.test(text))return[k,'near'];return['collar','fallback']}
 function go(ex){
   S.idea=$('#idea').value.trim()||S.files.map(f=>f.name).join('、');
-  if(!ex){S.src='text';S.matched='text';S.gsel=[];S.gstep={};S.gmore={};S.planPick='';S.gf={area:'',proto:false,to:(S.gf||{}).to||''};loadGDB();location.hash='match';if(location.hash==='#match')renderMatch();return}
+  if(!ex){S.aiAway=null;S.aiDraft='';S.src='text';S.matched='text';S.gsel=[];S.gstep={};S.gmore={};S.planPick='';S.gf={area:'',proto:false,to:(S.gf||{}).to||''};loadGDB();location.hash='match';if(location.hash==='#match')renderMatch();return}
   S.scen=ex;S.matched='example';S.src='example'
   S.lastReal=S.scen;S.plan=0;S.custom=false;S.tab='team';setPlan(0);S.viewSent=false;
   const R=D.scen[S.scen];const steps=['要件を読み取る',`${R.per_requirement.length}の工程に分ける`,`${fmt(D.realCount)}社から候補を探す`,'チームを組む'];
@@ -1986,7 +2032,7 @@ $$('[data-lang]').forEach(b=>b.onclick=()=>{track('lang_change',{to:b.dataset.la
 (async()=>{try{sampleFn=window.claude?await window.claude.use('sample'):null}catch(e){sampleFn=null}scheduleMT()})();
 window.KATACHI_LANG=()=>LANG;
 
-if(!ideaFromUrl())route();
+if(!ideaFromUrl()){if(/^#(match|co)$/.test(location.hash)&&!S.idea)loadFlow();route()}
 setLang(LANG,false);
 })();
 </script>
