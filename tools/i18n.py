@@ -856,4 +856,6 @@ T.update({
 "関連度の高い順に最大5件（Googleの表示どおり）": ("Up to 5, most relevant first (as Google shows)", "按相关度最多显示5条（与 Google 一致）"),
 "読み込み中…": ("Loading…", "加载中…"),
 "Googleマップでの登録：": ("Listed on Google Maps as: ", "Google 地图上的登记："),
+# ---- 注文できる会社だけ（2026-11-13）
+"海外の工場は、日本から注文できる（日本へ発送する）と確かめた会社だけを出しています。": ("Overseas factories are shown only if we confirmed they accept orders from Japan (ship to Japan).", "海外工厂只显示已确认可从日本下单（可发货到日本）的公司。"),
 })

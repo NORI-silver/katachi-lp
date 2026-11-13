@@ -1349,8 +1349,16 @@ function renderGuided(){
 }
 /* 会社の一覧は「選んで探す」を使ったときだけ読み込む（data/companies.json） */
 let GDB=null,gdbP=null;
-function loadGDB(){if(GDB)return Promise.resolve(GDB);if(window.KATACHI_COMPANIES){GDB=window.KATACHI_COMPANIES;fillCAPN();return Promise.resolve(GDB)}
-  return gdbP||(gdbP=fetch('data/companies.json').then(r=>r.json()).then(j=>{GDB=j;fillCAPN();return j}).catch(()=>{gdbP=null;return null}))}
+/* 利用者が注文できる会社だけを出す（Nori 2026-11-13）。利用者は日本から頼む前提。
+   国内の会社は出す。海外の会社は「日本へ発送できる（＝日本からの注文を受ける）」と確かめた会社（列14の sh）だけ。
+   1688・淘宝など中国国内向けの通販サイトの出店者は、日本から直接は注文できないので、確かめられるまで出さない */
+const USER_CT='JP';
+const DOMESTIC_ONLY=/(^|\/\/|\.)(1688\.com|taobao\.com|tmall\.com)/i;
+function canOrder(r){const x=r[14]||{};if(r[1]===USER_CT)return true;if(x.ord===0)return false;
+  if(DOMESTIC_ONLY.test((r[4]||'')+' '+(r[12]||''))&&!x.ord)return false;return x.sh===1||x.ord===1}
+function useGDB(j){if(j&&!j.__ord){const all=j.c.length;j.c=j.c.filter(canOrder);j.hiddenAbroad=all-j.c.length;j.__ord=1}GDB=j;fillCAPN();return j}
+function loadGDB(){if(GDB)return Promise.resolve(GDB);if(window.KATACHI_COMPANIES)return Promise.resolve(useGDB(window.KATACHI_COMPANIES));
+  return gdbP||(gdbP=fetch('data/companies.json').then(r=>r.json()).then(useGDB).catch(()=>{gdbP=null;return null}))}
 function gRank(){const codes=gCodes(),idx=codes.map(c=>GDB.caps.indexOf(c)).filter(i=>i>=0),allIdx=gCat().proc.flatMap(p=>p[1]).map(c=>GDB.caps.indexOf(c));
   const q=GQ.find(x=>x[0]===S.g.qty),qmax=q?q[2]:1e9,jpOnly=S.g.reg==='国内の工場だけ',noDraw=/写真|まだ/.test(S.g.draw||'');
   const out=[];for(const r of GDB.c){const[n,ct,pref,city,web,caps,proto,nodraw,ml,mat,lv]=r;
@@ -1422,7 +1430,7 @@ function gRfq(){
 /* ---------- 文章から工程を読み取る（マッチングエンジンのルール解析 analyze_with_rules と同じ考え方） ---------- */
 function analyzeText(text){
   // 電子機器ではないのに電子系の語を含む言い方（スマホケース等）は、先に取り除いてから読む
-  const t=String(text||'').toLowerCase().replace(/スマホ(ケース|スタンド|カバー|ホルダー|リング|ストラップ)|ペット用シャンプー|車のアクセサリー|自転車のパーツ/g,m=>m==='ペット用シャンプー'?'シャンプー':' '+m.replace('スマホ','')+' ').replace(/車(椅子|いす)/g,' 車イス '),C=GDB.caps;
+  const t=String(text||'').toLowerCase().replace(/スマホ(ケース|スタンド|カバー|ホルダー|リング|ストラップ)|ペット用シャンプー|車のアクセサリー|自転車のパーツ/g,m=>m==='ペット用シャンプー'?'シャンプー':' '+m.replace('スマホ','')+' ').replace(/車(椅子|いす)/g,' 車イス ').replace(/スマート(グラス|ウォッチ|リング|メガネ|眼鏡)/g,(m,k)=>' 装着 デバイス 電子 '+({グラス:'眼鏡',ウォッチ:'腕時計',リング:'指輪'}[k]||'眼鏡')+' ').replace(/ウェアラブル/g,' 装着 デバイス '),C=GDB.caps;
   const leaf=c=>!C.some(o=>o.startsWith(c+'.'));
   let hit=[];C.forEach((c,i)=>{if(leaf(c)&&GDB.kw[i].some(k=>t.includes(k.toLowerCase())))hit.push(c)});
   const notices=[];
@@ -1657,7 +1665,7 @@ function qBar(total){const f=S.gf||{};
   return `<div class="qbar"><div class="qrow"><div class="pillset" role="group" aria-label="数量">${[['proto','試作 1〜10個'],['small','小ロット'],['mass','量産']].map(([v,t])=>`<button type="button" data-q3="${v}" aria-pressed="${S.qty===v}">${t}</button>`).join('')}</div>
     <label class="qn"><input id="qN" type="number" min="1" inputmode="numeric" value="${S.qn||''}" placeholder="例 5" aria-label="個数">個</label></div>
     <div class="qrow"><button type="button" class="axchip" data-qf="proto" aria-pressed="${!!f.proto}">試作に対応している会社だけ</button><button type="button" class="axchip" data-ax="lot" aria-pressed="${!!f.lot}">この数から受ける会社だけ</button></div>
-    <p class="qcount"><b>${fmt(total)}社</b> <span>が条件に合います。</span> <span>最小ロットや試作対応の掲載がない会社は「要確認」として残し、見積で確かめます。</span></p></div>`}
+    <p class="qcount"><b>${fmt(total)}社</b> <span>が条件に合います。</span> <span>最小ロットや試作対応の掲載がない会社は「要確認」として残し、見積で確かめます。</span> <span>海外の工場は、日本から注文できる（日本へ発送する）と確かめた会社だけを出しています。</span></p></div>`}
 /* 会社ごとの「信頼の目安」: 確かめられた事実だけ。口コミは取引した人だけが書ける（まだ無い）ので作らない */
 /* 第三者の口コミ（ペットサイトと同じ方式）: 「Googleの口コミを見る」を押したときだけ、受付（Apps Script）が Google Places API から
    星・件数・口コミ最大5件を取り寄せて見せる。保存しない・転載しない。書いた人と元の口コミへのリンク、「Google Maps」の表示を付ける。
