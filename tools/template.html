@@ -469,6 +469,34 @@ details.grp>.in{display:grid;gap:12px;padding:0 14px 14px}
 .gcount{display:grid;justify-items:end}.gcount b{font-size:34px;font-weight:500;color:var(--ice);line-height:1}.gcount span{font-size:13px;margin-top:4px}.gcount small{font-size:12px;color:var(--mute)}
 .gflt{display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center;padding:16px 0}.gflt .sp{flex:1}
 .gflt label{display:flex;align-items:center;gap:8px;font-size:13px}.gflt select{height:36px;border:1px solid var(--line2);border-radius:9px;padding:0 10px;background:var(--panel);font:inherit;font-size:13px;color:var(--fg)}
+.axbar{display:grid;gap:10px;padding:14px 16px;margin:0 0 8px;border:1px solid var(--line);border-radius:12px;background:var(--bg2)}
+.axrow{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center}
+.axrow label{display:flex;align-items:center;gap:8px;font-size:13px}.axrow select{height:36px;border:1px solid var(--line2);border-radius:9px;padding:0 10px;background:var(--panel);font:inherit;font-size:13px;color:var(--fg);max-width:100%}
+.axchip{font-size:12.5px;padding:6px 12px;border:1px solid var(--line2);border-radius:99px;background:var(--panel);color:var(--fg)}
+.axchip[aria-pressed="true"]{border-color:var(--ice);box-shadow:inset 0 0 0 1px var(--ice);background:var(--hover);color:var(--ice)}
+.axchip:disabled{opacity:.45;cursor:not-allowed}
+.axnote{margin:0;font-size:12px;color:var(--mute);line-height:1.6}
+.axs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px 14px;margin:2px 0 0;padding:8px 10px;border-radius:9px;background:var(--bg2);font-size:12px}
+.axs>div,.pax>div{display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px;align-items:baseline}
+.axs dt,.pax dt{color:var(--dim);font-size:11px;white-space:nowrap}.axs dd,.pax dd{margin:0;display:flex;flex-wrap:wrap;gap:3px 8px;min-width:0}
+.axe{display:inline-flex;flex-wrap:wrap;align-items:baseline;gap:4px}.axe b{font-weight:600}.axe small{font-size:10.5px;color:var(--dim)}
+.axe.ng{color:var(--amber)}.axq{color:var(--dim)}
+.pcmp{margin-top:20px;padding:18px;border:1.5px solid color-mix(in srgb,var(--ice) 35%,transparent);border-radius:16px;background:var(--panel)}
+.pcmp .mhead{flex-wrap:wrap}
+.pwhy{margin:0 0 14px;font-size:14px;line-height:1.7}
+.pgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.pcard{display:grid;gap:10px;align-content:start;padding:16px;border:1px solid var(--line2);border-radius:12px;background:var(--panel)}
+.pcard.rec{border-color:color-mix(in srgb,var(--ice) 50%,transparent)}
+.pcard.on{border-color:var(--ice);box-shadow:inset 0 0 0 1px var(--ice);background:var(--hover)}
+.phd{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.phd b{font-size:16px}
+.pmeta{display:flex;gap:10px;align-items:baseline;font-size:12.5px;color:var(--mute)}.pmeta b{white-space:nowrap;font-size:20px;color:var(--ice);font-weight:500}
+.pwho{list-style:none;margin:0;padding:0;display:grid;gap:6px;font-size:13px}
+.pwho li{display:flex;flex-wrap:wrap;gap:4px 8px;align-items:baseline;padding-bottom:6px;border-bottom:1px dashed var(--line)}
+.pstep{color:var(--mute);font-size:12px;min-width:7em}
+.pax{display:grid;gap:8px;margin:0;font-size:12.5px}.pax p{margin:2px 0 0;flex-basis:100%;color:var(--mute);font-size:12px;line-height:1.6}
+.pcard>.btn{justify-self:start}
+.pfoot{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;margin-top:14px;font-size:12.5px}
+@media (max-width:760px){.pgrid{grid-template-columns:1fr}.axs{grid-template-columns:1fr}.pcmp{padding:14px}.pfoot .btn{width:100%}}
 .glist{list-style:none;margin:0;padding:0;display:grid;gap:8px}
 .gco{display:flex;gap:14px;padding:14px 16px;border:1px solid var(--line);border-radius:12px;background:var(--panel);transition:border-color .15s}
 .gco.on{border-color:var(--ice);box-shadow:inset 0 0 0 1px var(--ice)}
@@ -891,7 +919,7 @@ function wireAiConsult(A){const box=$('#mAi');if(!box)return;
   const q=box.querySelector('[data-aiq]');q.onclick=async()=>{const ok=await aiCopy(aiQuestion(A));track('ai_consult_copy',{ok});q.textContent=ok?'コピーしました':'コピーできませんでした';setTimeout(()=>{q.textContent='質問文をコピー'},2500)};
   $('#mAiGo').onclick=()=>{const v=$('#mAiAns').value.trim();if(!v){$('#mAiSt').textContent='回答を貼り付けてください';return}
     track('ai_answer_paste',{chars:v.length});S.idea=(S.idea||'').trim()+'\n\n【AIと整理した仕様メモ】\n'+v.slice(0,20000);S.loggedIdea='';
-    if(location.hash!=='#match'){S.src='text';S.matched='text';S.gsel=[];S.gstep={};S.gmore={};S.gf={area:'',proto:false};loadGDB();location.hash='match';return}
+    if(location.hash!=='#match'){S.src='text';S.matched='text';S.gsel=[];S.gstep={};S.gmore={};S.planPick='';S.gf={area:'',proto:false,to:(S.gf||{}).to||''};loadGDB();location.hash='match';return}
     renderMatch().then(()=>{const st=$('#mAiSt');if(st)st.textContent='読み直しました';window.scrollTo({top:0,behavior:'smooth'})})}}
 /* ---------- 製品イメージ案（製品の種類ごとの典型例＝tools/concepts.py。AIのAPIは使わない） ---------- */
 const CONCEPTS=__CONCEPTS__;
@@ -1154,7 +1182,7 @@ function gRank(){const codes=gCodes(),idx=codes.map(c=>GDB.caps.indexOf(c)).filt
     if(S.gf.proto&&!proto)continue;
     let s=caps.filter(i=>idx.includes(i)).length*2+caps.filter(i=>allIdx.includes(i)&&!idx.includes(i)).length*.5+(lv==='pub'?3:0)+(proto&&qmax<=10?1.5:0)+(nodraw&&noDraw?1:0)+(ml!=null&&ml<=qmax?1:0)-(ml!=null&&ml>qmax?3:0)+(ct==='JP'?2:0);
     out.push([s,r])}
-  return out.sort((a,b)=>b[0]-a[0]).map(x=>x[1])}
+  S.axq=qmax;return axSort(out.sort((a,b)=>b[0]-a[0]).map(x=>x[1]).filter(r=>axPass(r,qmax)),qmax)}
 function gAreas(list){const m=new Map();for(const r of list){const k=r[1]==='JP'?(r[2]||''):r[1];if(k)m.set(k,(m.get(k)||0)+1)}return[...m].sort((a,b)=>b[1]-a[1])}
 async function renderPick(){
   $('#dock').innerHTML='';
@@ -1174,15 +1202,17 @@ async function renderPick(){
     <div class="gflt"><label>地域<select id="gArea"><option value="">すべて</option><option value="JP">国内だけ</option>${S.g.reg==='国内の工場だけ'?'':'<option value="ABROAD">海外だけ</option>'}${areas.slice(0,30).map(([k,n])=>`<option value="${esc(k)}">${esc(CTRY[k]||k)} · ${n}社</option>`).join('')}</select></label>
       <label class="chk"><input type="checkbox" id="gProto" ${S.gf.proto?'checked':''}><span>試作に対応と書いている会社だけ</span></label>
       <span class="sp"></span><span class="muted" style="font-size:12.5px">見積を取りたい会社を最大5社まで選べます。選ばずに依頼すると、担当者が候補から選んで打診します。</span></div>
+    ${axBar()}
     <ol class="glist">${list.map(r=>{const[n,ct,pref,city,web,caps,proto,nodraw,ml,mat,lv,sum,src]=r;const on=S.gsel.includes(n);
       return `<li class="gco ${on?'on':''}"><label class="gsel"><input type="checkbox" data-pick="${esc(n)}" ${on?'checked':''} aria-label="${esc(n)}を選ぶ"></label>
         <div class="gbody"><div class="gname"><b translate="no">${esc(n)}</b>${lvTag(lv)}</div>
         <div class="gmeta">${esc(ct==='JP'?[pref,city].filter(Boolean).join(' ')||'国内':(CTRY[ct]||ct))}${proto?' · <span>試作に対応</span>':''}${nodraw?' · <span>図面なしで相談可</span>':''}${ml!=null?` · <span>最小ロット ${fmt(ml)}個</span>`:''}${mat==='factory'||mat==='both'?' · <span>材料を手配</span>':''}</div>
         <div class="gcaps">${caps.map(i=>GDB.caps[i]).filter(c=>gCodes().includes(c)||gCat().proc.some(p=>p[1].includes(c))).map(c=>`<span class="chip">${esc(CAPN[c]||c)}</span>`).join('')}</div>
+        ${axHtml(r,S.axq||1e9)}
         ${sum?`<p class="gsumtxt" translate="no">${esc(sum)}</p>`:''}
         <div class="glinks">${web?`<a href="${esc(web)}" target="_blank" rel="noopener">公式サイト</a>`:''}${src&&src!==web?`<a href="${esc(src)}" target="_blank" rel="noopener">出典</a>`:''}</div></div></li>`}).join('')}</ol>
     ${all.length>list.length?`<div style="text-align:center;margin:18px 0"><button class="btn" id="gMore">さらに表示 · 残り ${fmt(all.length-list.length)}社</button></div>`:''}
-    ${!all.length?`<div class="empty"><b>条件に合う会社が見つかりませんでした</b>地域や「試作に対応」の絞り込みを外すか、このまま依頼してください。担当者が探してお声がけします。</div>`:''}
+    ${!all.length?`<div class="empty"><b>条件に合う会社が見つかりませんでした</b>地域・「試作に対応」・料金や品質の絞り込みを外すか、このまま依頼してください。担当者が探してお声がけします。</div>`:''}
     <p class="muted" style="font-size:12.5px;margin-top:24px">一覧は公開情報から集めたものです。「要確認」の会社は、見積の依頼で対応できるかを確かめます。順番は、選んだ加工への対応・確認の度合い・数量への合い方で決めています。</p>
   </div></section>`;
   const dock=()=>{$('#dock').innerHTML=`<div class="dock gut"><div class="wrap"><div class="gdl"><b>${S.gsel.length?`${S.gsel.length}社 · 選択中`:'会社選びは担当者に任せる'}</b><small translate="${S.gsel.length?'no':'yes'}">${S.gsel.length?S.gsel.map(esc).join('、'):'候補から合いそうな会社を選んで打診します'}</small></div><span class="sp"></span><button class="btn pri" id="gRfq">見積を依頼する</button></div></div>`;$('#gRfq').onclick=gRfq};dock();
@@ -1190,6 +1220,7 @@ async function renderPick(){
   $('#gArea').value=S.gf.area;$('#gArea').onchange=e=>{S.gf.area=e.target.value;S.gshow=20;track('filter_company',{filter:'area',source:'guided'});renderPick()};
   $('#gProto').onchange=e=>{S.gf.proto=e.target.checked;S.gshow=20;track('filter_company',{filter:'proto',source:'guided'});renderPick()};
   $('#gMore')&&($('#gMore').onclick=()=>{S.gshow+=20;renderPick()});
+  bindAxBar(()=>{S.gshow=20;return renderPick()},'guided');
   $$('[data-pick]').forEach(b=>b.onchange=()=>{const n=b.dataset.pick;if(b.checked){if(S.gsel.length>=5){b.checked=false;return}S.gsel.push(n)}else S.gsel=S.gsel.filter(x=>x!==n);b.closest('.gco').classList.toggle('on',b.checked);track('select_company',{source:'guided',selected:S.gsel.length});dock()});
   if(typeof window.KATACHI_EST_CARD==='function'){try{$('#gEst').innerHTML=window.KATACHI_EST_CARD(gCodes(),(GQ.find(x=>x[0]===S.g.qty)||[])[2])||''}catch(e){}}
 }
@@ -1202,8 +1233,10 @@ function gRfq(){
   D.scen.guided={idea:sum,summary:sum,per_requirement:[],teams:[],open_questions:[]};
   S.scen='guided';S.matched=GS?'guided':'text';S.idea=sum;S.assign={};
   rfq(S.gsel.slice());
-  if(!GS)return;
   const set=(id,v)=>{const el=$('#'+id);if(el&&v)el.value=v};
+  if(S.planPick&&!GS)set('f-plan',{one:'一社にまとめたい',combo:'工程ごとに組み合わせたい',both:'両方の見積で比べたい'}[S.planPick]);
+  if(S.gf&&S.gf.to)set('f-to',S.gf.to);
+  if(!GS)return;
   set('f-due',S.g.due&&S.g.due!=='決まっていない'?tx(S.g.due):'');
   if(S.g.reg==='国内の工場だけ')set('f-abr','国内の工場だけ');
   if(S.g.mat==='部品は自分で用意')set('f-mat','自分で用意する');
@@ -1251,18 +1284,109 @@ function rankFor(codes,opts){const idx=codes.map(c=>GDB.caps.indexOf(c)).filter(
     if(S.gf.proto&&!proto)continue;
     const s=(lv==='pub'?3:0)+(proto&&qmax<=10?1.5:0)+(nodraw?1:0)+(ml!=null&&ml<=qmax?1:0)-(ml!=null&&ml>qmax?3:0)+(ct==='JP'?2:0)+(opts.bonus?opts.bonus(r):0);
     out.push([s,r])}
-  return out.sort((a,b)=>b[0]-a[0]).map(x=>x[1])}
+  return axSort(out.sort((a,b)=>b[0]-a[0]).map(x=>x[1]).filter(r=>axPass(r,qmax)),qmax)}
 function coCard(r,chipCodes){const[n,ct,pref,city,web,caps,proto,nodraw,ml,mat,lv,sum,src]=r;const on=S.gsel.includes(n);
   return `<li class="gco ${on?'on':''}"><label class="gsel"><input type="checkbox" data-pick="${esc(n)}" ${on?'checked':''} aria-label="${esc(n)}"></label>
     <div class="gbody"><div class="gname"><b translate="no">${esc(n)}</b>${lv==='pub'?mk('pub','公式サイト等で確認'):mk('unk','要確認')}</div>
     <div class="gmeta">${esc(ct==='JP'?[pref,city].filter(Boolean).join(' ')||'国内':(CTRY[ct]||ct))}${proto?' · <span>試作に対応</span>':''}${nodraw?' · <span>図面なしで相談可</span>':''}${ml!=null?` · <span>最小ロット ${fmt(ml)}個</span>`:''}${mat==='factory'||mat==='both'?' · <span>材料を手配</span>':''}</div>
     <div class="gcaps">${caps.map(i=>GDB.caps[i]).filter(c=>chipCodes.includes(c)).map(c=>`<span class="chip">${esc(CAPN[c]||c)}</span>`).join('')}</div>
+    ${axHtml(r,S.axq||500)}
     ${sum?`<p class="gsumtxt" translate="no">${esc(sum)}</p>`:''}
     <div class="glinks">${web?`<a href="${esc(web)}" target="_blank" rel="noopener">公式サイト</a>`:''}${src&&src!==web?`<a href="${esc(src)}" target="_blank" rel="noopener">出典</a>`:''}</div></div></li>`}
 function bindPicks(rerender){
-  $$('[data-pick]').forEach(b=>b.onchange=()=>{const n=b.dataset.pick;if(b.checked){if(S.gsel.length>=8){b.checked=false;return}S.gsel.push(n);S.gstep[n]=b.closest('[data-step]')?.dataset.step||S.gstep[n]}else S.gsel=S.gsel.filter(x=>x!==n);
+  $$('[data-pick]').forEach(b=>b.onchange=()=>{const n=b.dataset.pick;if(S.planPick){S.planPick='';$$('[data-plan-pick]').forEach(x=>{x.setAttribute('aria-pressed','false');x.classList.remove('pri')});$$('.pcard.on').forEach(x=>x.classList.remove('on'))}if(b.checked){if(S.gsel.length>=8){b.checked=false;return}S.gsel.push(n);S.gstep[n]=b.closest('[data-step]')?.dataset.step||S.gstep[n]}else S.gsel=S.gsel.filter(x=>x!==n);
     b.closest('.gco').classList.toggle('on',b.checked);track('select_company',{source:S.src,selected:S.gsel.length});pickDock()})}
-function pickDock(){$('#dock').innerHTML=`<div class="dock gut"><div class="wrap"><div class="gdl"><b>${S.gsel.length?`${S.gsel.length}社 · 選択中`:'会社選びは担当者に任せる'}</b><small translate="${S.gsel.length?'no':'yes'}">${S.gsel.length?S.gsel.map(esc).join('、'):'候補から合いそうな会社を選んで打診します'}</small></div><span class="sp"></span><button class="btn pri" id="gRfq">見積を依頼する</button></div></div>`;$('#gRfq').onclick=gRfq}
+function pickDock(){$('#dock').innerHTML=`<div class="dock gut"><div class="wrap"><div class="gdl"><b>${S.gsel.length?`${S.planPick?PLAN_L[S.planPick]+' · ':''}${S.gsel.length}社 · 選択中`:'会社選びは担当者に任せる'}</b><small translate="${S.gsel.length?'no':'yes'}">${S.gsel.length?S.gsel.map(esc).join('、'):'候補から合いそうな会社を選んで打診します'}</small></div><span class="sp"></span><button class="btn pri" id="gRfq">見積を依頼する</button></div></div>`;$('#gRfq').onclick=gRfq}
+/* ---------- 料金・品質・納期で比べる（見積の前の目安） ----------
+   点数や星は出さない。掲載情報・国の公開データ（gBizINFO）・所在地から分かる事実だけを、出典つきで並べる。
+   材料は data/companies.json の列14（tools/company_signals.py）。根拠がない軸は「見積で確認」。並べ替えの点数は画面に出さない。 */
+const PREFS=REGION.flatMap(g=>g[1].split(' '));
+const regionOf=p=>(REGION.find(g=>g[1].split(' ').includes(p))||[])[0]||'';
+const AXSORT=[['rec','おすすめ順'],['price','料金を抑えやすい順'],['qual','品質の根拠が多い順'],['lead','納期が短くなりやすい順']];
+const PLAN_L={one:'一社にまとめる案',combo:'組み合わせる案',both:'両方の案'};
+function axOf(r,qmax){const[n,ct,pref,city,web,caps,proto,nodraw,ml,mat,lv]=r;const x=r[14]||{};const to=S.gf&&S.gf.to||'';
+  const A={price:{s:0,ev:[]},qual:{s:0,ev:[]},lead:{s:0,ev:[]}};const e=(k,t,src,v,cls)=>A[k].ev.push({t,src:src||'',v:v||'',cls:cls||''});
+  if(ml!=null){if(ml<=qmax){A.price.s=3-Math.log10(ml+1)/2;e('price','最小ロット','掲載情報',fmt(ml)+'個〜')}else{A.price.s=-3;e('price','最小ロットが数量より多い','掲載情報',fmt(ml)+'個〜','ng')}}
+  if(mat==='factory'||mat==='both'){A.price.s+=.3;e('price','材料も手配','掲載情報')}
+  if(lv==='pub'){A.qual.s+=2;e('qual','公式サイト等で確認')}
+  (x.iso||[]).forEach(c=>{A.qual.s+=2;e('qual','認証の記載','説明文',c)});
+  if(x.cs){A.qual.s+=1;e('qual','試作・改良の相談に対応','掲載情報')}
+  if(x.sub){A.qual.s+=1;e('qual','製造系の補助金の採択','国の公開データ')}
+  if(x.em){A.qual.s+=.5;e('qual','従業員','国の公開データ',fmt(x.em)+'人')}
+  if(ct==='JP'){A.lead.s+=2;
+    if(to&&pref&&pref===to){A.lead.s+=2;e('lead','届け先と同じ都道府県','所在地から')}
+    else if(to&&pref&&regionOf(pref)===regionOf(to)){A.lead.s+=1;e('lead','届け先と同じ地方','所在地から')}
+    else e('lead','国内','所在地から')}
+  else{e('lead','海外','所在地から');e('lead','輸送・通関の日数が加わる','','','ng');if(x.sh){A.lead.s+=.5;e('lead','日本へ発送','掲載情報')}}
+  if(x.lt){A.lead.s+=2;e('lead','納期の記載','掲載情報',x.lt)}else if(x.sp){A.lead.s+=1;e('lead','短納期の記載','説明文')}
+  return A}
+function axPass(r,qmax){const f=S.gf||{};const[,ct,pref,,,,,,ml]=r;
+  if(f.lot&&!(ml!=null&&ml<=qmax))return false;
+  if(f.qual&&!(axOf(r,qmax).qual.s>0))return false;
+  if(f.near&&f.to&&!(ct==='JP'&&regionOf(pref)===regionOf(f.to)))return false;
+  return true}
+function axSort(list,qmax){const k=(S.gf||{}).sort||'rec';if(k==='rec')return list;
+  return list.map((r,i)=>[axOf(r,qmax)[k].s,i,r]).sort((a,b)=>b[0]-a[0]||a[1]-b[1]).map(x=>x[2])}
+function axEv(v){return `<span class="axe ${v.cls}"><span>${esc(v.t)}</span>${v.v?` <b>${esc(v.v)}</b>`:''}${v.src?`<small>${esc(v.src)}</small>`:''}</span>`}
+function axHtml(r,qmax){const A=axOf(r,qmax);
+  const dd=(k,tail)=>{const ev=A[k].ev;return ev.length?ev.map(axEv).join('')+(tail?`<span class="axq">${tail}</span>`:''):'<span class="axq">見積で確認</span>'};
+  return `<dl class="axs"><div><dt>料金</dt><dd>${dd('price','金額は見積で確認')}</dd></div><div><dt>品質</dt><dd>${dd('qual','')}</dd></div><div><dt>納期</dt><dd>${dd('lead',(r[14]||{}).lt?'':'日数は見積で確認')}</dd></div></dl>`}
+function axBar(){const f=S.gf;
+  return `<div class="axbar" role="group" aria-label="料金・品質・納期で並べ替える">
+    <div class="axrow"><label>並べ替え<select id="axSort">${AXSORT.map(([v,t])=>`<option value="${v}" ${(f.sort||'rec')===v?'selected':''}>${t}</option>`).join('')}</select></label>
+    <label>届け先<select id="axTo"><option value="">指定しない</option>${PREFS.map(p=>`<option value="${p}" ${f.to===p?'selected':''}>${p}</option>`).join('')}</select></label></div>
+    <div class="axrow"><button type="button" class="axchip" data-ax="lot" aria-pressed="${!!f.lot}">最小ロットが数量に合う</button><button type="button" class="axchip" data-ax="qual" aria-pressed="${!!f.qual}">品質の根拠がある</button><button type="button" class="axchip" data-ax="near" aria-pressed="${!!(f.near&&f.to)}" ${f.to?'':'disabled title="届け先を選ぶと使えます"'}>届け先と同じ地方</button></div>
+    <p class="axnote">見積の前に分かる目安です。料金は最小ロット、品質は公式サイト等での確認・認証の記載・国の公開データ、納期は所在地と掲載された納期で並べます。根拠のない会社は「見積で確認」と出て、後ろに並びます。本当の金額と日数は、見積で各社から届きます。</p></div>`}
+function bindAxBar(re,src){const f=S.gf;
+  $('#axSort')&&($('#axSort').onchange=e=>{f.sort=e.target.value;track('sort_company',{sort:f.sort,source:src});re()});
+  $('#axTo')&&($('#axTo').onchange=e=>{f.to=e.target.value;if(!f.to)f.near=false;track('filter_company',{filter:'deliver_to',source:src});re()});
+  $$('[data-ax]').forEach(b=>b.onclick=()=>{const k=b.dataset.ax;f[k]=!f[k];track('filter_company',{filter:k,source:src});re()})}
+/* 一社にまとめる案と、工程ごとに組み合わせる案を並べて比べる。どちらも、いまの並べ替え・絞り込みの先頭の会社から作る */
+const capCovers=(r,c)=>{const own=GDB.caps.indexOf(c),par=c.includes('.')?GDB.caps.indexOf(c.split('.').slice(0,-1).join('.')):-1;return r[5].includes(own)||(par>=0&&r[5].includes(par))};
+function planOf(secs,one){
+  const combo=secs.map(s=>({c:s.c,r:s.list[0]||null}));
+  const top=one[0]?one[0][2]:null,cov=one[0]?one[0][1]:0;
+  const oneRows=top?[{c:null,r:top,cov},...secs.filter(s=>!capCovers(top,s.c)).map(s=>({c:s.c,r:s.list.find(x=>x[0]!==top[0])||null}))]:[];
+  const uniq=rows=>[...new Map(rows.filter(x=>x.r).map(x=>[x.r[0],x.r])).values()];
+  return {combo,oneRows,top,cov,full:!!top&&cov===secs.length,oneM:uniq(oneRows),comboM:uniq(combo)}}
+function planSum(M,kind){
+  const n=M.length;const lots=M.map(r=>r[8]).filter(v=>v!=null);const pub=M.filter(r=>r[10]==='pub').length;
+  const ex=M.map(r=>r[14]||{});const iso=[...new Set(ex.flatMap(x=>x.iso||[]))];const sub=ex.filter(x=>x.sub).length;const em=ex.filter(x=>x.em).length;
+  const places=[...new Set(M.map(r=>r[1]==='JP'?(r[2]||'国内'):(CTRY[r[1]]||r[1])))];const abroadN=M.filter(r=>r[1]!=='JP').length;
+  const to=S.gf.to;const near=to?M.filter(r=>r[1]==='JP'&&regionOf(r[2])===regionOf(to)).length:0;
+  const v=(t,val,src)=>`<span class="axe"><span>${t}</span>${val!=null?` <b>${val}</b>`:''}${src?`<small>${src}</small>`:''}</span>`;
+  const q='<span class="axq">見積で確認</span>';
+  const price=(lots.length?v(n>1?'最小ロット（いちばん大きい会社）':'最小ロット',esc(fmt(Math.max(...lots))+'個〜'),'掲載情報')+(lots.length<n?v('最小ロットの掲載',`${lots.length}/${n}社`):''):q)
+    +`<p>${kind==='one'?'まとめ役の管理費が乗ることがあります。会社間の送料と調整の手間はかかりません。':'工程ごとに得意な会社を選べるので単価を下げやすい一方、会社間の送料と調整の手間がかかります。'}</p>`;
+  const qual=(pub||iso.length||sub||em?[pub?v('公式サイト等で確認',`${pub}/${n}社`):'',...iso.map(c=>v('認証の記載',esc(c),'説明文')),sub?v('製造系の補助金の採択',`${sub}/${n}社`,'国の公開データ'):'',em?v('国の公開データに登録',`${em}/${n}社`):''].join(''):q)
+    +`<p>${kind==='one'?'品質の責任が1社にまとまり、不具合の原因を追いやすくなります。':'工程ごとに専門の会社を選べます。会社間のつなぎ目は、受け渡す寸法・データをKATACHIが決めて確かめます。'}</p>`;
+  const lead=v('所在地',esc(places.join('、')))+(abroadN?v('海外の会社',`${abroadN}/${n}社`):'')+(to?v('届け先と同じ地方',`${near}/${n}社`,'所在地から'):'')
+    +`<p>${kind==='one'?'会社間の受け渡しがないので、工程の間の待ち時間が生まれにくい案です。':'工程を同時に進められる一方、会社間の輸送と調整の日数が加わります。'}</p>`;
+  return {price,qual,lead}}
+function planCard(kind,P,secs,rec){
+  const rows=kind==='one'?P.oneRows:P.combo;const M=kind==='one'?P.oneM:P.comboM;
+  const sel=S.planPick===kind||S.planPick==='both';
+  if(kind==='one'&&!P.top)return `<div class="pcard"><div class="phd"><b>一社にまとめる案</b></div><p class="muted" style="margin:0;font-size:13px">読み取った工程を1社でまとめて受けられそうな会社は、一覧からは見つかりませんでした。取りまとめを引き受ける会社を、担当者が探すこともできます。</p></div>`;
+  const sum=planSum(M,kind);
+  const who=rows.map(x=>`<li><span class="pstep">${x.c?esc(CAPN[x.c]||x.c):(x.cov===secs.length?'すべての工程':'まとめて受ける工程')}</span>${x.c==null&&x.cov<secs.length?`<span class="chip">${x.cov}/${secs.length}工程</span>`:''}<b translate="no">${x.r?esc(x.r[0]):'—'}</b>${x.r?'':'<span class="axq">担当者が探します</span>'}</li>`).join('');
+  return `<div class="pcard ${sel?'on':''} ${rec===kind?'rec':''}"><div class="phd"><b>${kind==='one'?'一社にまとめる案':'工程ごとに組み合わせる案'}</b>${rec===kind?'<span class="chip on">おすすめ</span>':''}</div>
+    <div class="pmeta"><b class="mono">${M.length}社</b><span>${kind==='one'?(M.length>1?'1社に多くの工程をまとめ、足りない工程は別の会社で補う':'窓口は1つ'):'取りまとめはKATACHIの担当者'}</span></div>
+    <ul class="pwho">${who}</ul>
+    <dl class="pax"><div><dt>料金</dt><dd>${sum.price}</dd></div><div><dt>品質</dt><dd>${sum.qual}</dd></div><div><dt>納期</dt><dd>${sum.lead}</dd></div>
+      <div><dt>向く場合</dt><dd><p>${kind==='one'?'管理の手間を減らしたい・品質の責任を1社に持たせたいとき':'1社では揃わない技術が混ざる・工程ごとに価格や品質を詰めたいとき'}</p></dd></div></dl>
+    <button type="button" class="btn ${sel?'pri':''} sm" data-plan-pick="${kind}" aria-pressed="${sel}" ${M.length?'':'disabled'}>${sel?'この案の会社を選択中':'この案の会社を選ぶ'}</button></div>`}
+function planCmp(secs,one){if(secs.length<2)return '';
+  const P=planOf(secs,one);const rec=P.full?'one':'combo';S.plans=P;
+  const why=P.full?'読み取った工程をすべて1社で受けられそうな会社があります。窓口を1つにできるので、まずは一社案がおすすめです。組み合わせ案にも見積を取ると、価格と納期の差が分かります。':P.top?'すべての工程を1社で受けられそうな会社は見つかりませんでした。工程ごとに組み合わせる案がおすすめです。一社案は、足りない工程を別の会社で補った形です。':'1社でまとめて受けられそうな会社は見つかりませんでした。工程ごとに組み合わせる案がおすすめです。';
+  return `<section class="pcmp" id="mPlans"><div class="mhead"><h2>一社にまとめるか、組み合わせるか</h2>${mk('ai','目安（AI推定）')}</div>
+    <p class="pwhy">${why}</p>
+    <div class="pgrid">${planCard('one',P,secs,rec)}${planCard('combo',P,secs,rec)}</div>
+    <div class="pfoot"><button type="button" class="btn ${S.planPick==='both'?'pri':''}" data-plan-pick="both" aria-pressed="${S.planPick==='both'}">${S.planPick==='both'?'両方の案の会社を選択中':'両方に見積を依頼して比べる'}</button><span class="muted">案の会社は、下の並べ替え・絞り込みに合わせて入れ替わります。料金と納期の本当の数字は、見積で各社から届きます。</span></div></section>`}
+function bindPlans(re){$$('[data-plan-pick]').forEach(b=>b.onclick=()=>{const k=b.dataset.planPick;const P=S.plans;if(!P)return;
+  if(S.planPick===k){S.planPick='';S.gsel=[];S.gstep={};track('choose_plan',{plan:'none'});re();return}
+  const rows=k==='one'?P.oneRows:k==='combo'?P.combo:[...P.oneRows,...P.combo];S.gsel=[];S.gstep={};
+  for(const x of rows){if(!x.r||S.gsel.includes(x.r[0])||S.gsel.length>=8)continue;S.gsel.push(x.r[0]);S.gstep[x.r[0]]=x.c?(CAPN[x.c]||x.c):'まとめて依頼'}
+  S.planPick=k;track('choose_plan',{plan:k,companies:S.gsel.length});re().then?.(()=>{const el=$('#mPlans');el&&el.scrollIntoView({block:'start'})})})}
 async function renderMatch(){
   $('#dock').innerHTML='';
   if(!S.idea){location.hash='';return}
@@ -1271,7 +1395,7 @@ async function renderMatch(){
   const db=await loadGDB();
   if(!db){$('#app').innerHTML=`<section class="gut"><div class="wrap" style="padding:60px 0"><h2>会社の一覧を読み込めませんでした</h2><p class="muted">通信の状態を確かめて、もう一度お試しください。</p><button class="btn" onclick="location.reload()">再読み込み</button></div></section>`;return}
   const A=analyzeText(S.idea+' '+S.files.map(f=>f.name).join(' '));A.concept=pickConcept(S.idea+' '+S.files.map(f=>f.name).join(' '),A);S.anal=A;
-  const qmax={proto:10,small:500,mass:1e9}[S.qty]||500;
+  const qmax={proto:10,small:500,mass:1e9}[S.qty]||500;S.axq=qmax;
   const secs=A.codes.map(c=>{let list=rankFor([c],{qmax});if(!list.length&&c.includes('.'))list=rankFor([c.split('.').slice(0,-1).join('.')],{qmax});return {c,list}});
   const total=new Set(secs.flatMap(s=>s.list.map(r=>r[0]))).size;
   if(S.loggedIdea!==S.idea+'|'+S.qty){S.loggedIdea=S.idea+'|'+S.qty;logInput({mode:'text',text:S.idea,quantity:S.qty,steps:A.codes.map(c=>CAPN[c]||c),companies:total,top:secs.map(s=>(CAPN[s.c]||s.c)+': '+(s.list[0]?.[0]||'-')),notices:A.notices,file_kinds:S.files.map(f=>f.k)})}
@@ -1280,7 +1404,7 @@ async function renderMatch(){
   const INTEG=['manufacturing.assembly','apparel.garment_oem','food.processed_oem','food.beverage_oem','food.pet_food','cosmetics.oem','cosmetics.household'].map(c=>GDB.caps.indexOf(c));
   let one=[];if(secs.length>=2){const seen=new Map();secs.forEach(s=>s.list.forEach(r=>{if(!seen.has(r[0]))seen.set(r[0],r)}));
     for(const r of seen.values()){const cov=stepIdx.filter(([a,b])=>r[5].includes(a)||(b>=0&&r[5].includes(b))).length;if(cov<2)continue;
-      one.push([cov+(r[5].some(i=>INTEG.includes(i))?.5:0)+(r[10]==='pub'?.3:0),cov,r])}
+      const k=S.gf.sort;one.push([cov*10+(k&&k!=='rec'?axOf(r,qmax)[k].s:(r[5].some(i=>INTEG.includes(i))?.5:0)+(r[10]==='pub'?.3:0)),cov,r])}
     one.sort((a,b)=>b[0]-a[0]);one=one.slice(0,S.gmore.__one||5)}
   const integ=secs.find(s=>s.c==='manufacturing.assembly')||secs.find(s=>/oem$/.test(s.c))||secs.find(s=>/^(manufacturing\.textile|apparel)/.test(s.c))||secs.filter(s=>/^(manufacturing|crafts|packaging)/.test(s.c)).slice(-1)[0];
   track('text_analyze',{steps:A.codes.length,companies:total,chars:S.idea.length});
@@ -1297,7 +1421,7 @@ async function renderMatch(){
     ${A.regs.length?`<div class="blk" style="margin-top:16px"><h4>確かめておきたい法規制・認証</h4><ul class="list">${A.regs.map(x=>`<li>${esc(x)}</li>`).join('')}</ul><p class="muted" style="margin:6px 0 0;font-size:12px">キーワードから当たりを付けた参考情報です。正式な判断は専門家・認証機関が行います。</p></div>`:''}
     ${A.codes.length?`<div class="gflt"><label>地域<select id="gArea"><option value="">すべて</option><option value="JP">国内だけ</option><option value="ABROAD">海外だけ</option></select></label>
       <label class="chk"><input type="checkbox" id="gProto" ${S.gf.proto?'checked':''}><span>試作に対応と書いている会社だけ</span></label><span class="sp"></span>
-      <span class="muted" style="font-size:12.5px">工程ごとに見積を取りたい会社を選べます（合計8社まで）。選ばずに依頼すると、担当者が選んで打診します。</span></div>`:
+      <span class="muted" style="font-size:12.5px">工程ごとに見積を取りたい会社を選べます（合計8社まで）。選ばずに依頼すると、担当者が選んで打診します。</span></div>${axBar()}${planCmp(secs,one)}`:
       A.notices.length?'':`<div class="empty" style="margin-top:16px"><b>文章から工程を読み取れませんでした</b>このまま見積を依頼すれば、担当者が内容を読んで工程と会社を探します。型が決まっているもの（部品・ノベルティ・袋物など）なら「選んで探す」が早いです。<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn" id="mGuided">選んで探す</button></div></div>${(()=>{const ts=textSearch(S.idea);return ts.length?`<section class="mstep" data-step="文章に近い会社"><div class="mhead"><span class="mono mno">?</span><h2>文章の言葉が会社の説明に出てくる会社</h2><span class="muted">${fmt(ts.length)}社</span></div><p class="muted" style="margin:0 0 12px;font-size:13px">工程は読み取れませんでしたが、書いた言葉が社名や説明に含まれる会社です。参考にしてください。</p><ol class="glist">${ts.slice(0,10).map(r=>coCard(r,[])).join('')}</ol></section>`:''})()}`}
     ${secs.length>=2?`<section class="mstep" data-step="まとめて依頼"><div class="mhead"><span class="mono mno">A</span><h2>1社でまとめて頼む</h2><span class="muted">${one.length?'おすすめ':''}</span></div>
       <p class="muted" style="margin:0 0 12px;font-size:13.5px">窓口が1つで済み、部品の受け渡しで起きる食い違いや責任の分かれ目が減ります。単一の加工で作れるものや、1社で揃うものはこちらが向いています。</p>
@@ -1318,13 +1442,14 @@ async function renderMatch(){
   $('#gArea')&&($('#gArea').value=S.gf.area,$('#gArea').onchange=e=>{S.gf.area=e.target.value;track('filter_company',{filter:'area',source:'text'});renderMatch()});
   $('#gProto')&&($('#gProto').onchange=e=>{S.gf.proto=e.target.checked;track('filter_company',{filter:'proto',source:'text'});renderMatch()});
   $$('[data-more]').forEach(b=>b.onclick=()=>{S.gmore[b.dataset.more]=(S.gmore[b.dataset.more]||5)+10;renderMatch()});
+  if(A.codes.length){bindAxBar(()=>{S.gmore={};return renderMatch()},'text');bindPlans(renderMatch)}
 }
 
 /* ---------- GO / LOADING ---------- */
 function pick(text){for(const [k,re] of [['collar',/犬|猫|ペット|首輪|動物|心拍/],['mimamori',/見守|高齢|ドア|開閉|室温|部屋/],['bike',/自転車|ライト|ハンドル|バイク/]])if(re.test(text))return[k,'near'];return['collar','fallback']}
 function go(ex){
   S.idea=$('#idea').value.trim()||S.files.map(f=>f.name).join('、');
-  if(!ex){S.src='text';S.matched='text';S.gsel=[];S.gstep={};S.gmore={};S.gf={area:'',proto:false};loadGDB();location.hash='match';if(location.hash==='#match')renderMatch();return}
+  if(!ex){S.src='text';S.matched='text';S.gsel=[];S.gstep={};S.gmore={};S.planPick='';S.gf={area:'',proto:false,to:(S.gf||{}).to||''};loadGDB();location.hash='match';if(location.hash==='#match')renderMatch();return}
   S.scen=ex;S.matched='example';S.src='example'
   S.lastReal=S.scen;S.plan=0;S.custom=false;S.tab='team';setPlan(0);S.viewSent=false;
   const R=D.scen[S.scen];const steps=['要件を読み取る',`${R.per_requirement.length}の工程に分ける`,`${fmt(D.realCount)}社から候補を探す`,'チームを組む'];
@@ -1606,7 +1731,7 @@ function RFQ(r,qty){return [
  ['品質・法規制',[['f-cert','必要な認証・法規制','cks','ai',['PSE（電気用品）','技適（無線）','食品衛生法','医療機器に当たるか確認したい','CE・FCC（海外で販売）',UNK]],['f-insp','検査の記録','sel','opt',['','不要','抜き取り検査の記録がほしい','全数の検査記録がほしい']],['f-def','不良のときの対応','sel','opt',['','作り直してほしい','返金でよい',UNK]]]],
  ['材料と納品',[['f-mat','材料の調達','sel','opt',['工場に任せる（材料費込みで見積）','自分で用意する','相談して決める']],['f-pkg','包装','sel','opt',['','簡易包装でよい','個包装','化粧箱も作りたい',UNK]],['f-to','納品先','txt','opt','例：大阪府・自社倉庫'],['f-split','分納・保管','sel','opt',['','一括で納品','分けて納品','工場で保管してほしい']]]],
  ['権利と契約',[['f-nda','秘密保持契約（NDA）','sel','opt',['','詳細を送る前に結びたい','不要']],['f-own','設計データ・金型の持ち主','sel','opt',['','自社に残したい','工場の持ち物でよい',UNK]],['f-ip','特許・意匠','sel','opt',['','出願済み','出願予定','なし',UNK]],['f-pay','支払い条件の希望','sel','opt',['','前払いでもよい','納品後に払いたい',UNK]]]],
- ['依頼先の範囲',[['f-abr','海外の工場','sel','opt',['海外の工場もよい','国内の工場だけ']],['f-n','見積を取る社数','sel','opt',['工程ごとに1社','工程ごとに2〜3社で比べたい']]]],
+ ['依頼先の範囲',[['f-abr','海外の工場','sel','opt',['海外の工場もよい','国内の工場だけ']],['f-n','見積を取る社数','sel','opt',['工程ごとに1社','工程ごとに2〜3社で比べたい']],['f-plan','頼み方','sel','opt',['','一社にまとめたい','工程ごとに組み合わせたい','両方の見積で比べたい']]]],
  ['写真・動画・図面',[['f-media','','media','opt','']]],
  ['補足',[['f-note','補足','area','opt',''],...r.open_questions.map((q,i)=>['f-q'+i,q,'txt','ai',S.answers[q]||''])]]
 ]}

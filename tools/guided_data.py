@@ -1,6 +1,7 @@
 """選択式（選んで探す）用の会社一覧を作る。
 使い方: python3 guided_data.py <companies.csv> <taxonomy.pyのあるkatachiフォルダの親> <出力json>
-出力: {"caps":[code...], "lv":[...], "c":[[name,country,pref,city,web,[capIdx...],proto,nodraw,minlot,mat,lvIdx,summary,src],...]}
+出力: {"caps":[code...], "lv":[...], "c":[[name,country,pref,city,web,[capIdx...],proto,nodraw,minlot,mat,lvIdx,summary,src,checked,signals],...]}
+signals は company_signals.py（料金・品質・納期の目安の材料。掲載情報と国の公開データの事実だけ）
 """
 import csv, json, sys
 src, root, out = sys.argv[1:4]
@@ -10,6 +11,8 @@ name2code = {n: c for c, p, n, *_ in CAPABILITIES}
 codes = [c for c, *_ in CAPABILITIES]
 LV = ['公式サイトで確認', '報道・記事で確認', '企業掲載ページで確認', '集約サイト掲載のみ(未確認)']
 LVK = ['pub', 'pub', 'pub', 'unk']
+from company_signals import load_gbiz, signals
+GB, SUB = load_gbiz(root)
 rows = []
 for x in csv.DictReader(open(src, encoding='utf-8-sig')):
     caps = []
@@ -23,7 +26,7 @@ for x in csv.DictReader(open(src, encoding='utf-8-sig')):
                  1 if x['試作対応'] == '可' else None, 1 if x['図面なし相談'] == '可' else None,
                  int(ml) if ml.isdigit() else None,
                  {'工場が手配': 'factory', 'どちらも可': 'both', '自分で用意': 'customer'}.get(x['材料調達']),
-                 LVK[lv], x['概要'][:70], x['出典URL'], x['確認日']])
+                 LVK[lv], x['概要'][:70], x['出典URL'], x['確認日'], signals(x, GB, SUB)])
 from katachi.taxonomy import REGULATION_HINTS, DEFERRED, DEFERRED_KEYWORDS
 # 文章入力の読み取り用に、taxonomy のキーワードを補う（サイト側だけで使う。本来は taxonomy.py に足す）
 EXTRA_KW = {
