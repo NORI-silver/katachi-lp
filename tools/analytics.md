@@ -56,6 +56,7 @@
 | lai_send | 「内蔵AIと話す」でメッセージを送った | turn（何回目か） | 文章の中身は送らない。会話は端末の中だけで処理される |
 | lai_error | 内蔵AIが答えられなかった | kind（エラーの種類名） | |
 | lai_reset | 内蔵AIとの会話をやり直した | なし | |
+| concept_3d | 製品イメージ案の3Dを回した・拡大縮小した・向きを戻した・3D／寸法図を切り替えた（1つの表示につき各1回） | action（rotate/zoom/reset/tab_3d/tab_fig）, kind（図の種類） | |
 | concept_ai | 「この案をもとにAIで詰める」を押した | concept | |
 | blocked_alt | 扱わない分野（酒類）のとき「ラベル・化粧箱」「グラス・ノベルティ」の入口を押した | alt | |
 | lang_change | 言語切替 | from, to | |
