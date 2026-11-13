@@ -511,4 +511,4 @@ _load_more()
 # 品目の記事の冒頭を「個人でも何個から作れるか」にする（tools/individual.py）
 import os as _os, importlib.util as _ilu
 _spec = _ilu.spec_from_file_location("individual", _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "individual.py"))
-_ind = _ilu.module_from_spec(_spec); _spec.loader.exec_module(_ind); _ind.apply(ARTICLES)
+_ind = _ilu.module_from_spec(_spec); _spec.loader.exec_module(_ind); _ind.apply(ARTICLES); _ind.apply_proto(ARTICLES)
