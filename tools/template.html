@@ -767,7 +767,7 @@ function aiUrl(name,A){const base=name==='ChatGPT'?'https://chatgpt.com/?q=':'ht
   return name==='ChatGPT'?'https://chatgpt.com/':'https://claude.ai/new'}
 const AI_ICON='<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M3 3h10v7H7l-3 3v-3H3z" stroke-linejoin="round"/></svg>';
 function aiConsult(A){const full=aiQuestion(A);
-  return `<div class="aic" id="mAi"><h3>自分のAIで、もっと詳しく相談する<span class="chip">無料</span></h3>
+  return `<div class="aic" id="mAi"><h3>AIで、もっと詳しく相談する<span class="chip">無料</span></h3>
     <p class="muted">書いた内容と、KATACHIが読み取った工程をまとめた質問文を、お使いの ChatGPT か Claude で開きます。仕様の詰め方、難しい点、試作の進め方を相談し、最後に工場へ渡す「仕様メモ」を作ってもらえます。AIはあなたのアカウントで使うので、KATACHIに費用はかかりません。</p>
     <div class="aicb"><a class="btn pri" data-aigo="ChatGPT" href="${esc(aiUrl('ChatGPT',A))}" target="_blank" rel="noopener">${AI_ICON}ChatGPTで相談</a><a class="btn pri" data-aigo="Claude" href="${esc(aiUrl('Claude',A))}" target="_blank" rel="noopener">${AI_ICON}Claudeで相談</a><button type="button" class="btn sm" data-aiq>質問文をコピー</button></div>
     <span class="muted" style="font-size:12px">質問文は自動でコピーされます。開いた画面に質問文が入っていないとき（ログインのあとなど）は、貼り付けて送ってください。</span>
@@ -991,16 +991,25 @@ function analyzeText(text){
   const notices=[];
   for(const c of Object.keys(GDB.deferred||{}))if(hit.includes(c)){hit=hit.filter(x=>x!==c);notices.push(GDB.deferred[c])}
   for(const [kws,msg] of GDB.deferred_kw||[])if(kws.some(k=>t.includes(k.toLowerCase())))notices.push(msg);
+  // 機械・装置（草刈機・ロボット・電動台車など）: モーター・駆動・フレームを持つものは、板金・切削・制御基板・組立の工程で読む
+  const MACH=/機械|装置|ロボ|自動化|自走|自律|電動|台車|草刈|芝刈|除草|モーター|モータ|農機|農業機|搬送|コンベア|ドローン|マシン|アクチュエータ|駆動|エンジン|[一-龠ァ-ヶー]機(?![器能会嫌関構種内])/;
+  const mach=MACH.test(t);
+  if(mach){for(const c of ['mechanical.enclosure_design','manufacturing.sheet_metal','manufacturing.cnc','electronics.pcb_design','electronics.firmware','electronics.pcba','manufacturing.rapid_proto','manufacturing.assembly'])if(!hit.includes(c))hit.push(c);
+    if(/屋外|法面|斜面|農|畑|田|庭|雨|野外|山/.test(t)){for(const c of ['mechanical.waterproof','testing.environmental'])if(!hit.includes(c))hit.push(c)}
+    if(/自動|自律|ロボ|センサ|ドローン|自走/.test(t)&&!hit.includes('sensing.algorithm'))hit.push('sensing.algorithm');
+    if(/電動|バッテリー|充電|電池|ドローン|ロボ|自走/.test(t)&&!hit.includes('electronics.low_power'))hit.push('electronics.low_power')}
   const hw=hit.some(c=>/^(sensing|electronics)/.test(c));
   if(!hw)hit=hit.filter(c=>!['testing.animal_trial','mechanical.wearable_fit','testing.human_trial'].includes(c));
   if(hw)for(const c of ['electronics.pcb_design','electronics.firmware','electronics.low_power','mechanical.enclosure_design','manufacturing.rapid_proto','electronics.pcba','manufacturing.assembly'])if(!hit.includes(c))hit.push(c);
   if(hit.includes('electronics.wireless')&&!hit.includes('testing.radio_cert'))hit.push('testing.radio_cert');
   if(hit.includes('electronics.low_power')&&!hit.includes('testing.battery_safety'))hit.push('testing.battery_safety');
+  // 何も読み取れないときも行き止まりにしない: どの製品でも最初に要る設計・試作・組立の会社を出す
+  let fallback=false;if(!hit.length&&!notices.length){hit=['mechanical.enclosure_design','manufacturing.rapid_proto','manufacturing.assembly'];fallback=true}
   // 試作・設計・製造・試験の順に並べる
   const order=['sensing','electronics','mechanical','software','manufacturing','apparel','crafts','packaging','food','cosmetics','testing'];
   hit.sort((a,b)=>order.indexOf(a.split('.')[0])-order.indexOf(b.split('.')[0]));
   const regs=(GDB.regs||[]).filter(([kws])=>kws.some(k=>t.includes(k.toLowerCase()))).map(x=>x[1]);
-  return {codes:hit,regs,notices:[...new Set(notices)]};
+  return {codes:hit,regs,notices:[...new Set(notices)],fallback};
 }
 /* 工程が読み取れないときの手がかり: 入力の言葉を、会社名・会社の説明文から探す */
 const STOP=/^(オリジナル|自社|ブランド|作りたい|つくりたい|作る|つくる|作成|製作|制作|製造|依頼|相談|お願い|したい|ほしい|欲しい|小ロット|ロット|個|本|枚|探して|探している|のOEM|OEM|ODM)$/i;
@@ -1052,7 +1061,7 @@ async function renderMatch(){
     <div class="gtop"><div style="min-width:0;flex:1"><div class="eyebrow">Your request</div><h1 class="gh1" translate="no" style="font-size:clamp(20px,2.6vw,28px)">${esc(S.idea.length>120?S.idea.slice(0,120)+'…':S.idea)}</h1>
       <div class="gchips">${A.codes.length?`<span class="chip">${A.codes.length}工程</span>`:''}${secs.length===1?'<span class="chip">1社で作れる内容です</span>':''}<span class="chip">${esc({proto:'試作',small:'小ロット',mass:'量産'}[S.qty])}</span><button type="button" class="glink" id="mEdit">書き直す</button></div></div>
       <div class="gcount"><b class="mono">${fmt(total)}</b><span>社が候補</span></div></div>
-    ${A.codes.length?`<div class="empty" style="margin-top:16px"><b>書いた内容から、必要な工程をキーワードで読み取りました</b>工程が足りない・違うと思ったら、下の「自分のAIで相談」で仕様を詰めるか、そのまま見積を依頼してください。担当者があなたの文章を読んで、工程と会社を組み直してお届けします。</div>`:''}
+    ${A.fallback?`<div class="empty" style="margin-top:16px"><b>文章から工程を特定できませんでした</b>どんな製品でも最初に必要になる「設計・試作・組立」を受ける会社を出しています。下の「AIで相談」で仕様を詰めて読み直すか、そのまま見積を依頼すれば担当者が工程と会社を探します。型が決まっているもの（部品・ノベルティ・袋物など）なら「選んで探す」が早いです。<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn" id="mGuided">選んで探す</button></div></div>`:A.codes.length?`<div class="empty" style="margin-top:16px"><b>書いた内容から、必要な工程をキーワードで読み取りました</b>工程が足りない・違うと思ったら、下の「AIで相談」で仕様を詰めるか、そのまま見積を依頼してください。担当者があなたの文章を読んで、工程と会社を組み直してお届けします。</div>`:''}
     ${A.notices.length&&!A.codes.length||A.notices.some(n=>WEAPON.test(n))?'':aiConsult(A)}
     ${A.codes.length?'<div id="mEst"></div>':''}
     ${A.notices.map(n=>`<div class="empty" style="margin-top:10px;border-color:var(--amber)"><b>KATACHIでは扱っていない工程があります</b>${esc(n)}</div>`).join('')}
