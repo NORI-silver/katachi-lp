@@ -74,7 +74,7 @@
 | tune_mode | ②の「この案を、相談して詰める」で相談のしかたを切り替えた | mode（q/ai/human） | |
 | tune_human | ②から「担当者・工場に相談する」を開いた | なし | |
 | ai_return | 外部のAIを開いたあと、このページに戻ってきた（貼る場所を開く） | ai | |
-| review_link | 会社の「Googleマップ ↗」などGoogleマップへのリンクを押した | site（google_maps）, place（recommend/list/place/fallback）。会社名は送らない | |
+| review_link | 口コミ欄の「Googleマップで開く ↗」を押した | site（google_maps）, place（place）。会社名は送らない | |
 | open_reviews | 会社の「Googleの口コミを見る」を開いた | place（recommend/list）。会社名は送らない | |
 | reviews_result | 口コミの取り寄せ結果 | place, result（shown/none/notfound/off/limit/busy/net/unavailable） | |
 | choose_plan | （追記）おすすめに戻す・担当者に任せる | plan（rec/staff） | |
