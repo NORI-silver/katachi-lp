@@ -80,7 +80,7 @@ ARTICLES = [
             ("アイデアを話して、まねされませんか？", "詳しく話す前に秘密保持契約（NDA）を結びましょう。特許・意匠を出願するなら、出願前に公開・開示しないことが大切です。"),
             ("AIで作った仕様書や画像は使えますか？", "使えます。考えを伝える資料として役立ちます。寸法や材料が妥当かは依頼先と確かめてください。"),
         ],
-        "related": ["what-gets-ordered", "find-manufacturer"],
+        "related": ["what-gets-ordered", "find-manufacturer", "prototype-cost"],
     },
     {
         "slug": "what-gets-ordered",
@@ -484,7 +484,7 @@ ARTICLES = [
             ('OEMとODMはどちらを選べばいいですか？', '処方や設計を自社で決められるならOEM、決める人がいなければODMや半オーダー。いずれも権利の帰属を契約で決めます。'),
             ('個人や小さな会社でもOEMを頼めますか？', '受ける会社もあります。数量・予算・売り方を決めてから問い合わせると早く進みます。'),
         ],
-        "related": ["cosmetics-oem-small-lot", "food-oem-small-lot", "apparel-oem-small-lot", "goods-small-lot", "supplement-oem-small-lot", "find-manufacturer"],
+        "related": ["cosmetics-oem-small-lot", "food-oem-small-lot", "apparel-oem-small-lot", "goods-small-lot", "supplement-oem-small-lot", "find-manufacturer", "oem-minimum-lot"],
         "checked": "2026年11月12日",
         "sources": [
             ("京都府「化粧品を製造・輸入する時に求められる規制について」（薬事講習会資料）", "https://www.pref.kyoto.jp/yakumu/documents/1201507183040.pdf"),

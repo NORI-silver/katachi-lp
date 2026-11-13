@@ -195,7 +195,7 @@ ARTICLES = [
             ('型は誰のものになりますか？', '契約によります。発注側の所有にすることが多いですが、持ち主・保管の期間と費用・廃棄・他工場への移動を契約や注文書で決めておきます。'),
             ('3Dデータがなくても射出成形を頼めますか？', '型には3Dデータや図面が必要です。ない場合は、射出成形前提の設計から引き受ける会社に頼むか、先に3Dデータの作成を依頼します。'),
         ],
-        "related": ["resin-prototype", "3d-print-request", "what-gets-ordered"],
+        "related": ["resin-prototype", "3d-print-request", "what-gets-ordered", "prototype-cost"],
         "sources": [
             ("Protolabs「Prototype Tooling for Injection Molding」", "https://www.protolabs.com/services/injection-molding/prototyping/"),
             ("Protolabs「Production Injection Molding」", "https://www.protolabs.com/services/injection-molding/production/"),
@@ -296,7 +296,7 @@ ARTICLES = [
             ('真空注型では何個くらいつくれますか？', 'シリコン型は使うたびに傷むため数に限りがあり、形や材料で変わります。必要数を伝え、型を何個つくるかを確かめてください。'),
             ('公設試験研究機関の機械はだれでも使えますか？', '多くのセンターで中小企業が借りられますが、講習・予約・利用条件はセンターごとに違います。まず近くのセンターに相談します。'),
         ],
-        "related": ["injection-molding-small-lot", "3d-print-request", "3d-print-cost"],
+        "related": ["injection-molding-small-lot", "3d-print-request", "3d-print-cost", "prototype-cost"],
         "sources": [
             ("Protolabs「CNC Machining Service」", "https://www.protolabs.com/services/cnc-machining/"),
             ("山梨県産業技術センター 機器紹介（Formlabs Form3）", "https://www.pref.yamanashi.jp/yitc/kit/instruments/r06_sla_printer.html"),
@@ -390,7 +390,7 @@ ARTICLES = [
             ('板金は1個から頼めますか？', '1個から受ける工場やサービスはありますが、段取り費が1個に乗るので割高です。数量ごとの単価を出してもらいます。'),
             ('見積の金額を下げるにはどうすればいいですか？', '曲げや溶接を減らす、板厚や材質を見直す、表面処理をまとめる、数量をまとめるなどで下がることがあります。依頼先に形の変更の提案を求めるのが近道です。'),
         ],
-        "related": ["sheet-metal-prototype", "find-manufacturer", "no-drawing"],
+        "related": ["sheet-metal-prototype", "find-manufacturer", "no-drawing", "cnc-machining-small-lot"],
         "sources": [
             ("meviy「板金加工部品の見積もり」（ミスミ）", "https://jp.meviy.misumi-ec.com/info/ja/fa-sheet-metal-service/"),
             ("meviy 使い方マニュアル「板金部品 技術情報」（2026年10月5日更新）", "https://jp.meviy.misumi-ec.com/help/ja/wp-content/uploads/2020/03/meviy_manual_shm.pdf"),
@@ -481,7 +481,7 @@ ARTICLES = [
             ('板金のケースと樹脂のケースはどちらがよいですか？', '少量で丈夫さや放熱が要るなら板金、数が多く形の自由さが要るなら樹脂の射出成形が候補です。試作の段階で量産数を伝えて相談します。'),
             ('試作と量産で同じ工場に頼むべきですか？', '同じ工場なら試作の形や手順をそのまま生かせます。量産で金型のプレスにするならプレスが得意な工場が合うこともあるので、見積を比べて決めます。'),
         ],
-        "related": ["sheet-metal-quote", "injection-molding-small-lot", "prototype-outsourcing"],
+        "related": ["sheet-metal-quote", "injection-molding-small-lot", "prototype-outsourcing", "cnc-machining-small-lot"],
         "sources": [
             ("Protolabs「Sheet Metal Fabrication Service」", "https://www.protolabs.com/services/sheet-metal-fabrication/"),
             ("meviy「板金加工部品の見積もり」（ミスミ）", "https://jp.meviy.misumi-ec.com/info/ja/fa-sheet-metal-service/"),
@@ -670,7 +670,7 @@ ARTICLES = [
             ('自分で3Dプリンターを買ったほうが安いですか？', 'たまにしか使わないなら外注、頻繁に使うなら自社で持つ選択肢があります。公的機関で借りたり外注で試したりしてから判断する方法もあります。'),
             ('見積の金額が会社ごとに違うのはなぜですか？', '機械・素材・仕上げの範囲・送料や最低料金の決め方が違うためです。同じデータ・素材・仕上げで取り、含まれるものをそろえて比べてください。'),
         ],
-        "related": ["3d-print-request", "metal-3d-print", "dmm-make-guide"],
+        "related": ["3d-print-request", "metal-3d-print", "dmm-make-guide", "prototype-cost"],
         "sources": [
             ("DMM.make「3Dプリンターの材料・素材一覧」", "https://make.dmm.com/print/material/"),
             ("DMM.make「3Dプリントで安く造形したい！相場やコスト削減のコツ」（2024年1月12日）", "https://make.dmm.com/blog/business/reduce-costs-by3dp/"),

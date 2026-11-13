@@ -98,7 +98,7 @@ ARTICLES = [
             ('小ロットだと1個あたりはどれくらい高くなりますか？', '仕込み・充填・検査の手間は数が少なくてもかかるので、少ないほど1個あたりは高くなります。数量ごとの単価の段階を見積で出してもらうと比べやすくなります。'),
             ('どれくらいの期間で商品になりますか？', '処方を新しくするか、容器・箱を新しくするかで大きく変わります。容器や印刷物が中身より長いこともあるので、見積時に全体の日程を出してもらいましょう。'),
         ],
-        "related": ["cosmetics-oem-license", "small-lot-oem", "find-manufacturer"],
+        "related": ["cosmetics-oem-license", "small-lot-oem", "find-manufacturer", "oem-minimum-lot"],
         "checked": "2026年11月13日",
         "sources": [S_OSAKA56, S_HYOGO, S_IBARAKI, S_JCPRA],
     },

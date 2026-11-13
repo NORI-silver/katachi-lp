@@ -176,7 +176,7 @@ ARTICLES = [
             ('レシピは自社のものになりますか？', '工場の既存配合をもとにした場合、権利は工場に残ることが多いです。持ち込みの場合も、秘密保持と他工場に移すときの扱いを契約で決めます。'),
             ('栄養成分表示は必ず要りますか？', '一般向けの包装加工食品は原則必要です。小規模事業者は省略できる場合がありますが、小規模でない事業者が販売するなら省略できません。'),
         ],
-        "related": ["food-oem-license", "small-lot-oem", "sweets-oem-small-lot"],
+        "related": ["food-oem-license", "small-lot-oem", "sweets-oem-small-lot", "oem-minimum-lot"],
         "sources": [
             ("中小機構 J-Net21「よくわかる レトルト食品の基本 最終回 レトルト食品の加工」", "https://j-net21.smrj.go.jp/special/foods02/51.html"),
             ("大阪府「食品衛生法に基づく営業許可について」", "https://www.pref.osaka.lg.jp/shokuhin/kyoka/kyoka.html"),
