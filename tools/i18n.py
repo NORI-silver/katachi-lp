@@ -875,4 +875,16 @@ T.update({
 "最低ロット分の金額です": ("Priced at the minimum lot", "按最低批量计价"),
 "この数量では、ほかに": ("At this quantity,", "此数量下，另有"),
 "工程が見積で確認": ("more steps need a quote", "道工序需报价确认"),
+# ---- 候補数の内訳（2026-11-13）
+"社（工程ごとの候補の合計）": (" companies (total across steps)", "家（各工序候选合计）"),
+"全工程を1社で": ("All steps in one:", "一家包办全部工序："),
+"工程ごとの候補（合計）": ("Candidates across steps (total)", "各工序候选（合计）"),
+"のどれかを受ける会社の合計です。1社で全部作れるわけではありません。": (": companies that take any one of them. Not every company can make the whole product.", "中任意一道的公司合计。并非每家都能做出整件产品。"),
+"全工程を1社で受けられそうな会社": ("Companies that may cover every step", "可能一家包办全部工序的公司"),
+"工程ごとに会社を組み合わせて頼みます（下の「おすすめの頼み方」）。": ("We combine companies by step (see \"Recommended way to order\" below).", "将按工序组合公司（见下方「推荐的委托方式」）。"),
+"この工程を受ける会社": ("Companies for this step", "承接此工序的公司"),
+"この数量・試作に合うと確かめられた会社": ("Confirmed to fit this quantity / prototyping", "已确认符合此数量・试制的公司"),
+"要確認（最小ロットや試作対応の掲載がない）": ("To confirm (no listed min. lot or prototype support)", "待确认（未注明最小批量或试制）"),
+"見積の依頼で確かめます。": ("We confirm when requesting quotes.", "询价时确认。"),
+"工程ごとの候補 合計": ("Candidates across steps:", "各工序候选合计"),
 })
