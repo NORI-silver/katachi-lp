@@ -10,6 +10,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import visuals as V
 from guides import ARTICLES
 import ideas as I
+import factory_pages as F
 
 OUT = sys.argv[1] if len(sys.argv) > 1 and not sys.argv[1].startswith('--') else '.'
 ALL = '--all' in sys.argv
@@ -23,6 +24,8 @@ def jobs():
     for x in I.IDEAS:
         cat = V.FIG_CAT.get(x['fig'], V.IND_CAT.get(x['ind'], 'goods'))
         yield f'og/idea-{x["k"]}.png', V.og_svg(I.meta(x)[0], cat, x['fig'], '作例', I.meta(x)[2])
+    for p in F.PROC:  # 工場をさがす：工程ごとに1枚（都道府県のページも同じ画像）
+        yield f'og/factory-{p[1]}.png', V.og_svg(f'{p[2]}の会社を都道府県から探す', p[3], p[4], '工場をさがす')
 
 
 def main():

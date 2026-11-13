@@ -51,6 +51,7 @@ RULES = [
     (r'novelty', 'goods', 'badge'), (r'store-original', 'goods', 'mug'), (r'pet-goods', 'goods', 'leash'), (r'outdoor', 'goods', 'fire'),
     (r'goods-small-lot', 'goods', 'mug'),
     (r'small-lot-oem', 'goods', 'box'),
+    (r'prototype-cost|cnc-machining', 'parts', 'part'), (r'oem-minimum-lot', 'goods', 'box'),
     (r'metal-3d|3d-print|dmm-make', 'parts', 'printer'), (r'pcb', 'parts', 'pcb'), (r'iot', 'parts', 'device'),
     (r'sheet-metal', 'parts', 'sheet'), (r'injection|resin', 'parts', 'case'), (r'no-drawing|meviy', 'parts', 'doc'),
     (r'what-gets-ordered|prototype-outsourcing|individual-prototype|prototype-service', 'parts', 'part'),

@@ -110,7 +110,7 @@ ARTICLES.append({
             ('品質表示のタグは自分で用意するのですか？', 'OEM先が作って付けることが多いですが会社によります。組成・洗濯表示・表示者名を誰の名前で出すか決め、見積に含めてもらいます。'),
             ('海外工場と国内工場はどう選べばいいですか？', '大ロットで原価を下げるなら海外、小ロット・短納期・細かい修正なら国内が向きます。原産国の表示が変わる点にも注意します。'),
         ],
-    "related": ["small-lot-oem", "sportswear-oem", "uniform-custom"],
+    "related": ["small-lot-oem", "sportswear-oem", "uniform-custom", "oem-minimum-lot"],
     "checked": C,
     "sources": [CAA_FIBER, CAA_WASH2024, CAA_FAQ, CAA_ORIGIN, METI_TEXTILE, JFTC_TORITEKI],
 })

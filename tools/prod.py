@@ -65,10 +65,10 @@ static = f'''<main id="app"><section style="max-width:760px;margin:40px auto;pad
 <p>会社の情報は、公式サイト・報道・掲載ページで確認したものと、AIの推定、要確認のものを分けて表示します。見積や口コミを作り上げることはありません。</p>
 <h2>よくある質問</h2>
 <dl>{FAQ_HTML}</dl>
-<p><a href="/idea/">業種別の作例を見る</a>　<a href="/guide/">試作・製造の外注ガイドを読む</a></p>
+<p><a href="/idea/">業種別の作例を見る</a>　<a href="/guide/">試作・製造の外注ガイドを読む</a>　<a href="/factory/">工程と地域から工場を探す</a></p>
 </section></main>'''
 rep('<main id="app"></main>', static)
-foot = '''<footer class="sfoot" id="sfoot"><div><a href="/guide/">ガイド</a><a href="/idea/">作例</a><a href="/terms/">利用規約</a><a href="/privacy/">プライバシーポリシー</a><a href="/privacy/#operator">運営者情報</a><a href="/partner/">工場・開発企業の方へ</a></div><small>会社情報の一部は、出典「<a href="https://info.gbiz.go.jp/" target="_blank" rel="noopener">Gビズインフォ</a>」(経済産業省)をもとにKATACHI作成　© 2026 KATACHI</small></footer>
+foot = '''<footer class="sfoot" id="sfoot"><div><a href="/guide/">ガイド</a><a href="/idea/">作例</a><a href="/factory/">工場をさがす</a><a href="/terms/">利用規約</a><a href="/privacy/">プライバシーポリシー</a><a href="/privacy/#operator">運営者情報</a><a href="/partner/">工場・開発企業の方へ</a></div><small>会社情報の一部は、出典「<a href="https://info.gbiz.go.jp/" target="_blank" rel="noopener">Gビズインフォ</a>」(経済産業省)をもとにKATACHI作成　© 2026 KATACHI</small></footer>
 <style>.sfoot{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;max-width:1240px;margin:40px auto 0;padding:24px 20px 120px;border-top:1px solid var(--line);font-size:12.5px;color:var(--mute)}.sfoot div{display:flex;gap:18px;flex-wrap:wrap}.sfoot a{color:var(--mute)}</style>'''
 rep('<div id="ov"></div>', '<div id="ov"></div>\n' + foot)
 s = s.rstrip() + '\n</body>\n</html>\n' if '</html>' not in s else s
