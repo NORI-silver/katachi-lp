@@ -392,6 +392,18 @@ table.cmp{border-collapse:separate;border-spacing:0;width:100%;min-width:760px;f
 .rec>*{min-width:0}.rec .rtag{display:inline-flex;gap:6px;align-items:center;font-size:12px;font-weight:700;color:#fff;background:var(--ice);border-radius:99px;padding:3px 10px;justify-self:start}
 .rec h3{margin:0;font-size:19px}.rec .why{margin:0;font-size:13.5px;color:var(--mute)}
 .rcos{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.whoh{margin:14px 0 6px;font-size:14.5px}.whon{font-size:12.5px;color:var(--mute);margin:0 0 8px}
+.wlist{list-style:none;margin:0;padding:0;display:grid;border:1px solid var(--line);border-radius:12px;background:#fff;overflow:hidden}
+.wlist li{display:grid;grid-template-columns:auto 1fr;gap:2px 10px;padding:9px 12px;border-top:1px solid var(--line);align-items:baseline}.wlist li:first-child{border-top:0}
+.wlist .wn{font-size:12px;color:var(--mute);font-variant-numeric:tabular-nums}.wlist b{font-size:14px;overflow-wrap:anywhere}.wlist small{grid-column:2;color:var(--mute);font-size:12px}
+.pcmps{display:grid;gap:6px}.pcmp{border:1px solid var(--line);border-radius:12px;background:#fff}
+.pcmp>summary{list-style:none;cursor:pointer;padding:10px 12px;display:grid;grid-template-columns:1fr auto;gap:2px 8px;align-items:baseline}
+.pcmp>summary::-webkit-details-marker{display:none}.pcmp .rs{font-size:11.5px;color:var(--mute);grid-column:1/-1}.pcmp summary b{font-size:14px;overflow-wrap:anywhere}
+.pcmp summary small{font-size:12px;color:var(--ice);white-space:nowrap}.pcmp[open] summary small{color:var(--mute)}
+.pcmp ul{list-style:none;margin:0;padding:0 12px 12px;display:grid;gap:8px}
+.pcmp li{border:1px solid var(--line);border-radius:10px;padding:9px 11px;display:grid;gap:4px}.pcmp li.on{border-color:var(--ice);box-shadow:inset 0 0 0 1px var(--ice)}
+.pcmp li .ph{display:flex;gap:8px;align-items:baseline;justify-content:space-between;flex-wrap:wrap}.pcmp li b{font-size:14px;overflow-wrap:anywhere}
+.pcmp .pk{font-size:12.5px;color:var(--ice);font-weight:600}
 .rcos li{border:1px solid var(--line);border-radius:12px;background:#fff;padding:10px 12px;display:grid;gap:4px}
 .rcos .rs{font-size:11.5px;color:var(--mute)}.rcos b{font-size:14.5px}
 .tbad{display:flex;gap:4px;flex-wrap:wrap}.tbad span{font-size:11px;border-radius:6px;padding:2px 7px;background:#eef6f1;color:#17663f}
@@ -1706,7 +1718,7 @@ function planCmp(secs,one){if(secs.length<2)return '';
     <p class="pwhy">${why}</p>
     <div class="pgrid">${planCard('one',P,secs,rec)}${planCard('combo',P,secs,rec)}</div>
     <div class="pfoot"><button type="button" class="btn ${S.planPick==='both'?'pri':''}" data-plan-pick="both" aria-pressed="${S.planPick==='both'}">${S.planPick==='both'?'両方の案の会社を選択中':'両方に見積を依頼して比べる'}</button><span class="muted">案の会社は、下の並べ替え・絞り込みに合わせて入れ替わります。料金と納期の本当の数字は、見積で各社から届きます。</span></div></section>`}
-function bindPlans(re){$$('[data-plan-pick]').forEach(b=>b.onclick=()=>{const k=b.dataset.planPick;const P=S.plans;if(k==='rec'){S.autoPick=true;track('choose_plan',{plan:'rec'});re();return}if(!P)return;S.autoPick=false;
+function bindPlans(re){$$('[data-plan-pick]').forEach(b=>b.onclick=()=>{const k=b.dataset.planPick;const P=S.plans;if(k==='rec'){S.autoPick=true;if(S.stepPick)S.stepPick.m={};track('choose_plan',{plan:'rec'});re();return}if(!P)return;S.autoPick=false;
   if(S.planPick===k){S.planPick='';S.gsel=[];S.gstep={};track('choose_plan',{plan:'none'});re();return}
   const rows=k==='one'?P.oneRows:k==='combo'?P.combo:[...P.oneRows,...P.combo];S.gsel=[];S.gstep={};
   for(const x of rows){if(!x.r||S.gsel.includes(x.r[0])||S.gsel.length>=8)continue;S.gsel.push(x.r[0]);S.gstep[x.r[0]]=x.c?(CAPN[x.c]||x.c):'まとめて依頼'}
@@ -1792,6 +1804,9 @@ async function renderMatch(){
   if(st===3){$$('[data-q3]').forEach(b=>b.onclick=()=>{S.qty=b.dataset.q3;S.qn=0;track('select_quantity',{quantity:S.qty,place:'companies'});S.gmore={};renderMatch()});
     const qn=$('#qN');if(qn)qn.onchange=()=>{const n=Math.max(0,Math.round(+qn.value||0));S.qn=n;if(n)S.qty=n<=10?'proto':n<=500?'small':'mass';track('select_quantity',{quantity:S.qty,place:'companies',typed:!!n});S.gmore={};renderMatch()};
     $$('[data-qf]').forEach(b=>b.onclick=()=>{S.gf.proto=!S.gf.proto;track('filter_company',{filter:'proto',source:'text'});S.gmore={};renderMatch()});
+    $$('[data-swap]').forEach(b=>b.onclick=()=>{const c=b.dataset.swap;S.stepPick=S.stepPick||{k:'',m:{}};S.stepPick.m[c]=b.dataset.swapn;S.autoPick=true;S.folds['pc_'+c]=true;track('swap_company',{source:'compare'});
+      const y=b.closest('.pcmp').getBoundingClientRect().top;renderMatch().then(()=>{const d=$(`.pcmp[data-pc="${CSS.escape(c)}"]`);if(d)window.scrollBy(0,d.getBoundingClientRect().top-y)})});
+    $$('.pcmp').forEach(d=>d.ontoggle=()=>{S.folds['pc_'+d.dataset.pc]=d.open;if(d.open)track('fold_open',{fold:'compare'})});
     $$('[data-recself]').forEach(b=>b.onclick=()=>{S.autoPick=false;S.gsel=[];S.gstep={};S.planPick='';track('choose_plan',{plan:'staff'});renderMatch()});
     $$('[data-recall]').forEach(b=>b.onclick=()=>{S.folds.all=true;const d=$('details[data-fold=all]');if(d){d.open=true;d.scrollIntoView({behavior:'smooth',block:'start'})}else{const l=$('.mstep');l&&l.scrollIntoView({behavior:'smooth',block:'start'})}})}
   if(st===2){if(!blocked)renderMatchDock();wireTune(A);if(S.aiAway&&Date.now()-S.aiAway.t>1500)setTimeout(gotoAiPaste,200)}
@@ -1860,11 +1875,31 @@ function recOf(secs,one,qmax){
     return {kind,P,why,title:kind==='one'?'一社にまとめて頼む':'工程ごとに組み合わせて頼む',rows:rows.map(x=>({step:x.c?(CAPN[x.c]||x.c):(x.cov===secs.length?'すべての工程':'まとめて受ける工程'),r:x.r,key:x.c?(CAPN[x.c]||x.c):'まとめて依頼'}))}}
   const s0=secs[0];const rows=(s0?s0.list:[]).slice(0,3).map(r=>({step:CAPN[s0.c]||s0.c,r,key:CAPN[s0.c]||s0.c}));
   return {kind:'rec',P:null,why:'1つの工程で作れる内容です。条件に合う会社のうち、確かめられた情報が多い順に3社を選びました。3社に見積を頼むと比べられます。',title:'この3社に見積を頼む',rows}}
+/* 「完成させるには誰と誰に頼むか」と、パーツ（工程）ごとの比較（Nori 2026-11-13「全部完成させるのに誰と誰にたのまないといけないかをわかるように。各パーツごとに比較する会社もまとめて」）。
+   工程ごとに、おすすめの会社1社＋比べる候補2社。「この会社にする」で工程ごとに入れ替えられる（S.stepPick） */
+function stepAssign(R3,secs){const P=R3.P;const key=ideaBase()+'|'+S.qty+'|'+(S.qn||0);if(!S.stepPick||S.stepPick.k!==key)S.stepPick={k:key,m:{}};
+  return secs.map(s=>{let def=null;if(R3.kind==='one'&&P&&P.top&&capCovers(P.top,s.c))def=P.top;else if(R3.kind==='one'&&P)def=(P.oneRows.find(x=>x.c===s.c)||{}).r||s.list[0]||null;else def=s.list[0]||null;
+    const pick=S.stepPick.m[s.c]&&s.list.find(r=>r[0]===S.stepPick.m[s.c]);const r=pick||def;
+    const cmp=[r,...s.list.filter(x=>r&&x[0]!==r[0])].filter(Boolean).slice(0,3);
+    return {c:s.c,name:CAPN[s.c]||s.c,r,def,cmp,n:s.list.length}})}
+function whoBox(AS,qmax){const by=new Map();for(const a of AS){if(!a.r)continue;const k=a.r[0];if(!by.has(k))by.set(k,{r:a.r,steps:[]});by.get(k).steps.push(a.name)}
+  const none=AS.filter(a=>!a.r);const W=[...by.values()];
+  return `<h4 class="whoh"><span>完成までに頼む会社</span> <span>${fmt(W.length)}社</span></h4>
+    <p class="whon">${W.length>=2?'この会社たちに工程を分けて頼みます。会社どうしの受け渡し・日程の取りまとめは、KATACHIの担当者が行います。':'この1社に頼めば、完成まで受け持ってもらえる見込みです。'}</p>
+    <ol class="wlist">${W.map((w,i)=>`<li><span class="wn">${i+1}</span><b translate="no">${esc(w.r[0])}</b><small><span>担当：</span>${w.steps.map(t=>`<span>${esc(t)}</span>`).join('・')}</small></li>`).join('')}
+    ${none.length?`<li><span class="wn">—</span><b>担当者が探します</b><small><span>担当：</span>${none.map(a=>`<span>${esc(a.name)}</span>`).join('・')}</small></li>`:''}</ol>
+    <h4 class="whoh">パーツ（工程）ごとに比べる</h4>
+    <p class="whon">工程を開くと、比べる候補の会社が出ます。「この会社にする」で入れ替えられます。</p>
+    <div class="pcmps">${AS.map(a=>`<details class="pcmp" data-pc="${esc(a.c)}" ${S.folds['pc_'+a.c]?'open':''}><summary><span class="rs">${esc(a.name)}</span><b translate="no">${a.r?esc(a.r[0]):'担当者が探します'}</b><small><span>比べる</span> <span>${fmt(a.cmp.length)}社</span></small></summary>
+      ${a.cmp.length?`<ul>${a.cmp.map(r=>{const on=a.r&&r[0]===a.r[0];return `<li class="${on?'on':''}"><div class="ph"><b translate="no">${esc(r[0])}</b>${on?`<span class="pk">${a.def&&r[0]===a.def[0]?'★ おすすめ・選択中':'✓ 選択中'}</span>`:`<button type="button" class="btn sm" data-swap="${esc(a.c)}" data-swapn="${esc(r[0])}">この会社にする</button>`}</div>${tBadges(r,qmax)}${gmapA(r,'compare')}</li>`}).join('')}</ul>`:'<p class="whon" style="padding:0 12px 12px;margin:0">この工程の会社は、まだ一覧にありません。担当者が探してお声がけします。</p>'}</details>`).join('')}</div>`}
 function recBox(R3,secs,qmax){if(!R3||!R3.rows.length)return `<div class="empty">条件に合う会社が一覧にありません。数量や「試作に対応」の条件を外すか、このまま見積を依頼してください。担当者が探してお声がけします。</div>`;
+  const AS=secs.length>=2?stepAssign(R3,secs):null;
+  if(AS){const rows=[];const seen=new Map();for(const a of AS){if(!a.r)continue;if(!seen.has(a.r[0])){seen.set(a.r[0],[]);rows.push({r:a.r})}seen.get(a.r[0]).push(a.name)}
+    R3={...R3,rows:rows.map(x=>({...x,step:seen.get(x.r[0]).join('・'),key:seen.get(x.r[0]).join('・')}))}}
   if(S.autoPick!==false){S.gsel=[];S.gstep={};for(const x of R3.rows){if(S.gsel.includes(x.r[0])||S.gsel.length>=8)continue;S.gsel.push(x.r[0]);S.gstep[x.r[0]]=x.key}S.planPick=R3.kind}
-  const picked=R3.rows.every(x=>S.gsel.includes(x.r[0]));
+  const picked=R3.rows.slice(0,8).every(x=>S.gsel.includes(x.r[0]));
   return `<section class="rec" id="mPlans"><span class="rtag">★ おすすめ</span><h3>${R3.title}</h3><p class="why">${R3.why}</p>
-    ${(()=>{const li=x=>`<li><span class="rs">${esc(x.step)}</span><b translate="no">${esc(x.r[0])}</b>${tBadges(x.r,qmax)}${gmapA(x.r,'recommend')}</li>`;const N=4;
+    ${AS?whoBox(AS,qmax)+(R3.rows.length>8?`<p class="whon" style="margin-top:8px"><span>見積の依頼は、上から8社に送ります。残りの</span><span translate="no"> ${R3.rows.length-8} </span><span>社の工程は、担当者が手配します。</span></p>`:''):(()=>{const li=x=>`<li><span class="rs">${esc(x.step)}</span><b translate="no">${esc(x.r[0])}</b>${tBadges(x.r,qmax)}${gmapA(x.r,'recommend')}</li>`;const N=4;
       return `<ul class="rcos">${R3.rows.slice(0,N).map(li).join('')}</ul>${R3.rows.length>N?`<details class="rmore"><summary>ほかの工程の会社も見る</summary><ul class="rcos">${R3.rows.slice(N).map(li).join('')}</ul></details>`:''}`})()}
     <span class="rvw">KATACHIでの口コミ：まだありません（取引した人だけが書けます）。Googleの口コミは各社の「Googleの口コミを見る」から。</span>
     <div class="qrow">${picked?'<span class="rsel">✓ この会社を選択中。下の「見積を依頼する」で送れます</span>':'<button type="button" class="btn sm pri" data-plan-pick="rec">おすすめに戻す</button>'}</div>
