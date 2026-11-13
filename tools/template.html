@@ -606,7 +606,7 @@ function renderHome(){
     </form>
     <p class="logn">入力した内容は、サービスの改善と傾向の分析のために保存します。メールアドレスや電話番号は書かないでください。</p>
     <div class="examples" ${S.mode==='guided'?'hidden':''}><span>試す</span>${EX.map(([k,t])=>`<button class="ex" data-ex="${k}">${t}</button>`).join('')}<button type="button" class="ex exi" id="toIdeas">思いつかないときは、業種から選ぶ ↓</button></div>
-    <div class="aihome" ${S.mode==='guided'?'hidden':''}><span>まだ考えがまとまっていなければ</span>${['ChatGPT','Claude'].map(n=>`<a data-haigo="${n}" href="${n==='ChatGPT'?'https://chatgpt.com/':'https://claude.ai/new'}" target="_blank" rel="noopener">${AI_ICON}${n}で相談</a>`).join('')}</div>
+    <div class="aihome" ${S.mode==='guided'?'hidden':''}><span>まだ考えがまとまっていなければ</span>${['ChatGPT','Claude','Gemini'].map(n=>`<a data-haigo="${n}" href="${AI_HOME[n]}" target="_blank" rel="noopener">${AI_ICON}${n}で相談</a>`).join('')}</div>
   </div></section>
   <section class="gut"><div class="wrap ideas" id="ideas"></div></section>
   <section class="gut"><div class="wrap rank" id="rank"></div></section>
@@ -882,15 +882,17 @@ function aiQuestion(A,max){const L=AIQ[typeof LANG==='string'&&AIQ[LANG]?LANG:'j
     ...(A?.concept?['',`【${L.concept}】`,t(A.concept.name),...A.concept.rows.map(([k,v])=>`- ${t(k)}: ${t(v)}`),...(cvarOf(A.concept)>=0?[`- ${L.dir}: ${t(A.concept.vars[cvarOf(A.concept)][0])} — ${t(A.concept.vars[cvarOf(A.concept)][1])}`]:[])]:[]),
     '',...(A?.home?[]:[A?.concept?L.cask:L.iask]),L.ask,'',L.back].join('\n')}
 // URLが長すぎると開けないことがあるので、文章を短くして渡す（全文はクリップボードに入れる）
-function aiUrl(name,A){const base=name==='ChatGPT'?'https://chatgpt.com/?q=':'https://claude.ai/new?q=';
+// Gemini は質問文をURLで渡せないので、開くだけ（質問文はクリップボードに入れて貼ってもらう）
+const AI_HOME={ChatGPT:'https://chatgpt.com/',Claude:'https://claude.ai/new',Gemini:'https://gemini.google.com/app'};
+function aiUrl(name,A){if(name==='Gemini')return AI_HOME.Gemini;const base=name==='ChatGPT'?'https://chatgpt.com/?q=':'https://claude.ai/new?q=';
   for(const max of [4000,2000,1000,500]){const u=base+encodeURIComponent(aiQuestion(A,max));if(u.length<=14000)return u}
   return name==='ChatGPT'?'https://chatgpt.com/':'https://claude.ai/new'}
 const AI_ICON='<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M3 3h10v7H7l-3 3v-3H3z" stroke-linejoin="round"/></svg>';
 function aiConsult(A){const full=aiQuestion(A);
   return `<div class="aic" id="mAi"><h3>AIで、もっと詳しく相談する<span class="chip">無料</span></h3>
-    <p class="muted">書いた内容と、KATACHIが読み取った工程をまとめた質問文を、お使いの ChatGPT か Claude で開きます。仕様の詰め方、難しい点、試作の進め方を相談し、最後に工場へ渡す「仕様メモ」を作ってもらえます。AIはあなたのアカウントで使うので、KATACHIに費用はかかりません。</p>
-    <div class="aicb"><a class="btn pri" data-aigo="ChatGPT" href="${esc(aiUrl('ChatGPT',A))}" target="_blank" rel="noopener">${AI_ICON}ChatGPTで相談</a><a class="btn pri" data-aigo="Claude" href="${esc(aiUrl('Claude',A))}" target="_blank" rel="noopener">${AI_ICON}Claudeで相談</a><button type="button" class="btn sm" data-aiq>質問文をコピー</button></div>
-    <span class="muted" style="font-size:12px">質問文は自動でコピーされます。開いた画面に質問文が入っていないとき（ログインのあとなど）は、貼り付けて送ってください。</span>
+    <p class="muted">書いた内容と、KATACHIが読み取った工程をまとめた質問文を、お使いの ChatGPT・Claude・Gemini で開きます。仕様の詰め方、難しい点、試作の進め方を相談し、最後に工場へ渡す「仕様メモ」を作ってもらえます。AIはあなたのアカウントで使うので、KATACHIに費用はかかりません。</p>
+    <div class="aicb"><a class="btn pri" data-aigo="ChatGPT" href="${esc(aiUrl('ChatGPT',A))}" target="_blank" rel="noopener">${AI_ICON}ChatGPTで相談</a><a class="btn pri" data-aigo="Claude" href="${esc(aiUrl('Claude',A))}" target="_blank" rel="noopener">${AI_ICON}Claudeで相談</a><a class="btn pri" data-aigo="Gemini" href="${AI_HOME.Gemini}" target="_blank" rel="noopener">${AI_ICON}Geminiで相談</a><button type="button" class="btn sm" data-aiq>質問文をコピー</button></div>
+    <span class="muted" style="font-size:12px">質問文は自動でコピーされます。Geminiのときと、開いた画面に質問文が入っていないとき（ログインのあとなど）は、貼り付けて送ってください。</span>
     <details><summary>質問文を見る</summary><pre translate="no">${esc(full)}</pre></details>
     <div class="aiback"><b>AIの回答を貼って、工程を読み直す</b><span class="muted" style="font-size:12.5px">AIがまとめた仕様メモを貼ると、その内容で工程と会社を探し直します。貼った内容は見積の依頼にもそのまま入ります。</span>
       <textarea id="mAiAns" placeholder="AIがまとめた仕様メモを貼り付け"></textarea>
