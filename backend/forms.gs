@@ -1,7 +1,7 @@
 /**
  * KATACHI（katachi.shiokonbu.com）の「見積の依頼」と「相談」の受付（Google Apps Script）
  *
- * 流れ
+ * 流れ（提携の申込み type:'partner' は「提携申込」タブへ。下の partner_ を参照）
  *   1. サイトのフォーム → doPost で、スプレッドシート「KATACHI 受付」の「受付」タブに1行追加
  *   2. 運営者に「新しい受付」のメール
  *   3. 依頼した人に「受け付けました」のメール（受付番号つき）
@@ -47,6 +47,7 @@ function doPost(e) {
     var p = JSON.parse((e && e.postData && e.postData.contents) || '{}');
     if (p.type === 'idea') return json_(logIdea_(p));
     if (p.type === 'file') return json_(saveChunk_(p));
+    if (p.type === 'partner') return json_(partner_(p));
     if (!limit_()) return json_({ok: false, error: 'busy'});
     if (p.type !== 'rfq' && p.type !== 'consult') return json_({ok: false, error: 'type'});
     var f = {};
@@ -403,12 +404,95 @@ function saveChunk_(p) {
 
 // 受付の行の「アップロードしたファイル」に、届いたファイル名を書き足す
 function noteUpload_(st, name) {
-  var sh = sheet_();
+  var partner = String(st.id).charAt(0) === 'P';  // 提携申込み（P…）は「提携申込」タブ
+  var sh = partner ? partnerSheet_() : sheet_();
   var hit = sh.getRange(1, 1, sh.getLastRow(), 1).createTextFinder(st.id).matchEntireCell(true).findNext();
   if (!hit) return;
-  var cell = sh.getRange(hit.getRow(), HEAD.length);
+  var cell = sh.getRange(hit.getRow(), partner ? PARTNER_HEAD.indexOf('アップロードしたファイル') + 1 : HEAD.length);
   var url = 'https://drive.google.com/drive/folders/' + st.folder;
   var names = String(cell.getValue() || '').split('\n').filter(function (x) { return x && x.indexOf('https://') !== 0 && !/^（.*）$/.test(x); });
   names.push(name);
   cell.setValue([url, '（' + st.done.length + '/' + st.n + '件 届いた）'].concat(names).join('\n'));
+}
+
+// ---------- 工場・開発企業の提携申込み（/partner/ のフォーム） ----------
+// 「提携申込」タブに1行追加 → 運営者に通知 → 申し込んだ会社に受付メール。
+// 最後の列「取り込み用JSON」は企業DB（katachi-matching）の company_record の形。
+// 確認して承認の連絡（規約・料金表つき）→ 相手が同意したら「状態」を「提携成立」にし、
+// katachi-matching の `python -m katachi.cli load-partners <このタブのCSV>` で企業DBに取り込んで「取り込み済み」にする。
+var PARTNER_HEAD = ['受付番号', '受付日時', '言語', '会社名', '国', '都道府県・市区町村', '法人番号', '公式サイト', '事業の形', '従業員数',
+  '担当者', '役職・部署', 'メール', '電話', '得意な工程', '対応できる工程', '受けられる数量', '会社の紹介', '解決してきた課題',
+  '掲載の充実度', '口コミ掲載への同意', '状態', 'メモ', 'アップロードしたファイル', '取り込み用JSON'];
+
+function partner_(p) {
+  if (!limit_('p', 100)) return {ok: false, error: 'busy'};
+  var r = p.record || {};
+  var c = r.contact || {};
+  var email = String(c.email || '').trim();
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return {ok: false, error: 'email'};
+  var name = String(r.name || '').trim();
+  if (!name || !String(r.website || '').trim()) return {ok: false, error: 'fields'};
+  var id = 'P' + Utilities.formatDate(new Date(), 'Asia/Tokyo', 'yyMMdd') + '-' + Math.random().toString(36).slice(2, 6).toUpperCase();
+  r.source = r.source || {};
+  r.source.application_id = id;
+  var s = function (v, n) { return String(v == null ? '' : v).slice(0, n || 500); };
+  var caps = r.capabilities || [];
+  var codes = function (lv) { return caps.filter(function (x) { return x && x.level === lv; }).map(function (x) { return s(x.code, 80); }).join('\n'); };
+  var probs = (r.solved_problems || []).map(function (x) { return '・' + s(x.problem, 300) + (x.approach ? ' → ' + s(x.approach, 500) : ''); }).join('\n');
+  var prof = r.profile || {};
+  var json = JSON.stringify(r);
+  if (json.length > 45000) return {ok: false, error: 'size'};
+  var row = [id, new Date(), s(p.lang, 5), s(name, 200), s(r.country, 5), [r.prefecture, r.city].filter(String).join(' '),
+    s(r.corporate_number, 20), s(r.website, 300), s(r.business_type, 40), r.employees || '',
+    s(c.person, 100), s(c.role, 100), email, s(c.tel, 40), codes('specialty'), codes('capable'),
+    s([].concat(prof.quantity_bands || []).join(', '), 200), s(r.summary, 2000), probs.slice(0, 4000),
+    (prof.completeness != null ? prof.completeness + '%' : ''), (r.agreements || {}).reviews_publish ? 'はい' : 'いいえ', '未確認', '', openUpload_(id, p.upload), json];
+  var sh = partnerSheet_();
+  sh.appendRow(row.map(safe_));
+  try { notifyPartnerAdmin_(id, row, sh); } catch (err) { console.error(err); }
+  try { replyPartner_(id, email, p.lang, name, p.upload); } catch (err) { console.error(err); }
+  return {ok: true, id: id};
+}
+
+function partnerSheet_() {
+  var ss = sheet_().getParent();
+  var sh = ss.getSheetByName('提携申込');
+  if (!sh) {
+    sh = ss.insertSheet('提携申込');
+    sh.appendRow(PARTNER_HEAD);
+    sh.setFrozenRows(1);
+    // 状態は選んで入れる（未確認 → 確認中 → 提携成立 / 見送り、DBに入れたら取り込み済み）
+    sh.getRange(2, PARTNER_HEAD.indexOf('状態') + 1, 999, 1).setDataValidation(
+      SpreadsheetApp.newDataValidation().requireValueInList(['未確認', '確認中', '提携成立', '見送り', '取り込み済み'], true).build());
+  }
+  return sh;
+}
+
+function notifyPartnerAdmin_(id, row, sh) {
+  var to = CONFIG.ADMIN_EMAIL || Session.getEffectiveUser().getEmail();
+  var body = PARTNER_HEAD.slice(0, -1).map(function (h, i) { return '■ ' + h + '\n' + (row[i] instanceof Date ? Utilities.formatDate(row[i], 'Asia/Tokyo', 'yyyy-MM-dd HH:mm') : row[i]); }).join('\n\n');
+  MailApp.sendEmail({to: to, subject: '[KATACHI] 新しい提携申込み ' + id + ' ' + row[3],
+    body: '確認すること: 法人番号・公式サイト・連絡先。目安は3営業日以内に返事。\n\n' + body + '\n\n一覧（「提携申込」タブ）: ' + sh.getParent().getUrl()});
+}
+
+var PARTNER_MAIL = {
+  ja: {subj: '【KATACHI】提携のお申込みを受け付けました（{id}）',
+    files: '写真・証明書を{n}件お預かりしました（運営者だけが見られる場所に保存します）。追加や差し替えは、このメールへの返信で送れます。',
+    nofiles: '認証の証明書や、工場・設備・製品の写真は、あとからでも提出できます。このメールへの返信で送ってください。',
+    body: '{name} ご担当者様\n\nKATACHI への提携のお申込み、ありがとうございます。\n\n受付番号: {id}\n\nこのあと次の順に進みます。\n1. KATACHI が法人番号・公式サイト・連絡先を確認します。\n2. 3営業日以内を目安に、提携の可否と、正式な規約・料金表をメールでお送りします。\n3. 規約と料金表にご同意いただいた時点で提携が成立し、掲載が始まります。確認が済むまで、工程は「自己申告」の印で表示されます。\n\n{files}\n\nお申込みの内容を直したいときも、このメールに返信してお知らせください。\n\nKATACHI\n{site}'},
+  en: {subj: '[KATACHI] We received your partner application ({id})',
+    files: 'We received {n} photo/certificate file(s). They are stored where only our staff can see them. To add or replace files, just reply to this email.',
+    nofiles: 'You can send certificates and photos of your factory, equipment and products later by replying to this email.',
+    body: 'Dear {name},\n\nThank you for applying to partner with KATACHI.\n\nReference: {id}\n\nWhat happens next:\n1. KATACHI checks your corporate number, website and contact details.\n2. Usually within 3 business days, we email you our decision together with the full terms and fee schedule.\n3. The partnership begins when you accept the terms and fee schedule, and your listing goes live. Until we verify them, your processes are shown as "self-reported".\n\n{files}\n\nTo correct anything in your application, just reply to this email.\n\nKATACHI\n{site}'},
+  zh: {subj: '[KATACHI] 已收到贵公司的合作申请（{id}）',
+    files: '已收到{n}个照片・证书文件（保存在只有工作人员能查看的位置）。如需补充或替换，请直接回复本邮件。',
+    nofiles: '认证证书以及工厂・设备・产品照片可以之后提交，请回复本邮件发送。',
+    body: '{name} 负责人您好：\n\n感谢贵公司申请与 KATACHI 合作。\n\n受理编号：{id}\n\n接下来的流程：\n1. KATACHI 确认法人编号、官方网站和联系方式。\n2. 一般在3个工作日内，通过邮件告知审核结果，并附上正式条款和收费表。\n3. 贵公司同意条款和收费表后合作成立，开始刊登。确认完成前，工序会标注为“自行申报”。\n\n{files}\n\n如需修改申请内容，也请直接回复本邮件。\n\nKATACHI\n{site}'}
+};
+
+function replyPartner_(id, email, lang, name, up) {
+  var L = PARTNER_MAIL[lang] || PARTNER_MAIL.ja;
+  var n = up && Number(up.count) > 0 ? Math.min(Number(up.count), CONFIG.UPLOAD_MAX_FILES) : 0;
+  var f = function (t) { return t.replace(/\{files\}/g, n ? L.files.replace('{n}', n) : L.nofiles).replace(/\{id\}/g, id).replace(/\{name\}/g, name).replace(/\{site\}/g, CONFIG.SITE_URL); };
+  MailApp.sendEmail({to: email, subject: f(L.subj), body: f(L.body), name: CONFIG.SERVICE_NAME});
 }

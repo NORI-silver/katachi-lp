@@ -11,7 +11,7 @@ from guides import ARTICLES
 
 OUT = sys.argv[1] if len(sys.argv) > 1 else "."
 SITE = "https://katachi.shiokonbu.com"
-STATIC = [("/", "2026-11-12"), ("/terms/", "2026-11-12"), ("/privacy/", "2026-11-12")]
+STATIC = [("/", "2026-11-12"), ("/terms/", "2026-11-12"), ("/privacy/", "2026-11-13"), ("/partner/", "2026-11-13")]
 ORG = {"@type": "Organization", "@id": SITE + "/#org", "name": "KATACHI", "url": SITE + "/", "logo": SITE + "/apple-touch-icon.png"}
 
 CSS = """<style>.crumb{font-size:12.5px;color:var(--mute);margin:0}.crumb a{color:var(--mute)}.upd{font-size:12.5px;color:var(--mute);margin:4px 0 18px}

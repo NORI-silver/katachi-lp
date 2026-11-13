@@ -1,0 +1,719 @@
+<title>KATACHI 提携申込</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@500;700;900&family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Sans+JP:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: サービスサイトと同じ白地に藍の一色。左に入力、右(広い画面)に「依頼者に見える形」と進み具合。
+   工程は工程ボードと同じ分類コードで選ぶ。1回押す=対応可、2回=得意。 */
+:root{
+  --bg:#ffffff; --bg2:#f5f7fb; --panel:#ffffff; --panel2:#f2f5fb; --hover:#eef3fd;
+  --line:rgba(16,28,58,.10); --line2:rgba(16,28,58,.18);
+  --fg:#0d1424; --mute:#566176; --dim:#8b94a7;
+  --ice:#2350c8; --ice-ink:#ffffff; --amber:#b06800; --mint:#13845b; --red:#c0392b;
+  --f-jp:"Zen Kaku Gothic New","Hiragino Sans","Yu Gothic","PingFang SC","Microsoft YaHei",sans-serif;
+  --f-lat:"Space Grotesk","Zen Kaku Gothic New",sans-serif;
+  --f-body:"IBM Plex Sans JP","Hiragino Sans","Yu Gothic","PingFang SC","Microsoft YaHei",sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  --r:14px; color-scheme:light;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{background:var(--bg);color:var(--fg)}
+body{font-family:var(--f-body);font-size:15px;line-height:1.7;-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:60;background:var(--bg)}
+a{color:var(--ice)}
+button,input,textarea,select{font:inherit;color:inherit}
+button{cursor:pointer;background:none;border:0;padding:0}
+:focus-visible{outline:2px solid var(--ice);outline-offset:2px;border-radius:6px}
+h1,h2,h3{margin:0;font-family:var(--f-jp);text-wrap:balance;line-height:1.3}
+.gut{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:1180px;margin:0 auto}
+.eyebrow{font-family:var(--f-mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--mute)}
+.muted{color:var(--mute)}
+.nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:50;background:color-mix(in srgb,var(--bg) 80%,transparent);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.nav .wrap{display:flex;align-items:center;gap:16px;height:60px}
+.brand{display:flex;align-items:center;gap:10px;color:var(--fg);text-decoration:none}
+.brand b{font-family:var(--f-lat);font-weight:700;letter-spacing:.28em;font-size:15px}
+.nav .sp{flex:1}
+.langs{display:inline-flex;border:1px solid var(--line2);border-radius:99px;padding:2px}
+.langs button{height:28px;padding:0 11px;border-radius:99px;font-size:12px;color:var(--mute)}
+.langs button[aria-pressed="true"]{background:var(--panel2);color:var(--fg)}
+@media (max-width:520px){.nav .tag{display:none}}
+.trnote{font-size:12px;color:var(--dim);margin:0}
+.tag{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.12em;color:var(--mute);border:1px solid var(--line2);border-radius:99px;padding:3px 10px;white-space:nowrap}
+
+.hero{padding-block:44px 28px;border-bottom:1px solid var(--line)}
+.hero h1{font-size:clamp(28px,4.4vw,44px);font-weight:900;letter-spacing:.01em;margin-top:10px}
+.hero p{max-width:640px;color:var(--mute);margin:14px 0 0}
+.facts{display:flex;flex-wrap:wrap;gap:10px 28px;margin-top:22px}
+.fact{display:flex;gap:10px;align-items:baseline;font-size:13.5px}
+.fact b{font-family:var(--f-mono);font-weight:500;color:var(--ice);font-size:12px}
+.draft{margin-top:22px;display:inline-flex;gap:10px;align-items:center;font-size:12.5px;color:var(--amber);border:1px dashed color-mix(in srgb,var(--amber) 60%,transparent);border-radius:10px;padding:8px 12px}
+
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:40px;padding-block:32px 120px}
+@media (max-width:920px){.layout{grid-template-columns:minmax(0,1fr)}.side{display:none}}
+
+form{display:grid;gap:22px;min-width:0}
+fieldset{border:1px solid var(--line);background:var(--bg2);border-radius:var(--r);padding:24px;margin:0;min-width:0;display:grid;gap:18px}
+@media (max-width:520px){fieldset{padding:18px 14px}}
+legend{display:contents}
+.sh{display:flex;gap:14px;align-items:baseline;flex-wrap:wrap}
+.sh .no{font-family:var(--f-mono);font-size:12px;color:var(--ice)}
+.sh h2{font-size:19px;font-weight:700}
+.sh p{margin:0;flex-basis:100%;color:var(--mute);font-size:13.5px}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+@media (max-width:620px){.grid2{grid-template-columns:minmax(0,1fr)}}
+.f{display:grid;gap:6px;min-width:0}
+.f > label,.f > .lb{font-size:13px;font-weight:500;display:flex;gap:8px;align-items:center}
+.req{font-family:var(--f-mono);font-size:10px;letter-spacing:.08em;color:var(--ice-ink);background:var(--ice);border-radius:4px;padding:1px 5px}
+.opt{font-family:var(--f-mono);font-size:10px;color:var(--dim)}
+.hint{font-size:12px;color:var(--dim)}
+input[type=text],input[type=email],input[type=tel],input[type=url],input[type=number],select,textarea{
+  width:100%;background:var(--panel);border:1px solid var(--line2);border-radius:10px;padding:10px 12px;min-height:44px;outline:none;transition:border-color .15s,background .15s}
+textarea{min-height:92px;resize:vertical}
+input::placeholder,textarea::placeholder{color:var(--dim)}
+input:focus,select:focus,textarea:focus{border-color:var(--ice);background:var(--panel)}
+.bad input,.bad select,.bad textarea,.bad .seg,.bad .chips{border-color:var(--red)!important}
+.err{font-size:12px;color:var(--red);display:none}
+.bad .err{display:block}
+
+.seg{display:flex;flex-wrap:wrap;gap:6px;border:1px solid transparent;border-radius:12px}
+.seg label{position:relative}
+.seg input{position:absolute;opacity:0;pointer-events:none}
+.seg span{display:inline-flex;align-items:center;height:36px;padding:0 14px;border-radius:9px;border:1px solid var(--line2);font-size:13.5px;cursor:pointer;transition:background .15s,border-color .15s}
+.seg span:hover{background:var(--hover)}
+.seg input:checked + span{background:var(--ice);color:var(--ice-ink);border-color:var(--ice);font-weight:600}
+.seg input:focus-visible + span{outline:2px solid var(--ice);outline-offset:2px}
+.row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px 16px;align-items:center;padding-block:10px;border-top:1px solid var(--line)}
+.row:first-of-type{border-top:0}
+.row .q{font-size:14px}
+.row .q small{display:block;color:var(--dim);font-size:12px}
+@media (max-width:620px){.row{grid-template-columns:minmax(0,1fr)}}
+
+/* 工程の選択 */
+.legend{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:12px;color:var(--mute)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:-1px}
+.legend .c1{border:1.5px solid var(--ice)}
+.legend .c2{background:var(--ice)}
+.cats{display:grid;gap:14px}
+.cat{border-top:1px solid var(--line);padding-top:12px;display:grid;gap:8px}
+.cat:first-child{border-top:0;padding-top:0}
+.cat h3{font-size:13.5px;font-weight:700;display:flex;gap:10px;align-items:baseline}
+.cat h3 small{font-family:var(--f-mono);font-size:10.5px;color:var(--dim);font-weight:400}
+.chips{display:flex;flex-wrap:wrap;gap:6px;border:1px solid transparent;border-radius:10px}
+.chip{display:inline-flex;align-items:center;gap:7px;min-height:34px;padding:4px 12px;border-radius:99px;border:1px solid var(--line2);font-size:13px;text-align:left;transition:background .15s,border-color .15s}
+.chip:hover{background:var(--hover)}
+.chip i{width:9px;height:9px;border-radius:50%;flex:none;border:1.5px dotted var(--dim)}
+.chip[data-s="1"]{border-color:var(--ice)}
+.chip[data-s="1"] i{border:1.5px solid var(--ice)}
+.chip[data-s="2"]{border-color:var(--ice);background:color-mix(in srgb,var(--ice) 16%,transparent)}
+.chip[data-s="2"] i{background:var(--ice);border:1.5px solid var(--ice)}
+.chip[data-s="2"]::after{content:"得意";font-family:var(--f-mono);font-size:10px;color:var(--ice)}
+.chip.off{opacity:.45;cursor:not-allowed}
+
+/* 実績 */
+.cases{display:grid;gap:12px}
+.case{border:1px solid var(--line);border-radius:12px;padding:16px;display:grid;gap:12px;background:var(--panel2)}
+.case .top{display:flex;justify-content:space-between;align-items:center}
+.case .top span{font-family:var(--f-mono);font-size:11px;color:var(--mute)}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:42px;padding:0 18px;border-radius:11px;border:1px solid var(--line2);font-weight:500;font-size:14px;transition:background .15s,border-color .15s;white-space:nowrap}
+.btn:hover{background:var(--hover);border-color:var(--ice)}
+.btn.pri{background:var(--ice);color:var(--ice-ink);border-color:var(--ice);font-weight:600}
+.btn.pri:hover{background:color-mix(in srgb,var(--ice) 86%,#000)}
+.btn.sm{min-height:34px;padding:0 12px;font-size:13px;border-radius:9px}
+.link{color:var(--ice);font-size:13px}
+
+/* 掲載を充実させる */
+.rich{display:grid;grid-template-columns:auto minmax(0,1fr);gap:6px 14px;align-items:center;font-size:13px;color:var(--mute)}
+.rich b{font-family:var(--f-lat);font-size:26px;color:var(--ice);line-height:1}
+.grps{display:grid;gap:10px}
+details.grp{border:1px solid var(--line);border-radius:12px;background:var(--panel)}
+details.grp > summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:12px;padding:14px 16px;font-weight:600;font-size:14.5px}
+details.grp > summary::-webkit-details-marker{display:none}
+details.grp > summary::before{content:"";width:8px;height:8px;border-right:1.5px solid var(--mute);border-bottom:1.5px solid var(--mute);transform:rotate(-45deg);transition:transform .15s;flex:none}
+details.grp[open] > summary::before{transform:rotate(45deg)}
+details.grp > summary small{margin-left:auto;font-family:var(--f-mono);font-size:11px;color:var(--dim);font-weight:400}
+details.grp > summary small.full{color:var(--mint)}
+details.grp > summary .why{font-weight:400;font-size:12px;color:var(--dim)}
+@media (max-width:620px){details.grp > summary .why{display:none}}
+.gb{display:grid;gap:16px;padding:4px 16px 18px;min-width:0}
+.size3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.eqrow{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1.4fr) 70px minmax(0,1.4fr) auto;gap:8px;align-items:center}
+.eqhead{font-size:11.5px;color:var(--dim)}
+@media (max-width:720px){.eqrow{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.eqhead{display:none}.eqrow .rm{justify-self:start}}
+.files{display:flex;flex-wrap:wrap;gap:6px;font-size:12px;color:var(--mute)}
+.files span{border:1px solid var(--line2);border-radius:8px;padding:2px 8px}
+input[type=file]{font-size:13px;color:var(--mute);max-width:100%}
+.avail-note{font-size:12px;color:var(--dim)}
+
+/* 規約の要点 */
+.terms{border:1px solid var(--line);border-radius:12px;background:var(--panel);padding:16px 18px;display:grid;gap:10px}
+.terms ol{margin:0;padding-left:1.3em;display:grid;gap:6px;font-size:13.5px}
+.terms ol li::marker{font-family:var(--f-mono);color:var(--ice);font-size:12px}
+.check{display:flex;gap:12px;align-items:flex-start;font-size:14px;cursor:pointer;padding:10px 12px;border-radius:10px;border:1px solid transparent}
+.check input{width:18px;height:18px;margin-top:3px;accent-color:var(--ice);flex:none}
+.check small{display:block;color:var(--dim);font-size:12px}
+.bad.check{border-color:var(--red)}
+
+.submit{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.submit .muted{font-size:12.5px}
+
+/* 右の進み具合 */
+.side{position:relative}
+.sticky{position:sticky;top:calc(env(safe-area-inset-top,0px) + 84px);display:grid;gap:18px}
+.prog{border:1px solid var(--line);border-radius:var(--r);padding:18px;background:var(--bg2);display:grid;gap:12px}
+.prog ul{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.prog li{display:flex;gap:10px;align-items:center;font-size:13px;color:var(--mute)}
+.prog li i{width:10px;height:10px;border-radius:50%;border:1.5px dotted var(--dim);flex:none}
+.prog li.ok{color:var(--fg)}
+.prog li.ok i{background:var(--mint);border:1.5px solid var(--mint)}
+.bar{height:4px;border-radius:99px;background:var(--line2);overflow:hidden}
+.bar b{display:block;height:100%;background:var(--ice);width:0;transition:width .3s}
+.preview{border:1px solid var(--line);border-radius:var(--r);padding:16px 18px;background:var(--panel);display:grid;gap:8px}
+.preview .nm{font-family:var(--f-jp);font-weight:700;font-size:16px;overflow-wrap:anywhere}
+.preview .mk{display:inline-flex;gap:6px;align-items:center;font-size:11.5px;color:var(--amber)}
+.preview .mk i{width:9px;height:9px;border-radius:50%;border:1.5px dashed var(--amber)}
+.preview .caps{display:flex;flex-wrap:wrap;gap:4px}
+.preview .caps span{font-size:11.5px;border:1px solid var(--line2);border-radius:99px;padding:1px 8px;color:var(--mute)}
+
+/* 完了 */
+#done{display:grid;gap:18px}
+.donecard{border:1px solid var(--mint);border-radius:var(--r);padding:24px;background:var(--bg2);display:grid;gap:12px}
+.donecard h2{font-size:22px}
+.steps{margin:0;padding-left:1.3em;display:grid;gap:6px;font-size:14px}
+pre{margin:0;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;font-family:var(--f-mono);font-size:12px;line-height:1.55;max-height:340px;overflow:auto;white-space:pre}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<nav class="nav"><div class="wrap gut">
+  <a class="brand" href="/" aria-label="KATACHI">
+    <svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><path d="M3 3h7v7H3z" fill="#2350c8"/><path d="M12 3h7v7h-7z" fill="none" stroke="#2350c8" stroke-width="1.5"/><path d="M3 12h7v7H3z" fill="none" stroke="#2350c8" stroke-width="1.5" stroke-dasharray="2 2"/><path d="M12 12h7v7h-7z" fill="#2350c8" opacity=".45"/></svg>
+    <b>KATACHI</b></a>
+  <span class="sp"></span>
+  <span class="tag">FOR FACTORIES</span>
+  <div class="langs" role="group" aria-label="Language" translate="no"><button type="button" data-lang="ja">日本語</button><button type="button" data-lang="en">EN</button><button type="button" data-lang="zh">中文</button></div>
+</div></nav>
+
+<header class="hero gut" id="top"><div class="wrap">
+  <div class="eyebrow">Partner application · 工場・開発企業の方へ</div>
+  <h1>あなたの工程を、<br>まだ図面のない製品づくりに。</h1>
+  <p>KATACHIは、個人や中小企業の「こんな製品をつくりたい」をAIと担当者が工程に分け、工程ごとに対応できる会社を組み合わせて紹介します。御社が得意な工程だけで参加でき、ほかの工程は別の提携企業が受け持ちます。</p>
+  <div class="facts">
+    <div class="fact"><b>01</b>登録・掲載・案件への回答は無料</div>
+    <div class="fact"><b>02</b>成約したときだけ紹介手数料（料率は別途ご案内）</div>
+    <div class="fact"><b>03</b>案件は断れます。受けるかどうかは御社が決めます</div>
+    <div class="fact"><b>04</b>契約・代金のやり取りは依頼者と直接</div>
+  </div>
+</div></header>
+
+<div class="wrap gut">
+<div class="layout">
+<main>
+<form id="f" novalidate>
+
+  <fieldset id="s1">
+    <legend><div class="sh"><span class="no">1/7</span><h2>会社の情報</h2><p>法人番号があれば、登記情報と照らし合わせて確認を早めます。</p></div></legend>
+    <div class="grid2">
+      <div class="f" data-req><label for="name">会社名・屋号 <span class="req">必須</span></label><input id="name" type="text" autocomplete="organization" placeholder="株式会社〇〇製作所"><span class="err">会社名を入れてください</span></div>
+      <div class="f"><label for="corp">法人番号 <span class="opt">13桁・任意</span></label><input id="corp" type="text" inputmode="numeric" maxlength="13" placeholder="1234567890123"><span class="err">法人番号は13桁の数字です</span></div>
+      <div class="f" data-req><label for="country">所在国 <span class="req">必須</span></label>
+        <select id="country"><option value="JP">日本</option><option value="CN">中国</option><option value="TW">台湾</option><option value="KR">韓国</option><option value="VN">ベトナム</option><option value="TH">タイ</option><option value="OTHER">その他</option></select></div>
+      <div class="f" data-req id="prefWrap"><label for="pref">都道府県 <span class="req">必須</span></label><select id="pref"><option value="">選んでください</option></select><span class="err">都道府県を選んでください</span></div>
+      <div class="f"><label for="city">市区町村・住所 <span class="opt">任意</span></label><input id="city" type="text" placeholder="東大阪市高井田"></div>
+      <div class="f" data-req><label for="web">公式サイト <span class="req">必須</span></label><input id="web" type="url" placeholder="https://"><span class="err">https:// から始まるURLを入れてください</span></div>
+      <div class="f"><label for="emp">従業員数 <span class="opt">任意</span></label><input id="emp" type="number" min="1" placeholder="25"></div>
+      <div class="f"><label for="founded">設立年 <span class="opt">任意</span></label><input id="founded" type="number" min="1800" max="2026" placeholder="1978"></div>
+      <div class="f"><label for="capital">資本金 <span class="opt">任意</span></label><input id="capital" type="text" placeholder="1,000万円"></div>
+      <div class="f"><label for="invoice">インボイス登録番号 <span class="opt">任意</span></label><input id="invoice" type="text" placeholder="T1234567890123"></div>
+    </div>
+    <div class="f" data-req id="btWrap"><div class="lb">事業の形 <span class="req">必須</span></div><div data-pick="biz"></div><span class="err">事業の形を選んでください</span></div>
+    <div class="f" data-req><label for="summary">事業の概要 <span class="req">必須</span></label><textarea id="summary" maxlength="300" placeholder="何を、どんな設備で、どんな量からつくっているかを1〜3文で"></textarea><span class="hint"><span id="sumCount" translate="no">0 / 300</span> · <span>この文はそのまま会社紹介に使います。</span></span><span class="err">事業の概要を入れてください</span></div>
+  </fieldset>
+
+  <fieldset id="s2">
+    <legend><div class="sh"><span class="no">2/7</span><h2>ご担当者</h2><p>案件のご案内と、掲載内容の確認に使います。公開はしません。</p></div></legend>
+    <div class="grid2">
+      <div class="f" data-req><label for="person">お名前 <span class="req">必須</span></label><input id="person" type="text" autocomplete="name"><span class="err">お名前を入れてください</span></div>
+      <div class="f"><label for="role">部署・役職 <span class="opt">任意</span></label><input id="role" type="text" placeholder="営業部 課長"></div>
+      <div class="f" data-req><label for="email">メールアドレス <span class="req">必須</span></label><input id="email" type="email" autocomplete="email"><span class="err">メールアドレスの形式で入れてください</span></div>
+      <div class="f"><label for="tel">電話番号 <span class="opt">任意</span></label><input id="tel" type="tel" autocomplete="tel"></div>
+    </div>
+  </fieldset>
+
+  <fieldset id="s3">
+    <legend><div class="sh"><span class="no">3/7</span><h2>対応できる工程</h2><p>押すたびに「対応できる」→「得意」→「選ばない」と切り替わります。得意は5つまで。KATACHIは工程ごとに会社を選ぶので、狭く深い得意分野ほど推薦されやすくなります。</p></div></legend>
+    <div class="legend"><span><i class="c1"></i>対応できる</span><span><i class="c2"></i>得意</span> <span class="mono" id="favN" translate="no">0/5</span><span class="muted">酒類は免許の関係で受付準備中です</span></div>
+    <div class="f" data-req id="capWrap"><div class="cats chips" id="cats"></div><span class="err">工程を1つ以上選んでください</span></div>
+    <div class="f" data-req id="qtyWrap"><div class="lb">受けられる数量 <span class="req">必須</span></div><span class="hint">当てはまるものをすべて選んでください。</span><div data-pick="qty:m"></div><span class="err">数量を1つ以上選んでください</span></div>
+  </fieldset>
+
+  <fieldset id="s4">
+    <legend><div class="sh"><span class="no">4/7</span><h2>解決してきた課題</h2><p>「どんな難しさを、どう乗り越えたか」を書いてください。KATACHIは製品名より課題で会社を探します。取引先名は先方の了解がある場合だけ書いてください。</p></div></legend>
+    <div class="cases" id="cases"></div>
+    <div><button type="button" class="btn sm" id="addCase">＋ 実績を追加（最大3件）</button></div>
+  </fieldset>
+
+  <fieldset id="s5">
+    <legend><div class="sh"><span class="no">5/7</span><h2>受けられる仕事の条件</h2><p>依頼者が比べるときに表示します。迷う項目は「相談次第」で構いません。</p></div></legend>
+    <div id="terms5"></div>
+    <div class="grid2">
+      <div class="f"><label for="minlot">最小ロット <span class="opt">個・任意</span></label><input id="minlot" type="number" min="1" placeholder="1"></div>
+      <div class="f"><label for="lead">試作の納期の目安 <span class="opt">任意</span></label><input id="lead" type="text" placeholder="図面確定後 2〜3週間"></div>
+      <div class="f"><label for="region">対応地域 <span class="opt">任意</span></label><input id="region" type="text" placeholder="全国 / 関西のみ など"></div>
+    </div>
+    <div id="overseas" hidden>
+      <div class="sh" style="margin-block:6px"><h2 style="font-size:15px">海外の会社の方へ</h2></div>
+      <div id="terms5o"></div>
+    </div>
+  </fieldset>
+
+  <fieldset id="s6x">
+    <legend><div class="sh"><span class="no">6/7</span><h2>掲載を充実させる</h2><span class="opt">任意</span><p>あとから入れることもできます。ここで入れた項目は、依頼者が会社を絞り込むときの条件になります。入っていない項目で絞り込まれると、候補に出ません。</p></div></legend>
+    <div class="rich"><b id="richPct" translate="no">0%</b><div><div>掲載の充実度</div><div class="bar"><b id="richBar"></b></div></div></div>
+    <div class="grps">
+      <details class="grp" data-g="mat"><summary><span>材料・大きさ・精度</span><span class="why">材料や大きさで絞り込まれます</span><small></small></summary><div class="gb">
+        <div class="f"><div class="lb">扱える材料</div><div data-pick="materials:m"></div></div>
+        <div class="grid2">
+          <div class="f"><div class="lb">加工できる最大サイズ <span class="opt">mm</span></div><div class="size3"><input id="maxW" type="number" min="0" placeholder="幅" aria-label="幅"><input id="maxD" type="number" min="0" placeholder="奥行" aria-label="奥行"><input id="maxH" type="number" min="0" placeholder="高さ" aria-label="高さ"></div></div>
+          <div class="f"><label for="minSize">最小サイズ・最小の形状</label><input id="minSize" type="text" placeholder="φ0.5mm の穴 など"></div>
+        </div>
+        <div class="f"><div class="lb">出せる精度（公差）</div><div data-pick="tol"></div></div>
+        <div class="f"><div class="lb">表面処理・後加工</div><span class="hint">協力会社に出すものも含めて構いません。</span><div data-pick="finish:m"></div></div>
+        <div class="f"><div class="lb">受け取れるデータの形式</div><div data-pick="formats:m"></div></div>
+      </div></details>
+      <details class="grp" data-g="eq"><summary><span>設備</span><span class="why">設備名で検索されます</span><small></small></summary><div class="gb">
+        <div class="eqrow eqhead"><span>種類</span><span>メーカー・型式</span><span>台数</span><span>加工範囲・能力</span><span></span></div>
+        <div id="eqRows" style="display:grid;gap:8px"></div>
+        <div><button type="button" class="btn sm" id="addEq">＋ 設備を追加</button></div>
+        <div class="f"><label for="inspEq">検査設備</label><input id="inspEq" type="text" placeholder="三次元測定機、画像測定機、硬度計 など"></div>
+      </div></details>
+      <details class="grp" data-g="q"><summary><span>品質・認証</span><span class="why">認証で絞り込まれます</span><small></small></summary><div class="gb">
+        <div class="f"><div class="lb">取得している認証</div><div data-pick="certs:m"></div></div>
+        <div class="f"><label for="certOther">その他の認証・許可</label><input id="certOther" type="text" placeholder="医療機器製造業登録、PSE届出 など"></div>
+        <div class="f"><label for="certFile">認証の証明書 <span class="opt">PDF・画像</span></label><input id="certFile" type="file" multiple accept=".pdf,image/*"><span class="hint">確認できた認証には「確認済み」の印が付きます。</span><span class="hint">あとからでも提出できます。受付のメールに返信して送ってください。</span><div class="files" id="certFiles" translate="no"></div></div>
+        <div class="f"><div class="lb">検査成績書</div><div data-pick="inspReport"></div></div>
+      </div></details>
+      <details class="grp" data-g="cap"><summary><span>生産能力と空き</span><span class="why">「すぐ着手できる」で絞り込まれます</span><small></small></summary><div class="gb">
+        <div class="f"><div class="lb">いまの稼働の空き</div><div data-pick="avail"></div><span class="avail-note" id="availNote">選んだ日付と一緒に表示します。30日更新がないと「要確認」に戻ります。</span></div>
+        <div class="grid2">
+          <div class="f"><label for="monthly">月に作れる量の目安</label><input id="monthly" type="text" placeholder="成形品 月3万個 など"></div>
+          <div class="f"><label for="maxlot">最大ロット <span class="opt">個</span></label><input id="maxlot" type="number" min="1" placeholder="50000"></div>
+        </div>
+        <div class="f"><div class="lb">金型・治具の製作</div><div data-pick="tooling"></div></div>
+        <div class="f"><div class="lb">金型の所有</div><div data-pick="moldown"></div></div>
+      </div></details>
+      <details class="grp" data-g="deal"><summary><span>取引条件</span><span class="why">個人の依頼者が特に気にします</span><small></small></summary><div class="gb">
+        <div class="grid2">
+          <div class="f"><label for="leadMass">量産の納期の目安</label><input id="leadMass" type="text" placeholder="金型完成後 4週間 など"></div>
+          <div class="f"><label for="minOrder">最低発注金額 <span class="opt">円</span></label><input id="minOrder" type="number" min="0" placeholder="30000"></div>
+        </div>
+        <div class="f"><div class="lb">見積を返すまでの日数</div><div data-pick="quoteDays"></div></div>
+        <div class="f"><div class="lb">受けられる支払い方法</div><div data-pick="pay:m"></div></div>
+        <div class="f"><div class="lb">秘密保持契約（NDA）</div><div data-pick="nda"></div></div>
+      </div></details>
+      <details class="grp" data-g="lang"><summary><span>言語・海外との取引</span><span class="why">海外の依頼者・工場との組合せに使います</span><small></small></summary><div class="gb">
+        <div class="f"><div class="lb">やり取りできる言語</div><div data-pick="langs:m"></div></div>
+        <div class="f"><div class="lb">貿易条件</div><span class="hint">輸出入をしない場合は空欄で構いません。</span><div data-pick="incoterms:m"></div></div>
+        <div class="f"><label for="exportTo">輸出・輸入の実績がある国</label><input id="exportTo" type="text" placeholder="米国、台湾 など"></div>
+      </div></details>
+      <details class="grp" data-g="work"><summary><span>写真・業界・特許</span><span class="why">会社の詳細ページに出ます</span><small></small></summary><div class="gb">
+        <div class="f"><label for="photos">工場・設備・製品の写真</label><input id="photos" type="file" multiple accept="image/*"><span class="hint">取引先の製品は、先方の了解があるものだけ載せてください。</span><span class="hint">あとからでも提出できます。受付のメールに返信して送ってください。</span><div class="files" id="photoFiles" translate="no"></div></div>
+        <div class="f"><div class="lb">実績のある業界</div><div data-pick="industries:m"></div></div>
+        <div class="f"><label for="patents">特許・受賞</label><input id="patents" type="text" placeholder="特許第〇〇号、〇〇賞 など"></div>
+      </div></details>
+      <details class="grp" data-g="pref"><summary><span>受けたい案件・受けない案件</span><span class="why">合わない案件が届くのを防ぎます</span><small></small></summary><div class="gb">
+        <div class="grid2">
+          <div class="f"><label for="wantJobs">受けたい案件</label><textarea id="wantJobs" placeholder="小型の樹脂筐体、防水が必要なもの など"></textarea></div>
+          <div class="f"><label for="avoidJobs">受けない案件</label><textarea id="avoidJobs" placeholder="意匠面の鏡面仕上げ、1個だけの修理 など"></textarea></div>
+        </div>
+        <div class="f" style="max-width:280px"><label for="reqCap">月に受けられる相談の上限 <span class="opt">件</span></label><input id="reqCap" type="number" min="1" placeholder="5"></div>
+      </div></details>
+    </div>
+  </fieldset>
+
+  <fieldset id="s6">
+    <legend><div class="sh"><span class="no">7/7</span><h2>規約への同意</h2><p>提携企業向け規約の要点です。正式な規約と料金表は、承認のご連絡と一緒にお送りします。</p><p class="trnote" data-only="xx">日本語版が正本です。英語・中国語は参考訳です。</p></div></legend>
+    <div class="terms">
+      <ol>
+        <li>掲載・回答は無料です。成約した案件だけ、別途定める料金表の紹介手数料をお支払いいただきます。</li>
+        <li>成約したら、成約日・金額（税抜）・内容の概要をご報告ください。</li>
+        <li>KATACHIで紹介を受けた依頼者との取引は、KATACHIの外で契約した場合も一定期間は手数料の対象です。</li>
+        <li>依頼者から受け取った構想・図面・データは秘密として扱い、案件を受けなかった場合も他の目的に使えません。</li>
+        <li>KATACHIは契約の当事者にならず、代金も預かりません。品質・納期・支払いは依頼者と直接取り決めます。</li>
+      </ol>
+    </div>
+    <label class="check" id="agTermsW"><input type="checkbox" id="agTerms"><span>上の要点とプライバシーポリシーを確認しました <span class="req">必須</span><small>提携は、承認のご連絡で届く規約と料金表に同意いただいた時点で成立します。 <a href="/privacy/" target="_blank" rel="noopener">プライバシーポリシーを読む</a></small></span></label>
+    <label class="check" id="agAntiW"><input type="checkbox" id="agAnti"><span>当社とその役員が反社会的勢力に該当せず、関係もないことを表明します <span class="req">必須</span></span></label>
+    <label class="check"><input type="checkbox" id="agReview"><span>依頼者の口コミ・評価の掲載に同意します <span class="opt">任意</span><small>掲載前に内容を確認でき、返信も付けられます。後から変更できます。</small></span></label>
+    <div class="submit">
+      <button type="submit" class="btn pri" id="go">提携を申し込む</button>
+      <span class="muted" id="msg">確認ののち、3営業日以内を目安にメールでご連絡します。</span>
+    </div>
+  </fieldset>
+</form>
+
+<section id="done" hidden>
+  <div class="donecard">
+    <div class="eyebrow">Received</div>
+    <h2 id="doneTitle">申込内容を受け付けました</h2>
+    <p class="muted" style="margin:0 0 6px"><span>受付番号</span> <b id="pid" translate="no"></b></p><p class="muted" style="margin:0">確認のメールをお送りしました。このあとは次の順に進みます。</p><p class="muted" id="upNote" hidden style="color:var(--amber)"></p>
+    <ol class="steps">
+      <li>KATACHIが法人番号・公式サイト・連絡先を確認します。</li>
+      <li>メールで提携の可否と、正式な規約・料金表をお送りします。</li>
+      <li>掲載されます。確認が済むまで、工程は「自己申告」の印で表示されます。</li>
+      <li>工程が合う案件が来たら、受けるかどうかをご回答ください。</li>
+    </ol>
+  </div>
+  <div class="submit" style="margin-top:16px"><a class="btn" href="/" style="text-decoration:none">KATACHIのトップへ</a></div>
+</section>
+</main>
+
+<aside class="side" aria-label="入力の進み具合">
+  <div class="sticky">
+    <div class="prog">
+      <div class="eyebrow">入力の進み具合</div>
+      <div class="bar"><b id="bar"></b></div>
+      <ul id="progList"></ul>
+    </div>
+    <div class="preview">
+      <div class="eyebrow">依頼者に見える形</div>
+      <div class="nm" id="pvName">会社名</div>
+      <div class="muted" style="font-size:12.5px" id="pvPlace">所在地</div>
+      <span class="mk"><i></i>自己申告（KATACHIが確認するまで）</span>
+      <div class="caps" id="pvCaps"></div>
+    </div>
+  </div>
+</aside>
+</div>
+</div>
+
+<script>
+const $=s=>document.querySelector(s);
+// ---- 多言語（サイト共通の対応表 i18n.py + このページの訳）
+const T=__I18N__;
+const P=__PARTNER_I18N__;
+const DICT=Object.assign({},T,P);
+let LANG="ja";
+try{const st=JSON.parse(localStorage.getItem("katachi-lang")||"null");if(st&&st.lang)LANG=st.lang;else{const nl=(navigator.language||"ja").toLowerCase();LANG=nl.startsWith("ja")?"ja":nl.startsWith("zh")?"zh":"en"}}catch(e){}
+const LI={en:0,zh:1};
+window.__missing=new Set();
+function tr(ja){if(LANG==="ja")return ja;const k=ja.trim();const d=DICT[k];if(d)return ja.replace(k,d[LI[LANG]]);if(/[぀-ヿ一-鿿]/.test(k))window.__missing.add(k);return ja}
+const ORIG=new WeakMap();
+function translateTree(root){
+  const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,{acceptNode:n=>{const p=n.parentElement;if(!p||p.closest('[translate="no"],script,style,pre,textarea'))return NodeFilter.FILTER_REJECT;return n.nodeValue.trim()?NodeFilter.FILTER_ACCEPT:NodeFilter.FILTER_REJECT}});
+  const nodes=[];while(w.nextNode())nodes.push(w.currentNode);
+  for(const n of nodes){
+    let o=ORIG.get(n);
+    if(o===undefined||(n.nodeValue!==o.out)){o={ja:n.nodeValue};ORIG.set(n,o)}
+    const out=tr(o.ja);o.out=out;if(n.nodeValue!==out)n.nodeValue=out;
+  }
+  root.querySelectorAll("[placeholder],[aria-label],[title]").forEach(el=>{
+    for(const a of ["placeholder","aria-label","title"]){if(!el.hasAttribute(a))continue;
+      const key="ja_"+a.replace("-","_");if(!el.dataset[key])el.dataset[key]=el.getAttribute(a);
+      el.setAttribute(a,tr(el.dataset[key]));}
+  });
+  document.querySelectorAll('[data-only]').forEach(el=>el.hidden=LANG==="ja");
+}
+function setLang(l,byUser){LANG=l;if(byUser){try{localStorage.setItem("katachi-lang",JSON.stringify({lang:l}))}catch(e){}}
+  document.documentElement.lang=l==="zh"?"zh-Hans":l;
+  document.querySelectorAll("[data-lang]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.lang===l));
+  document.title=({ja:"KATACHI 提携申込",en:"KATACHI Partner Application",zh:"KATACHI 合作申请"})[l];
+  update();}
+document.querySelectorAll("[data-lang]").forEach(b=>b.onclick=()=>setLang(b.dataset.lang,true));
+
+const PREFS="北海道 青森県 岩手県 宮城県 秋田県 山形県 福島県 茨城県 栃木県 群馬県 埼玉県 千葉県 東京都 神奈川県 新潟県 富山県 石川県 福井県 山梨県 長野県 岐阜県 静岡県 愛知県 三重県 滋賀県 京都府 大阪府 兵庫県 奈良県 和歌山県 鳥取県 島根県 岡山県 広島県 山口県 徳島県 香川県 愛媛県 高知県 福岡県 佐賀県 長崎県 熊本県 大分県 宮崎県 鹿児島県 沖縄県".split(" ");
+PREFS.forEach(p=>$("#pref").insertAdjacentHTML("beforeend",`<option value="${p}">${p}</option>`));
+
+// マッチングエンジンの分類コード(katachi/taxonomy.py)と同じ
+const TAX=[
+ ["sensing","センシング",[["biosignal","生体信号計測"],["temperature","温度計測"],["motion","加速度・ジャイロ(活動量)"],["position","位置測位(GPS/GNSS)"],["environment","環境計測(湿度・気圧・ガス等)"],["algorithm","信号処理・計測アルゴリズム"]]],
+ ["electronics","電子回路・ハードウェア",[["pcb_design","回路・基板設計"],["low_power","低消費電力・電源設計"],["wireless","無線通信(BLE/LTE-M/LoRa等)"],["firmware","組込みファームウェア"],["pcba","基板実装(PCBA)"],["flexible","フレキシブル基板・伸縮配線"]]],
+ ["mechanical","機構・筐体",[["enclosure_design","筐体・機構設計"],["waterproof","防水・防塵設計"],["wearable_fit","装着機構・人間(動物)工学"],["industrial_design","工業デザイン"]]],
+ ["manufacturing","製造・加工",[["rapid_proto","試作(3Dプリント・簡易型)"],["injection_molding","射出成形"],["silicone_molding","シリコーン・ゴム成形"],["cnc","切削加工(CNC)"],["sheet_metal","板金加工"],["textile","縫製・布・革製品"],["assembly","組立・検査(EMS)"]]],
+ ["software","ソフトウェア",[["mobile_app","スマホアプリ開発"],["cloud","クラウド・データ基盤"],["ml","データ解析・機械学習"]]],
+ ["testing","試験・認証",[["radio_cert","電波法(技適)・EMC対応"],["battery_safety","電池・製品安全試験"],["environmental","環境・耐久試験(防水/落下/温湿度)"],["animal_trial","動物での実証・評価"],["human_trial","人での装着評価・臨床的評価"]]],
+ ["apparel","アパレル・繊維製品",[["garment_oem","衣料品OEM(企画・パターン・縫製)"],["knit","ニット・編み立て"],["leather","革製品・バッグ・靴"],["print_embroidery","プリント・刺繍・染色"],["smart_textile","スマートテキスタイル(導電糸・電子部品組込み)"]]],
+ ["food","食品・飲料",[["processed_oem","加工食品OEM"],["beverage_oem","清涼飲料・健康食品OEM"],["pet_food","ペットフードOEM"],["alcohol_oem","酒類OEM(酒蔵・醸造所・蒸留所)",true]]],
+ ["cosmetics","化粧品・日用品",[["oem","化粧品OEM"],["household","日用品・雑貨OEM"]]],
+ ["packaging","パッケージ・印刷",[["box","化粧箱・紙器・パッケージ"],["label_print","ラベル・シール・印刷物"],["container","ボトル・容器"]]],
+ ["crafts","木工・金属・陶磁器・家具",[["wood_furniture","木工・家具"],["ceramics_glass","陶磁器・ガラス"],["metal_goods","金属製品・鋳造・アクセサリー"]]],
+];
+const NAME={};
+$("#cats").innerHTML=TAX.map(([p,n,kids])=>`<div class="cat"><h3>${n}<small>${p}</small></h3><div class="chips">${
+  kids.map(([c,l,off])=>{NAME[p+"."+c]=l;return `<button type="button" class="chip${off?" off":""}" data-code="${p}.${c}" data-s="0" ${off?'disabled aria-disabled="true" title="受付準備中"':""} aria-label="${l}"><i></i>${l}</button>`}).join("")
+}</div></div>`).join("");
+$("#cats").addEventListener("click",e=>{
+  const b=e.target.closest(".chip");if(!b||b.disabled)return;
+  let s=(+b.dataset.s+1)%3;
+  if(s===2&&document.querySelectorAll('.chip[data-s="2"]').length>=5)s=0;
+  b.dataset.s=s;b.setAttribute("aria-pressed",s>0);update();
+});
+
+// 条件(1/0/null)
+const Q=[
+ ["no_drawing","図面がない・構想段階の相談を受ける","依頼者が絵や文章だけで来る場合"],
+ ["prototype","試作1個から受ける",""],
+ ["joint_dev","他社と工程を分けて担当する","筐体は御社、基板は別の会社、のような分業"],
+ ["individual","個人からの依頼を受ける",""],
+];
+const seg=(id,opts)=>`<div class="seg" role="radiogroup">${opts.map(([v,l],i)=>`<label><input type="radio" name="${id}" value="${v}"${i===opts.length-1?" checked":""}><span>${l}</span></label>`).join("")}</div>`;
+const YN=[["1","受ける"],["0","受けない"],["","相談次第"]];
+$("#terms5").innerHTML=Q.map(([id,q,s])=>`<div class="row"><div class="q">${q}${s?`<small>${s}</small>`:""}</div>${seg(id,YN)}</div>`).join("")
+ +`<div class="row"><div class="q">材料・部品の調達<small>依頼者の支給材でしか作れないか</small></div>${seg("material",[["factory","当社で手配"],["customer","支給材のみ"],["both","どちらも可"],["","相談次第"]])}</div>`
+ +`<div class="row"><div class="q">試作・改良時の技術相談<small>設計の見直しや材料選びの相談に乗るか</small></div>${seg("consult",[["paid","有償で受ける"],["free","無償で受ける"],["both","内容による"],["no","受けない"],["","未定"]])}</div>`;
+$("#terms5o").innerHTML=`<div class="row"><div class="q">日本へ発送する</div>${seg("ships_jp",YN)}</div><div class="row"><div class="q">日本語の窓口・日本法人がある</div>${seg("jp_support",[["1","ある"],["0","ない"],["","準備中"]])}</div>`;
+
+// 実績
+let caseN=0;
+function addCase(v={}){
+  if(caseN>=3)return;caseN++;
+  const i=caseN;
+  $("#cases").insertAdjacentHTML("beforeend",`<div class="case" data-i="${i}">
+    <div class="top"><span><span>実績</span> <span class="cn" translate="no">${i}</span></span>${i>1?'<button type="button" class="link rm">削除</button>':""}</div>
+    <div class="f"><label for="p${i}">どんな課題だったか</label><input id="p${i}" type="text" placeholder="例: 屋外で使う機器を、ネジなしで防水(IP67)にしたい" value="${v.p||""}"></div>
+    <div class="f"><label for="a${i}">どう解決したか</label><textarea id="a${i}" placeholder="例: 二色成形でパッキンを一体化し、超音波溶着で封止。試作3回で量産へ">${v.a||""}</textarea></div>
+    <div class="f"><label for="x${i}">公開できる製品名・実績名 <span class="opt">任意</span></label><input id="x${i}" type="text" value="${v.x||""}"></div>
+  </div>`);
+  $("#addCase").hidden=caseN>=3;
+  if(typeof translateTree==="function")translateTree($("#cases"));
+}
+$("#cases").addEventListener("click",e=>{if(e.target.closest(".rm")){e.target.closest(".case").remove();caseN--;$("#addCase").hidden=false;renumber();update();}});
+function renumber(){[...document.querySelectorAll(".case")].forEach((c,k)=>c.querySelector(".top .cn").textContent=k+1)}
+$("#addCase").onclick=()=>addCase();
+addCase();
+
+// 選択肢
+const PICK={
+ biz:[["own_factory","自社工場で製造"],["design_only","設計・開発のみ（工場なし）"],["trading","商社・手配代行"],["craftsman","個人の職人・工房"]],
+ qty:[["proto","試作（1〜10個）"],["small","小ロット（10〜1,000個）"],["mass","量産（1,000個〜）"]],
+ materials:[["aluminum","アルミ"],["stainless","ステンレス"],["steel","鉄・鋼"],["copper","銅・真鍮"],["titanium","チタン"],["abs","ABS"],["pc","PC（ポリカーボネート）"],["pom","POM"],["pa","ナイロン（PA）"],["pp_pe","PP・PE"],["acrylic","アクリル"],["silicone","シリコーン・ゴム"],["textile","布・繊維"],["leather","革"],["wood","木材"],["paper","紙・段ボール"],["glass","ガラス"],["ceramic","セラミック"],["food","食品原料"],["cosmetic","化粧品原料"]],
+ tol:[["0.1","±0.1mm程度"],["0.05","±0.05mm"],["0.01","±0.01mm"],["0.005","±0.005mm以下"],["na","精度を問わない分野"]],
+ finish:[["paint","塗装"],["plating","めっき"],["anodize","アルマイト"],["polish","研磨"],["silk","シルク印刷"],["pad","パッド印刷"],["laser","レーザー刻印"],["heat","熱処理"],["sew_finish","縫製の仕上げ"]],
+ formats:[["step","STEP"],["iges","IGES"],["stl","STL"],["dxf","DXF/DWG"],["pdf","PDF図面"],["sketch","手描き・写真"],["native","ネイティブCAD（SOLIDWORKS・Fusion等）"],["gerber","ガーバー（基板）"]],
+ certs:[["ISO9001","ISO9001"],["ISO14001","ISO14001"],["ISO13485","ISO13485"],["IATF16949","IATF16949"],["JISQ9100","JIS Q 9100"],["ISO22716","ISO22716（化粧品GMP）"],["FSSC22000","FSSC22000・HACCP"],["EA21","エコアクション21"]],
+ inspReport:[["yes","出せる"],["paid","有償で出せる"],["no","出せない"]],
+ avail:[["open","余裕あり"],["normal","普通"],["busy","立て込み中"]],
+ tooling:[["inhouse","自社で製作"],["partner","協力会社で製作"],["no","対応しない"]],
+ moldown:[["client","依頼者の所有"],["us","当社の所有"],["talk","相談して決める"]],
+ quoteDays:[["1","1営業日以内"],["3","3営業日以内"],["7","1週間以内"],["14","2週間程度"]],
+ pay:[["advance","前払い"],["deposit","着手金＋残金"],["net","月末締め翌月末払い"],["card","クレジットカード"]],
+ nda:[["yes","結べる"],["own","自社のひな形なら結べる"],["no","結べない"]],
+ langs:[["ja","日本語"],["en","英語"],["zh","中国語"],["ko","韓国語"],["vi","ベトナム語"],["th","タイ語"]],
+ incoterms:[["EXW","EXW"],["FOB","FOB"],["CIF","CIF"],["DDP","DDP（関税込み）"]],
+ industries:[["pet","ペット"],["outdoor","アウトドア・スポーツ"],["iot","家電・IoT"],["medical","医療・ヘルスケア"],["auto","自動車・モビリティ"],["machinery","産業機械"],["food","食品・飲料"],["beauty","化粧品・美容"],["apparel","アパレル"],["interior","雑貨・インテリア"],["toy","玩具・ホビー"],["store","店舗・什器"]],
+};
+const pick=(n,list,multi)=>`<div class="seg" role="${multi?"group":"radiogroup"}">${list.map(([v,l])=>`<label><input type="${multi?"checkbox":"radio"}" name="${n}" value="${v}"><span>${l}</span></label>`).join("")}</div>`;
+document.querySelectorAll("[data-pick]").forEach(el=>{const [n,m]=el.dataset.pick.split(":");el.innerHTML=pick(n,PICK[n],m==="m")});
+const rvs=n=>[...document.querySelectorAll(`input[name="${n}"]:checked`)].map(i=>i.value);
+
+// 設備
+let eqN=0;
+function addEq(v={}){if(eqN>=10)return;eqN++;
+  $("#eqRows").insertAdjacentHTML("beforeend",`<div class="eqrow"><input type="text" class="eq-k" placeholder="マシニングセンタ" aria-label="種類" value="${v.k||""}"><input type="text" class="eq-m" placeholder="メーカー・型式" aria-label="メーカー・型式" value="${v.m||""}"><input type="number" class="eq-n" min="1" placeholder="台数" aria-label="台数" value="${v.n||""}"><input type="text" class="eq-r" placeholder="加工範囲・能力" aria-label="加工範囲・能力" value="${v.r||""}"><button type="button" class="link rm">削除</button></div>`);
+  $("#addEq").hidden=eqN>=10;translateTree($("#eqRows"));}
+$("#eqRows").addEventListener("click",e=>{if(e.target.closest(".rm")){e.target.closest(".eqrow").remove();eqN--;$("#addEq").hidden=false;update();}});
+$("#addEq").onclick=()=>addEq();
+addEq();
+const equipment=()=>[...document.querySelectorAll(".eqrow:not(.eqhead)")].map(r=>({type:r.querySelector(".eq-k").value.trim(),model:r.querySelector(".eq-m").value.trim()||null,count:r.querySelector(".eq-n").value?+r.querySelector(".eq-n").value:null,range:r.querySelector(".eq-r").value.trim()||null})).filter(x=>x.type);
+
+// ファイル（試作版は名前だけ）
+const fileNames=id=>$(id)?[...$(id).files].map(f=>f.name):[];
+[["#certFile","#certFiles"],["#photos","#photoFiles"]].forEach(([i,o])=>$(i).addEventListener("change",()=>{$(o).innerHTML=fileNames(i).map(n=>`<span>${n.replace(/[<>&]/g,"")}</span>`).join("")}));
+
+// 充実度（グループごとに入力済みの数）
+const GROUPS={
+ mat:[()=>rvs("materials").length,()=>$("#maxW").value||$("#maxD").value||$("#maxH").value,()=>$("#minSize").value.trim(),()=>rv("tol"),()=>rvs("finish").length,()=>rvs("formats").length],
+ eq:[()=>equipment().length,()=>$("#inspEq").value.trim()],
+ q:[()=>rvs("certs").length||$("#certOther").value.trim(),()=>$("#certFile").files.length,()=>rv("inspReport")],
+ cap:[()=>rv("avail"),()=>$("#monthly").value.trim(),()=>$("#maxlot").value,()=>rv("tooling"),()=>rv("moldown")],
+ deal:[()=>$("#leadMass").value.trim(),()=>$("#minOrder").value,()=>rv("quoteDays"),()=>rvs("pay").length,()=>rv("nda")],
+ lang:[()=>rvs("langs").length,()=>rvs("incoterms").length,()=>$("#exportTo").value.trim()],
+ work:[()=>$("#photos").files.length,()=>rvs("industries").length,()=>$("#patents").value.trim()],
+ pref:[()=>$("#wantJobs").value.trim(),()=>$("#avoidJobs").value.trim(),()=>$("#reqCap").value],
+};
+function richness(){let done=0,all=0;
+  for(const [g,fs] of Object.entries(GROUPS)){const n=fs.filter(f=>!!f()).length;done+=n;all+=fs.length;
+    const sm=document.querySelector(`details[data-g="${g}"] small`);sm.textContent=n+"/"+fs.length;sm.classList.toggle("full",n===fs.length);}
+  return Math.round(done/all*100);}
+
+// 国
+function syncCountry(){const jp=$("#country").value==="JP";$("#prefWrap").hidden=!jp;$("#overseas").hidden=jp;if(jp)$("#prefWrap").setAttribute("data-req","");else $("#prefWrap").removeAttribute("data-req");}
+$("#country").onchange=()=>{syncCountry();update()};
+
+// 進み具合・プレビュー
+const SECS=[["s1","会社の情報"],["s2","ご担当者"],["s3","対応できる工程"],["s4","解決してきた課題"],["s5","受けられる仕事の条件"],["s6x","掲載を充実させる"],["s6","規約への同意"]];
+function secOK(id){
+  if(id==="s1")return rv("biz")&&$("#name").value.trim()&&/^https?:\/\/.+\..+/.test($("#web").value.trim())&&$("#summary").value.trim()&&($("#country").value!=="JP"||$("#pref").value);
+  if(id==="s2")return $("#person").value.trim()&&/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test($("#email").value.trim());
+  if(id==="s3")return document.querySelectorAll('.chip:not([data-s="0"])').length>0&&rvs("qty").length>0;
+  if(id==="s6x")return richness()>=50;
+  if(id==="s4")return [...document.querySelectorAll(".case")].some(c=>c.querySelector("input").value.trim());
+  if(id==="s5")return [...document.querySelectorAll("#terms5 input:checked")].some(r=>r.value!=="");
+  if(id==="s6")return $("#agTerms").checked&&$("#agAnti").checked;
+}
+function update(){
+  const ok=SECS.map(([id])=>!!secOK(id));const pct=richness();
+  $("#richPct").textContent=pct+"%";$("#richBar").style.width=pct+"%";
+  $("#progList").innerHTML=SECS.map(([id,l],k)=>`<li class="${ok[k]?"ok":""}"><i></i><span>${l}</span>${id==="s6x"?` <span class="mono" translate="no">${pct}%</span>`:""}</li>`).join("");
+  $("#bar").style.width=(ok.filter(Boolean).length/SECS.length*100)+"%";
+  $("#pvName").textContent=$("#name").value.trim()||"会社名";
+  const c=$("#country");
+  $("#pvPlace").textContent=c.value==="JP"?(tr($("#pref").value||"所在地")+" "+$("#city").value).trim():tr(c.options[c.selectedIndex].dataset.ja||c.options[c.selectedIndex].text)+" "+$("#city").value;
+  const chips=[...document.querySelectorAll('.chip:not([data-s="0"])')].sort((a,b)=>b.dataset.s-a.dataset.s);
+  $("#pvCaps").innerHTML=chips.slice(0,8).map(b=>`<span${b.dataset.s==="2"?' style="color:var(--fg);border-color:var(--ice)"':""}>${NAME[b.dataset.code]}</span>`).join("")+(chips.length>8?`<span>ほか${chips.length-8}</span>`:"")||'<span>工程を選ぶとここに出ます</span>';
+  const extra=[];const av=rv("avail");if(av)extra.push(`<span style="color:var(--fg)">${tr(PICK.avail.find(x=>x[0]===av)[1])}</span>`);
+  rvs("certs").slice(0,2).forEach(c=>extra.push(`<span translate="no">${c}</span>`));
+  $("#pvCaps").insertAdjacentHTML("beforeend",extra.join(""));
+  $("#favN").textContent=document.querySelectorAll('.chip[data-s="2"]').length+"/5";
+  $("#sumCount").textContent=$("#summary").value.length+" / 300";
+  translateTree(document.body);
+}
+$("#f").addEventListener("input",e=>{const w=e.target.closest(".bad");if(w)w.classList.remove("bad");update()});
+$("#f").addEventListener("change",update);
+
+// 検証と送信
+function validate(){
+  let first=null;const mark=(el,bad)=>{el.classList.toggle("bad",!!bad);if(bad&&!first)first=el;};
+  mark($("#name").closest(".f"),!$("#name").value.trim());
+  const corp=$("#corp").value.trim();mark($("#corp").closest(".f"),corp&&!/^\d{13}$/.test(corp));
+  if($("#country").value==="JP")mark($("#prefWrap"),!$("#pref").value);else $("#prefWrap").classList.remove("bad");
+  mark($("#web").closest(".f"),!/^https?:\/\/.+\..+/.test($("#web").value.trim()));
+  mark($("#summary").closest(".f"),!$("#summary").value.trim());
+  mark($("#person").closest(".f"),!$("#person").value.trim());
+  mark($("#email").closest(".f"),!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test($("#email").value.trim()));
+  mark($("#btWrap"),!rv("biz"));
+  mark($("#capWrap"),!document.querySelectorAll('.chip:not([data-s="0"])').length);
+  mark($("#qtyWrap"),!rvs("qty").length);
+  mark($("#agTermsW"),!$("#agTerms").checked);
+  mark($("#agAntiW"),!$("#agAnti").checked);
+  return first;
+}
+const rv=n=>{const r=document.querySelector(`input[name="${n}"]:checked`);return r?r.value:""};
+const yn=n=>{const v=rv(n);return v===""?null:+v};
+function record(){
+  const today=new Date().toISOString().slice(0,10);
+  const int=v=>v.trim()?parseInt(v,10):null;
+  const consult=rv("consult");
+  const rec={
+    name:$("#name").value.trim(),
+    corporate_number:$("#corp").value.trim()||null,
+    country:$("#country").value,
+    prefecture:$("#country").value==="JP"?$("#pref").value:null,
+    city:$("#city").value.trim()||null,
+    website:$("#web").value.trim(),
+    employees:int($("#emp").value),
+    founded_year:int($("#founded").value),
+    summary:$("#summary").value.trim(),
+    business_type:rv("biz"),
+    capital:$("#capital").value.trim()||null,
+    invoice_number:$("#invoice").value.trim()||null,
+    status:"contacted",
+    evidence_type:"self_reported",
+    source:{kind:"self_registered",url:null,title:"提携申込フォーム",retrieved_at:today},
+    capabilities:[...document.querySelectorAll('.chip:not([data-s="0"])')].map(b=>({code:b.dataset.code,level:b.dataset.s==="2"?"specialty":"capable",confidence:0.6,evidence:"企業の自己申告"})),
+    solved_problems:[...document.querySelectorAll(".case")].map(c=>{const [p,x]=c.querySelectorAll("input");return {problem:p.value.trim(),approach:c.querySelector("textarea").value.trim()||null,example_product:x.value.trim()||null,tags:[],capability_codes:[],confidence:0.6}}).filter(s=>s.problem),
+    terms:{
+      accepts_no_drawing:yn("no_drawing"),accepts_prototype:yn("prototype"),accepts_joint_dev:yn("joint_dev"),accepts_individual:yn("individual"),
+      min_lot:int($("#minlot").value),lead_time_note:$("#lead").value.trim()||null,regions_served:$("#region").value.trim()?[$("#region").value.trim()]:null,
+      material_procurement:rv("material")||null,
+      design_consultation:consult===""?null:(consult==="no"?0:1),consultation_fee:["paid","free","both"].includes(consult)?consult:null,
+      ships_to_japan:$("#country").value==="JP"?null:yn("ships_jp"),japanese_support:$("#country").value==="JP"?null:yn("jp_support")
+    },
+    certifications:[...rvs("certs"),...$("#certOther").value.split(/[,、]+/).map(s=>s.trim()).filter(Boolean)],
+    profile:{
+      quantity_bands:rvs("qty"),
+      materials:rvs("materials"),
+      max_size_mm:[$("#maxW").value,$("#maxD").value,$("#maxH").value].some(Boolean)?[int($("#maxW").value),int($("#maxD").value),int($("#maxH").value)]:null,
+      min_feature:$("#minSize").value.trim()||null,
+      tolerance_mm:rv("tol")?(rv("tol")==="na"?null:+rv("tol")):null,
+      finishes:rvs("finish"),data_formats:rvs("formats"),
+      equipment:equipment(),inspection_equipment:$("#inspEq").value.trim()||null,
+      certificate_files:fileNames("#certFile"),inspection_report:rv("inspReport")||null,
+      availability:rv("avail")?{level:rv("avail"),updated_at:today}:null,
+      monthly_capacity:$("#monthly").value.trim()||null,max_lot:int($("#maxlot").value),
+      tooling:rv("tooling")||null,mold_ownership:rv("moldown")||null,
+      lead_time_production:$("#leadMass").value.trim()||null,min_order_yen:int($("#minOrder").value),
+      quote_days:rv("quoteDays")?+rv("quoteDays"):null,payment_terms:rvs("pay"),nda:rv("nda")||null,
+      languages:rvs("langs"),incoterms:rvs("incoterms"),trade_countries:$("#exportTo").value.trim()||null,
+      photos:fileNames("#photos"),industries:rvs("industries"),patents_awards:$("#patents").value.trim()||null,
+      wants:$("#wantJobs").value.trim()||null,avoids:$("#avoidJobs").value.trim()||null,monthly_request_cap:int($("#reqCap").value),
+      completeness:richness()
+    },
+    contact:{person:$("#person").value.trim(),role:$("#role").value.trim()||null,email:$("#email").value.trim(),tel:$("#tel").value.trim()||null},
+    agreements:{terms_summary_confirmed:true,privacy_policy:true,anti_social:true,reviews_publish:$("#agReview").checked,agreed_at:new Date().toISOString(),terms_version:"summary-2026-11-13"}
+  };
+  return rec;
+}
+const FORM_URL="__FORM_URL__";
+// 写真・証明書は、見積の依頼と同じ受付（backend/forms.gs）の仕組みで送る：申込みと一緒に {key,count,bytes} を宣言し、続けて4MBずつ type:'file' で送る
+const UP={max:20,total:100*1048576,file:50*1048576,chunk:4*1048576};
+const rkey=()=>{const A="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";return [...crypto.getRandomValues(new Uint8Array(32))].map(b=>A[b%62]).join("")};
+const b64=blob=>new Promise((ok,ng)=>{const r=new FileReader();r.onload=()=>ok(String(r.result).split(",")[1]||"");r.onerror=ng;r.readAsDataURL(blob)});
+function upList(){const list=[],skipped=[];let bytes=0;
+  [["#certFile","cert"],["#photos","photo"]].forEach(([id,k])=>[...$(id).files].forEach(f=>{
+    if(list.length>=UP.max||f.size>UP.file||bytes+f.size>UP.total){skipped.push(f.name);return}
+    list.push({name:k+"_"+f.name,mime:f.type||"application/octet-stream",blob:f});bytes+=f.size}));
+  return {list,skipped,bytes}}
+async function postChunk(body){
+  for(let a=0;a<3;a++){
+    try{const res=await fetch(FORM_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body});const j=await res.json();if(j.ok)return true;if(["key","expired","index","size","type"].includes(j.error))return false}catch(e){}
+    await new Promise(r=>setTimeout(r,1500*(a+1)))}
+  return false}
+async function sendFiles(key,list){let sent=0,okN=0;const tot=list.reduce((a,x)=>a+x.blob.size,0),bad=[];
+  for(let i=0;i<list.length;i++){const x=list[i];let ok=true;
+    for(let off=0;off<x.blob.size;off+=UP.chunk){const part=x.blob.slice(off,off+UP.chunk);
+      ok=await postChunk(JSON.stringify({type:"file",key,index:i,name:x.name,mime:x.mime,size:x.blob.size,offset:off,data:await b64(part)}));
+      if(!ok)break;sent+=part.size;$("#msg").textContent=tr("ファイルを送っています。この画面を閉じずにお待ちください。")+" "+(i+1)+" / "+list.length+" · "+Math.round(sent/tot*100)+"%"}
+    if(ok)okN++;else bad.push(x.name)}
+  return {okN,bad}}
+let sending=false;
+$("#f").addEventListener("submit",e=>{
+  e.preventDefault();
+  if(sending)return;
+  const bad=validate();
+  const msg=$("#msg");
+  if(bad){msg.textContent=tr("赤い枠の項目を確認してください。");msg.style.color="var(--red)";bad.scrollIntoView({behavior:"smooth",block:"center"});return;}
+  if(!FORM_URL){msg.textContent=tr("いまは送信できません。時間をおいてもう一度お試しください。");msg.style.color="var(--red)";return;}
+  sending=true;$("#go").disabled=true;msg.style.color="";msg.textContent=tr("送信しています…");
+  const ups=upList(),key=ups.list.length?rkey():"";
+  fetch(FORM_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({type:"partner",lang:LANG,record:record(),upload:key?{key,count:ups.list.length,bytes:ups.bytes}:undefined,page:location.pathname})})
+    .then(r=>r.json()).then(async res=>{
+      if(!res||!res.ok)throw new Error(res&&res.error||"error");
+      const up=key?await sendFiles(key,ups.list):null;
+      const miss=(up?up.bad:[]).concat(ups.skipped);
+      $("#upNote").hidden=!miss.length;
+      if(miss.length)$("#upNote").textContent=tr("届かなかったファイルがあります。受付のメールに返信して送ってください:")+" "+miss.map(n=>n.replace(/^(cert|photo)_/,"")).join(", ");
+      $("#pid").textContent=res.id;
+      $("#doneTitle").textContent=({ja:n=>n+" 様の申込みを受け付けました",en:n=>"Application received from "+n,zh:n=>"已收到 "+n+" 的申请"})[LANG]($("#name").value.trim());
+      try{gtag("event","partner_submit",{completeness:richness(),files:ups.list.length})}catch(_){}
+      $("#f").hidden=true;$("#done").hidden=false;window.scrollTo({top:$("#done").offsetTop-80,behavior:"smooth"});
+    }).catch(err=>{
+      msg.textContent=tr(String(err.message)==="email"?"メールアドレスを確認してください。":"送信できませんでした。時間をおいてもう一度お試しください。");msg.style.color="var(--red)";
+    }).finally(()=>{sending=false;$("#go").disabled=false;});
+});
+
+// 記入例（架空の会社）
+window.__fillSample=()=>{
+  const set=(id,v)=>{$(id).value=v};
+  set("#name","株式会社サンプル樹脂工業（記入例）");set("#country","JP");syncCountry();set("#pref","大阪府");set("#city","東大阪市");
+  set("#web","https://example.co.jp");set("#emp","28");set("#founded","1979");
+  set("#summary","射出成形と二色成形の試作・小ロット量産を行っています。アルミ簡易型で試作50個から対応し、防水筐体の設計相談も受けています。");
+  set("#person","山田 太郎");set("#role","営業部");set("#email","yamada@example.co.jp");
+  document.querySelectorAll(".chip").forEach(b=>b.dataset.s="0");
+  ({"manufacturing.injection_molding":2,"mechanical.waterproof":2,"mechanical.enclosure_design":1,"manufacturing.rapid_proto":1,"manufacturing.silicone_molding":1})&&Object.entries({"manufacturing.injection_molding":2,"mechanical.waterproof":2,"mechanical.enclosure_design":1,"manufacturing.rapid_proto":1,"manufacturing.silicone_molding":1}).forEach(([c,s])=>{document.querySelector(`.chip[data-code="${c}"]`).dataset.s=s});
+  set("#p1","屋外で使う小型機器を、ネジなしで防水(IP67)にしたい");set("#a1","二色成形でパッキンを一体化し、超音波溶着で封止。試作3回で量産へ移行");
+  [["no_drawing","1"],["prototype","1"],["joint_dev","1"],["individual",""],["material","factory"],["consult","paid"]].forEach(([n,v])=>{document.querySelector(`input[name="${n}"][value="${v}"]`).checked=true});
+  set("#minlot","50");set("#lead","簡易型で3〜4週間");set("#region","全国");
+  const chk=(n,vals)=>vals.forEach(v=>{const i=document.querySelector(`input[name="${n}"][value="${v}"]`);if(i)i.checked=true});
+  document.querySelectorAll("[data-pick] input").forEach(i=>i.checked=false);
+  chk("biz",["own_factory"]);chk("qty",["proto","small","mass"]);chk("materials",["abs","pc","pp_pe","silicone"]);chk("tol",["0.05"]);chk("finish",["paint","silk","laser"]);chk("formats",["step","stl","pdf","sketch"]);
+  chk("certs",["ISO9001"]);chk("inspReport",["yes"]);chk("avail",["open"]);chk("tooling",["inhouse"]);chk("moldown",["talk"]);chk("quoteDays",["3"]);chk("pay",["deposit","net"]);chk("nda",["yes"]);chk("langs",["ja","en"]);chk("industries",["iot","outdoor","pet"]);
+  set("#capital","1,000万円");set("#maxW","300");set("#maxD","200");set("#maxH","120");set("#monthly","成形品 月3万個");set("#maxlot","50000");set("#leadMass","金型完成後 4週間");set("#minOrder","30000");set("#inspEq","三次元測定機、画像測定機");
+  document.querySelectorAll(".eqrow:not(.eqhead)").forEach(r=>r.remove());eqN=0;addEq({k:"射出成形機",m:"日精樹脂 NEX80",n:"4",r:"型締力80t"});addEq({k:"二色成形機",m:"東芝機械 EC100",n:"1",r:"型締力100t"});
+  set("#wantJobs","小型の樹脂筐体、防水が必要なもの");
+  document.querySelectorAll(".bad").forEach(x=>x.classList.remove("bad"));
+  update();
+};
+syncCountry();setLang(LANG,false);
+</script>
