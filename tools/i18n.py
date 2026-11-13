@@ -552,8 +552,6 @@ T.update({
 "特許・意匠・商標": ("Patents, designs & trademarks", "专利・外观设计・商标"),
 "官公庁からの受注": ("Government contracts", "政府订单"),
 "gBizINFOで全件を見る": ("See all on gBizINFO", "在gBizINFO查看全部"),
-"認定・表彰・補助金・特許の記録は見つかりませんでした。載っていなくても、無いとは限りません。": ("No approvals, awards, subsidies or patents were found. Not being listed doesn't mean there are none.", "未找到认定、表彰、补贴或专利记录。未列出并不代表没有。"),
-"経済産業省のgBizINFOに公開されている記録です。KATACHIの評価ではなく、品質や取引のしやすさを保証するものでもありません。": ("These are records published on gBizINFO by Japan's Ministry of Economy, Trade and Industry. They are not KATACHI's rating and do not guarantee quality or how easy the company is to work with.", "这些是日本经济产业省gBizINFO公开的记录，并非KATACHI的评价，也不保证品质或合作的顺畅程度。"),
 })
 # 写真・動画のアップロードと「見積できる仕様」へのまとめ（2026-11-12）
 T.update({
@@ -604,4 +602,8 @@ T.update({
 "文章の言葉が会社の説明に出てくる会社": ("Companies whose description mentions your words", "公司介绍中出现您所写词语的公司"),
 "工程は読み取れませんでしたが、書いた言葉が社名や説明に含まれる会社です。参考にしてください。": ("We couldn't pick out the steps, but these companies mention your words in their name or description. Use them as a reference.", "虽然未能读取工序，但这些公司的名称或介绍中包含您写的词语，供参考。"),
 "文章に近い会社": ("Companies matching your words", "与描述相近的公司"),
+"出典：「Gビズインフォ」（経済産業省）をもとにKATACHI作成。": ("Source: compiled by KATACHI from gBizINFO (Ministry of Economy, Trade and Industry, Japan). ", "来源：KATACHI根据日本经济产业省“gBizINFO”整理。"),
+"国に公開されている記録で、KATACHIの評価ではなく、品質や取引のしやすさを保証するものでもありません。": ("These are government-published records, not KATACHI's rating, and do not guarantee quality or how easy the company is to work with.", "这些是政府公开的记录，并非KATACHI的评价，也不保证品质或合作的顺畅程度。"),
+"見つからなかった記録：": ("Not found: ", "未找到的记录："),
+"載っていなくても、無いとは限りません。": ("Not being listed doesn't mean there are none.", "未列出并不代表没有。"),
 })

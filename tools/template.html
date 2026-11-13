@@ -1248,16 +1248,16 @@ const RECP={};
 function pubRec(name,co){const k=recKey(name);if(!k)return Promise.resolve(null);let h=0;for(const ch of k)h=(h*31+ch.codePointAt(0))>>>0;
   const i=String(h%32).padStart(2,'0');
   return (RECP[i]||(RECP[i]=fetch(`data/rec/${i}.json`).then(r=>r.ok?r.json():{}).catch(()=>({})))).then(j=>{
-    const l=j[k]||[];if(l.length===1&&(!co.pref||!l[0].pref||l[0].pref===co.pref))return l[0];
-    const m=l.filter(x=>co.pref&&x.pref===co.pref);return m.length===1?m[0]:null})}
+    const l=j[k]||[];const w=x=>Object.assign({chk:j._k||RK.map(r=>r[0])},x);if(l.length===1&&(!co.pref||!l[0].pref||l[0].pref===co.pref))return w(l[0]);
+    const m=l.filter(x=>co.pref&&x.pref===co.pref);return m.length===1?w(m[0]):null})}
 const RK=[['certification','国の認定・届出'],['commendation','表彰'],['subsidy','補助金の採択'],['patent','特許・意匠・商標'],['procurement','官公庁からの受注']];
 const yen=v=>v>=1e8?(Math.round(v/1e7)/10)+'億円':v>=1e4?fmt(Math.round(v/1e4))+'万円':fmt(v)+'円';
 function pubBlk(p){const r=p.r||{};const has=RK.filter(([k])=>r[k]?.n);track('view_public_records',{kinds:has.length});
   return `<div class="blk"><h4>国の公開データ ${mk('pub','gBizINFOで確認')} <span>取得日 ${esc(p.at||'—')}</span></h4>
-    <div class="facts">${fact('設立',p.est?p.est+'年':null)}${fact('資本金',p.cap?yen(p.cap):null)}${fact('従業員数',p.emp?fmt(p.emp)+'人':null)}${has.map(([k,l])=>fact(l,r[k].n+'件')).join('')}</div>
+    <div class="facts">${p.est?fact('設立',p.est+'年'):''}${p.cap?fact('資本金',yen(p.cap)):''}${p.emp?fact('従業員数',fmt(p.emp)+'人'):''}${has.map(([k,l])=>fact(l,r[k].n+'件')).join('')}</div>
     ${has.length?`<ul class="list">${has.map(([k,l])=>r[k].top.map(x=>`<li><b style="font-weight:600">${esc(x.t)}</b><span class="s"><span>${l}</span>${x.by?` · <span>${esc(x.by)}</span>`:''}${x.d?` · <span class="mono">${esc(String(x.d).slice(0,10))}</span>`:''}${x.amt?` · <span>${yen(x.amt)}</span>`:''}</span></li>`).join('')).join('')}</ul>`
-      :`<p class="muted" style="margin:0;font-size:12.5px">認定・表彰・補助金・特許の記録は見つかりませんでした。載っていなくても、無いとは限りません。</p>`}
-    <p class="muted" style="margin:0;font-size:12px"><span>経済産業省のgBizINFOに公開されている記録です。KATACHIの評価ではなく、品質や取引のしやすさを保証するものでもありません。</span> <a href="https://info.gbiz.go.jp/hojin/ichiran?hojinBango=${encodeURIComponent(p.cn)}" target="_blank" rel="noopener">gBizINFOで全件を見る</a></p></div>`}
+      :`<p class="muted" style="margin:0;font-size:12.5px"><span>見つからなかった記録：</span>${RK.filter(([k])=>p.chk.includes(k)).map(([k,l])=>`<span>${l}</span>`).join(' · ')}<br><span>載っていなくても、無いとは限りません。</span></p>`}
+    <p class="muted" style="margin:0;font-size:12px"><span>出典：「Gビズインフォ」（経済産業省）をもとにKATACHI作成。</span><span>国に公開されている記録で、KATACHIの評価ではなく、品質や取引のしやすさを保証するものでもありません。</span> <a href="https://info.gbiz.go.jp/hojin/ichiran?hojinBango=${encodeURIComponent(p.cn)}" target="_blank" rel="noopener">gBizINFOで全件を見る</a></p></div>`}
 
 function company(name){
   const co=D.companies[name];if(!co)return;const isDemo=co.level==='demo';track('view_partners',{company_level:co.level,overseas:abroad(co),from_tab:S.tab});

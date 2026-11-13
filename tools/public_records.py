@@ -37,7 +37,24 @@ def rows(path):
         return [json.loads(l) for l in f if l.strip()]
 
 
+def site_names(repo):
+    """サイトに載っている会社名（選択式の一覧＋トップに埋め込んだ会社）。これ以外の会社の記録は書き出さない"""
+    names = set()
+    try:
+        names |= {r[0] for r in json.load(open(os.path.join(repo, 'data', 'companies.json')))['c']}
+    except (OSError, KeyError, ValueError):
+        pass
+    try:
+        s = open(os.path.join(repo, 'index.html'), encoding='utf-8').read()
+        m = re.search(r'window\.KATACHI_DATA=(\{.*?\});\n', s, re.S)
+        names |= set(json.loads(m.group(1))['companies']) if m else set()
+    except (OSError, ValueError):
+        pass
+    return {rec_key(n) for n in names}
+
+
 def main(src, repo):
+    on_site = site_names(repo)
     cos = {str(r['corporate_number']): r for r in rows(os.path.join(src, 'companies.jsonl')) if r.get('corporate_number')}
     recs = collections.defaultdict(lambda: collections.defaultdict(list))
     for k in KINDS:
@@ -46,7 +63,7 @@ def main(src, repo):
             if n in cos and r.get('title'):
                 recs[n][k].append(r)
     out = [collections.defaultdict(list) for _ in range(SHARDS)]
-    n_with = 0
+    n_with = n_out = 0
     for n, c in cos.items():
         est = str(c.get('date_of_establishment') or '')
         item = {'cn': n, 'pref': c.get('prefecture'), 'at': c.get('retrieved_at'),
@@ -58,15 +75,18 @@ def main(src, repo):
                                                     'amt': r.get('amount')} for r in lst[:SHOW]]}
         if not (item['r'] or item['est'] or item['cap'] or item['emp']):
             continue
-        n_with += bool(item['r'])
         key = rec_key(c.get('name'))
-        if key:
+        if key and (not on_site or key in on_site):
             out[shard(key)][key].append(item)
+            n_out += 1
+            n_with += bool(item['r'])
     d = os.path.join(repo, 'data', 'rec')
     os.makedirs(d, exist_ok=True)
+    checked = [k for k in KINDS if os.path.exists(os.path.join(src, k + '.jsonl'))]  # 取得済みの種類（画面の「見つからなかった」に使う）
     for i, o in enumerate(out):
+        o['_k'] = checked
         json.dump(o, open(os.path.join(d, '%02d.json' % i), 'w'), ensure_ascii=False, separators=(',', ':'))
-    print('companies', len(cos), 'with records', n_with)
+    print('gbiz companies', len(cos), '/ on site', n_out, '/ with records', n_with)
 
 
 if __name__ == '__main__':

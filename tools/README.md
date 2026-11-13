@@ -10,7 +10,7 @@ python3 assemble.py $S     # v2.html + data.js + i18n.py → katachi.html（clau
 python3 guided_data.py <katachi-matching>/data/real/companies.csv <katachi-matching> <リポジトリ>/data/companies.json   # 文章の読み取り・選択式で使う会社一覧（8千社、使うときだけ読み込む）
 python3 prod.py $S <リポジトリ> <受付URL>   # → index.html（GA・受付先・OGP・本文つき）
 python3 legal.py <リポジトリ>               # 利用規約・プライバシーポリシー・404
-python3 public_records.py <katachi-matching>/data/gbiz <リポジトリ>   # 国の公開データ（gBizINFOの認定・表彰・補助金・特許）→ data/rec/（会社を開いたときだけ読み込む）
+python3 public_records.py <katachi-matching>/data/gbiz <リポジトリ>   # 国の公開データ（gBizINFOの認定・表彰・補助金・特許）→ data/rec/（サイトに載っている会社の分だけ。会社を開いたときだけ読み込む。data/companies.json と index.html を作ったあとに実行）
 python3 seo_pages.py <リポジトリ>             # ガイド記事・sitemap.xml・llms.txt（本文は guides.py）
 ```
 
