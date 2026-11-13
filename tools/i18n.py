@@ -858,4 +858,18 @@ T.update({
 "Googleマップでの登録：": ("Listed on Google Maps as: ", "Google 地图上的登记："),
 # ---- 注文できる会社だけ（2026-11-13）
 "海外の工場は、日本から注文できる（日本へ発送する）と確かめた会社だけを出しています。": ("Overseas factories are shown only if we confirmed they accept orders from Japan (ship to Japan).", "海外工厂只显示已确认可从日本下单（可发货到日本）的公司。"),
+# ---- ②の概算費用（2026-11-13）
+"概算費用の目安": ("Rough cost estimate", "费用概算"),
+"あなたの数量": ("Your quantity", "你的数量"),
+"1個あたり": ("per unit", "每个"),
+"見積で確認": ("Confirm by quote", "以报价确认"),
+"この内容の工程は、公開された相場が見つかっていません。費用は会社の見積で確かめます。": ("We have no published price data for these steps yet. The cost will be confirmed by company quotes.", "这些工序还没有找到公开行情。费用将通过公司报价确认。"),
+"根拠：公開されている料金表・記事の数字（工程：": ("Basis: figures from published price lists and articles (steps: ", "依据：公开价格表・文章中的数字（工序："),
+"）。形・材料・納期で大きく変わります。正式な金額は見積で決まります。": ("). Shape, material and lead time change it a lot. The final price is set by the quote.", "）。会因形状・材料・交期大幅变化。正式金额以报价为准。"),
+"相場がない工程は含まず、見積で確認：": ("Not included (no market data, confirm by quote): ", "未计入（无行情，以报价确认）："),
+"計算の前提と工程ごとの目安": ("Assumptions and per-step estimates", "计算前提与各工序参考"),
+"Googleマップでこの会社の口コミは見つかりませんでした。": ("No Google Maps reviews were found for this company.", "在 Google 地图上没有找到这家公司的评价。"),
+"最低ロット分の金額です": ("Priced at the minimum lot", "按最低批量计价"),
+"この数量では、ほかに": ("At this quantity,", "此数量下，另有"),
+"工程が見積で確認": ("more steps need a quote", "道工序需报价确认"),
 })

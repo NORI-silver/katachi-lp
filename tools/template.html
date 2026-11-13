@@ -371,6 +371,13 @@ table.cmp{border-collapse:separate;border-spacing:0;width:100%;min-width:760px;f
 .ticons button svg{width:22px;height:22px;color:var(--ice)}.ticons button b{font-size:12px;font-weight:600}
 .ticons button[aria-pressed="true"]{border-color:var(--ice);background:var(--hover);box-shadow:inset 0 0 0 1px var(--ice)}
 .tune2 .cchat,.tune2 .aic{margin-top:0}
+.cost2{margin-top:14px;border:1px solid var(--line2);border-radius:14px;padding:14px 16px;background:#fff;display:grid;gap:10px}
+.cost2 h3{margin:0;font-size:15px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.c2rows{display:grid;gap:0;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.c2r{display:grid;grid-template-columns:minmax(84px,auto) 1fr;gap:2px 12px;padding:10px 12px;min-width:0;border-top:1px solid var(--line)}.c2r:first-child{border-top:0}
+.c2r small{color:var(--mute);font-size:12.5px;grid-row:span 3;align-self:start;padding-top:3px}.c2r b{font-size:16px;overflow-wrap:anywhere;text-align:right}.c2r .pu{font-size:12px;color:var(--mute);text-align:right}
+.c2note{font-size:12px;color:var(--mute);margin:0}.c2note .chip{font-size:11.5px}
+.c2q{font-size:13px;color:var(--mute)}
 .gonext{margin-top:14px;display:flex}.gonext .btn{flex:1;justify-content:center;padding:14px;font-size:15px}
 /* ③ 条件（数量・試作対応）とおすすめ */
 .qbar{margin:4px 0 14px;border:1px solid var(--line2);border-radius:14px;padding:12px 14px;display:grid;gap:10px;background:#fff}
@@ -1739,6 +1746,7 @@ async function renderMatch(){
     ${/【参考にした既製品】/.test(S.idea)?`<div class="refwarn" style="margin-top:12px"><b>既製品をもとにした依頼です。</b>参考品の特許・意匠（デザイン）・商標にかからないか、見積の前に担当者・工場と確かめます。変えたところが少ないと、作れない・売れないことがあります。</div>`:''}
     ${A.concept?conceptCard(A.concept):blocked?'':'<div class="empty" style="margin-top:16px">この文章からは、製品の種類を特定できませんでした。下の「AIで相談」を開くと、外観・サイズ・素材・機能の案も作ってもらえます。</div>'}
     ${notices}
+    ${blocked?'':costPeek(A)}
     ${blocked?'':`<div class="gonext"><button type="button" class="btn pri" data-gonext>${A.concept?'この案で会社を探す':'会社を探す'} →</button></div>`}
     ${blocked?blockedNext(A):tuneBox(A)}`;
   }else{
@@ -1800,7 +1808,7 @@ function qBar(total){const f=S.gf||{};
    星・件数・口コミ最大5件を取り寄せて見せる。保存しない・転載しない。書いた人と元の口コミへのリンク、「Google Maps」の表示を付ける。
    受付が使えないとき・見つからないときは Googleマップの検索へのリンクだけ */
 const gmapUrl=r=>'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent([r[0],r[1]==='JP'?r[2]:'',r[3]].filter(Boolean).join(' '));
-const gmapA=(r,place)=>`<div class="grv"><div class="gl"><button type="button" class="rvbtn" aria-expanded="false" data-rv="${place}" data-n="${esc(r[0])}" data-c="${esc(r[1]||'')}" data-p="${esc(r[1]==='JP'?r[2]||'':'')}" data-t="${esc(r[3]||'')}">Googleの口コミを見る</button><a class="gmap" href="${esc(gmapUrl(r))}" target="_blank" rel="noopener" data-gmap="${place}">Googleマップ ↗</a></div><div class="rvout" hidden></div></div>`;
+const gmapA=(r,place)=>`<div class="grv"><div class="gl"><button type="button" class="rvbtn" aria-expanded="false" data-rv="${place}" data-n="${esc(r[0])}" data-c="${esc(r[1]||'')}" data-p="${esc(r[1]==='JP'?r[2]||'':'')}" data-t="${esc(r[3]||'')}">Googleの口コミを見る</button></div><div class="rvout" hidden></div></div>`;
 addEventListener('click',e=>{const a=e.target.closest&&e.target.closest('[data-gmap]');if(a)track('review_link',{site:'google_maps',place:a.dataset.gmap})});
 const RVC={};
 const rvStars=n=>{const k=Math.round(n);return '★★★★★'.slice(0,k)+'☆☆☆☆☆'.slice(0,5-k)};
@@ -1808,8 +1816,8 @@ async function rvFetch(b){const k=[b.dataset.n,b.dataset.p,b.dataset.t,LANG].joi
   if(!FORM_URL||/claude(usercontent)?\.(ai|com)$/.test(location.hostname))return {ok:false,error:'off'};
   try{const res=await fetch(FORM_URL,{method:'POST',body:JSON.stringify({type:'reviews',lang:LANG,name:b.dataset.n,pref:b.dataset.p,city:b.dataset.t,country:b.dataset.c})});
     const v=await res.json();if(v&&(v.ok||v.error==='notfound'))RVC[k]=v;return v||{ok:false}}catch(e){return {ok:false,error:'net'}}}
-function rvHTML(v,map){
-  if(!v.ok){return `<span>${v.error==='notfound'?'Googleマップでこの会社の登録が見つかりませんでした。':'いまは口コミを読み込めません。'}</span><a class="gmap" href="${esc(map)}" target="_blank" rel="noopener" data-gmap="fallback">Googleマップで探す ↗</a>`}
+function rvHTML(v){
+  if(!v.ok){return `<span>${v.error==='notfound'?'Googleマップでこの会社の口コミは見つかりませんでした。':'いまは口コミを読み込めません。'}</span>`}
   if(!v.rating)return `<span>Googleマップの口コミはまだありません</span>${v.place?`<div class="rvwho"><span>Googleマップでの登録：</span><span translate="no">${esc(v.place)}${v.address?'（'+esc(v.address)+'）':''}</span></div>`:''}<div class="rvfoot"><span></span><span class="gattr" translate="no">Google Maps</span></div>`;
   const one=x=>`<div class="rvone"><div class="rvwho">${x.photo?`<img src="${esc(x.photo)}" alt="" loading="lazy" referrerpolicy="no-referrer">`:''}${x.authorUrl?`<a href="${esc(x.authorUrl)}" target="_blank" rel="noopener" translate="no">${esc(x.author)}</a>`:`<b translate="no">${esc(x.author)}</b>`}</div>
     <div class="rvwho"><span class="rvst" aria-label="${x.rating}/5">${rvStars(x.rating)}</span><span translate="no">${esc(x.when)}</span></div>
@@ -1823,8 +1831,8 @@ addEventListener('click',async e=>{const t=e.target.closest&&e.target.closest('.
   const open=b.getAttribute('aria-expanded')!=='true';b.setAttribute('aria-expanded',open);out.hidden=!open;if(!open)return;
   track('open_reviews',{place:b.dataset.rv});
   if(out.dataset.done)return;out.innerHTML='<span>読み込み中…</span>';
-  const v=await rvFetch(b);const map=b.parentElement.querySelector('a.gmap').href;
-  out.innerHTML=rvHTML(v,map);if(v.ok)out.dataset.done=1;track('reviews_result',{place:b.dataset.rv,result:v.ok?(v.rating?'shown':'none'):(v.error||'error')})});
+  const v=await rvFetch(b);
+  out.innerHTML=rvHTML(v);if(v.ok)out.dataset.done=1;track('reviews_result',{place:b.dataset.rv,result:v.ok?(v.rating?'shown':'none'):(v.error||'error')})});
 function tBadges(r,qmax){const LIM=4;const[n,ct,pref,city,web,caps,proto,nodraw,ml,mat,lv]=r;const x=r[14]||{};const b=[];
   if(lv==='pub')b.push(['','公式サイト等で確認']);if(proto)b.push(['','試作に対応']);
   if(ml!=null)b.push([ml<=qmax?'':'ng','最小ロット '+fmt(ml)+'個']);else b.push(['q','最小ロット 要確認']);
@@ -2170,6 +2178,22 @@ document.addEventListener('change',e=>{const q=e.target;if(!q||q.id!=='estQ')ret
   track('estimate_qty',{qty_bucket:v<=10?'1-10':v<=100?'11-100':v<=1000?'101-1000':'1001+'});
   setTimeout(()=>{if(box.isConnected){box.outerHTML=estBox(codes,v,compact)}})});
 const estQ0=(codes,qmax,q)=>(S.estKey===JSON.stringify([...new Set(codes||[])])+(S.idea||'')+S.scen&&S.estQty)||(q>0?q:qmax==null?100:qmax>=1e6?1001:qmax);
+/* ②「イメージを確かめる」に出す概算費用（Nori 2026-11-13「概算費用って2の段階で出せないかな」）。
+   estimates.py の出典つきの数字だけで、試作1個・利用者の数量・小ロット100個の合計と1個あたりを出す。相場がない工程は「見積で確認」。
+   案（内蔵AI・質問・AIの回答）で工程が変わると renderMatch が作り直すので、費用も一緒に変わる */
+function costPeek(A){const codes=[...new Set(A.codes||[])];if(!D.est||!codes.length)return '';
+  const n=S.qn>0?S.qn:+((String(S.idea).match(/(\d[\d,]*)\s*(個|台|枚|本|着|セット|点|pcs|units)/i)||[])[1]||'').replace(/,/g,'');
+  const qs=[...new Set([1,n>1?n:0,100].filter(Boolean))].sort((a,b)=>a-b);
+  const all=qs.map(q=>estimate(codes,q));
+  const known=[...new Set(all.flatMap(o=>o.rows.map(x=>x.code)))],miss=codes.filter(c=>!known.includes(c));
+  const cell=(q,i)=>{const o=all[i];const lab=q===n&&q!==1?'あなたの数量':q===1?'試作':'小ロット';
+    const out=known.filter(c=>!o.rows.some(x=>x.code===c)).length,below=o.rows.some(x=>x.below);
+    return `<div class="c2r"><small><span>${lab}</span> <span>${fmt(q)}個</span></small>${o.rows.length?`<b>${rng(o.lo,o.hi,'yen')}</b>${q>1?`<span class="pu"><span>1個あたり</span> ${rng(Math.round(o.lo/q),Math.round(o.hi/q),'yen')}</span>`:''}${below?'<span class="pu">最低ロット分の金額です</span>':''}${out?`<span class="pu">この数量では、ほかに<span translate="no"> ${out} </span>工程が見積で確認</span>`:''}`:'<b>見積で確認</b>'}</div>`};
+  if(!known.length)return `<div class="cost2"><h3>概算費用の目安 ${mk('ai','AIの目安')}</h3><p class="c2q">この内容の工程は、公開された相場が見つかっていません。費用は会社の見積で確かめます。</p></div>`;
+  return `<div class="cost2" id="mCost"><h3>概算費用の目安 ${mk('ai','AIの目安')}</h3>
+    <div class="c2rows">${qs.map((q,i)=>cell(q,i)).join('')}</div>
+    <p class="c2note"><span>根拠：公開されている料金表・記事の数字（工程：</span>${known.map(c=>`<span>${ecn(c)}</span>`).join("・")}<span>）。形・材料・納期で大きく変わります。正式な金額は見積で決まります。</span>${miss.length?` <span>相場がない工程は含まず、見積で確認：</span>${miss.map(c=>`<span>${ecn(c)}</span>`).join("・")}`:''}</p>
+    ${fold('est2','計算の前提と工程ごとの目安',`<div id="mEst"></div>`)}</div>`}
 /* 選択式・文章入力の画面から呼ぶ: 工程コード, 数量の上限, (わかれば)数量 → HTML */
 window.KATACHI_EST_CARD=(codes,qmax,qty)=>{if(!S.estSent){S.estSent=true;track('view_estimate',{scenario:'guided'})}return estBox(codes,estQ0(codes,qmax,qty),true)};
 function tabEst(){const codes=R().per_requirement.map(p=>p.requirement.capability_code);
@@ -2370,7 +2394,7 @@ function done(t,body){
 /* ---------- i18n: dictionary + AI translation for everything else ---------- */
 const DICT=window.KATACHI_I18N, LI={en:0,zh:1};
 const YEN=(n,m)=>{const v=parseFloat(String(n).replace(/,/g,''))*m;return '¥'+(v>=1e9?(v/1e9).toFixed(1).replace(/\.0$/,'')+'B':v>=1e6?(v/1e6).toFixed(1).replace(/\.0$/,'')+'M':v.toLocaleString('en'))};
-const UNIT={en:{'年':n=>n,'人':n=>n+' people','万円':n=>YEN(n,1e4),'億円':n=>YEN(n,1e8),'工程':n=>n+' steps','社':n=>n+(n==='1'?' company':' companies'),'件':n=>n,'個〜':n=>n+'+ units','個':n=>n+' units','週':n=>n+(n==='1'?' week':' weeks'),'字':n=>n+' chars'},zh:{'年':n=>n+'年','人':n=>n+'人','万円':n=>n+'万日元','億円':n=>n+'亿日元','工程':n=>n+'道工序','社':n=>n+'家','件':n=>n+'条','個〜':n=>n+'个起','個':n=>n+'个','週':n=>n+'周','字':n=>n+'字'}};
+const UNIT={en:{'年':n=>n,'人':n=>n+' people','万円':n=>YEN(n,1e4),'億円':n=>YEN(n,1e8),'工程':n=>n+' steps','社':n=>n+(n==='1'?' company':' companies'),'件':n=>n,'個〜':n=>n+'+ units','個':n=>n+(n==='1'?' unit':' units'),'週':n=>n+(n==='1'?' week':' weeks'),'字':n=>n+' chars'},zh:{'年':n=>n+'年','人':n=>n+'人','万円':n=>n+'万日元','億円':n=>n+'亿日元','工程':n=>n+'道工序','社':n=>n+'家','件':n=>n+'条','個〜':n=>n+'个起','個':n=>n+'个','週':n=>n+'周','字':n=>n+'字'}};
 const KEYS=Object.keys(DICT).filter(k=>k.length>=4).sort((a,b)=>b.length-a.length);
 const RE=new RegExp(KEYS.map(k=>k.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|'),'g');
 const NAMES=Object.keys(D.companies).sort((a,b)=>b.length-a.length);
