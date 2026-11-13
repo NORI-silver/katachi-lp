@@ -1755,7 +1755,7 @@ async function renderMatch(){
   const st=location.hash==='#co'?3:2;const blocked=A.notices.length&&!A.codes.length;
   const head=`<div class="gtop"><div style="min-width:0;flex:1"><div class="eyebrow">Your request</div><h1 class="gh1" translate="no" style="font-size:clamp(18px,2.3vw,24px);overflow-wrap:anywhere">${(()=>{const t=String(S.idea).replace(/\nURL：\S+/g,'');return esc(t.length>120?t.slice(0,120)+'…':t)})()}</h1>
       <div class="gchips">${A.codes.length?`<span class="chip">${A.codes.length}工程</span>`:''}${secs.length===1?'<span class="chip">1社で作れる内容です</span>':''}<span class="chip">${esc({proto:'試作',small:'小ロット',mass:'量産'}[S.qty])}</span><button type="button" class="glink" id="mEdit">書き直す</button></div></div>
-      <div class="gcount"><b class="mono">${fmt(total)}</b><span>${secs.length>=2?'社（工程ごとの候補の合計）':'社が候補'}</span>${secs.length>=2?`<small><span>全工程を1社で</span> <span>${fmt(cinfo.all)}社</span></small>`:''}</div></div>`;
+      <div class="gcount">${st===3&&secs.length>=2?`<b class="mono">__WHON__</b><span>社で完成</span>`:`<b class="mono">${fmt(total)}</b><span>${secs.length>=2?'社（工程ごとの候補の合計）':'社が候補'}</span>`}</div></div>`;
   const notices=A.notices.map(n=>`<div class="empty" style="margin-top:10px;border-color:var(--amber)"><b>KATACHIでは扱っていない工程があります</b>${esc(n)}</div>`).join('');
   const readout=A.fallback?`<div class="empty"><b>文章から工程を特定できませんでした</b>どんな製品でも最初に必要になる「設計・試作・組立」を受ける会社を出しています。下の「AIで相談」で仕様を詰めて読み直すか、そのまま見積を依頼すれば担当者が工程と会社を探します。型が決まっているもの（部品・ノベルティ・袋物など）なら「選んで探す」が早いです。<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn" id="mGuided">選んで探す</button></div></div>`:A.codes.length?`<div class="empty"><b>書いた内容から、必要な工程をキーワードで読み取りました</b>工程が足りない・違うと思ったら、下の「AIで相談」で仕様を詰めるか、そのまま見積を依頼してください。担当者があなたの文章を読んで、工程と会社を組み直してお届けします。</div>`:'';
   let body;
@@ -1787,9 +1787,9 @@ async function renderMatch(){
     const multi=secs.length>=2;
     const R3=A.codes.length?recOf(secs,one,qmax):null;
     body=`${stepBar(3)}${head}
-    ${A.codes.length?`<h2 class="stepnow">何個つくりますか？</h2>${qBar(total,cinfo)}
-      <h2 class="stepnow" style="margin-top:6px">おすすめの頼み方</h2>
+    ${A.codes.length?`<h2 class="stepnow">${multi?'この組み合わせで完成します':'おすすめの頼み方'}</h2>
       ${recBox(R3,secs,qmax)}
+      <h2 class="stepnow" style="margin-top:6px">何個つくりますか？</h2>${qBar(total,cinfo)}
       ${multi&&R3.P?fold('alt','ほかの頼み方：'+(R3.kind==='one'?'工程ごとに組み合わせる':'一社にまとめる'),planCard(R3.kind==='one'?'combo':'one',R3.P,secs,'')+`<button type="button" class="btn ${S.planPick==='both'?'pri':''}" data-plan-pick="both" aria-pressed="${S.planPick==='both'}">${S.planPick==='both'?'両方の案の会社を選択中':'両方に見積を依頼して比べる'}</button>`):''}
       ${fold('flt','並べ替え・地域・届け先',filt)}
       ${fold('all',multi?'工程ごとの候補を、すべて見る':'ほかの候補を、すべて見る',readout+lists,fmt(total)+'社')}
@@ -1798,6 +1798,7 @@ async function renderMatch(){
       ${A.regs.length?fold('reg','確かめておきたい法規制・認証',`<div class="blk"><ul class="list">${A.regs.map(x=>`<li>${esc(x)}</li>`).join('')}</ul><p class="muted" style="margin:6px 0 0;font-size:12px">キーワードから当たりを付けた参考情報です。正式な判断は専門家・認証機関が行います。</p></div>`):''}`
     :`<div class="empty" style="margin-top:16px"><b>文章から工程を読み取れませんでした</b>このまま見積を依頼すれば、担当者が内容を読んで工程と会社を探します。型が決まっているもの（部品・ノベルティ・袋物など）なら「選んで探す」が早いです。<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn" id="mGuided">選んで探す</button></div></div>${(()=>{const ts=textSearch(S.idea);return ts.length?`<section class="mstep" data-step="文章に近い会社"><div class="mhead"><span class="mono mno">?</span><h2>文章の言葉が会社の説明に出てくる会社</h2><span class="muted">${fmt(ts.length)}社</span></div><p class="muted" style="margin:0 0 12px;font-size:13px">工程は読み取れませんでしたが、書いた言葉が社名や説明に含まれる会社です。参考にしてください。</p><ol class="glist">${ts.slice(0,10).map(r=>coCard(r,[])).join('')}</ol></section>`:''})()}`}`;
   }
+  body=body.replace('__WHON__',fmt(S.whoN||0));
   $('#app').innerHTML=`<section class="gut"><div class="wrap gpick">${body}</div></section>`;
   bindStepBar($('#app'));bindFolds();
   S.lostFiles=0;saveFlow();S.mTotal=total;
@@ -1883,7 +1884,7 @@ function stepAssign(R3,secs){const P=R3.P;const key=ideaBase()+'|'+S.qty+'|'+(S.
     const cmp=[r,...s.list.filter(x=>r&&x[0]!==r[0])].filter(Boolean).slice(0,3);
     return {c:s.c,name:CAPN[s.c]||s.c,r,def,cmp,n:s.list.length}})}
 function whoBox(AS,qmax){const by=new Map();for(const a of AS){if(!a.r)continue;const k=a.r[0];if(!by.has(k))by.set(k,{r:a.r,steps:[]});by.get(k).steps.push(a.name)}
-  const none=AS.filter(a=>!a.r);const W=[...by.values()];
+  const none=AS.filter(a=>!a.r);const W=[...by.values()];S.whoN=W.length;
   return `<h4 class="whoh"><span>完成までに頼む会社</span> <span>${fmt(W.length)}社</span></h4>
     <p class="whon">${W.length>=2?'この会社たちに工程を分けて頼みます。会社どうしの受け渡し・日程の取りまとめは、KATACHIの担当者が行います。':'この1社に頼めば、完成まで受け持ってもらえる見込みです。'}</p>
     <ol class="wlist">${W.map((w,i)=>`<li><span class="wn">${i+1}</span><b translate="no">${esc(w.r[0])}</b><small><span>担当：</span>${w.steps.map(t=>`<span>${esc(t)}</span>`).join('・')}</small></li>`).join('')}
@@ -1892,13 +1893,13 @@ function whoBox(AS,qmax){const by=new Map();for(const a of AS){if(!a.r)continue;
     <p class="whon">工程を開くと、比べる候補の会社が出ます。「この会社にする」で入れ替えられます。</p>
     <div class="pcmps">${AS.map(a=>`<details class="pcmp" data-pc="${esc(a.c)}" ${S.folds['pc_'+a.c]?'open':''}><summary><span class="rs">${esc(a.name)}</span><b translate="no">${a.r?esc(a.r[0]):'担当者が探します'}</b><small><span>比べる</span> <span>${fmt(a.cmp.length)}社</span></small></summary>
       ${a.cmp.length?`<ul>${a.cmp.map(r=>{const on=a.r&&r[0]===a.r[0];return `<li class="${on?'on':''}"><div class="ph"><b translate="no">${esc(r[0])}</b>${on?`<span class="pk">${a.def&&r[0]===a.def[0]?'★ おすすめ・選択中':'✓ 選択中'}</span>`:`<button type="button" class="btn sm" data-swap="${esc(a.c)}" data-swapn="${esc(r[0])}">この会社にする</button>`}</div>${tBadges(r,qmax)}${gmapA(r,'compare')}</li>`}).join('')}</ul>`:'<p class="whon" style="padding:0 12px 12px;margin:0">この工程の会社は、まだ一覧にありません。担当者が探してお声がけします。</p>'}</details>`).join('')}</div>`}
-function recBox(R3,secs,qmax){if(!R3||!R3.rows.length)return `<div class="empty">条件に合う会社が一覧にありません。数量や「試作に対応」の条件を外すか、このまま見積を依頼してください。担当者が探してお声がけします。</div>`;
+function recBox(R3,secs,qmax){S.whoN=0;if(!R3||!R3.rows.length)return `<div class="empty">条件に合う会社が一覧にありません。数量や「試作に対応」の条件を外すか、このまま見積を依頼してください。担当者が探してお声がけします。</div>`;
   const AS=secs.length>=2?stepAssign(R3,secs):null;
   if(AS){const rows=[];const seen=new Map();for(const a of AS){if(!a.r)continue;if(!seen.has(a.r[0])){seen.set(a.r[0],[]);rows.push({r:a.r})}seen.get(a.r[0]).push(a.name)}
     R3={...R3,rows:rows.map(x=>({...x,step:seen.get(x.r[0]).join('・'),key:seen.get(x.r[0]).join('・')}))}}
   if(S.autoPick!==false){S.gsel=[];S.gstep={};for(const x of R3.rows){if(S.gsel.includes(x.r[0])||S.gsel.length>=8)continue;S.gsel.push(x.r[0]);S.gstep[x.r[0]]=x.key}S.planPick=R3.kind}
   const picked=R3.rows.slice(0,8).every(x=>S.gsel.includes(x.r[0]));
-  return `<section class="rec" id="mPlans"><span class="rtag">★ おすすめ</span><h3>${R3.title}</h3><p class="why">${R3.why}</p>
+  return `<section class="rec" id="mPlans"><span class="rtag">★ おすすめ</span>${AS&&R3.kind!=='one'?'':`<h3>${R3.title}</h3><p class="why">${R3.why}</p>`}
     ${AS?whoBox(AS,qmax)+(R3.rows.length>8?`<p class="whon" style="margin-top:8px"><span>見積の依頼は、上から8社に送ります。残りの</span><span translate="no"> ${R3.rows.length-8} </span><span>社の工程は、担当者が手配します。</span></p>`:''):(()=>{const li=x=>`<li><span class="rs">${esc(x.step)}</span><b translate="no">${esc(x.r[0])}</b>${tBadges(x.r,qmax)}${gmapA(x.r,'recommend')}</li>`;const N=4;
       return `<ul class="rcos">${R3.rows.slice(0,N).map(li).join('')}</ul>${R3.rows.length>N?`<details class="rmore"><summary>ほかの工程の会社も見る</summary><ul class="rcos">${R3.rows.slice(N).map(li).join('')}</ul></details>`:''}`})()}
     <span class="rvw">KATACHIでの口コミ：まだありません（取引した人だけが書けます）。Googleの口コミは各社の「Googleの口コミを見る」から。</span>

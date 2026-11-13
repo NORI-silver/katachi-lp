@@ -900,4 +900,6 @@ T.update({
 "この会社にする": ("Choose this company", "选这家"),
 "見積の依頼は、上から8社に送ります。残りの": ("Quote requests go to the first 8 companies. The steps of the remaining", "询价发送给前8家。其余"),
 "社の工程は、担当者が手配します。": ("companies are arranged by our team.", "家的工序由负责人安排。"),
+"この組み合わせで完成します": ("This combination finishes the product", "按此组合即可完成"),
+"社で完成": (" companies to finish", "家公司即可完成"),
 })
