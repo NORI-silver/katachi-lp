@@ -24,6 +24,8 @@
 | idea_more | 作例の「詳しく見る」 | idea | |
 | idea_from_page | 作例のページからトップに来た | idea, edit | |
 | filter_company | 絞り込み・並べ替えを変えた | filter, active_filters | |
+| sort_company | 候補の会社を料金・品質・納期で並べ替えた | sort（rec/price/qual/lead）, source | |
+| choose_plan | 「一社にまとめる案」「組み合わせる案」「両方」を選んだ | plan（one/combo/both/none）, companies | 届け先の都道府県は送らない（filter=deliver_to だけ） |
 | select_quantity | 試作/小ロット/量産 | quantity | |
 | import_design | AI設計の取り込み | file_kind, file_ext / source | |
 | view_team | 結果（チーム）を表示 | scenario, steps, companies, gaps | |
