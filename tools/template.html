@@ -669,7 +669,7 @@ const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const capName=t=>String(t).replace(/「([a-z_.]+)」/g,(m,c)=>'「'+(D.cap[c]||c)+'」');
 const fmt=n=>Number(n).toLocaleString('ja-JP');
-const LV={official:['pub','公式サイトで確認','企業の公式サイトに書かれている情報'],news:['pub','報道で確認','ニュース・記事で確認できた情報'],listing:['pub','掲載ページで確認','企業自身の製品掲載ページの情報'],aggregator:['unk','未確認','まとめサイトに名前があるだけで、中身は未確認'],demo:['demo','記入例（架空）','画面の見え方を示す架空データ']};
+const LV={official:['pub','公式サイトで確認','企業の公式サイトに書かれている情報'],news:['pub','報道で確認','ニュース・記事で確認できた情報'],listing:['pub','掲載ページで確認','企業自身の製品掲載ページの情報'],aggregator:['unk','未確認','まとめサイトに名前があるだけで、中身は未確認'],gov:['unk','国の登録情報のみ','出典「Gビズインフォ」(経済産業省)をもとにKATACHI作成。業種の登録情報だけで、受注条件は未確認'],demo:['demo','記入例（架空）','画面の見え方を示す架空データ']};
 const mk=(k,t,title)=>`<span class="mk ${k}"${title?` title="${esc(title)}"`:''}><i></i>${esc(t)}</span>`;
 const lv=c=>{const l=LV[c?.level]||LV.aggregator;return mk(l[0],l[1],l[2])};
 const CTRY={CN:'中国',BD:'バングラデシュ',VN:'ベトナム',TW:'台湾',US:'アメリカ',EU:'欧州',HK:'香港',KR:'韓国',TH:'タイ',IN:'インド',DE:'ドイツ',MY:'マレーシア',ID:'インドネシア',PH:'フィリピン'};
@@ -802,7 +802,7 @@ function renderHome(){
   <section class="gut"><div class="wrap ideas" id="ideas"></div></section>
   <section class="gut"><div class="wrap rank" id="rank"></div></section>
   <section class="gut"><div class="wrap figs">
-    <div class="fig"><b class="mono">${fmt(D.realCount)}</b><span>登録している実在の会社（公開情報）</span></div>
+    <div class="fig"><b class="mono">${fmt(D.realCount)}</b><span>登録している実在の会社（公開情報・国の登録情報）</span></div>
     <div class="fig"><b class="mono">${fmt(D.realAbroad)}</b><span>うち海外の工場</span></div>
     <div class="fig"><b class="lat">1 → N</b><span>1社で無理なら、複数社を組み合わせる</span></div>
   </div></section>
@@ -1514,7 +1514,7 @@ async function renderPick(){
   if(!db){$('#app').innerHTML=`<section class="gut"><div class="wrap" style="padding:60px 0"><h2>会社の一覧を読み込めませんでした</h2><p class="muted">通信の状態を確かめて、もう一度お試しください。</p><button class="btn" onclick="location.reload()">再読み込み</button></div></section>`;return}
   const all=gRank();const base=(()=>{const f=S.gf;S.gf={area:'',proto:false};const b=gRank();S.gf=f;return b})();
   const areas=gAreas(base);const nJP=base.filter(r=>r[1]==='JP').length;
-  const list=all.slice(0,S.gshow);const lvTag=lv=>lv==='pub'?mk('pub','公式サイト等で確認'):mk('unk','要確認');
+  const list=all.slice(0,S.gshow);const lvTag=lv=>lv==='pub'?mk('pub','公式サイト等で確認'):lv==='gov'?mk('unk','国の登録情報のみ',LV.gov[2]):mk('unk','要確認');
   $('#app').innerHTML=`<section class="gut"><div class="wrap gpick">
     <div class="gtop"><div><div class="eyebrow">Your request</div><h1 class="gh1">${esc(gCat().t)}<span>${esc(S.g.proc&&S.g.proc!==OMAKASE?S.g.proc:'加工方法はおまかせ')}</span></h1>
       <div class="gchips">${gLines().filter(x=>!['つくるもの','加工方法','補足'].includes(x[0])).map(([l,v])=>`<span class="chip">${esc(l)} · ${esc(v)}</span>`).join('')}<button type="button" class="glink" id="gEdit">条件を変える</button></div></div>
@@ -1608,7 +1608,7 @@ function rankFor(codes,opts){const idx=codes.map(c=>GDB.caps.indexOf(c)).filter(
   return axSort(out.sort((a,b)=>b[0]-a[0]).map(x=>x[1]).filter(r=>axPass(r,qmax)),qmax)}
 function coCard(r,chipCodes){const[n,ct,pref,city,web,caps,proto,nodraw,ml,mat,lv,sum,src]=r;const on=S.gsel.includes(n);
   return `<li class="gco ${on?'on':''}"><label class="gsel"><input type="checkbox" data-pick="${esc(n)}" ${on?'checked':''} aria-label="${esc(n)}"></label>
-    <div class="gbody"><div class="gname"><b translate="no">${esc(n)}</b>${lv==='pub'?mk('pub','公式サイト等で確認'):mk('unk','要確認')}</div>
+    <div class="gbody"><div class="gname"><b translate="no">${esc(n)}</b>${lv==='pub'?mk('pub','公式サイト等で確認'):lv==='gov'?mk('unk','国の登録情報のみ',LV.gov[2]):mk('unk','要確認')}</div>
     <div class="gmeta">${esc(ct==='JP'?[pref,city].filter(Boolean).join(' ')||'国内':(CTRY[ct]||ct))}${proto?' · <span>試作に対応</span>':''}${nodraw?' · <span>図面なしで相談可</span>':''}${ml!=null?` · <span>最小ロット ${fmt(ml)}個</span>`:''}${mat==='factory'||mat==='both'?' · <span>材料を手配</span>':''}</div>
     <div class="gcaps">${caps.map(i=>GDB.caps[i]).filter(c=>chipCodes.includes(c)).map(c=>`<span class="chip">${esc(CAPN[c]||c)}</span>`).join('')}</div>
     ${axHtml(r,S.axq||500)}
