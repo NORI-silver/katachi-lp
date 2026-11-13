@@ -100,7 +100,7 @@ def og(title, desc, url, typ, img="/og.png"):
 def index():
     url = SITE + "/guide/"
     title = "自社製品の試作・製造を外注するためのガイド"
-    desc = "設計部門や図面がない中小企業が、自社製品の試作・小ロット製造・OEMを外注するときの進め方、頼む先の選び方、見積の比べ方をまとめたガイドです。"
+    desc = "個人や、設計部門・図面がない中小企業が、自分の商品の試作・小ロット製造・OEMを頼むときの進め方、品目別に何個から作れるか、頼む先の選び方、見積の比べ方をまとめたガイドです。"
     items = V.guide_index(ARTICLES)
     body = (f'<p class="crumb"><a href="/">KATACHI</a></p><h1>{title}</h1><p class="lead">{desc}</p>'
             '<p>頼み先を地域と工程から探すなら <a href="/factory/">工場をさがす</a>、つくるものの例は <a href="/idea/">作例</a> へ。</p>' + f'{items}{CTA}')
