@@ -70,6 +70,8 @@
 | ai_return | 外部のAIを開いたあと、このページに戻ってきた（貼る場所を開く） | ai | |
 | review_link | 会社の「Googleマップで口コミを見る」を押した | site（google_maps）, place（recommend/list）。会社名は送らない | |
 | choose_plan | （追記）おすすめに戻す・担当者に任せる | plan（rec/staff） | |
+| ref_open | トップの「既製品をもとに作る」を開いた・閉じた | open | |
+| ref_product | 既製品をもとにした依頼で「はじめる」を押した | changes（変える点の数）, has_url, host（参考URLのドメインだけ） | URLの全体や商品名は送らない |
 
 ## 送らないもの
 入力文・会社名・ファイル名などの中身は送らない（個人情報や未公開アイデアを含みうるため）。種類・件数・文字数だけを送る。
