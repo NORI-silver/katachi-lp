@@ -620,10 +620,9 @@ def page_html(x, root, guides_by):
     n = caps.get(x['code'], 0)
     er = est_rows(x)
     est_txt = '、'.join(f'{KIND.get(r["k"], "")}{rng(r["lo"], r["hi"], r["u"])}（{r["t"]}）' for r, s in er)
-    pts = [p['ans'], (f'公開されている目安：{est_txt}。' if er else '公開された相場は見つかっていないため、金額は見積で確かめます。'),
-           p['check'][0]]
+    pts = [(f'公開されている目安：{est_txt}。' if er else '公開の相場は見つかっておらず、金額は見積で確かめます。'), p['check'][0]]
     if n:
-        pts.insert(1, f'KATACHIに登録している会社のうち、この工程を受ける会社は{n:,}社あります。')
+        pts.insert(0, f'この工程を受ける会社：KATACHIの登録企業のうち{n:,}社。')
     steps = ''.join(f'<li>{e(s)}</li>' for s in p['steps'])
     tips = ''.join(f'<li>{e(s)}</li>' for s in x['tips'])
     dec = ''.join(f'<li>{e(s)}</li>' for s in p['decide'])
@@ -632,11 +631,10 @@ def page_html(x, root, guides_by):
         tbl = ('<div class="tbl"><table><tr><th>項目</th><th>目安</th><th>中身</th><th>出典・確かさ</th></tr>'
                + ''.join(f'<tr><td>{KIND.get(r["k"], "")}</td><td>{rng(r["lo"], r["hi"], r["u"])}</td><td>{e(r["t"])}</td>'
                          f'<td><a href="{e(s.get("url", ""))}" target="_blank" rel="noopener">{e(s.get("t", ""))}</a>（{LEVEL.get(s.get("level"), "")}）</td></tr>' for r, s in er)
-               + '</table></div><p class="src">公開されている料金表・記事に書かれた数字です（2026-11-12に確認）。形・材料・数量・納期で大きく変わり、正式な金額は工場の見積で決まります。'
-               + ('ドルの金額は、画面では1ドル＝150円で換算しています。' if any(r['u'] == 'usd' for r, s in er) else '') + '</p>')
+               + '</table></div><p class="src">公開の料金表・記事の数字（2026-11-12確認）。形・材料・数量・納期で変わり、正式な金額は見積で決まります。'
+               + ('ドルは画面上1ドル＝150円で換算。' if any(r['u'] == 'usd' for r, s in er) else '') + '</p>')
     else:
-        tbl = '<p>この作例に当てはまる公開の相場は見つかっていません。金額は、見積の依頼で複数の会社に聞いて比べます。</p>'
-    cnt = f'<p>KATACHIに登録している会社（公開情報）のうち、この工程を受ける会社は<b>{n:,}社</b>です。</p>' if n else ''
+        tbl = '<p>公開の相場は見つかっていません。見積の依頼で複数の会社に聞いて比べます。</p>'
     gl = [g for g in x['guides'] + p['guides'] if g in guides_by]
     gl = list(dict.fromkeys(gl))
     rel = ''.join(f'<li><a href="/guide/{g}/">{e(guides_by[g]["h1"])}</a></li>' for g in gl)
@@ -644,10 +642,9 @@ def page_html(x, root, guides_by):
     grid = ''.join(f'<a href="/idea/{y["k"]}/"><span class="f">{svg(y["fig"], 36)}</span><span><b>{e(y["t"][0])}</b><small>{e(y["d"][0])}</small></span></a>' for y in same)
     q = QLAB[x['q']]
     go = f'/?idea={x["k"]}'
-    faq = [(f'{t}は、何個から作れますか', (f'この作例は{lot}を想定しています。' + (f'公開されている目安では、{est_txt}です。' if er else '')
-                                       + '最低ロットは工場や作り方で変わるので、見積の依頼で確かめます。')),
-           ('図面やデザインがなくても頼めますか', '頼めます。作りたいものを文章や写真で伝えると、KATACHIが工程に分けて、図面なしでも相談できる会社を探します。'),
-           ('見積を頼むのにお金はかかりますか', '工程の整理・会社の検索・見積の依頼は無料です。試作・製造の代金は、依頼する会社に直接お支払いいただきます。')]
+    faq = [(f'{t}は、何個から作れますか', f'この作例は{lot}を想定しています。最低ロットは工場や作り方で変わるため、見積で確かめます。'),
+           ('図面やデザインがなくても頼めますか', '頼めます。文章や写真で伝えると、KATACHIが工程に分け、図面なしで相談できる会社を探します。'),
+           ('見積を頼むのにお金はかかりますか', '工程の整理・会社の検索・見積の依頼は無料です。試作・製造の代金は依頼先に直接支払います。')]
     faq_html = '<dl>' + ''.join(f'<dt>{e(a)}</dt><dd>{e(b)}</dd>' for a, b in faq) + '</dl>'
     body = (f'<p class="crumb"><a href="/">KATACHI</a> › <a href="/idea/">作例</a> › {e(ind)}</p>'
             f'<div class="ihero"><span class="fig">{svg(x["fig"], 56)}</span><div><h1>{e(title)}</h1>'
@@ -657,16 +654,16 @@ def page_html(x, root, guides_by):
             f'<div class="points"><b>この作例の要点</b><ul>' + ''.join(f'<li>{e(s)}</li>' for s in pts) + '</ul></div>'
             f'<h2>作り方の流れ</h2><ol>{steps}</ol>'
             f'<h2>この作例で工夫すること</h2><ul>{tips}</ul>'
-            f'<h2>依頼前に決めること</h2><p>見積は、次のことが決まっているほど早く、正確に出ます。決まっていないことは「未定」と書いて相談できます。</p><ul>{dec}</ul>'
-            f'<h2>費用・最低ロットの目安</h2>{tbl}{cnt}<p class="note">期間は、形・数量・工場の混み具合で変わるため、見積で確かめます。</p>'
+            f'<h2>依頼前に決めること</h2><p>決まっているほど見積が早く正確です。未定のことは「未定」で相談できます。</p><ul>{dec}</ul>'
+            f'<h2>費用・最低ロットの目安</h2>{tbl}<p class="note">期間は形・数量・工場の混み具合で変わるため、見積で確かめます。</p>'
             f'<h2>確かめる表示・許可</h2><ul>{chk}</ul>'
-            + (f'<p>くわしくは、次のガイドにまとめています。</p><ul>{rel}</ul>' if rel else '')
+            + (f'<p>くわしいガイド：</p><ul>{rel}</ul>' if rel else '')
             + f'<h2>よくある質問</h2>{faq_html}'
-            f'<div class="cta"><b>この作例の内容で、頼める会社をさがす</b><p>押すと、KATACHIがこの内容を工程に分け、工程ごとに候補の会社を出します。内容は書き換えてから探すこともできます。</p>'
+            f'<div class="cta"><b>この作例の内容で、頼める会社をさがす</b><p>この内容を工程に分け、工程ごとに候補の会社を出します。書き換えてから探すこともできます。</p>'
             f'<a class="btn" href="{go}">この内容で探す</a><a class="btn sub" href="{go}&amp;edit=1">書き換えてから探す</a></div>'
             + (f'<h2>{e(ind)}のほかの作例</h2><div class="grid">{grid}</div>' if grid else '')
             + '<p><a href="/idea/">作例をすべて見る</a></p>'
-            '<p class="note">作例（モデルケース）です。実在の会社の事例や見積ではありません。目安の数字は公開されている料金表・記事から、会社の数はKATACHIに登録している公開情報から出しています。</p>')
+            '<p class="note">作例（モデルケース）で、実在の会社の事例や見積ではありません。目安は公開の料金表・記事、会社数はKATACHIの登録企業（公開情報）から出しています。</p>')
     url = f'{SITE}/idea/{x["k"]}/'
     graph = [{"@type": "Organization", "@id": SITE + "/#org", "name": "KATACHI", "url": SITE + "/", "logo": SITE + "/apple-touch-icon.png"},
              {"@type": "Article", "headline": title, "description": desc, "dateModified": UPDATED, "datePublished": UPDATED, "inLanguage": "ja",
