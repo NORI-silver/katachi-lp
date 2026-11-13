@@ -21,3 +21,4 @@
 - 2026-11-12 /guide/3d-print-request/ に「どんな企業が何に使っているか」を追記（Protolabs 3DP Trend Report 2024・MONOist 2024年7月調査）。Nori依頼。
 - 2026-11-12 seed語でキーワードプランナー（3シート）。実需は「◯◯ OEM 小ロット」に集中 → 計画を並べ替え。記事6本目 /guide/small-lot-oem/（狙う語「OEM 小ロット」）。
 - 2026-11-12 KATACHI専用GA4 G-3C2RRECKB8 を全ページに追加（総合 G-ZYX17VBTWB と併用）。
+- 2026-11-13 /guide/small-lot-oem/ を業界別記事（化粧品・食品・お菓子・サプリ・アパレル・グッズ・成形・許可・ノベルティ・ペット・アウトドア）への入口に（内部リンク追加）。
