@@ -14,6 +14,7 @@
 - アクセス解析（GA4）は2つに送る：KATACHI専用 `G-3C2RRECKB8`（ストリーム katachi、2026-11-12〜）と、`G-ZYX17VBTWB`（shiokonbu.com 総合、プロパティ 292677591、全サブドメイン共通）。どちらも消さない。トップは `tools/prod.py` の `GA`、サブページは `tools/site_common.py` の `GA`。入力文・会社名・ファイル名など中身は送らない。イベント一覧は `tools/analytics.md`。
 - 見積の依頼・相談の受付は Apps Script（`backend/forms.gs`）。**リポジトリにあっても本番には自動で反映されない**。直したら Apps Script に貼り直して「デプロイを管理」→ 同じデプロイの新しいバージョン、と Nori さんに伝える。受付URLは `tools/prod.py` の第3引数で入れる。
 - 見積の依頼・相談で送られた写真・動画などは、受付（`backend/forms.gs`）が運営者の Google ドライブ「KATACHI 受付ファイル / 受付番号」の非公開フォルダに保存する（1件20ファイル・合計300MB・1本200MBまで、4MBずつ分けて送る）。サイトからAIのAPIには送らない（費用をかけない方針）。写真から仕様への整理は、画面の「見積に必要な4点」と利用者自身のAI、運営側の確認で行う。
+- 工場・開発企業の提携申込みは `/partner/`（`tools/partner.py` で作る。画面は `tools/partner_template.html`、訳は `tools/partner_i18n.py`）。送信先は同じ受付（`backend/forms.gs` の type:`partner`）で、シートの「提携申込」タブに入り、写真・証明書は「KATACHI 受付ファイル / P〜」に入る。正式な規約と料金表は承認の連絡で送り、相手が同意したら状態を「提携成立」にして katachi-matching の `load-partners` で企業DBに取り込む。
 - 秘密情報（トークン・APIキー・個人のメールアドレス・シートID）をコミットしない。リポジトリは公開。
 - 利用規約・プライバシーポリシーは `tools/legal.py` から作る。外部送信先を増やしたら、プライバシーポリシーの「5. 外部送信」にも足す。
 

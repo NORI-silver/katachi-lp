@@ -20,7 +20,7 @@ def page(OUT, path, title, desc, body, noindex=False, head='', full_title=False)
 <style>{CSS}</style>{head}</head><body>
 <header><a href="/">{LOGO}KATACHI</a></header>
 <main>{body}</main>
-<footer><a href="/">トップ</a><a href="/guide/">ガイド</a><a href="/terms/">利用規約</a><a href="/privacy/">プライバシーポリシー</a><a href="/privacy/#operator">運営者情報</a><span>© 2026 KATACHI</span></footer>
+<footer><a href="/">トップ</a><a href="/guide/">ガイド</a><a href="/terms/">利用規約</a><a href="/privacy/">プライバシーポリシー</a><a href="/privacy/#operator">運営者情報</a><a href="/partner/">工場・開発企業の方へ</a><span>© 2026 KATACHI</span></footer>
 </body></html>
 '''
     d = OUT + path
