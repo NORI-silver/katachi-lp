@@ -68,6 +68,8 @@
 | tune_mode | ②の「この案を、相談して詰める」で相談のしかたを切り替えた | mode（q/ai/human） | |
 | tune_human | ②から「担当者・工場に相談する」を開いた | なし | |
 | ai_return | 外部のAIを開いたあと、このページに戻ってきた（貼る場所を開く） | ai | |
+| review_link | 会社の「Googleマップで口コミを見る」を押した | site（google_maps）, place（recommend/list）。会社名は送らない | |
+| choose_plan | （追記）おすすめに戻す・担当者に任せる | plan（rec/staff） | |
 
 ## 送らないもの
 入力文・会社名・ファイル名などの中身は送らない（個人情報や未公開アイデアを含みうるため）。種類・件数・文字数だけを送る。
