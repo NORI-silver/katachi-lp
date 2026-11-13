@@ -10,7 +10,7 @@ from katachi.taxonomy import CAPABILITIES
 name2code = {n: c for c, p, n, *_ in CAPABILITIES}
 codes = [c for c, *_ in CAPABILITIES]
 LV = ['公式サイトで確認', '報道・記事で確認', '企業掲載ページで確認', '集約サイト掲載のみ(未確認)']
-LVK = ['pub', 'pub', 'pub', 'unk']
+LVK = ['pub', 'pub', 'pub', 'unk']  # gov: 国の登録情報（gBizINFO）のみ。出典「Gビズインフォ」(経済産業省)をもとにKATACHI作成
 from company_signals import load_gbiz, signals
 GB, SUB = load_gbiz(root)
 rows = []
@@ -20,13 +20,16 @@ for x in csv.DictReader(open(src, encoding='utf-8-sig')):
         t = t.rstrip('★')
         if t in name2code: caps.append(codes.index(name2code[t]))
     if not caps: continue
+    gov = x['確認レベル'] == 'gbizinfo'
+    # 国の登録情報（gBizINFO）だけの会社は、工程がわかる会社だけ入れる（「製造・加工」の分類だけの会社は候補にしない。Nori 2026-11-13）
+    if gov and all(codes[i] == 'manufacturing' for i in caps): continue
     lv = LV.index(x['確認レベル']) if x['確認レベル'] in LV else 3
     ml = x['最小ロット']
     rows.append([x['社名'], x['国'] or 'JP', x['都道府県'], x['市区町村'], x['公式サイト'], caps,
                  1 if x['試作対応'] == '可' else None, 1 if x['図面なし相談'] == '可' else None,
                  int(ml) if ml.isdigit() else None,
                  {'工場が手配': 'factory', 'どちらも可': 'both', '自分で用意': 'customer'}.get(x['材料調達']),
-                 LVK[lv], x['概要'][:70], x['出典URL'], x['確認日'], signals(x, GB, SUB)])
+                 'gov' if gov else LVK[lv], x['概要'][:70], x['出典URL'], x['確認日'], signals(x, GB, SUB)])
 from katachi.taxonomy import REGULATION_HINTS, DEFERRED, DEFERRED_KEYWORDS
 # 文章入力の読み取り用に、taxonomy のキーワードを補う（サイト側だけで使う。本来は taxonomy.py に足す）
 EXTRA_KW = {
