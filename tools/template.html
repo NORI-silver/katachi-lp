@@ -297,6 +297,33 @@ table.cmp{border-collapse:separate;border-spacing:0;width:100%;min-width:760px;f
 .ready .rc span.on{border:1px solid var(--ice);background:var(--ice);color:#fff}
 .aihelp{border:1px dashed var(--line2);border-radius:10px;padding:10px 12px;font-size:13px}.aihelp summary{cursor:pointer;color:var(--fg)}
 .paste .aihelp{margin-top:8px}
+/* ---------- 4ステップの流れ（書く→イメージ→会社→依頼） ---------- */
+.stepbar{margin:0 0 18px}.stepbar ol{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.stepbar li{min-width:0}.stepbar li>*{display:flex;flex-direction:column;gap:6px;width:100%;padding:0;border:0;background:none;text-align:left;font:inherit;color:var(--dim)}
+.stepbar li>*::before{content:"";display:block;height:5px;border-radius:3px;background:var(--line2)}
+.stepbar li.done>*::before,.stepbar li.on>*::before{background:var(--ice)}
+.stepbar li.on>*{color:var(--fg)}.stepbar li.done>*{color:var(--ice)}.stepbar button{cursor:pointer}
+.stepbar b{font-size:12px;font-weight:600;line-height:1.35;display:flex;gap:5px;align-items:baseline}.stepbar i{font-style:normal;font-size:11px}
+.stepnow{margin:0 0 4px;font-size:clamp(20px,2.6vw,26px);font-weight:800}
+.steplead{margin:0 0 14px;color:var(--mute);font-size:13.5px}
+.fold{margin-top:10px;border:1px solid var(--line2);border-radius:12px;background:#fff}
+.fold>summary{cursor:pointer;list-style:none;padding:13px 16px;font-size:14px;font-weight:600;display:flex;gap:8px;align-items:center}
+.fold>summary::-webkit-details-marker{display:none}
+.fold>summary::before{content:"";width:7px;height:7px;border-right:2px solid var(--mute);border-bottom:2px solid var(--mute);transform:rotate(-45deg);transition:transform .15s;flex:none}
+.fold[open]>summary::before{transform:rotate(45deg)}
+.fold>summary small{font-weight:400;color:var(--mute);font-size:12px;margin-left:auto;text-align:right}
+.fold>.fb{padding:0 16px 16px;display:grid;gap:12px;min-width:0}.fold>.fb>*{min-width:0}
+.fold .aic,.fold .ccard,.fold .pcmp,.fold .mstep,.fold .blk,.fold .empty{margin-top:0}
+.nexts{max-width:760px;margin:18px 0 0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;list-style:none;padding:0}
+.nexts li{background:var(--bg2);border-radius:12px;padding:10px 12px;font-size:12.5px;color:var(--mute);display:grid;gap:2px;align-content:start}
+.nexts li b{color:var(--fg);font-size:13.5px;display:flex;gap:6px;align-items:center}
+.nexts li i{font-style:normal;width:20px;height:20px;border-radius:50%;background:var(--ice);color:#fff;font-size:11px;display:inline-grid;place-items:center;flex:none}
+.alt2{max-width:760px;margin-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.alt2 button{text-align:left;border:1px solid var(--line2);border-radius:12px;background:#fff;padding:11px 14px;font:inherit;color:var(--fg);cursor:pointer;display:grid;gap:2px}
+.alt2 button:hover{background:var(--hover)}.alt2 b{font-size:14px}.alt2 small{font-size:12px;color:var(--mute)}
+.aifold{max-width:760px;margin-top:12px}.aifold summary{cursor:pointer;font-size:13px;color:var(--mute)}.aifold .aihome{margin-top:8px}
+@media(max-width:480px){.dock .gdl.nx,.dock .gdl.nx+.sp{display:none}.dock .nxb{flex:1;justify-content:center}}
+@media(max-width:640px){.nexts{grid-template-columns:1fr 1fr}.alt2{grid-template-columns:1fr}.stepbar b{font-size:11px;flex-direction:column;gap:0}}
 .aic{margin-top:16px;border:1px solid color-mix(in srgb,var(--ice) 28%,var(--line));background:linear-gradient(180deg,color-mix(in srgb,var(--ice) 5%,#fff),#fff);border-radius:14px;padding:18px;display:grid;gap:12px}
 .aic h3{font-size:17px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}.aic h3 .chip{font-family:var(--f-body);font-size:11.5px}
 .aic p{margin:0;font-size:13.5px}
@@ -623,9 +650,18 @@ const demoR=n=>{const h=hash(n);return Array.from({length:1+h%3},(_,i)=>({t:REV[
 const ravg=r=>+(r.reduce((a,x)=>a+x.ax.reduce((p,c)=>p+c,0)/4,0)/r.length).toFixed(1);
 
 /* ---------- routing ---------- */
-function route(){const h=location.hash.slice(1);if(h==='result'){renderResult();pageview('/result','チーム編成')}else if(h==='pick'){renderPick();pageview('/pick','候補の会社（選択式）')}else if(h==='match'){renderMatch();pageview('/match','工程ごとの候補（文章）')}else{renderHome();pageview('/','トップ')}window.scrollTo(0,0)}
+function route(){const h=location.hash.slice(1);if(h==='result'){renderResult();pageview('/result','チーム編成')}else if(h==='pick'){renderPick();pageview('/pick','候補の会社（選択式）')}else if(h==='match'){renderMatch();pageview('/match','2 イメージを確かめる')}else if(h==='co'){renderMatch();pageview('/companies','3 会社を選ぶ')}else{renderHome();pageview('/','トップ')}window.scrollTo(0,0)}
 addEventListener('hashchange',route);
 
+/* ---------- 4ステップ（書く→イメージを確かめる→会社を選ぶ→見積を依頼）。1画面に1つの目的、次に押すボタンは常に1つ ---------- */
+const STEPS=['書く','イメージを確かめる','会社を選ぶ','見積を依頼'];
+function stepBar(n){return `<nav class="stepbar" aria-label="進み具合"><ol>${STEPS.map((t,i)=>{const k=i+1,cls=k<n?'done':k===n?'on':'';const inner=`<b><i class="mono">${k}</i>${t}</b>`;
+  return `<li class="${cls}"${k===n?' aria-current="step"':''}>${k<n?`<button type="button" data-stepgo="${k}">${inner}</button>`:`<span>${inner}</span>`}</li>`}).join('')}</ol></nav>`}
+function bindStepBar(root){(root||document).querySelectorAll('[data-stepgo]').forEach(b=>b.onclick=()=>{const k=+b.dataset.stepgo;track('step_back',{to:k});if($('#ov .sheet'))closeSheet();
+  if(k===1){S.mode='free';location.hash=''}else if(k===2)location.hash='match';else if(k===3)location.hash='co'})}
+/* 補助の機能は畳む。開いた状態は描き直しても保つ */
+const fold=(k,t,body,note)=>`<details class="fold" data-fold="${k}" ${(S.folds||{})[k]?'open':''}><summary><span>${t}</span>${note?`<small>${note}</small>`:''}</summary><div class="fb">${body}</div></details>`;
+function bindFolds(){S.folds=S.folds||{};$$('details[data-fold]').forEach(d=>d.ontoggle=()=>{S.folds[d.dataset.fold]=d.open;if(d.open)track('fold_open',{fold:d.dataset.fold})})}
 /* ---------- HOME ---------- */
 const EX=[['collar','自社ブランドの犬用健康首輪'],['mimamori','介護向け見守りセンサー 100個'],['bike','自社商品の防水自転車ライト']];
 function renderHome(){
@@ -634,8 +670,8 @@ function renderHome(){
   <section class="hero gut"><canvas id="field" aria-hidden="true"></canvas><div class="wrap">
     <div class="eyebrow" style="margin-bottom:18px">AI × 町工場 × あなた</div>
     <h1>アイデアを、<br>製品のかたちに。</h1>
-    <p class="sub">設計部門がなくても大丈夫。つくりたいものを書くだけで、AIが作り方を工程に分け、全国と海外の工場から、それぞれを得意とする会社でチームを組みます。比べて、選ぶのはあなたです。</p>
-    ${modeTabs()}
+    <p class="sub">${S.mode==='guided'?'設計部門がなくても大丈夫。つくりたいものを書くだけで、AIが作り方を工程に分け、全国と海外の工場から、それぞれを得意とする会社でチームを組みます。比べて、選ぶのはあなたです。':'何を作りたいか、ひとことで書いてください。写真だけでも始められます。設計部門や図面がなくても大丈夫です。'}</p>
+    ${S.mode==='guided'?modeTabs():''}
     <div class="composer gw" id="gw" ${S.mode==='guided'?'':'hidden'}></div>
     <form class="composer" id="cmp" autocomplete="off" ${S.mode==='guided'?'hidden':''}>
       <label for="idea" class="eyebrow" style="position:absolute;left:-9999px">つくりたいもの</label>
@@ -648,13 +684,17 @@ function renderHome(){
         <button type="button" class="clip" id="pasteBtn">会話を貼る</button>
         <span class="sp"></span>
         <div class="pillset" role="group" aria-label="数量">${[['proto','試作'],['small','小ロット'],['mass','量産']].map(([v,t])=>`<button type="button" data-qty="${v}" aria-pressed="${S.qty===v}">${t}</button>`).join('')}</div>
-        <button class="btn pri" type="submit">チームを組む<svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <button class="btn pri" type="submit">はじめる<svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
       </div>
       <input type="file" id="fileIn" multiple hidden>
     </form>
     <p class="logn">入力した内容は、サービスの改善と傾向の分析のために保存します。メールアドレスや電話番号は書かないでください。</p>
-    <div class="examples" ${S.mode==='guided'?'hidden':''}><span>試す</span>${EX.map(([k,t])=>`<button class="ex" data-ex="${k}">${t}</button>`).join('')}<button type="button" class="ex exi" id="toIdeas">思いつかないときは、業種から選ぶ ↓</button></div>
-    <div class="aihome" ${S.mode==='guided'?'hidden':''}><span>まだ考えがまとまっていなければ</span>${['ChatGPT','Claude','Gemini'].map(n=>`<a data-haigo="${n}" href="${AI_HOME[n]}" target="_blank" rel="noopener">${AI_ICON}${n}で相談</a>`).join('')}</div>
+    ${S.mode==='guided'?'':`<ol class="nexts" aria-label="このあとの流れ">
+      <li><b><i>1</i>書く</b><span>作りたいものを一文で</span></li><li><b><i>2</i>イメージを確かめる</b><span>形・サイズ・素材の案</span></li>
+      <li><b><i>3</i>会社を選ぶ</b><span>一社か、組み合わせか</span></li><li><b><i>4</i>見積を依頼</b><span>無料。あとは担当者が工場に確認</span></li></ol>
+    <div class="alt2"><button type="button" id="toIdeas"><b>思いつかないときは</b><small>業種から作例を選ぶ ↓</small></button><button type="button" data-mode="guided"><b>型が決まっているもの</b><small>ノベルティ・部品・袋物は「選んで探す」</small></button></div>
+    <div class="examples"><span>試す</span>${EX.map(([k,t])=>`<button class="ex" data-ex="${k}">${t}</button>`).join('')}</div>
+    <details class="aifold"><summary>まだ考えがまとまっていなければ、AIで相談</summary><div class="aihome">${['ChatGPT','Claude','Gemini'].map(n=>`<a data-haigo="${n}" href="${AI_HOME[n]}" target="_blank" rel="noopener">${AI_ICON}${n}で相談</a>`).join('')}</div></details>`}
   </div></section>
   <section class="gut"><div class="wrap ideas" id="ideas"></div></section>
   <section class="gut"><div class="wrap rank" id="rank"></div></section>
@@ -662,15 +702,6 @@ function renderHome(){
     <div class="fig"><b class="mono">${fmt(D.realCount)}</b><span>登録している実在の会社（公開情報）</span></div>
     <div class="fig"><b class="mono">${fmt(D.realAbroad)}</b><span>うち海外の工場</span></div>
     <div class="fig"><b class="lat">1 → N</b><span>1社で無理なら、複数社を組み合わせる</span></div>
-  </div></section>
-  <section class="gut"><div class="wrap how">
-    <div><div class="eyebrow">How it works</div><h2 style="margin-top:10px">設計部門も図面もなくても、<br>ここから始められます。</h2><p class="lead">ChatGPTやGemini、Claudeで考えた仕様書や3Dモデルも、そのまま取り込めます。</p></div>
-    <ol class="flow">
-      <li><span class="no">01</span><div><h3>つくりたいものを書く</h3><p>ひとことでも、AIと作った仕様書でも。</p></div></li>
-      <li><span class="no">02</span><div><h3>AIが工程に分ける</h3><p>必要な技術と、つまずきやすい難所を洗い出します。</p></div></li>
-      <li><span class="no">03</span><div><h3>工程ごとに会社を選ぶ</h3><p>おすすめのチームから始めて、気になる会社に入れ替えられます。</p></div></li>
-      <li><span class="no">04</span><div><h3>見積を頼んで、比べて、決める</h3><p>価格・数量・品質・口コミが並びます。試作のあとも相談できます。</p></div></li>
-    </ol>
   </div></section>
   <section class="gut trust"><div class="wrap"><div class="box">
     <div><div class="eyebrow">Trust</div><h2 style="margin-top:10px">確かなことと、AIの見立てを分けて見せます。</h2><p>情報には必ず印が付きます。印の形を見れば、どこまで確かめられているかがわかります。</p></div>
@@ -727,7 +758,7 @@ async function renderIdeas(){const el=$('#ideas');if(!el)return;S.ind=S.ind||'pi
   {const r=el.querySelector('.inds'),c=r&&r.querySelector('[aria-selected="true"]');if(r&&c){const a=r.getBoundingClientRect(),z=c.getBoundingClientRect();r.scrollLeft+=z.left-a.left-(a.width-z.width)/2}}
   $$('[data-ind]').forEach(b=>b.onclick=()=>{S.ind=b.dataset.ind;track('idea_industry',{industry:S.ind});renderIdeas()});
   $$('[data-idea]').forEach(b=>b.onclick=()=>{const x=IDEAS.find(i=>i.k===b.dataset.idea);track('idea_click',{idea:x.k,industry:x.ind,picked_from:S.ind});S.qty=x.q;
-    if(x.ex){S.mode='free';const ta=$('#idea');if(ta)ta.value=D.scen[x.ex].idea;go(x.ex);return}
+    if(x.ex){S.mode='free';const ta=$('#idea');if(ta)ta.value=D.scen[x.ex].idea;go(null);return}
     S.mode='free';S.files=S.files||[];const ta=$('#idea');ta.value=x.idea;go(null)});
   $$('[data-iedit]').forEach(b=>b.onclick=()=>ideaEdit(b.dataset.iedit,'card'));
   $$('[data-imore]').forEach(a=>a.onclick=()=>track('idea_more',{idea:a.dataset.imore}));
@@ -739,14 +770,14 @@ function ideaFromUrl(){let q;try{q=new URLSearchParams(location.search)}catch(e)
   try{history.replaceState(null,'',location.pathname+location.hash)}catch(e){}
   track('idea_from_page',{idea:x.k,edit:q.get('edit')==='1'});
   if(q.get('edit')==='1'&&!x.ex){location.hash='';renderHome();ideaEdit(x.k,'page');return true}
-  S.qty=x.q;S.mode='free';location.hash='';renderHome();if(x.ex){$('#idea').value=D.scen[x.ex].idea;go(x.ex);return true}
+  S.qty=x.q;S.mode='free';location.hash='';renderHome();if(x.ex){$('#idea').value=D.scen[x.ex].idea;go(null);return true}
   $('#idea').value=x.idea;go(null);return true}
 function bindHome(){
   const f=$('#cmp'),ta=$('#idea');
   let started=false;const grow=()=>{ta.style.height='auto';ta.style.height=Math.min(ta.scrollHeight,260)+'px'};ta.oninput=()=>{grow();if(!started&&ta.value.trim()){started=true;track('form_input_start',{form:'idea'})}};grow();
   $$('[data-qty]').forEach(b=>b.onclick=()=>{S.qty=b.dataset.qty;track('select_quantity',{quantity:S.qty});$$('[data-qty]').forEach(x=>x.setAttribute('aria-pressed',x===b))});
   $$('[data-haigo]').forEach(a=>a.onclick=()=>{const A={home:true,idea:ta.value.trim()};a.href=aiUrl(a.dataset.haigo,A);aiCopy(aiQuestion(A));track('ai_consult_open',{ai:a.dataset.haigo,place:'home',chars:A.idea.length})});
-  $$('[data-ex]').forEach(b=>b.onclick=()=>{track('example_click',{example:b.dataset.ex});ta.value=D.scen[b.dataset.ex].idea;go(b.dataset.ex)});
+  $$('[data-ex]').forEach(b=>b.onclick=()=>{track('example_click',{example:b.dataset.ex});ta.value=D.scen[b.dataset.ex].idea;go(null)});
   $('#pick').onclick=()=>$('#fileIn').click();
   $('#fileIn').onchange=e=>{[...e.target.files].forEach(addFile);e.target.value=''};
   $('#pasteBtn').onclick=()=>{$('#paste').classList.toggle('on');$('#pasteT').focus()};
@@ -1058,18 +1089,18 @@ function conceptCard(c){const v=cvarOf(c);
     <div class="cgrid"><figure class="cfig">${cfig(c.fig)}</figure>
       <div><h3 class="cname">${esc(c.name)}</h3>${c.chips&&c.chips.length?`<div class="cchips"><span class="muted">あなたの文章から読み取った条件</span>${c.chips.map(x=>`<span class="chip">${frg(x)}</span>`).join('')}</div>`:''}<p class="clead">${esc(c.lead)}</p>
       <dl class="cspec">${c.rows.map(([k,x])=>`<dt>${esc(k)}</dt><dd>${frg(x)}</dd>`).join('')}</dl></div></div>
-    <div class="ccols"><div><h4>主な機能</h4><ul class="cl">${c.feats.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>
-      <div><h4>試作で確かめること</h4><ul class="cl">${c.check.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div></div>
-    <div><h4>方向性を選ぶ</h4><div class="cvars">${c.vars.map(([n,d],i)=>`<button type="button" class="cvar${v===i?' on':''}" data-cvar="${i}" aria-pressed="${v===i}"><b>${esc(n)}</b><span>${esc(d)}</span></button>`).join('')}</div>
+    ${fold('cfeat','主な機能と、試作で確かめること',`<div class="ccols"><div><h4>主な機能</h4><ul class="cl">${c.feats.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>
+      <div><h4>試作で確かめること</h4><ul class="cl">${c.check.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div></div>`)}
+    ${fold('cvar','方向性と、作り方の目安',`<div><h4>方向性を選ぶ</h4><div class="cvars">${c.vars.map(([n,d],i)=>`<button type="button" class="cvar${v===i?' on':''}" data-cvar="${i}" aria-pressed="${v===i}"><b>${esc(n)}</b><span>${esc(d)}</span></button>`).join('')}</div>
       <p class="muted" style="margin:6px 0 0;font-size:12px">選んだ方向性は、AI相談の質問文にも入ります。</p></div>
-    <div><h4>作り方の目安</h4><dl class="cspec"><dt>試作</dt><dd>${esc(c.proto)}</dd><dt>量産</dt><dd>${esc(c.mass)}</dd></dl></div>
-    ${chatBox(c)}
+    <div><h4>作り方の目安</h4><dl class="cspec"><dt>試作</dt><dd>${esc(c.proto)}</dd><dt>量産</dt><dd>${esc(c.mass)}</dd></dl></div>`)}
+    ${fold('cchat','質問に答えて、案を詰める',chatBox(c),'任意')}
     <div class="cfoot"><p class="muted">製品の種類ごとの典型例から、KATACHIが組み立てた案です（AIの推定）。寸法・素材・性能は、工場・専門家との打ち合わせと試作で決まります。図は大きさと形の目安で、設計図ではありません。</p><button type="button" class="btn sm" id="mCAi">この案をもとにAIで詰める</button></div></section>`}
 function wireConcept(A){const c=A.concept;if(!c||!$('#mConcept'))return;wireChat(c);
   $$('#mConcept [data-cvar]').forEach(b=>b.onclick=()=>{const i=+b.dataset.cvar;S.cvar=cvarOf(c)===i?null:{id:c.id,i};
     $$('#mConcept [data-cvar]').forEach(x=>{const on=S.cvar&&+x.dataset.cvar===S.cvar.i;x.classList.toggle('on',!!on);x.setAttribute('aria-pressed',!!on)});
     const pre=$('#mAi pre');if(pre&&pre.closest('details').open)pre.textContent=aiQuestion(A);track('concept_direction',{concept:c.id,direction:S.cvar?S.cvar.i:-1})});
-  const g=$('#mCAi');if(g)g.onclick=()=>{const box=$('#mAi');track('concept_ai',{concept:c.id});if(box){box.scrollIntoView({behavior:'smooth',block:'start'});box.classList.add('flash');setTimeout(()=>box.classList.remove('flash'),1600)}}}
+  const g=$('#mCAi');if(g)g.onclick=()=>{const box=$('#mAi');track('concept_ai',{concept:c.id});const fd=box&&box.closest('details');if(fd)fd.open=true;if(box){box.scrollIntoView({behavior:'smooth',block:'start'});box.classList.add('flash');setTimeout(()=>box.classList.remove('flash'),1600)}}}
 
 function renderMedia(){const el=$('#mediaBox');if(!el)return;const rfqMode=!!$('#rf');
   el.innerHTML=`${rfqMode?'<div id="readyBox"></div>':''}
@@ -1434,23 +1465,22 @@ async function renderMatch(){
     one.sort((a,b)=>b[0]-a[0]);one=one.slice(0,S.gmore.__one||5)}
   const integ=secs.find(s=>s.c==='manufacturing.assembly')||secs.find(s=>/oem$/.test(s.c))||secs.find(s=>/^(manufacturing\.textile|apparel)/.test(s.c))||secs.filter(s=>/^(manufacturing|crafts|packaging)/.test(s.c)).slice(-1)[0];
   track('text_analyze',{steps:A.codes.length,companies:total,chars:S.idea.length});
-  $('#app').innerHTML=`<section class="gut"><div class="wrap gpick">
-    <div class="gtop"><div style="min-width:0;flex:1"><div class="eyebrow">Your request</div><h1 class="gh1" translate="no" style="font-size:clamp(20px,2.6vw,28px)">${esc(S.idea.length>120?S.idea.slice(0,120)+'…':S.idea)}</h1>
+  const st=location.hash==='#co'?3:2;const blocked=A.notices.length&&!A.codes.length;
+  const head=`<div class="gtop"><div style="min-width:0;flex:1"><div class="eyebrow">Your request</div><h1 class="gh1" translate="no" style="font-size:clamp(18px,2.3vw,24px)">${esc(S.idea.length>120?S.idea.slice(0,120)+'…':S.idea)}</h1>
       <div class="gchips">${A.codes.length?`<span class="chip">${A.codes.length}工程</span>`:''}${secs.length===1?'<span class="chip">1社で作れる内容です</span>':''}<span class="chip">${esc({proto:'試作',small:'小ロット',mass:'量産'}[S.qty])}</span><button type="button" class="glink" id="mEdit">書き直す</button></div></div>
-      <div class="gcount"><b class="mono">${fmt(total)}</b><span>社が候補</span></div></div>
+      <div class="gcount"><b class="mono">${fmt(total)}</b><span>社が候補</span></div></div>`;
+  const notices=A.notices.map(n=>`<div class="empty" style="margin-top:10px;border-color:var(--amber)"><b>KATACHIでは扱っていない工程があります</b>${esc(n)}</div>`).join('');
+  const readout=A.fallback?`<div class="empty"><b>文章から工程を特定できませんでした</b>どんな製品でも最初に必要になる「設計・試作・組立」を受ける会社を出しています。下の「AIで相談」で仕様を詰めて読み直すか、そのまま見積を依頼すれば担当者が工程と会社を探します。型が決まっているもの（部品・ノベルティ・袋物など）なら「選んで探す」が早いです。<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn" id="mGuided">選んで探す</button></div></div>`:A.codes.length?`<div class="empty"><b>書いた内容から、必要な工程をキーワードで読み取りました</b>工程が足りない・違うと思ったら、下の「AIで相談」で仕様を詰めるか、そのまま見積を依頼してください。担当者があなたの文章を読んで、工程と会社を組み直してお届けします。</div>`:'';
+  const aiBox=blocked||A.notices.some(n=>WEAPON.test(n))?'':fold('ai','AI（ChatGPT・Claude・Gemini）で相談する',aiConsult(A),'無料');
+  let body;
+  if(st===2){
+    body=`${stepBar(2)}${head}
     <div id="fstrip">${stripHTML()}</div>
-    ${A.concept?conceptCard(A.concept):A.notices.length?'':'<div class="empty" style="margin-top:16px">この文章からは、製品の種類を特定できませんでした。下の「AIで相談」を開くと、外観・サイズ・素材・機能の案も作ってもらえます。</div>'}
-    ${A.fallback?`<div class="empty" style="margin-top:16px"><b>文章から工程を特定できませんでした</b>どんな製品でも最初に必要になる「設計・試作・組立」を受ける会社を出しています。下の「AIで相談」で仕様を詰めて読み直すか、そのまま見積を依頼すれば担当者が工程と会社を探します。型が決まっているもの（部品・ノベルティ・袋物など）なら「選んで探す」が早いです。<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn" id="mGuided">選んで探す</button></div></div>`:A.codes.length?`<div class="empty" style="margin-top:16px"><b>書いた内容から、必要な工程をキーワードで読み取りました</b>工程が足りない・違うと思ったら、下の「AIで相談」で仕様を詰めるか、そのまま見積を依頼してください。担当者があなたの文章を読んで、工程と会社を組み直してお届けします。</div>`:''}
-    ${A.notices.length&&!A.codes.length||A.notices.some(n=>WEAPON.test(n))?'':aiConsult(A)}
-    ${A.codes.length?'<div id="mEst"></div>':''}
-    ${A.notices.map(n=>`<div class="empty" style="margin-top:10px;border-color:var(--amber)"><b>KATACHIでは扱っていない工程があります</b>${esc(n)}</div>`).join('')}
-    ${A.notices.length&&!A.codes.length?blockedNext(A):''}
-    ${A.regs.length?`<div class="blk" style="margin-top:16px"><h4>確かめておきたい法規制・認証</h4><ul class="list">${A.regs.map(x=>`<li>${esc(x)}</li>`).join('')}</ul><p class="muted" style="margin:6px 0 0;font-size:12px">キーワードから当たりを付けた参考情報です。正式な判断は専門家・認証機関が行います。</p></div>`:''}
-    ${A.codes.length?`<div class="gflt"><label>地域<select id="gArea"><option value="">すべて</option><option value="JP">国内だけ</option><option value="ABROAD">海外だけ</option></select></label>
-      <label class="chk"><input type="checkbox" id="gProto" ${S.gf.proto?'checked':''}><span>試作に対応と書いている会社だけ</span></label><span class="sp"></span>
-      <span class="muted" style="font-size:12.5px">工程ごとに見積を取りたい会社を選べます（合計8社まで）。選ばずに依頼すると、担当者が選んで打診します。</span></div>${axBar()}${planCmp(secs,one)}`:
-      A.notices.length?'':`<div class="empty" style="margin-top:16px"><b>文章から工程を読み取れませんでした</b>このまま見積を依頼すれば、担当者が内容を読んで工程と会社を探します。型が決まっているもの（部品・ノベルティ・袋物など）なら「選んで探す」が早いです。<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn" id="mGuided">選んで探す</button></div></div>${(()=>{const ts=textSearch(S.idea);return ts.length?`<section class="mstep" data-step="文章に近い会社"><div class="mhead"><span class="mono mno">?</span><h2>文章の言葉が会社の説明に出てくる会社</h2><span class="muted">${fmt(ts.length)}社</span></div><p class="muted" style="margin:0 0 12px;font-size:13px">工程は読み取れませんでしたが、書いた言葉が社名や説明に含まれる会社です。参考にしてください。</p><ol class="glist">${ts.slice(0,10).map(r=>coCard(r,[])).join('')}</ol></section>`:''})()}`}
-    ${secs.length>=2?`<section class="mstep" data-step="まとめて依頼"><div class="mhead"><span class="mono mno">A</span><h2>1社でまとめて頼む</h2><span class="muted">${one.length?'おすすめ':''}</span></div>
+    ${A.concept?conceptCard(A.concept):blocked?'':'<div class="empty" style="margin-top:16px">この文章からは、製品の種類を特定できませんでした。下の「AIで相談」を開くと、外観・サイズ・素材・機能の案も作ってもらえます。</div>'}
+    ${notices}
+    ${blocked?blockedNext(A):`<div style="margin-top:10px">${aiBox}</div>`}`;
+  }else{
+    const lists=`${secs.length>=2?`<section class="mstep" data-step="まとめて依頼"><div class="mhead"><span class="mono mno">A</span><h2>1社でまとめて頼む</h2><span class="muted">${one.length?'おすすめ':''}</span></div>
       <p class="muted" style="margin:0 0 12px;font-size:13.5px">窓口が1つで済み、部品の受け渡しで起きる食い違いや責任の分かれ目が減ります。単一の加工で作れるものや、1社で揃うものはこちらが向いています。</p>
       ${one.length?`<ol class="glist">${one.map(([,cov,r])=>coCard(r,A.codes).replace('<div class="gcaps">',`<div class="gcaps"><span class="chip on">${secs.length}工程中 ${cov}工程</span>`)).join('')}</ol>`:'<p class="muted" style="font-size:13px">読み取った工程を1社でまとめて受けられそうな会社は、一覧からは見つかりませんでした。担当者が、取りまとめを引き受ける会社を探すこともできます。</p>'}</section>
     <section class="mstep"><div class="mhead"><span class="mono mno">B</span><h2>工程ごとに分けて頼む</h2><span class="muted">比べるための案</span></div>
@@ -1459,9 +1489,25 @@ async function renderMatch(){
         <div><b>取りまとめ</b><span>会社同士で受け渡す寸法・データ・日程を決め、進み具合を見るのはKATACHIの担当者です。不具合が出たときに、どの工程の問題かを切り分けます。</span></div></div></section>`:''}
     ${secs.map((s,i)=>{const k=S.gmore[s.c]||5;return `<section class="mstep" data-step="${esc(CAPN[s.c]||s.c)}"><div class="mhead"><span class="mono mno">${String(i+1).padStart(2,'0')}</span><h2>${esc(CAPN[s.c]||s.c)}</h2><span class="muted">${fmt(s.list.length)}社</span>${integ&&integ.c===s.c&&secs.length>=2?'<span class="chip on">組み立てて仕上げる</span>':''}</div>
       ${s.list.length?`<ol class="glist">${s.list.slice(0,k).map(r=>coCard(r,A.codes)).join('')}</ol>${s.list.length>k?`<button class="glink" data-more="${esc(s.c)}" style="margin-top:10px">さらに表示 · 残り ${fmt(s.list.length-k)}社</button>`:''}`:`<p class="muted" style="font-size:13px">この工程の会社は、まだ一覧にありません。担当者が探してお声がけします。</p>`}</section>`}).join('')}
-    <p class="muted" style="font-size:12.5px;margin-top:24px">一覧は公開情報から集めたものです。「要確認」の会社は、見積の依頼で対応できるかを確かめます。順番は、確認の度合い・試作や数量への合い方・所在地で決めています。</p>
-  </div></section>`;
-  if(!(A.notices.length&&!A.codes.length))pickDock();bindPicks();wireAiConsult(A);wireConcept(A);if(A.concept&&S.loggedConcept!==S.idea){S.loggedConcept=S.idea;track('concept_show',{concept:A.concept.id})}
+    <p class="muted" style="font-size:12.5px;margin:0">一覧は公開情報から集めたものです。「要確認」の会社は、見積の依頼で対応できるかを確かめます。順番は、確認の度合い・試作や数量への合い方・所在地で決めています。</p>`;
+    const filt=`<div class="gflt" style="margin:0"><label>地域<select id="gArea"><option value="">すべて</option><option value="JP">国内だけ</option><option value="ABROAD">海外だけ</option></select></label>
+      <label class="chk"><input type="checkbox" id="gProto" ${S.gf.proto?'checked':''}><span>試作に対応と書いている会社だけ</span></label></div>${axBar()}`;
+    const multi=secs.length>=2;
+    body=`${stepBar(3)}${head}
+    <h2 class="stepnow">${multi?'頼み方を選んでください':'見積を頼む会社を選んでください'}</h2>
+    <p class="steplead">選んだ会社に、まとめて見積を頼めます（合計8社まで）。選ばずに進むと、担当者が合いそうな会社を選んで打診します。</p>
+    ${A.codes.length?`${multi?planCmp(secs,one):''}
+      ${fold('flt','並べ替え・絞り込み（料金・品質・納期・地域）',filt)}
+      ${multi?fold('all','工程ごとの候補を、すべて見る',readout+lists,fmt(total)+'社'):`${readout?`<div style="margin-top:10px">${readout}</div>`:''}${lists}`}
+      ${fold('est','概算の目安',`<div id="mEst"></div>`,'AIの目安')}
+      ${A.regs.length?fold('reg','確かめておきたい法規制・認証',`<div class="blk"><ul class="list">${A.regs.map(x=>`<li>${esc(x)}</li>`).join('')}</ul><p class="muted" style="margin:6px 0 0;font-size:12px">キーワードから当たりを付けた参考情報です。正式な判断は専門家・認証機関が行います。</p></div>`):''}`
+    :`<div class="empty" style="margin-top:16px"><b>文章から工程を読み取れませんでした</b>このまま見積を依頼すれば、担当者が内容を読んで工程と会社を探します。型が決まっているもの（部品・ノベルティ・袋物など）なら「選んで探す」が早いです。<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn" id="mGuided">選んで探す</button></div></div>${(()=>{const ts=textSearch(S.idea);return ts.length?`<section class="mstep" data-step="文章に近い会社"><div class="mhead"><span class="mono mno">?</span><h2>文章の言葉が会社の説明に出てくる会社</h2><span class="muted">${fmt(ts.length)}社</span></div><p class="muted" style="margin:0 0 12px;font-size:13px">工程は読み取れませんでしたが、書いた言葉が社名や説明に含まれる会社です。参考にしてください。</p><ol class="glist">${ts.slice(0,10).map(r=>coCard(r,[])).join('')}</ol></section>`:''})()}`}`;
+  }
+  $('#app').innerHTML=`<section class="gut"><div class="wrap gpick">${body}</div></section>`;
+  bindStepBar($('#app'));bindFolds();
+  if(st===2){if(!blocked)$('#dock').innerHTML=`<div class="dock gut"><div class="wrap"><div class="gdl nx"><b>${A.concept?'この案でよければ、次は会社選び':'次は、作れる会社を選びます'}</b><small>${fmt(total)}社が候補</small></div><span class="sp"></span><button class="btn pri nxb" id="mNext">${A.concept?'この案で会社を探す':'会社を探す'}<svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div></div>`,$('#mNext').onclick=()=>{track('step_next',{to:3,concept:A.concept?A.concept.id:''});location.hash='co'}}
+  else pickDock();
+  bindPicks();wireAiConsult(A);wireConcept(A);if(st===2&&A.concept&&S.loggedConcept!==S.idea){S.loggedConcept=S.idea;track('concept_show',{concept:A.concept.id})}
   $$('[data-alt]').forEach(b=>b.onclick=()=>{track('blocked_alt',{alt:b.dataset.altk});S.idea=b.dataset.alt;S.loggedIdea='';S.gsel=[];S.gstep={};S.gmore={};renderMatch().then(()=>window.scrollTo({top:0,behavior:'smooth'}))});
   if($('#mEst')&&typeof window.KATACHI_EST_CARD==='function'){try{$('#mEst').innerHTML=window.KATACHI_EST_CARD(A.codes,qmax,+((S.idea.match(/(\d[\d,]*)\s*(個|台|枚|本|着|セット|pcs|units)/i)||[])[1]||'').replace(/,/g,''))||''}catch(e){}}
   $('#mEdit').onclick=()=>{S.mode='free';location.hash=''};
@@ -1699,7 +1745,7 @@ function tabPlan(){
 /* ---------- sheets ---------- */
 function sheet(html,wide,after){
   $('#ov').innerHTML=`<div class="scrim" data-x></div><aside class="sheet" role="dialog" aria-modal="true" style="${wide?'width:min(900px,100%)':''}">${html.startsWith('<div class="sh"')?html:`<div class="sh"><span></span><button class="x" data-x aria-label="閉じる">×</button></div>`+html}</aside>`;
-  $$('#ov [data-x]').forEach(b=>b.onclick=closeSheet);addEventListener('keydown',escK);after&&after();$('#ov .x')?.focus();
+  $$('#ov [data-x]').forEach(b=>b.onclick=closeSheet);bindStepBar($('#ov'));addEventListener('keydown',escK);after&&after();$('#ov .x')?.focus();
 }
 function closeSheet(){$('#ov').innerHTML='';removeEventListener('keydown',escK)}
 const escK=e=>{if(e.key==='Escape')closeSheet()};
@@ -1790,7 +1836,7 @@ function rfq(names){
   const r=R();const qty=S.scen==='guided'&&S.src==='guided'&&S.g.qty?S.g.qty:{proto:'試作 1〜10個',small:'小ロット 〜500個',mass:'量産 500個〜'}[S.qty];
   const G=S.scen==='guided';
   const roles=n=>G?(S.src==='guided'?(S.g.proc&&S.g.proc!==OMAKASE?S.g.proc:gCat()?.t||''):(S.gstep[n]==='まとめて依頼'?'まとめて（'+(S.anal?.codes||[]).map(c=>CAPN[c]||c).join('、')+'）':(S.gstep[n]||''))):Object.entries(S.assign).filter(([,v])=>v===n).map(([k])=>r.per_requirement.find(p=>p.requirement.id===k)?.requirement.purpose).filter(Boolean).join('、');
-  sheet(`${head('Request for quote','見積を依頼する')}
+  sheet(`${head('Request for quote','見積を依頼する')}${S.src==='text'?stepBar(4):''}
     <p class="muted" style="margin:0;font-size:13px">必須は5つだけです。ほかは、わかる範囲で選ぶか空けておけば「相談したい」として届きます。</p>
     <p class="muted" style="margin:0;font-size:13px">製品の概要と「AIが補う」の欄は、入力した内容からAIが下書きしています。直してから送れます。</p>
     <form class="form" id="rf" novalidate>
