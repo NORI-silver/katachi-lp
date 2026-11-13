@@ -396,6 +396,26 @@ table.cmp{border-collapse:separate;border-spacing:0;width:100%;min-width:760px;f
 .wlist{list-style:none;margin:0;padding:0;display:grid;border:1px solid var(--line);border-radius:12px;background:#fff;overflow:hidden}
 .wlist li{display:grid;grid-template-columns:auto 1fr;gap:2px 10px;padding:9px 12px;border-top:1px solid var(--line);align-items:baseline}.wlist li:first-child{border-top:0}
 .wlist .wn{font-size:12px;color:var(--mute);font-variant-numeric:tabular-nums}.wlist b{font-size:14px;overflow-wrap:anywhere}.wlist small{grid-column:2;color:var(--mute);font-size:12px}
+.pflow{display:grid;gap:4px;margin:2px 0 4px;border:1px solid var(--line);border-radius:12px;background:#fff;padding:10px 12px}
+.fph{display:grid;gap:4px;min-width:0}.fph>.fpp{display:flex;flex-wrap:wrap;gap:4px;min-width:0;align-items:flex-start}.fph .fst{display:inline-block}
+.fpt{display:flex;gap:4px;align-items:center;font-size:12px;font-weight:700;color:var(--ice);padding-top:3px}
+.fst{font-size:11.5px;border-radius:8px;padding:3px 8px;background:color-mix(in srgb,var(--c) 14%,#fff);border:1px solid var(--c);color:var(--fg);overflow-wrap:anywhere}
+.far{color:var(--mute);font-size:12px;padding-left:28px;line-height:1}
+.lgd{list-style:none;margin:4px 0 2px;padding:0;display:flex;flex-wrap:wrap;gap:6px}
+.lgd li{display:flex;gap:6px;align-items:center;border:1px solid var(--line);border-radius:99px;padding:3px 10px 3px 6px;background:#fff;font-size:12.5px;min-width:0}
+.lgd i,.cdot{width:12px;height:12px;border-radius:50%;background:var(--c);flex:none;display:inline-block}.lgd b{font-weight:600;overflow-wrap:anywhere}.lgd small{color:var(--mute)}
+.stps{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.alts>summary{cursor:pointer;font-size:12.5px;color:var(--ice);padding:4px 2px;list-style:none}.alts>summary::-webkit-details-marker{display:none}
+.alts>summary::before{content:"▸ "}.alts[open]>summary::before{content:"▾ "}.alts .altl{display:grid;gap:6px;margin-top:4px}
+.stps .sph{font-size:12.5px;font-weight:700;color:var(--ice);letter-spacing:.04em;margin:6px 0 -2px;display:flex;gap:5px;align-items:center}
+.stp{border:1px solid var(--line);border-left:5px solid var(--c);border-radius:12px;background:#fff;padding:10px 12px;display:grid;gap:6px;min-width:0}
+.stp .sth{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}.stp .sn{font-size:12px;color:#fff;background:var(--ice);border-radius:99px;min-width:20px;text-align:center;padding:0 6px}
+.stp .sth b{font-size:14px}.stp .sth small{color:var(--mute);font-size:12px;margin-left:auto}
+.opt{display:grid;grid-template-columns:auto 1fr;gap:8px;align-items:start;border:1px solid var(--line);border-radius:10px;padding:8px 10px;cursor:pointer;min-width:0}
+.opt.on{border-color:var(--c);background:color-mix(in srgb,var(--c) 8%,#fff)}.opt input{margin-top:4px;accent-color:var(--ice)}
+.opt .ob{display:grid;gap:3px;min-width:0}.opt .on1{display:flex;gap:6px;align-items:baseline;flex-wrap:wrap}.opt b{font-size:14px;overflow-wrap:anywhere}
+.opt .rk{font-size:11.5px;font-weight:700;color:#fff;background:var(--ice);border-radius:99px;padding:1px 8px}
+.opt .ry{font-size:12px;color:var(--fg)}.opt .om{font-size:12px;color:var(--mute)}
 .pcmps{display:grid;gap:6px}.pcmp{border:1px solid var(--line);border-radius:12px;background:#fff}
 .pcmp>summary{list-style:none;cursor:pointer;padding:10px 12px;display:grid;grid-template-columns:1fr auto;gap:2px 8px;align-items:baseline}
 .pcmp>summary::-webkit-details-marker{display:none}.pcmp .rs{font-size:11.5px;color:var(--mute);grid-column:1/-1}.pcmp summary b{font-size:14px;overflow-wrap:anywhere}
@@ -1805,9 +1825,10 @@ async function renderMatch(){
   if(st===3){$$('[data-q3]').forEach(b=>b.onclick=()=>{S.qty=b.dataset.q3;S.qn=0;track('select_quantity',{quantity:S.qty,place:'companies'});S.gmore={};renderMatch()});
     const qn=$('#qN');if(qn)qn.onchange=()=>{const n=Math.max(0,Math.round(+qn.value||0));S.qn=n;if(n)S.qty=n<=10?'proto':n<=500?'small':'mass';track('select_quantity',{quantity:S.qty,place:'companies',typed:!!n});S.gmore={};renderMatch()};
     $$('[data-qf]').forEach(b=>b.onclick=()=>{S.gf.proto=!S.gf.proto;track('filter_company',{filter:'proto',source:'text'});S.gmore={};renderMatch()});
-    $$('[data-swap]').forEach(b=>b.onclick=()=>{const c=b.dataset.swap;S.stepPick=S.stepPick||{k:'',m:{}};S.stepPick.m[c]=b.dataset.swapn;S.autoPick=true;S.folds['pc_'+c]=true;track('swap_company',{source:'compare'});
-      const y=b.closest('.pcmp').getBoundingClientRect().top;renderMatch().then(()=>{const d=$(`.pcmp[data-pc="${CSS.escape(c)}"]`);if(d)window.scrollBy(0,d.getBoundingClientRect().top-y)})});
+    $$('[data-swap]').forEach(b=>b.onchange=()=>{const c=b.dataset.swap;S.stepPick=S.stepPick||{k:'',m:{}};S.stepPick.m[c]=b.dataset.swapn;S.autoPick=true;S.folds['pc_'+c]=false;track('swap_company',{source:'compare'});
+      const y=b.closest('.stp').getBoundingClientRect().top;renderMatch().then(()=>{const d=$(`.stp[data-pc="${CSS.escape(c)}"]`);if(d)window.scrollBy(0,d.getBoundingClientRect().top-y)})});
     $$('.pcmp').forEach(d=>d.ontoggle=()=>{S.folds['pc_'+d.dataset.pc]=d.open;if(d.open)track('fold_open',{fold:'compare'})});
+    $$('details.alts').forEach(d=>d.ontoggle=()=>{S.folds['pc_'+d.dataset.pc]=d.open;if(d.open)track('fold_open',{fold:'compare'})});
     $$('[data-recself]').forEach(b=>b.onclick=()=>{S.autoPick=false;S.gsel=[];S.gstep={};S.planPick='';track('choose_plan',{plan:'staff'});renderMatch()});
     $$('[data-recall]').forEach(b=>b.onclick=()=>{S.folds.all=true;const d=$('details[data-fold=all]');if(d){d.open=true;d.scrollIntoView({behavior:'smooth',block:'start'})}else{const l=$('.mstep');l&&l.scrollIntoView({behavior:'smooth',block:'start'})}})}
   if(st===2){if(!blocked)renderMatchDock();wireTune(A);if(S.aiAway&&Date.now()-S.aiAway.t>1500)setTimeout(gotoAiPaste,200)}
@@ -1879,20 +1900,42 @@ function recOf(secs,one,qmax){
 /* 「完成させるには誰と誰に頼むか」と、パーツ（工程）ごとの比較（Nori 2026-11-13「全部完成させるのに誰と誰にたのまないといけないかをわかるように。各パーツごとに比較する会社もまとめて」）。
    工程ごとに、おすすめの会社1社＋比べる候補2社。「この会社にする」で工程ごとに入れ替えられる（S.stepPick） */
 function stepAssign(R3,secs){const P=R3.P;const key=ideaBase()+'|'+S.qty+'|'+(S.qn||0);if(!S.stepPick||S.stepPick.k!==key)S.stepPick={k:key,m:{}};
-  return secs.map(s=>{let def=null;if(R3.kind==='one'&&P&&P.top&&capCovers(P.top,s.c))def=P.top;else if(R3.kind==='one'&&P)def=(P.oneRows.find(x=>x.c===s.c)||{}).r||s.list[0]||null;else def=s.list[0]||null;
+  return [...secs].sort((a,b)=>mphaseOf(a.c)-mphaseOf(b.c)).map(s=>{let def=null;if(R3.kind==='one'&&P&&P.top&&capCovers(P.top,s.c))def=P.top;else if(R3.kind==='one'&&P)def=(P.oneRows.find(x=>x.c===s.c)||{}).r||s.list[0]||null;else def=s.list[0]||null;
     const pick=S.stepPick.m[s.c]&&s.list.find(r=>r[0]===S.stepPick.m[s.c]);const r=pick||def;
     const cmp=[r,...s.list.filter(x=>r&&x[0]!==r[0])].filter(Boolean).slice(0,3);
     return {c:s.c,name:CAPN[s.c]||s.c,r,def,cmp,n:s.list.length}})}
+/* 工程を、ものづくりの順（設計→試作→部品をつくる→組立・検査→試験・認証→実証→包装）に並べる（Nori 2026-11-13「工程順があればそれ通りに」） */
+const MPHASE=[['設計',/^(mechanical\.industrial_design)$/],['設計',/^sensing|^electronics\.(pcb_design|low_power|wireless|firmware)$|^electronics$/],['設計',/^mechanical/],['設計',/^software/],
+  ['試作',/^manufacturing\.rapid_proto$/],['部品をつくる',/^electronics\.(pcba|flexible)$|^manufacturing\.(injection_molding|silicone_molding|cnc|sheet_metal|textile)$|^apparel|^food|^cosmetics|^crafts|^packaging\.container$|^manufacturing$/],
+  ['組立・検査',/^manufacturing\.assembly$/],['試験・認証',/^testing\.(radio_cert|battery_safety|environmental)$|^testing$/],['実証',/^testing\.(animal_trial|human_trial)$/],['包装',/^packaging/]];
+/* 会社ごとの色（流れ図・会社の一覧・工程カードを同じ色で結ぶ）と、段階のアイコン */
+const COCOL=['#2f6fed','#e8590c','#2b8a3e','#ae3ec9','#c92a2a','#0c8599','#f08c00','#5c7cfa','#a61e4d','#495057','#66a80f','#1971c2','#d6336c','#087f5b'];
+const PHI={'設計':'<path d="M4 20l4-1 11-11-3-3L5 16z"/><path d="M14 6l3 3"/>','試作':'<path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M12 12l8-4.5M12 12v9M12 12L4 7.5"/>',
+  '部品をつくる':'<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/>',
+  '組立・検査':'<path d="M14.5 6.5a4 4 0 0 0-5 5L4 17l3 3 5.5-5.5a4 4 0 0 0 5-5l-2.5 2.5-2.5-.5-.5-2.5z"/>','試験・認証':'<path d="M12 3l7 3v5c0 5-3.5 8.5-7 10-3.5-1.5-7-5-7-10V6z"/><path d="M9 12l2 2 4-4"/>',
+  '実証':'<circle cx="12" cy="7" r="3"/><path d="M5 21v-2a7 7 0 0 1 14 0v2"/>','包装':'<path d="M3 8l9-5 9 5v8l-9 5-9-5z"/><path d="M3 8l9 5 9-5M12 13v8"/>'};
+const phIcon=p=>`<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${PHI[p]||PHI['部品をつくる']}</svg>`;
+const mphaseOf=c=>{const i=MPHASE.findIndex(p=>p[1].test(c));return i<0?5:i};
+/* おすすめの理由（確かめられた事実だけ） */
+function recWhy(r,qmax,multi){const x=r[14]||{};const w=[];if(r[10]==='pub')w.push('公式サイト等で確認');if(r[6]&&qmax<=10)w.push('試作に対応');if(r[8]!=null&&r[8]<=qmax)w.push('この数量から受ける');
+  if(multi>1)w.push('ほかの工程もまとめて受けられる');if(x.sub)w.push('補助金の採択あり');if(r[1]==='JP')w.push('国内');
+  return w.length?w.slice(0,3):['候補の中で、確かめられた情報がいちばん多い']}
 function whoBox(AS,qmax){const by=new Map();for(const a of AS){if(!a.r)continue;const k=a.r[0];if(!by.has(k))by.set(k,{r:a.r,steps:[]});by.get(k).steps.push(a.name)}
-  const none=AS.filter(a=>!a.r);const W=[...by.values()];S.whoN=W.length;
-  return `<h4 class="whoh"><span>完成までに頼む会社</span> <span>${fmt(W.length)}社</span></h4>
-    <p class="whon">${W.length>=2?'この会社たちに工程を分けて頼みます。会社どうしの受け渡し・日程の取りまとめは、KATACHIの担当者が行います。':'この1社に頼めば、完成まで受け持ってもらえる見込みです。'}</p>
-    <ol class="wlist">${W.map((w,i)=>`<li><span class="wn">${i+1}</span><b translate="no">${esc(w.r[0])}</b><small><span>担当：</span>${w.steps.map(t=>`<span>${esc(t)}</span>`).join('・')}</small></li>`).join('')}
-    ${none.length?`<li><span class="wn">—</span><b>担当者が探します</b><small><span>担当：</span>${none.map(a=>`<span>${esc(a.name)}</span>`).join('・')}</small></li>`:''}</ol>
-    <h4 class="whoh">パーツ（工程）ごとに比べる</h4>
-    <p class="whon">工程を開くと、比べる候補の会社が出ます。「この会社にする」で入れ替えられます。</p>
-    <div class="pcmps">${AS.map(a=>`<details class="pcmp" data-pc="${esc(a.c)}" ${S.folds['pc_'+a.c]?'open':''}><summary><span class="rs">${esc(a.name)}</span><b translate="no">${a.r?esc(a.r[0]):'担当者が探します'}</b><small><span>比べる</span> <span>${fmt(a.cmp.length)}社</span></small></summary>
-      ${a.cmp.length?`<ul>${a.cmp.map(r=>{const on=a.r&&r[0]===a.r[0];return `<li class="${on?'on':''}"><div class="ph"><b translate="no">${esc(r[0])}</b>${on?`<span class="pk">${a.def&&r[0]===a.def[0]?'★ おすすめ・選択中':'✓ 選択中'}</span>`:`<button type="button" class="btn sm" data-swap="${esc(a.c)}" data-swapn="${esc(r[0])}">この会社にする</button>`}</div>${tBadges(r,qmax)}${gmapA(r,'compare')}</li>`}).join('')}</ul>`:'<p class="whon" style="padding:0 12px 12px;margin:0">この工程の会社は、まだ一覧にありません。担当者が探してお声がけします。</p>'}</details>`).join('')}</div>`}
+  const W=[...by.values()];S.whoN=W.length;const multi=n=>(by.get(n)||{steps:[]}).steps.length;let ph='';
+  const col={};W.forEach((w,i)=>col[w.r[0]]=COCOL[i%COCOL.length]);const cc=r=>r?col[r[0]]||'#adb5bd':'#adb5bd';
+  const phases=[];for(const a of AS){const p=MPHASE[mphaseOf(a.c)][0];let g=phases.find(x=>x.p===p);if(!g){g={p,a:[]};phases.push(g)}g.a.push(a)}
+  const flow=`<div class="pflow" aria-label="工程の流れ">${phases.map((g,i)=>`${i?'<span class="far" aria-hidden="true">↓</span>':''}<div class="fph"><div class="fpt">${phIcon(g.p)}<span>${esc(g.p)}</span></div><div class="fpp">${g.a.map(a=>`<span class="fst" style="--c:${cc(a.r)}" title="${esc(a.r?a.r[0]:'')}">${esc(a.name)}</span>`).join('')}</div></div>`).join('')}</div>`;
+  const legend=W.length>=2?`<ul class="lgd">${W.map(w=>`<li style="--c:${col[w.r[0]]}"><i></i><b translate="no">${esc(w.r[0])}</b><small><span>${fmt(w.steps.length)}工程</span></small></li>`).join('')}${AS.some(a=>!a.r)?'<li style="--c:#adb5bd"><i></i><b>担当者が探します</b></li>':''}</ul>`:'';
+  return `${W.length>=2?flow+legend:''}<p class="whon">${W.length>=2?'工程の順に、頼む会社を1社ずつ選びます。★がおすすめです。ほかの候補を選ぶと、見積の送り先も変わります。会社どうしの受け渡し・日程の取りまとめは、KATACHIの担当者が行います。':'この1社に頼めば、完成まで受け持ってもらえる見込みです。'}</p>
+    <ol class="stps">${AS.map((a,i)=>{const p=MPHASE[mphaseOf(a.c)][0];const head=p!==ph?(ph=p,`<li class="sph">${phIcon(p)}<span>${esc(p)}</span></li>`):'';
+      return head+`<li class="stp" data-pc="${esc(a.c)}" style="--c:${cc(a.r)}"><div class="sth"><span class="sn">${i+1}</span><b>${esc(a.name)}</b>${a.n>a.cmp.length?`<small><span>候補</span> <span>${fmt(a.n)}社</span></small>`:''}</div>
+      ${a.cmp.length?(()=>{const opt=r=>{const on=a.r&&r[0]===a.r[0],rec=a.def&&r[0]===a.def[0];return `<label class="opt ${on?'on':''}"><input type="radio" name="st_${esc(a.c)}" data-swap="${esc(a.c)}" data-swapn="${esc(r[0])}" ${on?'checked':''}>
+        <span class="ob"><span class="on1">${on?'<i class="cdot"></i>':''}<b translate="no">${esc(r[0])}</b>${rec?'<span class="rk">★ おすすめ</span>':''}</span>
+        ${rec?`<small class="ry"><span>理由：</span>${recWhy(r,qmax,multi(r[0])).map(t=>`<span>${t}</span>`).join('・')}</small>`:''}
+        <span class="om">${esc(r[1]==='JP'?(r[2]||'国内'):(CTRY[r[1]]||r[1]))}${r[8]!=null?` · <span>最小ロット ${fmt(r[8])}個</span>`:''}${r[6]?' · <span>試作に対応</span>':''}</span>${on?gmapA(r,'compare'):''}</span></label>`};
+        const cur=a.cmp.filter(r=>a.r&&r[0]===a.r[0]),alt=a.cmp.filter(r=>!(a.r&&r[0]===a.r[0]));
+        return cur.map(opt).join('')+(alt.length?`<details class="alts" data-pc="${esc(a.c)}" ${S.folds['pc_'+a.c]?'open':''}><summary><span>ほかの候補から選ぶ</span> <span>${fmt(alt.length)}社</span></summary><div class="altl">${alt.map(opt).join('')}</div></details>`:'')})():'<p class="whon" style="margin:0">この工程の会社は、まだ一覧にありません。担当者が探してお声がけします。</p>'}</li>`}).join('')}</ol>
+    ${W.length>=2?fold('whoall',`<span>頼む会社を、会社ごとにまとめて見る</span>`,`<ol class="wlist">${W.map((w,i)=>`<li><span class="wn">${i+1}</span><b translate="no">${esc(w.r[0])}</b><small><span>担当：</span>${w.steps.map(t=>`<span>${esc(t)}</span>`).join('・')}</small></li>`).join('')}</ol>`,fmt(W.length)+'社'):''}`}
 function recBox(R3,secs,qmax){S.whoN=0;if(!R3||!R3.rows.length)return `<div class="empty">条件に合う会社が一覧にありません。数量や「試作に対応」の条件を外すか、このまま見積を依頼してください。担当者が探してお声がけします。</div>`;
   const AS=secs.length>=2?stepAssign(R3,secs):null;
   if(AS){const rows=[];const seen=new Map();for(const a of AS){if(!a.r)continue;if(!seen.has(a.r[0])){seen.set(a.r[0],[]);rows.push({r:a.r})}seen.get(a.r[0]).push(a.name)}
