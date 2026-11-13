@@ -38,6 +38,10 @@ for key,f,pool,label,idea,qty in [('collar','collar_real.json',real,'実デー�
         if c['name'] in used: out['companies'][c['name']]=comp(c)
 import estimates
 out['est']=estimates.build(real,[p['requirement']['capability_code'] for r in out['scen'].values() for p in r['per_requirement']])
-out['realCount']=len(real); out['realAbroad']=sum(1 for c in real if c.get('country') not in (None,'JP','日本')); out['realVerified']=sum(1 for c in real if lvl(c) in('official','news','listing'))
+# 国の登録情報（gBizINFO）だけの会社も社数に数える（Nori 2026-11-13。表示には出典「Gビズインフォ」(経済産業省)が要る。フッターに記載）
+import os as _os
+_gp=S+'/km/data/real/companies_gbiz_2026-11-12.json'
+out['realGov']=len(json.load(open(_gp))) if _os.path.exists(_gp) else 0
+out['realCount']=len(real)+out['realGov']; out['realAbroad']=sum(1 for c in real if c.get('country') not in (None,'JP','日本')); out['realVerified']=sum(1 for c in real if lvl(c) in('official','news','listing'))
 open(S+'/data.js','w').write('window.KATACHI_DATA='+json.dumps(out,ensure_ascii=False)+';')
 print(len(out['companies']),out['realVerified'], len(open(S+'/data.js').read()))
