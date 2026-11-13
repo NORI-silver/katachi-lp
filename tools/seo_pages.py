@@ -3,11 +3,13 @@
 - 記事の本文は tools/guides.py、llms.txt の前半は tools/llms_head.md。
 - トップ（index.html）・規約・プライバシーは別の手順（tools/README.md）で作る。ここでは sitemap に載せるだけ。
 - 新しい固定ページを作ったら STATIC に足す（lastmod はそのページの本文を変えた日）。
+- 作例のページ（/idea/ と /idea/<k>/）は tools/ideas.py から作る。ガイドには、そのガイドを参照する作例へのリンクを出す。
 """
 import html, json, os, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from site_common import page
 from guides import ARTICLES
+import ideas as IDEAS_MOD
 
 OUT = sys.argv[1] if len(sys.argv) > 1 else "."
 SITE = "https://katachi.shiokonbu.com"
@@ -41,9 +43,12 @@ def article(a):
         src = (f'<h2>出典</h2><p class="src">数字はいずれも次の公開資料から（{a["checked"]}に確認）。</p><ol class="src">'
                + "".join(f'<li><a href="{u}" target="_blank" rel="noopener">{t}</a></li>' for t, u in a["sources"]) + "</ol>")
     rel = ""
+    ex = IDEAS_MOD.by_guide().get(a["slug"], [])
+    if ex:
+        rel += "<h2>このテーマの作例</h2><ul>" + "".join(f'<li><a href="/idea/{x["k"]}/">{x["t"][0]}</a>（{x["lot"][0]}）</li>' for x in ex[:8]) + "</ul>"
     if a.get("related"):
         by = {x["slug"]: x for x in ARTICLES}
-        rel = "<h2>関連するガイド</h2><ul>" + "".join(f'<li><a href="/guide/{s}/">{by[s]["h1"]}</a></li>' for s in a["related"] if s in by) + "</ul>"
+        rel += "<h2>関連するガイド</h2><ul>" + "".join(f'<li><a href="/guide/{s}/">{by[s]["h1"]}</a></li>' for s in a["related"] if s in by) + "</ul>"
     body = (f'<p class="crumb"><a href="/">KATACHI</a> › <a href="/guide/">ガイド</a></p><h1>{a["h1"]}</h1>'
             f'<p class="upd">更新日：{a["updated"].replace("-", "/")}</p>{a["lead"]}'
             f'<div class="points"><b>この記事の要点</b><ul>{pts}</ul></div>{secs}{faq}{CTA}{src}{rel}')
@@ -81,8 +86,20 @@ def index():
     page(OUT, "/guide/", title, desc, body, head=CSS + og(title + "｜KATACHI", desc, url, "website") + ld({"@context": "https://schema.org", "@graph": graph}))
 
 
+def idea_pages():
+    by = {a["slug"]: a for a in ARTICLES}
+    for x in IDEAS_MOD.IDEAS:
+        url = f"{SITE}/idea/{x['k']}/"
+        title, desc, body, graph = IDEAS_MOD.page_html(x, OUT, by)
+        head = IDEAS_MOD.CSS + og(title, desc, url, "article") + ld({"@context": "https://schema.org", "@graph": graph})
+        page(OUT, f"/idea/{x['k']}/", title, desc, body, head=head, full_title=True)
+    title, desc, body, graph = IDEAS_MOD.index_html()
+    page(OUT, "/idea/", title, desc, body, head=IDEAS_MOD.CSS + og(title + "｜KATACHI", desc, SITE + "/idea/", "website") + ld({"@context": "https://schema.org", "@graph": [ORG] + graph}))
+
+
 def sitemap():
     rows = list(STATIC) + [("/guide/", max(a["updated"] for a in ARTICLES))] + [(f"/guide/{a['slug']}/", a["updated"]) for a in ARTICLES]
+    rows += [("/idea/", IDEAS_MOD.UPDATED)] + [(f"/idea/{x['k']}/", IDEAS_MOD.UPDATED) for x in IDEAS_MOD.IDEAS]
     x = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
     x += "".join(f"  <url><loc>{SITE}{p}</loc><lastmod>{d}</lastmod></url>\n" for p, d in rows)
     open(os.path.join(OUT, "sitemap.xml"), "w").write(x + "</urlset>\n")
@@ -94,6 +111,8 @@ def llms():
     s += f"- [トップ（入力と工場チームの提案）]({SITE}/)\n- [ガイド一覧]({SITE}/guide/)\n"
     s += f"- [利用規約]({SITE}/terms/)\n- [プライバシーポリシー・運営者情報]({SITE}/privacy/)\n"
     s += "\n## ガイド\n" + "".join(f"- [{a['h1']}]({SITE}/guide/{a['slug']}/): {a['summary']}\n" for a in ARTICLES)
+    s += f"\n## 作例（業種別に、小ロットから作りやすいもの）\n- [作例の一覧]({SITE}/idea/)\n"
+    s += "".join(f"- [{x['t'][0]}]({SITE}/idea/{x['k']}/): {x['d'][0]}（{x['lot'][0]}から）\n" for x in IDEAS_MOD.IDEAS)
     open(os.path.join(OUT, "llms.txt"), "w").write(s)
 
 
@@ -101,6 +120,7 @@ if __name__ == "__main__":
     for a in ARTICLES:
         article(a)
     index()
+    idea_pages()
     sitemap()
     llms()
-    print("ok", len(ARTICLES), "記事")
+    print("ok", len(ARTICLES), "記事", len(IDEAS_MOD.IDEAS), "作例")
