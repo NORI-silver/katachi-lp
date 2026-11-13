@@ -504,7 +504,7 @@ T.update({
 "会社は選ばれていません。担当者が候補から合いそうな会社を選んで打診します。": ("No companies selected. Our staff will pick suitable ones and contact them.", "尚未选择公司。工作人员会挑选合适的公司并联系。"),
 "書き直す": ("Edit", "重新填写"),
 "書いた内容から、必要な工程をキーワードで読み取りました": ("We picked out the steps from keywords in your description", "已根据关键词从您的描述中读取所需工序"),
-"AIによる詳しい解析は準備中です。工程が足りない・違うと思ったら、そのまま見積を依頼してください。担当者があなたの文章を読んで、工程と会社を組み直してお届けします。": ("Detailed AI analysis is coming soon. If steps are missing or wrong, just send a quote request. Our staff will read your description and rebuild the steps and companies for you.", "AI详细解析正在准备中。如果工序不足或不对，请直接提交报价委托。工作人员会阅读您的描述，重新整理工序和公司。"),
+"工程が足りない・違うと思ったら、下の「自分のAIで相談」で仕様を詰めるか、そのまま見積を依頼してください。担当者があなたの文章を読んで、工程と会社を組み直してお届けします。": ("If steps are missing or wrong, refine the spec with \"Consult your own AI\" below, or just send a quote request. Our staff will read your description and rebuild the steps and companies for you.", "如果工序不足或不对，可以用下方的\"用自己的 AI 咨询\"细化规格，或直接提交报价委托。工作人员会阅读您的描述，重新整理工序和公司。"),
 "KATACHIでは扱っていない工程があります": ("Some steps are outside what KATACHI handles", "有KATACHI不处理的工序"),
 "確かめておきたい法規制・認証": ("Regulations and certifications to check", "需要确认的法规・认证"),
 "キーワードから当たりを付けた参考情報です。正式な判断は専門家・認証機関が行います。": ("Reference only, based on keywords. Formal decisions are made by experts and certification bodies.", "仅为根据关键词推测的参考信息。正式判断由专家・认证机构做出。"),
@@ -604,4 +604,22 @@ T.update({
 "文章の言葉が会社の説明に出てくる会社": ("Companies whose description mentions your words", "公司介绍中出现您所写词语的公司"),
 "工程は読み取れませんでしたが、書いた言葉が社名や説明に含まれる会社です。参考にしてください。": ("We couldn't pick out the steps, but these companies mention your words in their name or description. Use them as a reference.", "虽然未能读取工序，但这些公司的名称或介绍中包含您写的词语，供参考。"),
 "文章に近い会社": ("Companies matching your words", "与描述相近的公司"),
+})
+
+# 自分の ChatGPT・Claude で相談する
+T.update({
+"自分のAIで、もっと詳しく相談する": ("Consult your own AI for more detail", "用自己的 AI 进一步咨询"),
+"無料": ("Free", "免费"),
+"書いた内容と、KATACHIが読み取った工程をまとめた質問文を、お使いの ChatGPT か Claude で開きます。仕様の詰め方、難しい点、試作の進め方を相談し、最後に工場へ渡す「仕様メモ」を作ってもらえます。AIはあなたのアカウントで使うので、KATACHIに費用はかかりません。": ("We open your own ChatGPT or Claude with a question that combines your description and the steps KATACHI picked out. Ask how to firm up the spec, what will be hard and how to prototype, and get a \"spec memo\" to hand to factories. The AI runs on your own account, so KATACHI charges nothing.", "我们会在您自己的 ChatGPT 或 Claude 中打开一段问题，其中包含您的描述和 KATACHI 识别出的工序。您可以咨询如何细化规格、难点以及试制方法，最后让 AI 写出交给工厂的\"规格备忘\"。AI 使用您自己的账号，KATACHI 不收取任何费用。"),
+"ChatGPTで相談": ("Ask ChatGPT", "用 ChatGPT 咨询"),
+"Claudeで相談": ("Ask Claude", "用 Claude 咨询"),
+"質問文をコピー": ("Copy question", "复制问题"),
+"質問文は自動でコピーされます。開いた画面に質問文が入っていないとき（ログインのあとなど）は、貼り付けて送ってください。": ("The question is copied automatically. If it is not filled in on the page that opens (for example after signing in), paste it and send.", "问题会自动复制。如果打开的页面中没有填入问题（例如登录之后），请粘贴后发送。"),
+"質問文を見る": ("View the question", "查看问题"),
+"AIの回答を貼って、工程を読み直す": ("Paste the AI's answer to re-read the steps", "粘贴 AI 的回答，重新识别工序"),
+"AIがまとめた仕様メモを貼ると、その内容で工程と会社を探し直します。貼った内容は見積の依頼にもそのまま入ります。": ("Paste the spec memo from your AI and we will search for steps and companies again. The pasted text also goes into your quote request.", "粘贴 AI 整理的规格备忘后，我们会据此重新查找工序和公司。粘贴的内容也会直接用于报价委托。"),
+"AIがまとめた仕様メモを貼り付け": ("Paste the spec memo from your AI", "粘贴 AI 整理的规格备忘"),
+"読み直す": ("Re-read", "重新识别"),
+"読み直しました": ("Updated", "已重新识别"),
+"回答を貼り付けてください": ("Please paste the answer", "请粘贴回答"),
 })

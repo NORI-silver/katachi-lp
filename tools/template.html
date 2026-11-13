@@ -292,6 +292,17 @@ table.cmp{border-collapse:separate;border-spacing:0;width:100%;min-width:760px;f
 .ready .rc span.on{border:1px solid var(--ice);background:var(--ice);color:#fff}
 .aihelp{border:1px dashed var(--line2);border-radius:10px;padding:10px 12px;font-size:13px}.aihelp summary{cursor:pointer;color:var(--fg)}
 .paste .aihelp{margin-top:8px}
+.aic{margin-top:16px;border:1px solid color-mix(in srgb,var(--ice) 28%,var(--line));background:linear-gradient(180deg,color-mix(in srgb,var(--ice) 5%,#fff),#fff);border-radius:14px;padding:18px;display:grid;gap:12px}
+.aic h3{font-size:17px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}.aic h3 .chip{font-family:var(--f-body);font-size:11.5px}
+.aic p{margin:0;font-size:13.5px}
+.aicb{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.aicb .btn{text-decoration:none}.aicb .btn.pri svg,.aicb .btn svg{width:15px;height:15px}
+.aic details summary{cursor:pointer;font-size:13px;color:var(--mute)}
+.aic pre{margin:8px 0 0;white-space:pre-wrap;word-break:break-word;font:12.5px/1.6 var(--f-body);background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:12px;max-height:260px;overflow:auto}
+.aic .aiback{border-top:1px solid var(--line);padding-top:12px;display:grid;gap:8px}
+.aic .aiback b{font-size:14px}
+.aic textarea{width:100%;min-height:92px;border:1px solid var(--line2);border-radius:10px;padding:10px 12px;font:14px/1.6 var(--f-body);resize:vertical;background:#fff;color:var(--fg)}
+.aic .aistat{font-size:12.5px;color:var(--mint)}
+@media(max-width:560px){.aicb .btn{flex:1 1 calc(50% - 8px)}.aicb [data-aiq]{flex-basis:100%}}
 .mlink{display:flex;gap:8px}.mlink input{flex:1;min-width:0}
 .fth{width:22px;height:22px;object-fit:cover;border-radius:4px;flex:none}
 .upbar{height:8px;border-radius:99px;background:var(--bg2);overflow:hidden}.upbar i{display:block;height:100%;background:var(--ice);transition:width .3s}
@@ -724,6 +735,46 @@ const aiHelp=()=>`<details class="aihelp"><summary>写真・動画を、お使�
 function wireAiHelp(root){(root||document).querySelectorAll('[data-aicp]').forEach(b=>b.onclick=async()=>{const t=AI_PROMPT[typeof LANG==='string'?LANG:'ja']||AI_PROMPT.ja;
     let ok=false;try{await navigator.clipboard.writeText(t);ok=true}catch(e){}track('ai_prompt_copy',{ok});b.textContent=ok?'コピーしました':'コピーできませんでした';setTimeout(()=>{b.textContent='指示文をコピー'},2500)});
   (root||document).querySelectorAll('[data-aiopen]').forEach(a=>a.onclick=()=>track('ai_prompt_open',{ai:a.dataset.aiopen}))}
+/* 自分の ChatGPT・Claude で相談する（KATACHIはAIのAPIを使わない＝費用ゼロ）。質問文をURLで渡し、念のためクリップボードにも入れる */
+const KSITE='https://katachi.shiokonbu.com/';
+const AIQ={
+ ja:{head:'次の製品を作りたいと考えています。私は製品づくりの専門家ではありません。製品開発と製造にくわしい相談相手として、わかりやすく助けてください。',idea:'作りたいもの',qty:'数量の段階',steps:'製造マッチングサイト KATACHI が文章からキーワードで読み取った工程（当たり付け）',nosteps:'（KATACHIでは工程を読み取れませんでした）',regs:'関係しそうな法規制・認証（KATACHIの当たり付け）',files:'手元にある資料',
+  ask:'次の順に答えてください。\n1. 仕様の整理（用途・大きさ・材質・機能・使う環境）。決まっていない点は、私への質問の形で挙げてください\n2. 必要な工程。上の工程一覧に足りないもの・要らないものがあれば指摘してください\n3. 技術的に難しそうな点と、試作で確かめる方法\n4. 関係しそうな法規制・認証\n5. 試作→小ロット→量産の進め方\n6. 最後に、工場へ見積を頼むための「仕様メモ」（形・寸法・材質・数量・使う環境・決まっていない点）を箇条書きで\n\n料金・会社名・数値は推測で作らず、わからないことは「要確認」と書いてください。',
+  back:'仕様メモができたら、KATACHI（'+KSITE+'）に戻って貼り付け、工場に見積を依頼します。',q:{proto:'試作（1〜10個）',small:'小ロット（〜500個）',mass:'量産（500個〜）'}},
+ en:{head:'I want to make the product below. I am not a product development expert. Please help me clearly, as an advisor who knows product development and manufacturing.',idea:'What I want to make',qty:'Quantity stage',steps:'Manufacturing steps that the matchmaking site KATACHI picked up from my text by keywords (a rough guess)',nosteps:'(KATACHI could not pick up any steps)',regs:'Regulations and certifications that may apply (KATACHI\'s rough guess)',files:'Materials I have',
+  ask:'Please answer in this order.\n1. Organize the spec (use, size, material, functions, environment of use). List undecided points as questions to me\n2. The manufacturing steps needed. Point out anything missing from or unnecessary in the list above\n3. Technically difficult points and how to test them in a prototype\n4. Regulations and certifications that may apply\n5. How to move from prototype to small batch to mass production\n6. Finally, a bullet-point "spec memo" for asking factories for a quote (shape, dimensions, material, quantity, environment of use, undecided points)\n\nDo not make up prices, company names or figures. Write "to be confirmed" for anything you do not know.',
+  back:'When the spec memo is ready, I will go back to KATACHI ('+KSITE+'), paste it and ask factories for a quote.',q:{proto:'Prototype (1-10 units)',small:'Small batch (up to 500 units)',mass:'Mass production (500+ units)'}},
+ zh:{head:'我想做下面这个产品。我不是产品开发方面的专家。请作为熟悉产品开发和制造的顾问，通俗易懂地帮助我。',idea:'想做的东西',qty:'数量阶段',steps:'制造匹配网站 KATACHI 根据关键词从我的描述中识别出的工序（初步判断）',nosteps:'（KATACHI 未能识别出工序）',regs:'可能涉及的法规和认证（KATACHI 的初步判断）',files:'手头的资料',
+  ask:'请按以下顺序回答。\n1. 整理规格（用途、尺寸、材质、功能、使用环境）。尚未决定的地方，请以向我提问的形式列出\n2. 需要的工序。如果上面的工序列表有缺少或多余的，请指出\n3. 技术上可能较难的地方，以及在试制中如何验证\n4. 可能涉及的法规和认证\n5. 从试制到小批量再到量产的推进方法\n6. 最后，请用条目列出向工厂询价用的"规格备忘"（形状、尺寸、材质、数量、使用环境、未决定事项）\n\n价格、公司名称和数值不要凭推测编造，不清楚的请写"待确认"。',
+  back:'规格备忘完成后，我会回到 KATACHI（'+KSITE+'）粘贴并向工厂询价。',q:{proto:'试制（1-10个）',small:'小批量（500个以内）',mass:'量产（500个以上）'}}};
+function aiQuestion(A,max){const L=AIQ[typeof LANG==='string'&&AIQ[LANG]?LANG:'ja'];const t=x=>typeof tx==='function'?tx(x):x;
+  let idea=(S.idea||'').trim();if(max&&idea.length>max)idea=idea.slice(0,max)+' …';
+  const steps=(A?.codes||[]).map(c=>'- '+t(CAPN[c]||c));
+  return [L.head,'',`【${L.idea}】`,idea,'',`【${L.qty}】`,L.q[S.qty]||L.q.small,'',`【${L.steps}】`,steps.length?steps.join('\n'):L.nosteps,
+    ...(A?.regs?.length?['',`【${L.regs}】`,A.regs.map(x=>'- '+t(x)).join('\n')]:[]),
+    ...(S.files?.length?['',`【${L.files}】`,S.files.map(f=>'- '+f.name).join('\n')]:[]),
+    '',L.ask,'',L.back].join('\n')}
+// URLが長すぎると開けないことがあるので、文章を短くして渡す（全文はクリップボードに入れる）
+function aiUrl(name,A){const base=name==='ChatGPT'?'https://chatgpt.com/?q=':'https://claude.ai/new?q=';
+  for(const max of [4000,2000,1000,500]){const u=base+encodeURIComponent(aiQuestion(A,max));if(u.length<=14000)return u}
+  return name==='ChatGPT'?'https://chatgpt.com/':'https://claude.ai/new'}
+const AI_ICON='<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M3 3h10v7H7l-3 3v-3H3z" stroke-linejoin="round"/></svg>';
+function aiConsult(A){const full=aiQuestion(A);
+  return `<div class="aic" id="mAi"><h3>自分のAIで、もっと詳しく相談する<span class="chip">無料</span></h3>
+    <p class="muted">書いた内容と、KATACHIが読み取った工程をまとめた質問文を、お使いの ChatGPT か Claude で開きます。仕様の詰め方、難しい点、試作の進め方を相談し、最後に工場へ渡す「仕様メモ」を作ってもらえます。AIはあなたのアカウントで使うので、KATACHIに費用はかかりません。</p>
+    <div class="aicb"><a class="btn pri" data-aigo="ChatGPT" href="${esc(aiUrl('ChatGPT',A))}" target="_blank" rel="noopener">${AI_ICON}ChatGPTで相談</a><a class="btn pri" data-aigo="Claude" href="${esc(aiUrl('Claude',A))}" target="_blank" rel="noopener">${AI_ICON}Claudeで相談</a><button type="button" class="btn sm" data-aiq>質問文をコピー</button></div>
+    <span class="muted" style="font-size:12px">質問文は自動でコピーされます。開いた画面に質問文が入っていないとき（ログインのあとなど）は、貼り付けて送ってください。</span>
+    <details><summary>質問文を見る</summary><pre translate="no">${esc(full)}</pre></details>
+    <div class="aiback"><b>AIの回答を貼って、工程を読み直す</b><span class="muted" style="font-size:12.5px">AIがまとめた仕様メモを貼ると、その内容で工程と会社を探し直します。貼った内容は見積の依頼にもそのまま入ります。</span>
+      <textarea id="mAiAns" placeholder="AIがまとめた仕様メモを貼り付け"></textarea>
+      <div class="aicb"><button type="button" class="btn" id="mAiGo">読み直す</button><span class="aistat" id="mAiSt" aria-live="polite"></span></div></div></div>`}
+async function aiCopy(t){try{await navigator.clipboard.writeText(t);return true}catch(e){try{const a=document.createElement('textarea');a.value=t;a.style.position='fixed';a.style.opacity='0';document.body.appendChild(a);a.select();const ok=document.execCommand('copy');a.remove();return ok}catch(e2){return false}}}
+function wireAiConsult(A){const box=$('#mAi');if(!box)return;
+  box.querySelectorAll('[data-aigo]').forEach(a=>a.onclick=()=>{const n=a.dataset.aigo;a.href=aiUrl(n,A);aiCopy(aiQuestion(A));track('ai_consult_open',{ai:n,steps:(A?.codes||[]).length,short:a.href.length>=14000||!/\?q=/.test(a.href)})});
+  const det=box.querySelector('details');det.ontoggle=()=>{if(det.open)det.querySelector('pre').textContent=aiQuestion(A)};
+  const q=box.querySelector('[data-aiq]');q.onclick=async()=>{const ok=await aiCopy(aiQuestion(A));track('ai_consult_copy',{ok});q.textContent=ok?'コピーしました':'コピーできませんでした';setTimeout(()=>{q.textContent='質問文をコピー'},2500)};
+  $('#mAiGo').onclick=()=>{const v=$('#mAiAns').value.trim();if(!v){$('#mAiSt').textContent='回答を貼り付けてください';return}
+    track('ai_answer_paste',{chars:v.length});S.idea=(S.idea||'').trim()+'\n\n【AIと整理した仕様メモ】\n'+v.slice(0,20000);S.loggedIdea='';renderMatch().then(()=>{const st=$('#mAiSt');if(st)st.textContent='読み直しました';window.scrollTo({top:0,behavior:'smooth'})})}}
 function renderMedia(){const el=$('#mediaBox');if(!el)return;const rfqMode=!!$('#rf');
   el.innerHTML=`${rfqMode?'<div id="readyBox"></div>':''}
     <div class="mlist">${S.files.map((f,i)=>`<div class="mi">
@@ -983,7 +1034,8 @@ async function renderMatch(){
     <div class="gtop"><div style="min-width:0;flex:1"><div class="eyebrow">Your request</div><h1 class="gh1" translate="no" style="font-size:clamp(20px,2.6vw,28px)">${esc(S.idea.length>120?S.idea.slice(0,120)+'…':S.idea)}</h1>
       <div class="gchips">${A.codes.length?`<span class="chip">${A.codes.length}工程</span>`:''}${secs.length===1?'<span class="chip">1社で作れる内容です</span>':''}<span class="chip">${esc({proto:'試作',small:'小ロット',mass:'量産'}[S.qty])}</span><button type="button" class="glink" id="mEdit">書き直す</button></div></div>
       <div class="gcount"><b class="mono">${fmt(total)}</b><span>社が候補</span></div></div>
-    ${A.codes.length?`<div class="empty" style="margin-top:16px"><b>書いた内容から、必要な工程をキーワードで読み取りました</b>AIによる詳しい解析は準備中です。工程が足りない・違うと思ったら、そのまま見積を依頼してください。担当者があなたの文章を読んで、工程と会社を組み直してお届けします。</div>`:''}
+    ${A.codes.length?`<div class="empty" style="margin-top:16px"><b>書いた内容から、必要な工程をキーワードで読み取りました</b>工程が足りない・違うと思ったら、下の「自分のAIで相談」で仕様を詰めるか、そのまま見積を依頼してください。担当者があなたの文章を読んで、工程と会社を組み直してお届けします。</div>`:''}
+    ${A.notices.length&&!A.codes.length?'':aiConsult(A)}
     ${A.codes.length?'<div id="mEst"></div>':''}
     ${A.notices.map(n=>`<div class="empty" style="margin-top:10px;border-color:var(--amber)"><b>KATACHIでは扱っていない工程があります</b>${esc(n)}</div>`).join('')}
     ${A.regs.length?`<div class="blk" style="margin-top:16px"><h4>確かめておきたい法規制・認証</h4><ul class="list">${A.regs.map(x=>`<li>${esc(x)}</li>`).join('')}</ul><p class="muted" style="margin:6px 0 0;font-size:12px">キーワードから当たりを付けた参考情報です。正式な判断は専門家・認証機関が行います。</p></div>`:''}
@@ -1002,7 +1054,7 @@ async function renderMatch(){
       ${s.list.length?`<ol class="glist">${s.list.slice(0,k).map(r=>coCard(r,A.codes)).join('')}</ol>${s.list.length>k?`<button class="glink" data-more="${esc(s.c)}" style="margin-top:10px">さらに表示 · 残り ${fmt(s.list.length-k)}社</button>`:''}`:`<p class="muted" style="font-size:13px">この工程の会社は、まだ一覧にありません。担当者が探してお声がけします。</p>`}</section>`}).join('')}
     <p class="muted" style="font-size:12.5px;margin-top:24px">一覧は公開情報から集めたものです。「要確認」の会社は、見積の依頼で対応できるかを確かめます。順番は、確認の度合い・試作や数量への合い方・所在地で決めています。</p>
   </div></section>`;
-  if(!(A.notices.length&&!A.codes.length))pickDock();bindPicks();
+  if(!(A.notices.length&&!A.codes.length))pickDock();bindPicks();wireAiConsult(A);
   if($('#mEst')&&typeof window.KATACHI_EST_CARD==='function'){try{$('#mEst').innerHTML=window.KATACHI_EST_CARD(A.codes,qmax,+((S.idea.match(/(\d[\d,]*)\s*(個|台|枚|本|着|セット|pcs|units)/i)||[])[1]||'').replace(/,/g,''))||''}catch(e){}}
   $('#mEdit').onclick=()=>{S.mode='free';location.hash=''};
   $('#mGuided')&&($('#mGuided').onclick=()=>{S.mode='guided';S.g={step:0};location.hash=''});
