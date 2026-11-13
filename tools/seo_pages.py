@@ -10,6 +10,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from site_common import page
 from guides import ARTICLES
 import ideas as IDEAS_MOD
+import visuals as V
 
 OUT = sys.argv[1] if len(sys.argv) > 1 else "."
 SITE = "https://katachi.shiokonbu.com"
@@ -49,13 +50,14 @@ def article(a):
     if a.get("related"):
         by = {x["slug"]: x for x in ARTICLES}
         rel += "<h2>関連するガイド</h2><ul>" + "".join(f'<li><a href="/guide/{s}/">{by[s]["h1"]}</a></li>' for s in a["related"] if s in by) + "</ul>"
+    cat, fig = V.topic(a["slug"])
     body = (f'<p class="crumb"><a href="/">KATACHI</a> › <a href="/guide/">ガイド</a></p><h1>{a["h1"]}</h1>'
-            f'<p class="upd">更新日：{a["updated"].replace("-", "/")}</p>{a["lead"]}'
-            f'<div class="points"><b>この記事の要点</b><ul>{pts}</ul></div>{secs}{faq}{CTA}{src}{rel}')
+            f'<p class="upd">更新日：{a["updated"].replace("-", "/")}</p>{V.hero(cat, fig, a["main"])}<div class="lead">{a["lead"]}</div>'
+            + V.points("この記事の要点", a["points"]) + V.restructure(f'{secs}{faq}{CTA}{src}{rel}'))
     graph = [ORG,
              {"@type": "Article", "headline": a["h1"], "description": a["desc"], "dateModified": a["updated"],
               "datePublished": a.get("published", a["updated"]), "inLanguage": "ja", "mainEntityOfPage": url,
-              "author": {"@id": SITE + "/#org"}, "publisher": {"@id": SITE + "/#org"}, "image": SITE + "/og.png"},
+              "author": {"@id": SITE + "/#org"}, "publisher": {"@id": SITE + "/#org"}, "image": f"{SITE}/og/guide-{a['slug']}.png"},
              {"@type": "BreadcrumbList", "itemListElement": [
                  {"@type": "ListItem", "position": 1, "name": "KATACHI", "item": SITE + "/"},
                  {"@type": "ListItem", "position": 2, "name": "ガイド", "item": SITE + "/guide/"},
@@ -63,15 +65,15 @@ def article(a):
     if a.get("faq"):
         graph.append({"@type": "FAQPage", "mainEntity": [
             {"@type": "Question", "name": q, "acceptedAnswer": {"@type": "Answer", "text": ans}} for q, ans in a["faq"]]})
-    head = CSS + og(a["title"], a["desc"], url, "article") + ld({"@context": "https://schema.org", "@graph": graph})
+    head = CSS + V.CSS + og(a["title"], a["desc"], url, "article", f"/og/guide-{a['slug']}.png") + ld({"@context": "https://schema.org", "@graph": graph})
     page(OUT, f"/guide/{a['slug']}/", a["title"], a["desc"], body, head=head, full_title=True)
 
 
-def og(title, desc, url, typ):
+def og(title, desc, url, typ, img="/og.png"):
     e = html.escape
     return (f'<meta property="og:type" content="{typ}"><meta property="og:site_name" content="KATACHI">'
             f'<meta property="og:title" content="{e(title)}"><meta property="og:description" content="{e(desc)}">'
-            f'<meta property="og:url" content="{url}"><meta property="og:image" content="{SITE}/og.png">'
+            f'<meta property="og:url" content="{url}"><meta property="og:image" content="{SITE}{img}"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">'
             f'<meta property="og:locale" content="ja_JP"><meta name="twitter:card" content="summary_large_image">')
 
 
@@ -79,11 +81,11 @@ def index():
     url = SITE + "/guide/"
     title = "自社製品の試作・製造を外注するためのガイド"
     desc = "設計部門や図面がない中小企業が、自社製品の試作・小ロット製造・OEMを外注するときの進め方、頼む先の選び方、見積の比べ方をまとめたガイドです。"
-    items = "".join(f'<div class="list"><a href="/guide/{a["slug"]}/">{a["h1"]}</a><p>{a["summary"]}</p></div>' for a in ARTICLES)
+    items = V.guide_index(ARTICLES)
     body = f'<p class="crumb"><a href="/">KATACHI</a></p><h1>{title}</h1><p class="lead">{desc}</p>{items}{CTA}'
     graph = [ORG, {"@type": "CollectionPage", "name": title, "url": url, "description": desc, "inLanguage": "ja",
                    "hasPart": [{"@type": "Article", "headline": a["h1"], "url": f"{SITE}/guide/{a['slug']}/"} for a in ARTICLES]}]
-    page(OUT, "/guide/", title, desc, body, head=CSS + og(title + "｜KATACHI", desc, url, "website") + ld({"@context": "https://schema.org", "@graph": graph}))
+    page(OUT, "/guide/", title, desc, body, head=CSS + V.CSS + og(title + "｜KATACHI", desc, url, "website") + ld({"@context": "https://schema.org", "@graph": graph}))
 
 
 def idea_pages():
@@ -91,7 +93,15 @@ def idea_pages():
     for x in IDEAS_MOD.IDEAS:
         url = f"{SITE}/idea/{x['k']}/"
         title, desc, body, graph = IDEAS_MOD.page_html(x, OUT, by)
-        head = IDEAS_MOD.CSS + og(title, desc, url, "article") + ld({"@context": "https://schema.org", "@graph": graph})
+        cat = V.FIG_CAT.get(x["fig"], V.IND_CAT.get(x["ind"], "goods"))
+        i = body.find('<div class="points">')
+        j = body.find('</div>', i) + 6
+        body = (body[:i] + V.hero(cat, x["fig"], x["t"][0], x["t"][0] if len(x["t"][0]) <= 8 else None) + body[i:j] + V.restructure(body[j:])) if i > 0 else body
+        img = f"/og/idea-{x['k']}.png"
+        for g in graph:
+            if g.get("@type") == "Article":
+                g["image"] = SITE + img
+        head = IDEAS_MOD.CSS + V.CSS + og(title, desc, url, "article", img) + ld({"@context": "https://schema.org", "@graph": graph})
         page(OUT, f"/idea/{x['k']}/", title, desc, body, head=head, full_title=True)
     title, desc, body, graph = IDEAS_MOD.index_html()
     page(OUT, "/idea/", title, desc, body, head=IDEAS_MOD.CSS + og(title + "｜KATACHI", desc, SITE + "/idea/", "website") + ld({"@context": "https://schema.org", "@graph": [ORG] + graph}))
