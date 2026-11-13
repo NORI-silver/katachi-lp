@@ -338,6 +338,36 @@ table.cmp{border-collapse:separate;border-spacing:0;width:100%;min-width:760px;f
 .cnext{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 #mUpd,#mTune,.aiback{scroll-margin-top:84px}
 @media(max-width:480px){.tabs3 button small{display:none}.tabs3 button{padding:10px 4px}.tabs3 button b{font-size:12.5px;white-space:nowrap}}
+/* ②の相談は「必要なら」の小さな入口 */
+.tune2{margin-top:14px;border:1px dashed var(--line2);border-radius:14px;padding:12px 14px;display:grid;gap:10px;background:var(--bg2)}
+.tune2>*{min-width:0}.tune2 .th{display:flex;gap:4px 8px;align-items:center;flex-wrap:wrap;font-size:13px;color:var(--mute)}.tune2 .th>*{white-space:nowrap}
+.tune2 .th b{color:var(--fg);font-weight:600}.tune2 .topt{font-size:11px;border:1px solid var(--line2);border-radius:99px;padding:1px 8px;background:#fff}
+.ticons{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.ticons button{border:1px solid var(--line);border-radius:12px;background:#fff;padding:10px 4px 8px;font:inherit;color:var(--fg);cursor:pointer;display:grid;justify-items:center;gap:4px}
+.ticons button svg{width:22px;height:22px;color:var(--ice)}.ticons button b{font-size:12px;font-weight:600}
+.ticons button[aria-pressed="true"]{border-color:var(--ice);background:var(--hover);box-shadow:inset 0 0 0 1px var(--ice)}
+.tune2 .cchat,.tune2 .aic{margin-top:0}
+.gonext{margin-top:14px;display:flex}.gonext .btn{flex:1;justify-content:center;padding:14px;font-size:15px}
+/* ③ 条件（数量・試作対応）とおすすめ */
+.qbar{margin:4px 0 14px;border:1px solid var(--line2);border-radius:14px;padding:12px 14px;display:grid;gap:10px;background:#fff}
+.qrow{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.qrow .ql{font-size:12.5px;color:var(--mute);min-width:3em}
+.qbar .pillset button{font-size:13px}
+.qn{display:inline-flex;align-items:center;gap:4px;font-size:13px}.qn input{width:5.5em;border:1px solid var(--line2);border-radius:8px;padding:6px 8px;font:inherit;font-size:14px}
+.qcount{margin:0;font-size:12.5px;color:var(--mute)}.qcount b{color:var(--fg);font-size:15px}
+.rec{border:2px solid var(--ice);border-radius:16px;padding:16px;display:grid;gap:12px;background:linear-gradient(180deg,var(--hover),#fff 60%)}
+.rec>*{min-width:0}.rec .rtag{display:inline-flex;gap:6px;align-items:center;font-size:12px;font-weight:700;color:#fff;background:var(--ice);border-radius:99px;padding:3px 10px;justify-self:start}
+.rec h3{margin:0;font-size:19px}.rec .why{margin:0;font-size:13.5px;color:var(--mute)}
+.rcos{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.rcos li{border:1px solid var(--line);border-radius:12px;background:#fff;padding:10px 12px;display:grid;gap:4px}
+.rcos .rs{font-size:11.5px;color:var(--mute)}.rcos b{font-size:14.5px}
+.tbad{display:flex;gap:4px;flex-wrap:wrap}.tbad span{font-size:11px;border-radius:6px;padding:2px 7px;background:#eef6f1;color:#17663f}
+.tbad span.q{background:var(--bg2);color:var(--mute)}.tbad span.ng{background:#fff1e6;color:#a15c00}
+.rmore summary{cursor:pointer;font-size:13px;color:var(--ice);margin:0 0 8px}
+.gmap{font-size:12px;color:var(--ice);text-decoration:none;justify-self:start}.gmap:hover{text-decoration:underline}
+.rvw{font-size:12px;color:var(--mute);display:flex;gap:6px;align-items:center}
+.rec .rsel{font-size:12.5px;color:var(--ice);font-weight:600}
+.trust3{margin-top:10px;border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:12.5px;color:var(--mute);display:grid;gap:6px;background:var(--bg2)}
+.trust3 b{color:var(--fg);font-size:13.5px}
 .aic{margin-top:16px;border:1px solid color-mix(in srgb,var(--ice) 28%,var(--line));background:linear-gradient(180deg,color-mix(in srgb,var(--ice) 5%,#fff),#fff);border-radius:14px;padding:18px;display:grid;gap:12px}
 .aic h3{font-size:17px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}.aic h3 .chip{font-family:var(--f-body);font-size:11.5px}
 .aic p{margin:0;font-size:13.5px}
@@ -998,7 +1028,7 @@ function wireAiConsult(A){const box=$('#mAi');if(!box)return;
     renderMatch().then(()=>{const st=$('#mAiSt');if(st)st.textContent='読み直しました';const u=$('#mUpd');u?u.scrollIntoView({behavior:'smooth',block:'start'}):window.scrollTo({top:0,behavior:'smooth'})})}
   const ta=$('#mAiAns');if(ta){if(S.aiDraft&&!ta.value)ta.value=S.aiDraft;ta.oninput=()=>{S.aiDraft=ta.value;saveFlow()}}}
 /* AIのタブから戻ってきたら、貼る場所をすぐ出す */
-function gotoAiPaste(){S.tune='ai';const pane=$('#mTune');if(pane){setTune('ai')}const ta=$('#mAiAns');if(!ta)return;ta.scrollIntoView({block:'center'});const bx=ta.closest('.aiback');bx&&bx.classList.add('flash');setTimeout(()=>{bx&&bx.classList.remove('flash');try{ta.focus({preventScroll:true})}catch(e){}},700)}
+function gotoAiPaste(){S.tune='';const pane=$('#mTune');if(pane){setTune('ai')}const ta=$('#mAiAns');if(!ta)return;ta.scrollIntoView({block:'center'});const bx=ta.closest('.aiback');bx&&bx.classList.add('flash');setTimeout(()=>{bx&&bx.classList.remove('flash');try{ta.focus({preventScroll:true})}catch(e){}},700)}
 addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&S.aiAway&&location.hash==='#match'&&Date.now()-S.aiAway.t>1500){track('ai_return',{ai:S.aiAway.ai});renderMatchDock();gotoAiPaste()}});
 /* ---------- 製品イメージ案（製品の種類ごとの典型例＝tools/concepts.py。AIのAPIは使わない） ---------- */
 const CONCEPTS=__CONCEPTS__;
@@ -1291,7 +1321,7 @@ async function renderPick(){
         <div class="gcaps">${caps.map(i=>GDB.caps[i]).filter(c=>gCodes().includes(c)||gCat().proc.some(p=>p[1].includes(c))).map(c=>`<span class="chip">${esc(CAPN[c]||c)}</span>`).join('')}</div>
         ${axHtml(r,S.axq||1e9)}
         ${sum?`<p class="gsumtxt" translate="no">${esc(sum)}</p>`:''}
-        <div class="glinks">${web?`<a href="${esc(web)}" target="_blank" rel="noopener">公式サイト</a>`:''}${src&&src!==web?`<a href="${esc(src)}" target="_blank" rel="noopener">出典</a>`:''}</div></div></li>`}).join('')}</ol>
+        <div class="glinks">${web?`<a href="${esc(web)}" target="_blank" rel="noopener">公式サイト</a>`:''}${src&&src!==web?`<a href="${esc(src)}" target="_blank" rel="noopener">出典</a>`:''}${gmapA(r,'list')}</div></div></li>`}).join('')}</ol>
     ${all.length>list.length?`<div style="text-align:center;margin:18px 0"><button class="btn" id="gMore">さらに表示 · 残り ${fmt(all.length-list.length)}社</button></div>`:''}
     ${!all.length?`<div class="empty"><b>条件に合う会社が見つかりませんでした</b>地域・「試作に対応」・料金や品質の絞り込みを外すか、このまま依頼してください。担当者が探してお声がけします。</div>`:''}
     <p class="muted" style="font-size:12.5px;margin-top:24px">一覧は公開情報から集めたものです。「要確認」の会社は、見積の依頼で対応できるかを確かめます。順番は、選んだ加工への対応・確認の度合い・数量への合い方で決めています。</p>
@@ -1302,7 +1332,7 @@ async function renderPick(){
   $('#gProto').onchange=e=>{S.gf.proto=e.target.checked;S.gshow=20;track('filter_company',{filter:'proto',source:'guided'});renderPick()};
   $('#gMore')&&($('#gMore').onclick=()=>{S.gshow+=20;renderPick()});
   bindAxBar(()=>{S.gshow=20;return renderPick()},'guided');
-  $$('[data-pick]').forEach(b=>b.onchange=()=>{const n=b.dataset.pick;if(b.checked){if(S.gsel.length>=5){b.checked=false;return}S.gsel.push(n)}else S.gsel=S.gsel.filter(x=>x!==n);b.closest('.gco').classList.toggle('on',b.checked);track('select_company',{source:'guided',selected:S.gsel.length});dock()});
+  $$('[data-pick]').forEach(b=>b.onchange=()=>{const n=b.dataset.pick;S.autoPick=false;if(b.checked){if(S.gsel.length>=5){b.checked=false;return}S.gsel.push(n)}else S.gsel=S.gsel.filter(x=>x!==n);b.closest('.gco').classList.toggle('on',b.checked);track('select_company',{source:'guided',selected:S.gsel.length});dock()});
   if(typeof window.KATACHI_EST_CARD==='function'){try{$('#gEst').innerHTML=window.KATACHI_EST_CARD(gCodes(),(GQ.find(x=>x[0]===S.g.qty)||[])[2])||''}catch(e){}}
 }
 const CAPN={};const fillCAPN=()=>{if(GDB&&GDB.names)GDB.caps.forEach((c,i)=>CAPN[c]=GDB.names[i])};
@@ -1373,9 +1403,9 @@ function coCard(r,chipCodes){const[n,ct,pref,city,web,caps,proto,nodraw,ml,mat,l
     <div class="gcaps">${caps.map(i=>GDB.caps[i]).filter(c=>chipCodes.includes(c)).map(c=>`<span class="chip">${esc(CAPN[c]||c)}</span>`).join('')}</div>
     ${axHtml(r,S.axq||500)}
     ${sum?`<p class="gsumtxt" translate="no">${esc(sum)}</p>`:''}
-    <div class="glinks">${web?`<a href="${esc(web)}" target="_blank" rel="noopener">公式サイト</a>`:''}${src&&src!==web?`<a href="${esc(src)}" target="_blank" rel="noopener">出典</a>`:''}</div></div></li>`}
+    <div class="glinks">${web?`<a href="${esc(web)}" target="_blank" rel="noopener">公式サイト</a>`:''}${src&&src!==web?`<a href="${esc(src)}" target="_blank" rel="noopener">出典</a>`:''}${gmapA(r,'list')}</div></div></li>`}
 function bindPicks(rerender){
-  $$('[data-pick]').forEach(b=>b.onchange=()=>{const n=b.dataset.pick;if(S.planPick){S.planPick='';$$('[data-plan-pick]').forEach(x=>{x.setAttribute('aria-pressed','false');x.classList.remove('pri')});$$('.pcard.on').forEach(x=>x.classList.remove('on'))}if(b.checked){if(S.gsel.length>=8){b.checked=false;return}S.gsel.push(n);S.gstep[n]=b.closest('[data-step]')?.dataset.step||S.gstep[n]}else S.gsel=S.gsel.filter(x=>x!==n);
+  $$('[data-pick]').forEach(b=>b.onchange=()=>{const n=b.dataset.pick;S.autoPick=false;if(S.planPick){S.planPick='';$$('[data-plan-pick]').forEach(x=>{x.setAttribute('aria-pressed','false');x.classList.remove('pri')});$$('.pcard.on').forEach(x=>x.classList.remove('on'))}if(b.checked){if(S.gsel.length>=8){b.checked=false;return}S.gsel.push(n);S.gstep[n]=b.closest('[data-step]')?.dataset.step||S.gstep[n]}else S.gsel=S.gsel.filter(x=>x!==n);
     b.closest('.gco').classList.toggle('on',b.checked);track('select_company',{source:S.src,selected:S.gsel.length});pickDock()})}
 function pickDock(){$('#dock').innerHTML=`<div class="dock gut"><div class="wrap"><div class="gdl"><b>${S.gsel.length?`${S.planPick?PLAN_L[S.planPick]+' · ':''}${S.gsel.length}社 · 選択中`:'会社選びは担当者に任せる'}</b><small translate="${S.gsel.length?'no':'yes'}">${S.gsel.length?S.gsel.map(esc).join('、'):'候補から合いそうな会社を選んで打診します'}</small></div><span class="sp"></span><button class="btn pri" id="gRfq">見積を依頼する</button></div></div>`;$('#gRfq').onclick=gRfq}
 /* ---------- 料金・品質・納期で比べる（見積の前の目安） ----------
@@ -1384,7 +1414,7 @@ function pickDock(){$('#dock').innerHTML=`<div class="dock gut"><div class="wrap
 const PREFS=REGION.flatMap(g=>g[1].split(' '));
 const regionOf=p=>(REGION.find(g=>g[1].split(' ').includes(p))||[])[0]||'';
 const AXSORT=[['rec','おすすめ順'],['price','料金を抑えやすい順'],['qual','品質の根拠が多い順'],['lead','納期が短くなりやすい順']];
-const PLAN_L={one:'一社にまとめる案',combo:'組み合わせる案',both:'両方の案'};
+const PLAN_L={one:'一社にまとめる案',combo:'組み合わせる案',both:'両方の案',rec:'おすすめの会社'};
 function axOf(r,qmax){const[n,ct,pref,city,web,caps,proto,nodraw,ml,mat,lv]=r;const x=r[14]||{};const to=S.gf&&S.gf.to||'';
   const A={price:{s:0,ev:[]},qual:{s:0,ev:[]},lead:{s:0,ev:[]}};const e=(k,t,src,v,cls)=>A[k].ev.push({t,src:src||'',v:v||'',cls:cls||''});
   if(ml!=null){if(ml<=qmax){A.price.s=3-Math.log10(ml+1)/2;e('price','最小ロット','掲載情報',fmt(ml)+'個〜')}else{A.price.s=-3;e('price','最小ロットが数量より多い','掲載情報',fmt(ml)+'個〜','ng')}}
@@ -1463,7 +1493,7 @@ function planCmp(secs,one){if(secs.length<2)return '';
     <p class="pwhy">${why}</p>
     <div class="pgrid">${planCard('one',P,secs,rec)}${planCard('combo',P,secs,rec)}</div>
     <div class="pfoot"><button type="button" class="btn ${S.planPick==='both'?'pri':''}" data-plan-pick="both" aria-pressed="${S.planPick==='both'}">${S.planPick==='both'?'両方の案の会社を選択中':'両方に見積を依頼して比べる'}</button><span class="muted">案の会社は、下の並べ替え・絞り込みに合わせて入れ替わります。料金と納期の本当の数字は、見積で各社から届きます。</span></div></section>`}
-function bindPlans(re){$$('[data-plan-pick]').forEach(b=>b.onclick=()=>{const k=b.dataset.planPick;const P=S.plans;if(!P)return;
+function bindPlans(re){$$('[data-plan-pick]').forEach(b=>b.onclick=()=>{const k=b.dataset.planPick;const P=S.plans;if(k==='rec'){S.autoPick=true;track('choose_plan',{plan:'rec'});re();return}if(!P)return;S.autoPick=false;
   if(S.planPick===k){S.planPick='';S.gsel=[];S.gstep={};track('choose_plan',{plan:'none'});re();return}
   const rows=k==='one'?P.oneRows:k==='combo'?P.combo:[...P.oneRows,...P.combo];S.gsel=[];S.gstep={};
   for(const x of rows){if(!x.r||S.gsel.includes(x.r[0])||S.gsel.length>=8)continue;S.gsel.push(x.r[0]);S.gstep[x.r[0]]=x.c?(CAPN[x.c]||x.c):'まとめて依頼'}
@@ -1476,7 +1506,8 @@ async function renderMatch(){
   const db=await loadGDB();
   if(!db){$('#app').innerHTML=`<section class="gut"><div class="wrap" style="padding:60px 0"><h2>会社の一覧を読み込めませんでした</h2><p class="muted">通信の状態を確かめて、もう一度お試しください。</p><button class="btn" onclick="location.reload()">再読み込み</button></div></section>`;return}
   const A=analyzeText(S.idea+' '+S.files.map(f=>f.name).join(' '));A.concept=pickConcept(S.idea+' '+S.files.map(f=>f.name).join(' '),A);S.anal=A;
-  const qmax={proto:10,small:500,mass:1e9}[S.qty]||500;S.axq=qmax;
+  if(S.qnFor!==ideaBase()){S.qnFor=ideaBase();const m=String(S.idea).match(/(\d[\d,]*)\s*(個|台|枚|本|着|セット|点|pcs|units)/i);if(m){const n=+m[1].replace(/,/g,'');if(n>0){S.qn=n;S.qty=n<=10?'proto':n<=500?'small':'mass'}}else S.qn=0}
+  const qmax=S.qn>0?S.qn:({proto:10,small:500,mass:1e9}[S.qty]||500);S.axq=qmax;
   const secs=A.codes.map(c=>{let list=rankFor([c],{qmax});if(!list.length&&c.includes('.'))list=rankFor([c.split('.').slice(0,-1).join('.')],{qmax});return {c,list}});
   const total=new Set(secs.flatMap(s=>s.list.map(r=>r[0]))).size;
   if(S.loggedIdea!==S.idea+'|'+S.qty){S.loggedIdea=S.idea+'|'+S.qty;logInput({mode:'text',text:S.idea,quantity:S.qty,steps:A.codes.map(c=>CAPN[c]||c),companies:total,top:secs.map(s=>(CAPN[s.c]||s.c)+': '+(s.list[0]?.[0]||'-')),notices:A.notices,file_kinds:S.files.map(f=>f.k)})}
@@ -1504,6 +1535,7 @@ async function renderMatch(){
     <div id="fstrip">${stripHTML()}</div>
     ${A.concept?conceptCard(A.concept):blocked?'':'<div class="empty" style="margin-top:16px">この文章からは、製品の種類を特定できませんでした。下の「AIで相談」を開くと、外観・サイズ・素材・機能の案も作ってもらえます。</div>'}
     ${notices}
+    ${blocked?'':`<div class="gonext"><button type="button" class="btn pri" data-gonext>${A.concept?'この案で会社を探す':'会社を探す'} →</button></div>`}
     ${blocked?blockedNext(A):tuneBox(A)}`;
   }else{
     const lists=`${secs.length>=2?`<section class="mstep" data-step="まとめて依頼"><div class="mhead"><span class="mono mno">A</span><h2>1社でまとめて頼む</h2><span class="muted">${one.length?'おすすめ':''}</span></div>
@@ -1517,21 +1549,29 @@ async function renderMatch(){
       ${s.list.length?`<ol class="glist">${s.list.slice(0,k).map(r=>coCard(r,A.codes)).join('')}</ol>${s.list.length>k?`<button class="glink" data-more="${esc(s.c)}" style="margin-top:10px">さらに表示 · 残り ${fmt(s.list.length-k)}社</button>`:''}`:`<p class="muted" style="font-size:13px">この工程の会社は、まだ一覧にありません。担当者が探してお声がけします。</p>`}</section>`}).join('')}
     <p class="muted" style="font-size:12.5px;margin:0">一覧は公開情報から集めたものです。「要確認」の会社は、見積の依頼で対応できるかを確かめます。順番は、確認の度合い・試作や数量への合い方・所在地で決めています。</p>`;
     const filt=`<div class="gflt" style="margin:0"><label>地域<select id="gArea"><option value="">すべて</option><option value="JP">国内だけ</option><option value="ABROAD">海外だけ</option></select></label>
-      <label class="chk"><input type="checkbox" id="gProto" ${S.gf.proto?'checked':''}><span>試作に対応と書いている会社だけ</span></label></div>${axBar()}`;
+</div>${axBar()}`;
     const multi=secs.length>=2;
+    const R3=A.codes.length?recOf(secs,one,qmax):null;
     body=`${stepBar(3)}${head}
-    <h2 class="stepnow">${multi?'頼み方を選んでください':'見積を頼む会社を選んでください'}</h2>
-    <p class="steplead">選んだ会社に、まとめて見積を頼めます（合計8社まで）。選ばずに進むと、担当者が合いそうな会社を選んで打診します。</p>
-    ${A.codes.length?`${multi?planCmp(secs,one):''}
-      ${fold('flt','並べ替え・絞り込み（料金・品質・納期・地域）',filt)}
-      ${multi?fold('all','工程ごとの候補を、すべて見る',readout+lists,fmt(total)+'社'):`${readout?`<div style="margin-top:10px">${readout}</div>`:''}${lists}`}
+    ${A.codes.length?`<h2 class="stepnow">何個つくりますか？</h2>${qBar(total)}
+      <h2 class="stepnow" style="margin-top:6px">おすすめの頼み方</h2>
+      ${recBox(R3,secs,qmax)}
+      ${multi&&R3.P?fold('alt','ほかの頼み方：'+(R3.kind==='one'?'工程ごとに組み合わせる':'一社にまとめる'),planCard(R3.kind==='one'?'combo':'one',R3.P,secs,'')+`<button type="button" class="btn ${S.planPick==='both'?'pri':''}" data-plan-pick="both" aria-pressed="${S.planPick==='both'}">${S.planPick==='both'?'両方の案の会社を選択中':'両方に見積を依頼して比べる'}</button>`):''}
+      ${fold('flt','並べ替え・地域・届け先',filt)}
+      ${fold('all',multi?'工程ごとの候補を、すべて見る':'ほかの候補を、すべて見る',readout+lists,fmt(total)+'社')}
       ${fold('est','概算の目安',`<div id="mEst"></div>`,'AIの目安')}
+      ${trustNote()}
       ${A.regs.length?fold('reg','確かめておきたい法規制・認証',`<div class="blk"><ul class="list">${A.regs.map(x=>`<li>${esc(x)}</li>`).join('')}</ul><p class="muted" style="margin:6px 0 0;font-size:12px">キーワードから当たりを付けた参考情報です。正式な判断は専門家・認証機関が行います。</p></div>`):''}`
     :`<div class="empty" style="margin-top:16px"><b>文章から工程を読み取れませんでした</b>このまま見積を依頼すれば、担当者が内容を読んで工程と会社を探します。型が決まっているもの（部品・ノベルティ・袋物など）なら「選んで探す」が早いです。<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn" id="mGuided">選んで探す</button></div></div>${(()=>{const ts=textSearch(S.idea);return ts.length?`<section class="mstep" data-step="文章に近い会社"><div class="mhead"><span class="mono mno">?</span><h2>文章の言葉が会社の説明に出てくる会社</h2><span class="muted">${fmt(ts.length)}社</span></div><p class="muted" style="margin:0 0 12px;font-size:13px">工程は読み取れませんでしたが、書いた言葉が社名や説明に含まれる会社です。参考にしてください。</p><ol class="glist">${ts.slice(0,10).map(r=>coCard(r,[])).join('')}</ol></section>`:''})()}`}`;
   }
   $('#app').innerHTML=`<section class="gut"><div class="wrap gpick">${body}</div></section>`;
   bindStepBar($('#app'));bindFolds();
   S.lostFiles=0;saveFlow();S.mTotal=total;
+  if(st===3){$$('[data-q3]').forEach(b=>b.onclick=()=>{S.qty=b.dataset.q3;S.qn=0;track('select_quantity',{quantity:S.qty,place:'companies'});S.gmore={};renderMatch()});
+    const qn=$('#qN');if(qn)qn.onchange=()=>{const n=Math.max(0,Math.round(+qn.value||0));S.qn=n;if(n)S.qty=n<=10?'proto':n<=500?'small':'mass';track('select_quantity',{quantity:S.qty,place:'companies',typed:!!n});S.gmore={};renderMatch()};
+    $$('[data-qf]').forEach(b=>b.onclick=()=>{S.gf.proto=!S.gf.proto;track('filter_company',{filter:'proto',source:'text'});S.gmore={};renderMatch()});
+    $$('[data-recself]').forEach(b=>b.onclick=()=>{S.autoPick=false;S.gsel=[];S.gstep={};S.planPick='';track('choose_plan',{plan:'staff'});renderMatch()});
+    $$('[data-recall]').forEach(b=>b.onclick=()=>{S.folds.all=true;const d=$('details[data-fold=all]');if(d){d.open=true;d.scrollIntoView({behavior:'smooth',block:'start'})}else{const l=$('.mstep');l&&l.scrollIntoView({behavior:'smooth',block:'start'})}})}
   if(st===2){if(!blocked)renderMatchDock();wireTune(A);if(S.aiAway&&Date.now()-S.aiAway.t>1500)setTimeout(gotoAiPaste,200)}
   else pickDock();
   bindPicks();wireAiConsult(A);wireConcept(A);if(st===2&&A.concept&&S.loggedConcept!==S.idea){S.loggedConcept=S.idea;track('concept_show',{concept:A.concept.id})}
@@ -1545,6 +1585,40 @@ async function renderMatch(){
   if(A.codes.length){bindAxBar(()=>{S.gmore={};return renderMatch()},'text');bindPlans(renderMatch)}
 }
 
+/* ③ 数量と「試作に対応」で絞る。根拠（掲載情報）のない会社は外さず「要確認」 */
+function qBar(total){const f=S.gf||{};
+  return `<div class="qbar"><div class="qrow"><div class="pillset" role="group" aria-label="数量">${[['proto','試作 1〜10個'],['small','小ロット'],['mass','量産']].map(([v,t])=>`<button type="button" data-q3="${v}" aria-pressed="${S.qty===v}">${t}</button>`).join('')}</div>
+    <label class="qn"><input id="qN" type="number" min="1" inputmode="numeric" value="${S.qn||''}" placeholder="例 5" aria-label="個数">個</label></div>
+    <div class="qrow"><button type="button" class="axchip" data-qf="proto" aria-pressed="${!!f.proto}">試作に対応している会社だけ</button><button type="button" class="axchip" data-ax="lot" aria-pressed="${!!f.lot}">この数から受ける会社だけ</button></div>
+    <p class="qcount"><b>${fmt(total)}社</b> <span>が条件に合います。</span> <span>最小ロットや試作対応の掲載がない会社は「要確認」として残し、見積で確かめます。</span></p></div>`}
+/* 会社ごとの「信頼の目安」: 確かめられた事実だけ。口コミは取引した人だけが書ける（まだ無い）ので作らない */
+/* 第三者の口コミ: Googleの口コミは転載・取得せず、Googleマップの検索へリンクするだけ（社名＋所在地） */
+const gmapUrl=r=>'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent([r[0],r[1]==='JP'?r[2]:'',r[3]].filter(Boolean).join(' '));
+const gmapA=(r,place)=>`<a class="gmap" href="${esc(gmapUrl(r))}" target="_blank" rel="noopener" data-gmap="${place}">Googleマップで口コミを見る ↗</a>`;
+addEventListener('click',e=>{const a=e.target.closest&&e.target.closest('[data-gmap]');if(a)track('review_link',{site:'google_maps',place:a.dataset.gmap})});
+function tBadges(r,qmax){const LIM=4;const[n,ct,pref,city,web,caps,proto,nodraw,ml,mat,lv]=r;const x=r[14]||{};const b=[];
+  if(lv==='pub')b.push(['','公式サイト等で確認']);if(proto)b.push(['','試作に対応']);
+  if(ml!=null)b.push([ml<=qmax?'':'ng','最小ロット '+fmt(ml)+'個']);else b.push(['q','最小ロット 要確認']);
+  (x.iso||[]).slice(0,2).forEach(c=>b.push(['',c]));if(x.sub)b.push(['','補助金の採択あり']);if(x.em)b.push(['','国の公開データあり']);
+  if(nodraw)b.push(['','図面なしで相談可']);
+  return `<div class="tbad">${b.slice(0,LIM).map(([c,t])=>`<span class="${c}">${esc(t)}</span>`).join('')}</div>`}
+/* おすすめの頼み方を1つに決める。工程が2つ以上なら一社案か組み合わせ案、1つならその工程の上位3社 */
+function recOf(secs,one,qmax){
+  if(secs.length>=2){const P=planOf(secs,one);S.plans=P;const kind=P.full?'one':'combo';const rows=(kind==='one'?P.oneRows:P.combo).filter(x=>x.r);
+    const why=kind==='one'?`${secs.length}つの工程をすべて1社で受けられそうな会社があります。窓口が1つで済み、不具合の責任もはっきりします。`:P.top?'すべての工程を1社で受けられる会社は見つかりませんでした。工程ごとに得意な会社を組み合わせ、取りまとめはKATACHIの担当者が行います。':'工程ごとに得意な会社を組み合わせます。取りまとめはKATACHIの担当者が行います。';
+    return {kind,P,why,title:kind==='one'?'一社にまとめて頼む':'工程ごとに組み合わせて頼む',rows:rows.map(x=>({step:x.c?(CAPN[x.c]||x.c):(x.cov===secs.length?'すべての工程':'まとめて受ける工程'),r:x.r,key:x.c?(CAPN[x.c]||x.c):'まとめて依頼'}))}}
+  const s0=secs[0];const rows=(s0?s0.list:[]).slice(0,3).map(r=>({step:CAPN[s0.c]||s0.c,r,key:CAPN[s0.c]||s0.c}));
+  return {kind:'rec',P:null,why:'1つの工程で作れる内容です。条件に合う会社のうち、確かめられた情報が多い順に3社を選びました。3社に見積を頼むと比べられます。',title:'この3社に見積を頼む',rows}}
+function recBox(R3,secs,qmax){if(!R3||!R3.rows.length)return `<div class="empty">条件に合う会社が一覧にありません。数量や「試作に対応」の条件を外すか、このまま見積を依頼してください。担当者が探してお声がけします。</div>`;
+  if(S.autoPick!==false){S.gsel=[];S.gstep={};for(const x of R3.rows){if(S.gsel.includes(x.r[0])||S.gsel.length>=8)continue;S.gsel.push(x.r[0]);S.gstep[x.r[0]]=x.key}S.planPick=R3.kind}
+  const picked=R3.rows.every(x=>S.gsel.includes(x.r[0]));
+  return `<section class="rec" id="mPlans"><span class="rtag">★ おすすめ</span><h3>${R3.title}</h3><p class="why">${R3.why}</p>
+    ${(()=>{const li=x=>`<li><span class="rs">${esc(x.step)}</span><b translate="no">${esc(x.r[0])}</b>${tBadges(x.r,qmax)}${gmapA(x.r,'recommend')}</li>`;const N=4;
+      return `<ul class="rcos">${R3.rows.slice(0,N).map(li).join('')}</ul>${R3.rows.length>N?`<details class="rmore"><summary>ほかの工程の会社も見る</summary><ul class="rcos">${R3.rows.slice(N).map(li).join('')}</ul></details>`:''}`})()}
+    <span class="rvw">KATACHIでの口コミ：まだありません（取引した人だけが書けます）。Googleの口コミは各社の「Googleマップで口コミを見る」から。</span>
+    <div class="qrow">${picked?'<span class="rsel">✓ この会社を選択中。下の「見積を依頼する」で送れます</span>':'<button type="button" class="btn sm pri" data-plan-pick="rec">おすすめに戻す</button>'}</div>
+    <div class="qrow"><button type="button" class="glink" data-recall>会社を入れ替える</button><button type="button" class="glink" data-recself>会社選びは担当者に任せる</button></div></section>`}
+function trustNote(){return `<div class="trust3"><b>口コミ・評価について</b><span>KATACHIで見積・取引をした人だけが、取引のあとに評価（納期・見積どおりか・連絡・また頼みたいか）を書けるようにします。まだ取引の評価はないため、いまは公式サイト等での確認・国の公開データ・認証の記載を「信頼の目安」として出しています。Googleなど第三者の口コミは、各社の「Googleマップで口コミを見る」から確かめられます（KATACHIは転載しません）。作った口コミは載せません。</span></div>`}
 /* ②の下のボタン: AIへ行って戻ってきたら「回答を貼る」が先 */
 function renderMatchDock(){const A=S.anal||{};const away=!!S.aiAway;const arrow='<svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   $('#dock').innerHTML=`<div class="dock gut"><div class="wrap">${away?`<button type="button" class="glink" id="mSkip" style="font-size:12.5px">貼らずに会社を探す</button><span class="sp"></span><button class="btn pri" id="mPaste">${esc(S.aiAway.ai)}の回答を貼る ↓</button>`
@@ -1552,15 +1626,15 @@ function renderMatchDock(){const A=S.anal||{};const away=!!S.aiAway;const arrow=
   const nx=()=>{track('step_next',{to:3,concept:A.concept?A.concept.id:'',tuned:Object.keys((S.chat||{}).ans||{}).length});S.aiAway=null;saveFlow();location.hash='co'};
   $('#mNext')&&($('#mNext').onclick=nx);$('#mSkip')&&($('#mSkip').onclick=nx);$('#mPaste')&&($('#mPaste').onclick=gotoAiPaste)}
 /* ②「この案を、相談して詰める」: 質問に答える（KATACHI内）／AIに相談（ChatGPT・Claude・Gemini）／人に相談（担当者・工場） */
-function tuneBox(A){const c=A.concept;const t=S.tune||(c?'q':'ai');
-  return `<section class="tune" id="mTune"><h3>この案を、相談して詰める<small>任意・何度でも</small></h3>
-    <p>答えたり、AIの回答を貼ったりするたびに、上の案と候補の会社が変わります。書いた内容は消えません。</p>
-    <div class="tabs3" role="group" aria-label="相談のしかた">${c?`<button type="button" data-tune="q" aria-pressed="${t==='q'}"><b>質問に答える</b><small>1問ずつ・すぐ反映</small></button>`:''}<button type="button" data-tune="ai" aria-pressed="${t==='ai'}"><b>AIに相談する</b><small>ChatGPT・Claude・Gemini</small></button><button type="button" data-tune="human" aria-pressed="${t==='human'}"><b>人に相談する</b><small>担当者・工場（無料）</small></button></div>
+const TICON={"q": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M4 5h16v11H9l-5 4z\"/><path d=\"M9 9.5h6M9 12.5h4\"/></svg>", "ai": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z\"/><path d=\"M18 15l.8 2.2L21 18l-2.2.8L18 21l-.8-2.2L15 18l2.2-.8z\"/></svg>", "human": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"12\" cy=\"8\" r=\"3.5\"/><path d=\"M5 20c.8-3.6 3.6-5.5 7-5.5s6.2 1.9 7 5.5\"/></svg>"};
+function tuneBox(A){const c=A.concept;const t=S.tune||'';
+  return `<section class="tune2" id="mTune"><div class="th"><b>案を詰めたいときだけ</b><span class="topt">任意</span><span>やらなくても次へ進めます</span></div>
+    <div class="ticons" role="group" aria-label="相談のしかた">${c?`<button type="button" data-tune="q" aria-pressed="${t==='q'}">${TICON.q}<b>質問に答える</b></button>`:''}<button type="button" data-tune="ai" aria-pressed="${t==='ai'}">${TICON.ai}<b>AIに相談</b></button><button type="button" data-tune="human" aria-pressed="${t==='human'}">${TICON.human}<b>人に相談</b></button></div>
     ${c?`<div data-pane="q" ${t==='q'?'':'hidden'}>${chatBox(c)}</div>`:''}
     <div data-pane="ai" ${t==='ai'?'':'hidden'}>${A.notices.some(n=>WEAPON.test(n))?'':aiConsult(A)}<p class="muted" style="margin:8px 0 0;font-size:12.5px">AIは別のタブで開きます。AIが「仕様メモ」をまとめたら、このページに戻って上の欄に貼ってください。戻ると貼る場所が開きます。</p></div>
     <div data-pane="human" ${t==='human'?'':'hidden'}><div class="aic" style="margin:0"><p>形・素材・作り方で迷ったら、KATACHIの担当者や工場に、写真を添えて相談できます（無料）。返事はメールで届きます。見積の前でも大丈夫です。</p><div class="aicb"><button type="button" class="btn pri" id="mHuman">担当者・工場に相談する</button></div></div></div></section>`}
-function setTune(t){S.tune=t;$$('#mTune [data-tune]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.tune===t));$$('#mTune [data-pane]').forEach(p=>p.hidden=p.dataset.pane!==t);saveFlow()}
-function wireTune(A){$$('[data-tune]').forEach(b=>b.onclick=()=>{track('tune_mode',{mode:b.dataset.tune});setTune(b.dataset.tune);if(!b.closest('.tabs3'))$('#mTune').scrollIntoView({behavior:'smooth',block:'start'})});
+function setTune(t){if(S.tune===t&&!S.aiAway)t='';S.tune=t;$$('#mTune [data-tune]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.tune===t));$$('#mTune [data-pane]').forEach(p=>p.hidden=p.dataset.pane!==t);saveFlow()}
+function wireTune(A){$$('[data-tune]').forEach(b=>b.onclick=()=>{track('tune_mode',{mode:b.dataset.tune});const inBar=!!b.closest('.ticons');if(!inBar)S.tune='';setTune(b.dataset.tune);if(!inBar)$('#mTune').scrollIntoView({behavior:'smooth',block:'start'})});
   $$('[data-gonext]').forEach(b=>b.onclick=()=>$('#mNext')?.click());
   const h=$('#mHuman');if(h)h.onclick=()=>{track('tune_human',{});consult('');const b=$('#c-b');if(b&&!b.value)b.value=ideaBase()}}
 
@@ -1568,7 +1642,7 @@ function wireTune(A){$$('[data-tune]').forEach(b=>b.onclick=()=>{track('tune_mod
 function pick(text){for(const [k,re] of [['collar',/犬|猫|ペット|首輪|動物|心拍/],['mimamori',/見守|高齢|ドア|開閉|室温|部屋/],['bike',/自転車|ライト|ハンドル|バイク/]])if(re.test(text))return[k,'near'];return['collar','fallback']}
 function go(ex){
   S.idea=$('#idea').value.trim()||S.files.map(f=>f.name).join('、');
-  if(!ex){S.aiAway=null;S.aiDraft='';S.src='text';S.matched='text';S.gsel=[];S.gstep={};S.gmore={};S.planPick='';S.gf={area:'',proto:false,to:(S.gf||{}).to||''};loadGDB();location.hash='match';if(location.hash==='#match')renderMatch();return}
+  if(!ex){S.aiAway=null;S.aiDraft='';S.autoPick=true;S.src='text';S.matched='text';S.gsel=[];S.gstep={};S.gmore={};S.planPick='';S.gf={area:'',proto:false,to:(S.gf||{}).to||''};loadGDB();location.hash='match';if(location.hash==='#match')renderMatch();return}
   S.scen=ex;S.matched='example';S.src='example'
   S.lastReal=S.scen;S.plan=0;S.custom=false;S.tab='team';setPlan(0);S.viewSent=false;
   const R=D.scen[S.scen];const steps=['要件を読み取る',`${R.per_requirement.length}の工程に分ける`,`${fmt(D.realCount)}社から候補を探す`,'チームを組む'];
@@ -1879,7 +1953,7 @@ function rfqVals(r,qty){return RFQ(r,qty).flatMap(g=>g[1]).filter(f=>!PRIV.inclu
   const v=f[2]==='cks'?[...el.querySelectorAll('input:checked')].map(i=>i.value).join('、'):el.value.trim();return [f[1],v]}).filter(x=>x&&x[1])}
 function rfq(names){
   track('open_inquiry',{type:'rfq',companies:names.length,overseas:names.filter(n=>abroad(D.companies[n])).length});
-  const r=R();const qty=S.scen==='guided'&&S.src==='guided'&&S.g.qty?S.g.qty:{proto:'試作 1〜10個',small:'小ロット 〜500個',mass:'量産 500個〜'}[S.qty];
+  const r=R();const qty=S.scen==='guided'&&S.src==='guided'&&S.g.qty?S.g.qty:(S.src!=='guided'&&S.qn>0?S.qn+'個':{proto:'試作 1〜10個',small:'小ロット 〜500個',mass:'量産 500個〜'}[S.qty]);
   const G=S.scen==='guided';
   const roles=n=>G?(S.src==='guided'?(S.g.proc&&S.g.proc!==OMAKASE?S.g.proc:gCat()?.t||''):(S.gstep[n]==='まとめて依頼'?'まとめて（'+(S.anal?.codes||[]).map(c=>CAPN[c]||c).join('、')+'）':(S.gstep[n]||''))):Object.entries(S.assign).filter(([,v])=>v===n).map(([k])=>r.per_requirement.find(p=>p.requirement.id===k)?.requirement.purpose).filter(Boolean).join('、');
   sheet(`${head('Request for quote','見積を依頼する')}${S.src==='text'?stepBar(4):''}
