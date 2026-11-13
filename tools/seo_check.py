@@ -13,7 +13,7 @@ BAN = ["酒類OEM", "お酒のOEM", "医薬品OEM", "医療機器の製造を", 
 class P(HTMLParser):
     def __init__(s):
         super().__init__(); s.title = ""; s.desc = None; s.canon = None; s.h1 = 0; s.robots = ""
-        s._t = False; s._skip = 0; s._ld = False; s.ld = []; s.text = []
+        s._t = False; s._skip = 0; s._ld = False; s.ld = []; s.text = []; s.og = None
     def handle_starttag(s, tag, a):
         a = dict(a)
         if tag == "title": s._t = True
@@ -22,6 +22,7 @@ class P(HTMLParser):
         elif tag == "meta" and a.get("name") == "description": s.desc = a.get("content", "")
         elif tag == "meta" and a.get("name") == "robots": s.robots = a.get("content", "")
         elif tag == "link" and a.get("rel") == "canonical": s.canon = a.get("href")
+        elif tag == "meta" and a.get("property") == "og:image": s.og = a.get("content")
         elif tag == "h1" and not s._skip: s.h1 += 1
     def handle_endtag(s, tag):
         if tag == "title": s._t = False
@@ -53,6 +54,8 @@ def main():
             try: json.loads(j)
             except ValueError as e: ng.append(f"{u}: 構造化データが壊れている（{e}）")
         if not p.ld: warn.append(f"{u}: 構造化データがない")
+        if p.og and p.og.startswith(SITE) and not os.path.exists(os.path.join(ROOT, p.og.replace(SITE, "").lstrip("/"))):
+            ng.append(f"{u}: OGP画像 {p.og} がない（python3 tools/og_images.py . で作る）")
         body = "".join(p.text)
         for w in BAN:
             if w in body: ng.append(f"{u}: 使わない言葉「{w}」")
