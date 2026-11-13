@@ -51,6 +51,11 @@
 | concept_show | 文章入力の結果画面に「製品イメージ案」が出た | concept（種類のID。例 slope_mower） | |
 | concept_direction | 製品イメージ案の「方向性」を選んだ・外した | concept, direction（0始まり、外したら -1） | |
 | concept_chat | 製品イメージ案の「相談しながら詰める」で答えた・とばした・やり直した | q（質問のID）, how（option/free/skip/reset）。答えの中身は送らない | |
+| lai_available | パソコンのChromeに内蔵AI（Prompt API）があった（1回だけ） | state（available/downloadable/downloading） | 内蔵AIがない端末では送らない |
+| lai_ready | 内蔵AIの準備ができた | sec（かかった秒数）, state | |
+| lai_send | 「内蔵AIと話す」でメッセージを送った | turn（何回目か） | 文章の中身は送らない。会話は端末の中だけで処理される |
+| lai_error | 内蔵AIが答えられなかった | kind（エラーの種類名） | |
+| lai_reset | 内蔵AIとの会話をやり直した | なし | |
 | concept_ai | 「この案をもとにAIで詰める」を押した | concept | |
 | blocked_alt | 扱わない分野（酒類）のとき「ラベル・化粧箱」「グラス・ノベルティ」の入口を押した | alt | |
 | lang_change | 言語切替 | from, to | |

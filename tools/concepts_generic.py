@@ -348,3 +348,32 @@ T_GENERIC.update({ja: (en, zh) for ja, en, zh in list(_qstrings()) + WORDS})
 
 def qdata():
     return [{'id': q['id'], 'show': q['show'], 'q': q['q'][0], 'skip': q['skip'], 'opts': [[lab[0], memo] for lab, memo in q['opts']]} for q in QUESTIONS]
+
+# 内蔵AIと話す（パソコンのChromeの Prompt API。端末の中で動く）
+T_GENERIC.update({ja: (en, zh) for ja, en, zh in [
+    ("内蔵AIと話す", "Chat with built-in AI", "与内置 AI 对话"),
+    ("内蔵AIと話しながら詰める", "Refine it by chatting with the built-in AI", "与内置 AI 对话来细化"),
+    ("このパソコンのChromeに入っているAI（Gemini Nano）と話せます。文章はこの端末の中で処理され、KATACHIにもAIの会社にも送られません。答えるたびに、製品イメージ案と候補の会社が変わります。",
+     "You can chat with the AI built into Chrome on this computer (Gemini Nano). Your text is processed on this device and is not sent to KATACHI or any AI company. Each reply updates the product concept and the candidate companies.",
+     "可以与这台电脑的 Chrome 内置 AI（Gemini Nano）对话。文字只在本设备上处理，不会发送给 KATACHI 或任何 AI 公司。每次回复都会更新产品构想和候选公司。（内置 AI 暂不支持中文，将用英语回答。）"),
+    ("初めて使うときは、AIの準備（ダウンロード）に数分かかります。", "The first time, preparing the AI (a download) takes a few minutes.", "首次使用时，准备 AI（下载）需要几分钟。"),
+    ("AIを準備しています…", "Preparing the AI…", "正在准备 AI…"),
+    ("考えています…", "Thinking…", "思考中…"),
+    ("更新した製品イメージ案を見る ↑", "See the updated product concept ↑", "查看更新后的产品构想 ↑"),
+    ("もっと具体的な案にして", "Make the concept more specific", "Make the concept more specific"),
+    ("使う場所に合う素材は？", "Which materials suit where it will be used?", "Which materials suit where it will be used?"),
+    ("もっと安く作るには？", "How can it be made cheaper?", "How can it be made cheaper?"),
+    ("安全のために気をつけることは？", "What should I watch for safety?", "What should I watch for safety?"),
+    ("例：庭で使うので、雨に強くしたい", "e.g. It will be used in a garden, so it should handle rain", "e.g. It will be used in a garden, so it should handle rain"),
+    ("内蔵AIへのメッセージ", "Message to the built-in AI", "给内置 AI 的消息"),
+    ("送る", "Send", "发送"),
+    ("会話をやり直す", "Start the chat over", "重新开始对话"),
+    ("AIの答えは推定です。寸法・素材・安全は、工場・専門家との打ち合わせと試作で決まります。", "The AI's answers are estimates. Dimensions, materials and safety are settled with the factory or experts and through prototyping.", "AI 的回答是推测。尺寸、材料和安全需与工厂、专家商讨并通过试制确定。"),
+    ("AIが答えられませんでした。もう一度送るか、「AIに相談」を使ってください。", "The AI could not answer. Send again, or use \"Ask AI\".", "AI 未能回答。请再发送一次，或使用“问 AI”。"),
+    ("内蔵AIと決めたこと", "Decided with the built-in AI", "与内置 AI 决定的事项"),
+    ("内蔵AIと詰めた案", "Refined with built-in AI", "经内置 AI 细化"),
+    ("内蔵AIとの会話をもとに、案と候補の会社を更新しました。よければ、このまま会社選びへ進めます。", "Updated the concept and candidate companies from your chat with the built-in AI. If it looks right, go on to choosing companies.", "已根据与内置 AI 的对话更新了构想和候选公司。如果合适，可以直接去选公司。"),
+    ("このパソコンのChromeに入っているAIとの会話をもとにした案です（AIの推定）。寸法・素材・性能は、工場・専門家との打ち合わせと試作で決まります。図は大きさと形の目安で、設計図ではありません。",
+     "This concept is based on your chat with the AI built into Chrome on this computer (an AI estimate). Dimensions, materials and performance are settled with the factory or experts and through prototyping. The figure shows rough size and shape, not a design drawing.",
+     "这是根据与本电脑 Chrome 内置 AI 的对话整理的构想（AI 推测）。尺寸、材料和性能需与工厂、专家商讨并通过试制确定。图示仅为大小和形状的参考，并非设计图。"),
+]})

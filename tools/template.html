@@ -353,7 +353,14 @@ table.cmp{border-collapse:separate;border-spacing:0;width:100%;min-width:760px;f
 .tune2{margin-top:14px;border:1px dashed var(--line2);border-radius:14px;padding:12px 14px;display:grid;gap:10px;background:var(--bg2)}
 .tune2>*{min-width:0}.tune2 .th{display:flex;gap:4px 8px;align-items:center;flex-wrap:wrap;font-size:13px;color:var(--mute)}.tune2 .th>*{white-space:nowrap}
 .tune2 .th b{color:var(--fg);font-weight:600}.tune2 .topt{font-size:11px;border:1px solid var(--line2);border-radius:99px;padding:1px 8px;background:#fff}
-.ticons{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.ticons{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:6px}
+.lai{display:grid;gap:10px;grid-template-columns:minmax(0,1fr);border:1px solid color-mix(in srgb,var(--ice) 30%,var(--line));background:color-mix(in srgb,var(--ice) 4%,#fff);border-radius:12px;padding:14px}.lai>*{min-width:0}
+.lai h4{margin:0}.lai .lnote{margin:0;font-size:12.5px;color:var(--mute)}.llog{display:grid;gap:8px;max-height:420px;overflow:auto}
+.lm{max-width:88%;padding:9px 12px;border-radius:12px;font-size:14px;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere}.lm.u{justify-self:end;background:var(--ice);color:#fff;border-bottom-right-radius:4px}
+.lm.a{justify-self:start;background:#fff;border:1px solid var(--line);border-bottom-left-radius:4px}.lm.s{justify-self:center;background:none;color:var(--mute);font-size:12.5px;padding:2px}
+.lin{display:flex;gap:8px;align-items:flex-end}.lin textarea{flex:1;min-width:0;border:1px solid var(--line2);border-radius:10px;padding:8px 10px;font:inherit;font-size:14px;resize:vertical;min-height:44px;background:#fff}
+.lsug{display:flex;gap:6px;flex-wrap:wrap}.lsug button{border:1px solid var(--line2);border-radius:99px;background:#fff;padding:5px 11px;font:inherit;font-size:12.5px;cursor:pointer;color:var(--fg)}
+.lbar{height:6px;border-radius:9px;background:var(--line);overflow:hidden}.lbar i{display:block;height:100%;background:var(--ice);transition:width .3s}
 .ticons button{border:1px solid var(--line);border-radius:12px;background:#fff;padding:10px 4px 8px;font:inherit;color:var(--fg);cursor:pointer;display:grid;justify-items:center;gap:4px}
 .ticons button svg{width:22px;height:22px;color:var(--ice)}.ticons button b{font-size:12px;font-weight:600}
 .ticons button[aria-pressed="true"]{border-color:var(--ice);background:var(--hover);box-shadow:inset 0 0 0 1px var(--ice)}
@@ -728,9 +735,9 @@ function bindStepBar(root){(root||document).querySelectorAll('[data-stepgo]').fo
   if(k===1){S.mode='free';location.hash=''}else if(k===2)location.hash='match';else if(k===3)location.hash='co'})}
 /* 相談の続き: 外部のAIへ行って戻っても、書いた内容・答え・貼りかけの回答が消えないよう、この端末の sessionStorage に置く（どこにも送らない） */
 const SAVEK='katachi-flow';
-function saveFlow(){try{sessionStorage.setItem(SAVEK,JSON.stringify({idea:S.idea,qty:S.qty,chat:S.chat,cvar:S.cvar,folds:S.folds,tune:S.tune,aiAway:S.aiAway,aiDraft:S.aiDraft,nfiles:(S.files||[]).length,t:Date.now()}))}catch(e){}}
+function saveFlow(){try{sessionStorage.setItem(SAVEK,JSON.stringify({idea:S.idea,qty:S.qty,chat:S.chat,cvar:S.cvar,folds:S.folds,tune:S.tune,aiAway:S.aiAway,aiDraft:S.aiDraft,lai:S.lai?{base:S.lai.base,log:S.lai.log.slice(-12),concept:S.lai.concept}:null,nfiles:(S.files||[]).length,t:Date.now()}))}catch(e){}}
 function loadFlow(){try{const o=JSON.parse(sessionStorage.getItem(SAVEK)||'null');if(!o||!o.idea||Date.now()-o.t>864e5)return false;
-  Object.assign(S,{idea:o.idea,qty:o.qty||S.qty,chat:o.chat,cvar:o.cvar,folds:o.folds||{},tune:o.tune,aiAway:o.aiAway,aiDraft:o.aiDraft||'',src:'text',matched:'text',gsel:[],gstep:{},gmore:{},planPick:'',gf:{area:'',proto:false}});
+  Object.assign(S,{idea:o.idea,qty:o.qty||S.qty,chat:o.chat,cvar:o.cvar,folds:o.folds||{},tune:o.tune,lai:o.lai||null,aiAway:o.aiAway,aiDraft:o.aiDraft||'',src:'text',matched:'text',gsel:[],gstep:{},gmore:{},planPick:'',gf:{area:'',proto:false}});
   if(o.nfiles&&!(S.files||[]).length)S.lostFiles=o.nfiles;return true}catch(e){return false}}
 /* 補助の機能は畳む。開いた状態は描き直しても保つ */
 const fold=(k,t,body,note)=>`<details class="fold" data-fold="${k}" ${(S.folds||{})[k]?'open':''}><summary><span>${t}</span>${note?`<small>${note}</small>`:''}</summary><div class="fb">${body}</div></details>`;
@@ -1193,7 +1200,7 @@ function cfig(f){const dims=[f.w&&'W '+f.w,f.l&&f.l!=='0'&&(f.k==='bag'?'D ':'L 
 const frg=v=>Array.isArray(v)?v.map(x=>/^\s*$/.test(x)?x:`<span>${esc(x)}</span>`).join(''):esc(v);
 const cvarOf=c=>S.cvar&&S.cvar.id===c.id?S.cvar.i:-1;
 function conceptCard(c){const v=cvarOf(c);
-  return `<section class="ccard" id="mConcept"><div class="chd"><h2>製品イメージ案</h2>${mk('ai','AI推定・たたき台')}</div>
+  return `<section class="ccard" id="mConcept"><div class="chd"><h2>製品イメージ案</h2>${mk('ai','AI推定・たたき台')}${c.lai?'<span class="chip on">内蔵AIと詰めた案</span>':''}</div>
     <div class="cgrid"><figure class="cfig">${cfig(c.fig)}</figure>
       <div><h3 class="cname">${esc(c.name)}</h3>${c.chips&&c.chips.length?`<div class="cchips"><span class="muted">あなたの文章から読み取った条件</span>${c.chips.map(x=>`<span class="chip">${frg(x)}</span>`).join('')}</div>`:''}<p class="clead">${esc(c.lead)}</p>
       <dl class="cspec">${c.rows.map(([k,x])=>`<dt>${esc(k)}</dt><dd>${frg(x)}</dd>`).join('')}</dl></div></div>
@@ -1202,7 +1209,7 @@ function conceptCard(c){const v=cvarOf(c);
     ${fold('cvar','方向性と、作り方の目安',`<div><h4>方向性を選ぶ</h4><div class="cvars">${c.vars.map(([n,d],i)=>`<button type="button" class="cvar${v===i?' on':''}" data-cvar="${i}" aria-pressed="${v===i}"><b>${esc(n)}</b><span>${esc(d)}</span></button>`).join('')}</div>
       <p class="muted" style="margin:6px 0 0;font-size:12px">選んだ方向性は、AI相談の質問文にも入ります。</p></div>
     <div><h4>作り方の目安</h4><dl class="cspec"><dt>試作</dt><dd>${esc(c.proto)}</dd><dt>量産</dt><dd>${esc(c.mass)}</dd></dl></div>`)}
-    <div class="cfoot"><p class="muted">製品の種類ごとの典型例から、KATACHIが組み立てた案です（AIの推定）。寸法・素材・性能は、工場・専門家との打ち合わせと試作で決まります。図は大きさと形の目安で、設計図ではありません。</p></div></section>`}
+    <div class="cfoot"><p class="muted">${c.lai?'このパソコンのChromeに入っているAIとの会話をもとにした案です（AIの推定）。':'製品の種類ごとの典型例から、KATACHIが組み立てた案です（AIの推定）。'}寸法・素材・性能は、工場・専門家との打ち合わせと試作で決まります。図は大きさと形の目安で、設計図ではありません。</p></div></section>`}
 function wireConcept(A){const c=A.concept;if(!c||!$('#mConcept'))return;wireChat(c);
   $$('#mConcept [data-cvar]').forEach(b=>b.onclick=()=>{const i=+b.dataset.cvar;S.cvar=cvarOf(c)===i?null:{id:c.id,i};
     $$('#mConcept [data-cvar]').forEach(x=>{const on=S.cvar&&+x.dataset.cvar===S.cvar.i;x.classList.toggle('on',!!on);x.setAttribute('aria-pressed',!!on)});
@@ -1558,7 +1565,7 @@ async function renderMatch(){
   $('#app').innerHTML=`<section class="gut build"><div><div class="eyebrow">Building your team</div><h2 style="margin-top:10px">工程を読み取っています</h2></div></section>`;
   const db=await loadGDB();
   if(!db){$('#app').innerHTML=`<section class="gut"><div class="wrap" style="padding:60px 0"><h2>会社の一覧を読み込めませんでした</h2><p class="muted">通信の状態を確かめて、もう一度お試しください。</p><button class="btn" onclick="location.reload()">再読み込み</button></div></section>`;return}
-  const A=analyzeText(S.idea+' '+S.files.map(f=>f.name).join(' '));A.concept=pickConcept(S.idea+' '+S.files.map(f=>f.name).join(' '),A);S.anal=A;
+  const A=analyzeText(S.idea+' '+S.files.map(f=>f.name).join(' '));A.concept=pickConcept(S.idea+' '+S.files.map(f=>f.name).join(' '),A);if(A.concept&&S.lai&&S.lai.base===ideaBase()&&S.lai.concept)A.concept=laiConcept(A.concept,S.lai.concept);S.anal=A;
   if(S.qnFor!==ideaBase()){S.qnFor=ideaBase();const m=String(S.idea).match(/(\d[\d,]*)\s*(個|台|枚|本|着|セット|点|pcs|units)/i);if(m){const n=+m[1].replace(/,/g,'');if(n>0){S.qn=n;S.qty=n<=10?'proto':n<=500?'small':'mass'}}else S.qn=0}
   const qmax=S.qn>0?S.qn:({proto:10,small:500,mass:1e9}[S.qty]||500);S.axq=qmax;
   const secs=A.codes.map(c=>{let list=rankFor([c],{qmax});if(!list.length&&c.includes('.'))list=rankFor([c.split('.').slice(0,-1).join('.')],{qmax});return {c,list}});
@@ -1581,7 +1588,7 @@ async function renderMatch(){
   const readout=A.fallback?`<div class="empty"><b>文章から工程を特定できませんでした</b>どんな製品でも最初に必要になる「設計・試作・組立」を受ける会社を出しています。下の「AIで相談」で仕様を詰めて読み直すか、そのまま見積を依頼すれば担当者が工程と会社を探します。型が決まっているもの（部品・ノベルティ・袋物など）なら「選んで探す」が早いです。<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn" id="mGuided">選んで探す</button></div></div>`:A.codes.length?`<div class="empty"><b>書いた内容から、必要な工程をキーワードで読み取りました</b>工程が足りない・違うと思ったら、下の「AIで相談」で仕様を詰めるか、そのまま見積を依頼してください。担当者があなたの文章を読んで、工程と会社を組み直してお届けします。</div>`:'';
   let body;
   if(st===2){
-    const upd=S.upd==='ai'?'AIの回答をもとに、案と候補の会社を更新しました。':S.upd==='chat'?'答えをもとに、案と候補の会社を更新しました。':'';S.upd='';
+    const upd=S.upd==='ai'?'AIの回答をもとに、案と候補の会社を更新しました。':S.upd==='lai'?'内蔵AIとの会話をもとに、案と候補の会社を更新しました。':S.upd==='chat'?'答えをもとに、案と候補の会社を更新しました。':'';S.upd='';
     body=`${stepBar(2)}${head}
     ${upd?`<div class="updn" id="mUpd"><b>✓ 更新しました</b><span>${upd}よければ、このまま会社選びへ進めます。</span></div>`:''}
     ${S.lostFiles?`<div class="updn" style="background:#fff7e6;border-color:#f3d39b"><span>前に追加した写真・動画（${S.lostFiles}件）は、画面を開き直したため消えました。お手数ですが、もう一度追加してください。</span></div>`:''}
@@ -1705,17 +1712,101 @@ function renderMatchDock(){const A=S.anal||{};const away=!!S.aiAway;const arrow=
   const nx=()=>{track('step_next',{to:3,concept:A.concept?A.concept.id:'',tuned:Object.keys((S.chat||{}).ans||{}).length});S.aiAway=null;saveFlow();location.hash='co'};
   $('#mNext')&&($('#mNext').onclick=nx);$('#mSkip')&&($('#mSkip').onclick=nx);$('#mPaste')&&($('#mPaste').onclick=gotoAiPaste)}
 /* ②「この案を、相談して詰める」: 質問に答える（KATACHI内）／AIに相談（ChatGPT・Claude・Gemini）／人に相談（担当者・工場） */
-const TICON={"q": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M4 5h16v11H9l-5 4z\"/><path d=\"M9 9.5h6M9 12.5h4\"/></svg>", "ai": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z\"/><path d=\"M18 15l.8 2.2L21 18l-2.2.8L18 21l-.8-2.2L15 18l2.2-.8z\"/></svg>", "human": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"12\" cy=\"8\" r=\"3.5\"/><path d=\"M5 20c.8-3.6 3.6-5.5 7-5.5s6.2 1.9 7 5.5\"/></svg>"};
+const TICON={"lai": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"3\" y=\"4\" width=\"18\" height=\"12\" rx=\"2\"/><path d=\"M8 20h8M12 16v4\"/><path d=\"M12 7l.9 2.1L15 10l-2.1.9L12 13l-.9-2.1L9 10l2.1-.9z\"/></svg>", "q": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M4 5h16v11H9l-5 4z\"/><path d=\"M9 9.5h6M9 12.5h4\"/></svg>", "ai": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z\"/><path d=\"M18 15l.8 2.2L21 18l-2.2.8L18 21l-.8-2.2L15 18l2.2-.8z\"/></svg>", "human": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"12\" cy=\"8\" r=\"3.5\"/><path d=\"M5 20c.8-3.6 3.6-5.5 7-5.5s6.2 1.9 7 5.5\"/></svg>"};
 function tuneBox(A){const c=A.concept;const t=S.tune||'';
   return `<section class="tune2" id="mTune"><div class="th"><b>案を詰めたいときだけ</b><span class="topt">任意</span><span>やらなくても次へ進めます</span></div>
-    <div class="ticons" role="group" aria-label="相談のしかた">${c?`<button type="button" data-tune="q" aria-pressed="${t==='q'}">${TICON.q}<b>質問に答える</b></button>`:''}<button type="button" data-tune="ai" aria-pressed="${t==='ai'}">${TICON.ai}<b>AIに相談</b></button><button type="button" data-tune="human" aria-pressed="${t==='human'}">${TICON.human}<b>人に相談</b></button></div>
+    <div class="ticons" role="group" aria-label="相談のしかた">${c?`<button type="button" data-tune="q" aria-pressed="${t==='q'}">${TICON.q}<b>質問に答える</b></button>`:''}${c&&LAI.ok?`<button type="button" data-tune="lai" aria-pressed="${t==='lai'}">${TICON.lai}<b>内蔵AIと話す</b></button>`:''}<button type="button" data-tune="ai" aria-pressed="${t==='ai'}">${TICON.ai}<b>AIに相談</b></button><button type="button" data-tune="human" aria-pressed="${t==='human'}">${TICON.human}<b>人に相談</b></button></div>
     ${c?`<div data-pane="q" ${t==='q'?'':'hidden'}>${chatBox(c)}</div>`:''}
+    ${c&&LAI.ok?`<div data-pane="lai" ${t==='lai'?'':'hidden'}>${laiBox(c)}</div>`:''}
     <div data-pane="ai" ${t==='ai'?'':'hidden'}>${A.notices.some(n=>WEAPON.test(n))?'':aiConsult(A)}<p class="muted" style="margin:8px 0 0;font-size:12.5px">AIは別のタブで開きます。AIが「仕様メモ」をまとめたら、このページに戻って上の欄に貼ってください。戻ると貼る場所が開きます。</p></div>
     <div data-pane="human" ${t==='human'?'':'hidden'}><div class="aic" style="margin:0"><p>形・素材・作り方で迷ったら、KATACHIの担当者や工場に、写真を添えて相談できます（無料）。返事はメールで届きます。見積の前でも大丈夫です。</p><div class="aicb"><button type="button" class="btn pri" id="mHuman">担当者・工場に相談する</button></div></div></div></section>`}
 function setTune(t){if(S.tune===t&&!S.aiAway)t='';S.tune=t;$$('#mTune [data-tune]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.tune===t));$$('#mTune [data-pane]').forEach(p=>p.hidden=p.dataset.pane!==t);saveFlow()}
 function wireTune(A){$$('[data-tune]').forEach(b=>b.onclick=()=>{track('tune_mode',{mode:b.dataset.tune});const inBar=!!b.closest('.ticons');if(!inBar)S.tune='';setTune(b.dataset.tune);if(!inBar)$('#mTune').scrollIntoView({behavior:'smooth',block:'start'})});
   $$('[data-gonext]').forEach(b=>b.onclick=()=>$('#mNext')?.click());
+  if(A&&A.concept)wireLai(A.concept);
   const h=$('#mHuman');if(h)h.onclick=()=>{track('tune_human',{});consult('');const b=$('#c-b');if(b&&!b.value)b.value=ideaBase()}}
+
+/* ②「内蔵AIと話す」: パソコンのChromeに入っているAI（Prompt API。端末の中で動き、外には送らない）と会話して、製品イメージ案を組み直す。
+   対応していない端末（スマホ・ほかのブラウザ・古いChrome）ではボタンを出さず、今までどおり「質問に答える」で詰める。 */
+const LAI={ok:false,state:'',sess:null,lang:'',base:'',busy:false,pct:-1,draft:'',told:false};
+const laiLang=()=>LANG==='ja'?'ja':'en';
+const laiOpts=()=>({expectedInputs:[{type:'text',languages:[laiLang()]}],expectedOutputs:[{type:'text',languages:[laiLang()]}]});
+async function laiCheck(){try{if(!('LanguageModel' in self))return;const st=await LanguageModel.availability(laiOpts());LAI.state=st;const ok=st!=='unavailable';
+  if(!LAI.told){LAI.told=true;track('lai_available',{state:String(st)})}
+  if(ok!==LAI.ok){LAI.ok=ok;const el=$('#mTune');if(el&&S.anal){el.outerHTML=tuneBox(S.anal);wireTune(S.anal)}}}catch(e){}}
+const LAI_SCHEMA={type:'object',properties:{reply:{type:'string'},
+  concept:{type:'object',properties:{name:{type:'string'},lead:{type:'string'},w_mm:{type:'number'},l_mm:{type:'number'},h_mm:{type:'number'},weight:{type:'string'},materials:{type:'string'},power:{type:'string'},spec:{type:'string'},
+    feats:{type:'array',items:{type:'string'},maxItems:5},check:{type:'array',items:{type:'string'},maxItems:4}},required:['name','lead','w_mm','l_mm','h_mm','materials','feats','check']},
+  decided:{type:'array',items:{type:'string'},maxItems:6}},required:['reply','concept','decided']};
+function laiSys(c){const base=ideaBase().slice(0,1200),f=c.fig||{};
+  return laiLang()==='ja'?`あなたは製品開発・製造の相談サイトKATACHIの、製品企画アシスタントです。設計部門のない中小企業の担当者と会話しながら、作りたい製品の具体的な案（大きさ・素材・機能）を一緒に詰めます。
+ルール:
+- reply は日本語で2〜4文。専門用語は短く言い換える。最後に、次に決めるとよいことを1つだけ質問する。
+- concept には、会話を反映した最新の製品イメージ案を入れる。寸法はmmの数字。わからなければ一般的な例で仮に置く。
+- decided には、相手が決めた・答えた条件だけを短く入れる（これまでの分も含めて最大6件）。
+- 安全・法律（電気用品安全法、食品衛生法など）にかかることは断定せず「工場・専門家に確認」と書く。
+- 価格や会社名は出さない。医薬品・医療機器・酒類・武器の相談には乗らない。
+作りたいもの:
+${base}
+今の案: ${c.name}（幅${f.w}×長さ${f.l}×高さ${f.h}mm）`:`You are the product-planning assistant of KATACHI, a site that helps small companies without a design team develop and manufacture products. Through conversation, help the user make their product idea concrete (size, materials, functions).
+Rules:
+- "reply": 2-4 sentences in plain English. End with exactly one question about what to decide next.
+- "concept": the latest product concept reflecting the conversation. Dimensions in mm as numbers; if unknown, assume a typical example.
+- "decided": short items the user has decided or answered (cumulative, up to 6).
+- For safety or legal topics, do not assert; say to confirm with the factory or an expert.
+- Do not give prices or company names. Do not help with medicines, medical devices, alcohol or weapons.
+The product idea:
+${base}
+Current concept: W${f.w} x L${f.l} x H${f.h} mm`}
+async function laiSession(c,onp){if(LAI.sess&&LAI.lang===laiLang()&&LAI.base===ideaBase())return LAI.sess;
+  if(LAI.sess){try{LAI.sess.destroy()}catch(e){}LAI.sess=null}
+  const hist=((S.lai&&S.lai.log)||[]).filter(m=>m[0]!=='s').slice(-11,-1).map(([r,t])=>({role:r==='u'?'user':'assistant',content:t}));
+  const t0=Date.now();
+  LAI.sess=await LanguageModel.create(Object.assign(laiOpts(),{initialPrompts:[{role:'system',content:laiSys(c)},...hist],monitor(m){m.addEventListener('downloadprogress',e=>onp(e.loaded))}}));
+  LAI.lang=laiLang();LAI.base=ideaBase();track('lai_ready',{sec:Math.round((Date.now()-t0)/1000),state:String(LAI.state)});return LAI.sess}
+async function laiSend(c,text){text=String(text||'').trim().slice(0,600);if(!text||LAI.busy)return;
+  S.lai=S.lai&&S.lai.base===ideaBase()?S.lai:{base:ideaBase(),log:[],concept:null};
+  S.lai.log.push(['u',text]);LAI.busy=true;LAI.pct=-1;LAI.draft='';laiRender(c);track('lai_send',{turn:S.lai.log.filter(m=>m[0]==='u').length});
+  try{const s=await laiSession(c,p=>{LAI.pct=p;laiRender(c)});LAI.pct=-1;laiRender(c);
+    const ctl=new AbortController(),to=setTimeout(()=>ctl.abort(),180000);
+    const raw=await s.prompt(text,{responseConstraint:LAI_SCHEMA,signal:ctl.signal});clearTimeout(to);
+    const o=JSON.parse(raw);S.lai.log.push(['a',String(o.reply||'').slice(0,1500)]);
+    if(o.concept&&o.concept.name)S.lai.concept=o.concept;
+    LAI.busy=false;laiApply((o.decided||[]).map(x=>String(x).trim().slice(0,80)).filter(Boolean).slice(0,6),'lai')}
+  catch(e){LAI.busy=false;LAI.pct=-1;S.lai.log.push(['s','AIが答えられませんでした。もう一度送るか、「AIに相談」を使ってください。']);track('lai_error',{kind:String((e&&e.name)||'error').slice(0,40)});laiRender(c)}}
+function laiApply(dec,upd){nextQuestion(S.anal.concept);delete S.chat.ans.ai;delete S.chat.lab.ai;
+  if(dec.length){S.chat.ans.ai=dec.join('\n- ');S.chat.lab.ai='内蔵AIと決めたこと'}
+  const lines=Object.values(S.chat.ans);S.idea=S.chat.base+(lines.length?'\n\n'+MEMO+'\n'+lines.map(x=>'- '+x).join('\n'):'');S.loggedIdea='';S.upd=upd;S.tune='lai';saveFlow();
+  renderMatch().then(()=>{const b=$('#mLai');if(b)b.scrollIntoView({block:'end'});const l=$('#mLaiLog');if(l)l.scrollTop=l.scrollHeight})}
+const mmc=mm=>mm<100?mm+'mm':cm(mm);
+function laiConcept(c,o){const n=x=>{x=Math.round(+x||0);return x>0&&x<100000?x:0},t=x=>String(x||'').trim().slice(0,200);
+  const w=n(o.w_mm)||+c.fig.w||0,l=n(o.l_mm)||+c.fig.l||0,h=n(o.h_mm)||+c.fig.h||0;
+  const size=[...(w?['幅',' ','約',mmc(w)]:[]),...(l?[' × ','長さ',' ','約',mmc(l)]:[]),...(h?[' × ','高さ',' ','約',mmc(h)]:[])];if(!w&&size.length)size.shift();
+  const rows=[['サイズ（目安）',size]];if(t(o.weight))rows.push(['重さ（目安）',t(o.weight)]);rows.push(['主な素材',t(o.materials)||(c.rows.find(r=>r[0]==='主な素材')||[,''])[1]]);
+  if(t(o.power))rows.push(['動力・電源',t(o.power)]);if(t(o.spec))rows.push(['想定スペック',t(o.spec)]);
+  const arr=(a,d)=>{a=(a||[]).map(t).filter(Boolean).slice(0,6);return a.length?a:d};
+  return Object.assign({},c,{lai:true,name:t(o.name)||c.name,lead:t(o.lead)||c.lead,rows,feats:arr(o.feats,c.feats),check:arr(o.check,c.check),fig:Object.assign({},c.fig,{w:String(w),l:String(l),h:String(h)})})}
+function laiBox(c){const L=S.lai&&S.lai.base===ideaBase()?S.lai.log:[];const dl=LAI.state==='downloadable'||LAI.state==='downloading';const p=Math.round(Math.max(0,LAI.pct)*100);
+  const sug=['もっと具体的な案にして','使う場所に合う素材は？','もっと安く作るには？','安全のために気をつけることは？'];
+  return `<div class="lai" id="mLai"><h4>内蔵AIと話しながら詰める</h4>
+    <p class="lnote">このパソコンのChromeに入っているAI（Gemini Nano）と話せます。文章はこの端末の中で処理され、KATACHIにもAIの会社にも送られません。答えるたびに、製品イメージ案と候補の会社が変わります。</p>
+    ${dl&&!L.length?'<p class="lnote">初めて使うときは、AIの準備（ダウンロード）に数分かかります。</p>':''}
+    ${L.length?`<div class="llog" id="mLaiLog">${L.map(([r,t])=>`<div class="lm ${r}"${r==='s'?'':' translate="no"'}>${esc(t)}</div>`).join('')}</div>`:''}
+    ${LAI.busy?(LAI.pct>=0&&LAI.pct<1?`<div><p class="lnote">AIを準備しています… <span class="mono">${p}%</span></p><div class="lbar"><i style="width:${p}%"></i></div></div>`:'<p class="lnote">考えています…</p>'):''}
+    ${S.lai&&S.lai.concept&&!LAI.busy?'<div><button type="button" class="glink" data-laisee>更新した製品イメージ案を見る ↑</button></div>':''}
+    ${L.length?'':`<div class="lsug">${sug.map(x=>`<button type="button" data-laisug>${esc(x)}</button>`).join('')}</div>`}
+    <div class="lin"><textarea id="mLaiIn" rows="2" placeholder="例：庭で使うので、雨に強くしたい" aria-label="内蔵AIへのメッセージ"${LAI.busy?' disabled':''}>${esc(LAI.draft)}</textarea><button type="button" class="btn pri sm" data-laisend${LAI.busy?' disabled':''}>送る</button></div>
+    ${L.length?'<div class="cnext"><button type="button" class="btn pri sm" data-gonext>この案で会社を探す →</button><button type="button" class="glink" data-laireset>会話をやり直す</button></div>':''}
+    <p class="lnote">AIの答えは推定です。寸法・素材・安全は、工場・専門家との打ち合わせと試作で決まります。</p></div>`}
+function laiRender(c){const el=$('#mLai');if(!el)return;el.outerHTML=laiBox(c);wireLai(c)}
+function wireLai(c){const b=$('#mLai');if(!b)return;const inp=$('#mLaiIn');const go=()=>laiSend(c,inp.value);
+  const sd=b.querySelector('[data-laisend]');if(sd)sd.onclick=go;
+  if(inp){inp.oninput=()=>{LAI.draft=inp.value};inp.onkeydown=e=>{if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing){e.preventDefault();go()}}}
+  b.querySelectorAll('[data-laisug]').forEach(x=>x.onclick=()=>laiSend(c,x.textContent));
+  const see=b.querySelector('[data-laisee]');if(see)see.onclick=()=>{const m=$('#mConcept');if(m)m.scrollIntoView({behavior:'smooth',block:'start'})};
+  b.querySelectorAll('[data-gonext]').forEach(x=>x.onclick=()=>{const n=$('#mNext');if(n)n.click()});
+  const rs=b.querySelector('[data-laireset]');if(rs)rs.onclick=()=>{if(LAI.sess){try{LAI.sess.destroy()}catch(e){}}LAI.sess=null;S.lai=null;track('lai_reset',{});laiApply([],'')};
+  const l=$('#mLaiLog');if(l)l.scrollTop=l.scrollHeight}
 
 /* ---------- GO / LOADING ---------- */
 function pick(text){for(const [k,re] of [['collar',/犬|猫|ペット|首輪|動物|心拍/],['mimamori',/見守|高齢|ドア|開閉|室温|部屋/],['bike',/自転車|ライト|ハンドル|バイク/]])if(re.test(text))return[k,'near'];return['collar','fallback']}
@@ -2179,13 +2270,13 @@ async function runMT(){
   }catch(e){if(['not_granted','sampling_disabled','not_declared','capability_disabled','capability_removed'].includes(e.code))mtOff=true}
   mtBusy=false;translateTree(document.body);mtUI();if(pending.size&&!mtOff)scheduleMT();
 }
-function setLang(l,byUser){LANG=l;if(byUser){explicit=true;try{localStorage.setItem('katachi-lang',JSON.stringify({lang:l}))}catch(e){}}
+function setLang(l,byUser){const was=LANG;LANG=l;if(byUser&&was!==l)setTimeout(laiCheck,0);if(byUser){explicit=true;try{localStorage.setItem('katachi-lang',JSON.stringify({lang:l}))}catch(e){}}
   document.documentElement.lang=l==='zh'?'zh-Hans':l;$$('[data-lang]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.lang===l));pending.clear();refreshNums();translateTree(document.body)}
 $$('[data-lang]').forEach(b=>b.onclick=()=>{track('lang_change',{to:b.dataset.lang,from:LANG});setLang(b.dataset.lang,true)});
 (async()=>{try{sampleFn=window.claude?await window.claude.use('sample'):null}catch(e){sampleFn=null}scheduleMT()})();
 window.KATACHI_LANG=()=>LANG;
 
 if(!ideaFromUrl()){if(/^#(match|co)$/.test(location.hash)&&!S.idea)loadFlow();route()}
-setLang(LANG,false);
+setLang(LANG,false);laiCheck();
 })();
 </script>
