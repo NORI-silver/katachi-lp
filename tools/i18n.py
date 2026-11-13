@@ -504,7 +504,7 @@ T.update({
 "会社は選ばれていません。担当者が候補から合いそうな会社を選んで打診します。": ("No companies selected. Our staff will pick suitable ones and contact them.", "尚未选择公司。工作人员会挑选合适的公司并联系。"),
 "書き直す": ("Edit", "重新填写"),
 "書いた内容から、必要な工程をキーワードで読み取りました": ("We picked out the steps from keywords in your description", "已根据关键词从您的描述中读取所需工序"),
-"工程が足りない・違うと思ったら、下の「自分のAIで相談」で仕様を詰めるか、そのまま見積を依頼してください。担当者があなたの文章を読んで、工程と会社を組み直してお届けします。": ("If steps are missing or wrong, refine the spec with \"Consult your own AI\" below, or just send a quote request. Our staff will read your description and rebuild the steps and companies for you.", "如果工序不足或不对，可以用下方的\"用自己的 AI 咨询\"细化规格，或直接提交报价委托。工作人员会阅读您的描述，重新整理工序和公司。"),
+"工程が足りない・違うと思ったら、下の「AIで相談」で仕様を詰めるか、そのまま見積を依頼してください。担当者があなたの文章を読んで、工程と会社を組み直してお届けします。": ("If steps are missing or wrong, refine the spec with \"Consult AI\" below, or just send a quote request. Our staff will read your description and rebuild the steps and companies for you.", "如果工序不足或不对，可以用下方的\"用 AI 咨询\"细化规格，或直接提交报价委托。工作人员会阅读您的描述，重新整理工序和公司。"),
 "KATACHIでは扱っていない工程があります": ("Some steps are outside what KATACHI handles", "有KATACHI不处理的工序"),
 "確かめておきたい法規制・認証": ("Regulations and certifications to check", "需要确认的法规・认证"),
 "キーワードから当たりを付けた参考情報です。正式な判断は専門家・認証機関が行います。": ("Reference only, based on keywords. Formal decisions are made by experts and certification bodies.", "仅为根据关键词推测的参考信息。正式判断由专家・认证机构做出。"),
@@ -608,7 +608,7 @@ T.update({
 
 # 自分の ChatGPT・Claude で相談する
 T.update({
-"自分のAIで、もっと詳しく相談する": ("Consult your own AI for more detail", "用自己的 AI 进一步咨询"),
+"AIで、もっと詳しく相談する": ("Consult AI for more detail", "用 AI 进一步咨询"),
 "無料": ("Free", "免费"),
 "書いた内容と、KATACHIが読み取った工程をまとめた質問文を、お使いの ChatGPT か Claude で開きます。仕様の詰め方、難しい点、試作の進め方を相談し、最後に工場へ渡す「仕様メモ」を作ってもらえます。AIはあなたのアカウントで使うので、KATACHIに費用はかかりません。": ("We open your own ChatGPT or Claude with a question that combines your description and the steps KATACHI picked out. Ask how to firm up the spec, what will be hard and how to prototype, and get a \"spec memo\" to hand to factories. The AI runs on your own account, so KATACHI charges nothing.", "我们会在您自己的 ChatGPT 或 Claude 中打开一段问题，其中包含您的描述和 KATACHI 识别出的工序。您可以咨询如何细化规格、难点以及试制方法，最后让 AI 写出交给工厂的\"规格备忘\"。AI 使用您自己的账号，KATACHI 不收取任何费用。"),
 "ChatGPTで相談": ("Ask ChatGPT", "用 ChatGPT 咨询"),
@@ -629,5 +629,7 @@ T.update({
 "ラベル・化粧箱を作る会社を探す": ("Find label and gift box makers", "寻找标签、礼盒生产公司"),
 "グラス・ノベルティを作る会社を探す": ("Find glassware and novelty makers", "寻找玻璃杯、赠品生产公司"),
 "この内容はご案内できません": ("We can't help with this", "无法提供此内容的服务"),
+"文章から工程を特定できませんでした": ("We couldn't identify the steps from your text", "未能从描述中确定工序"),
+"どんな製品でも最初に必要になる「設計・試作・組立」を受ける会社を出しています。下の「AIで相談」で仕様を詰めて読み直すか、そのまま見積を依頼すれば担当者が工程と会社を探します。型が決まっているもの（部品・ノベルティ・袋物など）なら「選んで探す」が早いです。": ("We are showing companies that take on design, prototyping and assembly, which almost any product needs first. Refine the spec with \"Consult AI\" below and re-read, or just send a quote request and our staff will find the steps and companies. For standard items (parts, novelties, bags, etc.), \"Choose and search\" is faster.", "我们列出了承接\"设计、试制、组装\"的公司，这是几乎所有产品最先需要的。可以用下方的\"用 AI 咨询\"细化规格后重新识别，或直接提交报价委托，由工作人员寻找工序和公司。如果是有固定形式的东西（零件、赠品、袋类等），\"选择查找\"更快。"),
 "ほかに作りたいものがあれば、「書き直す」から入力してください。": ("If there is something else you want to make, enter it with \"Edit\".", "如有其他想做的东西，请通过\"重新填写\"输入。"),
 })
