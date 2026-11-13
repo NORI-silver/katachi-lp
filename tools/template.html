@@ -744,19 +744,20 @@ function wireAiHelp(root){(root||document).querySelectorAll('[data-aicp]').forEa
 /* 自分の ChatGPT・Claude で相談する（KATACHIはAIのAPIを使わない＝費用ゼロ）。質問文をURLで渡し、念のためクリップボードにも入れる */
 const KSITE='https://katachi.shiokonbu.com/';
 const AIQ={
- ja:{head:'次の製品を作りたいと考えています。私は製品づくりの専門家ではありません。製品開発と製造にくわしい相談相手として、わかりやすく助けてください。',idea:'作りたいもの',qty:'数量の段階',steps:'製造マッチングサイト KATACHI が文章からキーワードで読み取った工程（当たり付け）',nosteps:'（KATACHIでは工程を読み取れませんでした）',empty:'（まだ漠然としています。何を作るかから一緒に考えてください）',regs:'関係しそうな法規制・認証（KATACHIの当たり付け）',files:'手元にある資料',
+ ja:{head:'次の製品を作りたいと考えています。私は製品づくりの専門家ではありません。製品開発と製造にくわしい相談相手として、わかりやすく助けてください。',idea:'作りたいもの',qty:'数量の段階',steps:'製造マッチングサイト KATACHI が文章からキーワードで読み取った工程（当たり付け）',nosteps:'（KATACHIでは工程を読み取れませんでした）',blk:'KATACHIで扱っていない点',blkask:'上の点はKATACHIでは工場の紹介をしていません。その部分は、必要な免許・許可・手続きの一般的な流れと注意点だけ教えてください。容器・ラベル・パッケージ・関連グッズなど、それ以外で外注できる部分があれば、そちらを中心に答えてください。',empty:'（まだ漠然としています。何を作るかから一緒に考えてください）',regs:'関係しそうな法規制・認証（KATACHIの当たり付け）',files:'手元にある資料',
   ask:'次の順に答えてください。\n1. 仕様の整理（用途・大きさ・材質・機能・使う環境）。決まっていない点は、私への質問の形で挙げてください\n2. 必要な工程。上の工程一覧に足りないもの・要らないものがあれば指摘してください\n3. 技術的に難しそうな点と、試作で確かめる方法\n4. 関係しそうな法規制・認証\n5. 試作→小ロット→量産の進め方\n6. 最後に、工場へ見積を頼むための「仕様メモ」（形・寸法・材質・数量・使う環境・決まっていない点）を箇条書きで\n\n料金・会社名・数値は推測で作らず、わからないことは「要確認」と書いてください。',
   back:'仕様メモができたら、KATACHI（'+KSITE+'）に戻って貼り付け、工場に見積を依頼します。',q:{proto:'試作（1〜10個）',small:'小ロット（〜500個）',mass:'量産（500個〜）'}},
- en:{head:'I want to make the product below. I am not a product development expert. Please help me clearly, as an advisor who knows product development and manufacturing.',idea:'What I want to make',qty:'Quantity stage',steps:'Manufacturing steps that the matchmaking site KATACHI picked up from my text by keywords (a rough guess)',nosteps:'(KATACHI could not pick up any steps)',empty:'(Still vague. Please help me work out what to make, starting from scratch)',regs:'Regulations and certifications that may apply (KATACHI\'s rough guess)',files:'Materials I have',
+ en:{head:'I want to make the product below. I am not a product development expert. Please help me clearly, as an advisor who knows product development and manufacturing.',idea:'What I want to make',qty:'Quantity stage',steps:'Manufacturing steps that the matchmaking site KATACHI picked up from my text by keywords (a rough guess)',nosteps:'(KATACHI could not pick up any steps)',blk:'What KATACHI does not handle',blkask:'KATACHI does not introduce factories for the point above. For that part, only explain the general flow of licenses, permits and procedures and what to watch out for. If other parts can be outsourced, such as containers, labels, packaging or related merchandise, focus your answer on those.',empty:'(Still vague. Please help me work out what to make, starting from scratch)',regs:'Regulations and certifications that may apply (KATACHI\'s rough guess)',files:'Materials I have',
   ask:'Please answer in this order.\n1. Organize the spec (use, size, material, functions, environment of use). List undecided points as questions to me\n2. The manufacturing steps needed. Point out anything missing from or unnecessary in the list above\n3. Technically difficult points and how to test them in a prototype\n4. Regulations and certifications that may apply\n5. How to move from prototype to small batch to mass production\n6. Finally, a bullet-point "spec memo" for asking factories for a quote (shape, dimensions, material, quantity, environment of use, undecided points)\n\nDo not make up prices, company names or figures. Write "to be confirmed" for anything you do not know.',
   back:'When the spec memo is ready, I will go back to KATACHI ('+KSITE+'), paste it and ask factories for a quote.',q:{proto:'Prototype (1-10 units)',small:'Small batch (up to 500 units)',mass:'Mass production (500+ units)'}},
- zh:{head:'我想做下面这个产品。我不是产品开发方面的专家。请作为熟悉产品开发和制造的顾问，通俗易懂地帮助我。',idea:'想做的东西',qty:'数量阶段',steps:'制造匹配网站 KATACHI 根据关键词从我的描述中识别出的工序（初步判断）',nosteps:'（KATACHI 未能识别出工序）',empty:'（还很模糊。请从做什么开始和我一起思考）',regs:'可能涉及的法规和认证（KATACHI 的初步判断）',files:'手头的资料',
+ zh:{head:'我想做下面这个产品。我不是产品开发方面的专家。请作为熟悉产品开发和制造的顾问，通俗易懂地帮助我。',idea:'想做的东西',qty:'数量阶段',steps:'制造匹配网站 KATACHI 根据关键词从我的描述中识别出的工序（初步判断）',nosteps:'（KATACHI 未能识别出工序）',blk:'KATACHI 不处理的内容',blkask:'对于上述内容，KATACHI 不介绍工厂。这部分请只说明所需执照、许可、手续的一般流程和注意事项。如果有容器、标签、包装、相关周边等其他可以外包的部分，请以这些为重点回答。',empty:'（还很模糊。请从做什么开始和我一起思考）',regs:'可能涉及的法规和认证（KATACHI 的初步判断）',files:'手头的资料',
   ask:'请按以下顺序回答。\n1. 整理规格（用途、尺寸、材质、功能、使用环境）。尚未决定的地方，请以向我提问的形式列出\n2. 需要的工序。如果上面的工序列表有缺少或多余的，请指出\n3. 技术上可能较难的地方，以及在试制中如何验证\n4. 可能涉及的法规和认证\n5. 从试制到小批量再到量产的推进方法\n6. 最后，请用条目列出向工厂询价用的"规格备忘"（形状、尺寸、材质、数量、使用环境、未决定事项）\n\n价格、公司名称和数值不要凭推测编造，不清楚的请写"待确认"。',
   back:'规格备忘完成后，我会回到 KATACHI（'+KSITE+'）粘贴并向工厂询价。',q:{proto:'试制（1-10个）',small:'小批量（500个以内）',mass:'量产（500个以上）'}}};
 function aiQuestion(A,max){const L=AIQ[typeof LANG==='string'&&AIQ[LANG]?LANG:'ja'];const t=x=>typeof tx==='function'?tx(x):x;
   let idea=(A&&A.idea!==undefined?A.idea:S.idea||'').trim();if(max&&idea.length>max)idea=idea.slice(0,max)+' …';
   const steps=(A?.names||(A?.codes||[]).map(c=>CAPN[c]||c)).map(x=>'- '+t(x));
   return [L.head,'',`【${L.idea}】`,idea||L.empty,'',`【${L.qty}】`,L.q[S.qty]||L.q.small,...(A?.home?[]:['',`【${L.steps}】`,steps.length?steps.join('\n'):L.nosteps]),
+    ...(A?.notices?.length?['',`【${L.blk}】`,A.notices.filter(x=>!WEAPON.test(x)).map(x=>'- '+t(x)).join('\n'),L.blkask]:[]),
     ...(A?.regs?.length?['',`【${L.regs}】`,A.regs.map(x=>'- '+t(x)).join('\n')]:[]),
     ...(S.files?.length?['',`【${L.files}】`,S.files.map(f=>'- '+f.name).join('\n')]:[]),
     '',L.ask,'',L.back].join('\n')}
@@ -774,6 +775,15 @@ function aiConsult(A){const full=aiQuestion(A);
     <div class="aiback"><b>AIの回答を貼って、工程を読み直す</b><span class="muted" style="font-size:12.5px">AIがまとめた仕様メモを貼ると、その内容で工程と会社を探し直します。貼った内容は見積の依頼にもそのまま入ります。</span>
       <textarea id="mAiAns" placeholder="AIがまとめた仕様メモを貼り付け"></textarea>
       <div class="aicb"><button type="button" class="btn" id="mAiGo">読み直す</button><span class="aistat" id="mAiSt" aria-live="polite"></span></div></div></div>`}
+// 扱わない分野だけのときも行き止まりにしない: 扱える周辺（容器・ラベル・グッズ）への入口と、自分のAIでの相談
+const WEAPON=/武器|火薬|刀剣|毒物/;
+const ALT_ALC=[['label','瓶・缶に貼るオリジナルラベルの印刷と、ギフト用の化粧箱を作りたい','ラベル・化粧箱を作る会社を探す'],['goods','ロゴ入りのグラス・タンブラー・コースターをノベルティとして作りたい','グラス・ノベルティを作る会社を探す']];
+function blockedNext(A){const weapon=A.notices.some(n=>WEAPON.test(n));const alc=A.notices.some(n=>/酒類/.test(n));
+  if(weapon)return `<div class="empty" style="margin-top:16px"><b>この内容はご案内できません</b>ほかに作りたいものがあれば、「書き直す」から入力してください。</div>`;
+  return `<div class="aic" style="margin-top:16px"><h3>この内容で、KATACHIでできること</h3>
+    <p class="muted">${alc?'お酒そのものの製造先はご紹介できませんが、ラベル・パッケージ・グッズなど、お酒以外の部分を作る会社は探せます。':'一般向けの健康・ペット用品の範囲なら、作る会社を探せます。書き直すときは、診断・治療などの効果ではなく、形・材質・使い方を書いてください。'}</p>
+    ${alc?`<div class="aicb">${ALT_ALC.map(([k,t,l])=>`<button type="button" class="btn" data-alt="${esc(t)}" data-altk="${k}">${l}</button>`).join('')}</div>`:''}</div>
+    ${aiConsult(A)}`}
 async function aiCopy(t){try{await navigator.clipboard.writeText(t);return true}catch(e){try{const a=document.createElement('textarea');a.value=t;a.style.position='fixed';a.style.opacity='0';document.body.appendChild(a);a.select();const ok=document.execCommand('copy');a.remove();return ok}catch(e2){return false}}}
 function wireAiConsult(A){const box=$('#mAi');if(!box)return;
   box.querySelectorAll('[data-aigo]').forEach(a=>a.onclick=()=>{const n=a.dataset.aigo;a.href=aiUrl(n,A);aiCopy(aiQuestion(A));track('ai_consult_open',{ai:n,steps:(A?.codes||[]).length,short:a.href.length>=14000||!/\?q=/.test(a.href)})});
@@ -1043,9 +1053,10 @@ async function renderMatch(){
       <div class="gchips">${A.codes.length?`<span class="chip">${A.codes.length}工程</span>`:''}${secs.length===1?'<span class="chip">1社で作れる内容です</span>':''}<span class="chip">${esc({proto:'試作',small:'小ロット',mass:'量産'}[S.qty])}</span><button type="button" class="glink" id="mEdit">書き直す</button></div></div>
       <div class="gcount"><b class="mono">${fmt(total)}</b><span>社が候補</span></div></div>
     ${A.codes.length?`<div class="empty" style="margin-top:16px"><b>書いた内容から、必要な工程をキーワードで読み取りました</b>工程が足りない・違うと思ったら、下の「自分のAIで相談」で仕様を詰めるか、そのまま見積を依頼してください。担当者があなたの文章を読んで、工程と会社を組み直してお届けします。</div>`:''}
-    ${A.notices.length&&!A.codes.length?'':aiConsult(A)}
+    ${A.notices.length&&!A.codes.length||A.notices.some(n=>WEAPON.test(n))?'':aiConsult(A)}
     ${A.codes.length?'<div id="mEst"></div>':''}
     ${A.notices.map(n=>`<div class="empty" style="margin-top:10px;border-color:var(--amber)"><b>KATACHIでは扱っていない工程があります</b>${esc(n)}</div>`).join('')}
+    ${A.notices.length&&!A.codes.length?blockedNext(A):''}
     ${A.regs.length?`<div class="blk" style="margin-top:16px"><h4>確かめておきたい法規制・認証</h4><ul class="list">${A.regs.map(x=>`<li>${esc(x)}</li>`).join('')}</ul><p class="muted" style="margin:6px 0 0;font-size:12px">キーワードから当たりを付けた参考情報です。正式な判断は専門家・認証機関が行います。</p></div>`:''}
     ${A.codes.length?`<div class="gflt"><label>地域<select id="gArea"><option value="">すべて</option><option value="JP">国内だけ</option><option value="ABROAD">海外だけ</option></select></label>
       <label class="chk"><input type="checkbox" id="gProto" ${S.gf.proto?'checked':''}><span>試作に対応と書いている会社だけ</span></label><span class="sp"></span>
@@ -1063,6 +1074,7 @@ async function renderMatch(){
     <p class="muted" style="font-size:12.5px;margin-top:24px">一覧は公開情報から集めたものです。「要確認」の会社は、見積の依頼で対応できるかを確かめます。順番は、確認の度合い・試作や数量への合い方・所在地で決めています。</p>
   </div></section>`;
   if(!(A.notices.length&&!A.codes.length))pickDock();bindPicks();wireAiConsult(A);
+  $$('[data-alt]').forEach(b=>b.onclick=()=>{track('blocked_alt',{alt:b.dataset.altk});S.idea=b.dataset.alt;S.loggedIdea='';S.gsel=[];S.gstep={};S.gmore={};renderMatch().then(()=>window.scrollTo({top:0,behavior:'smooth'}))});
   if($('#mEst')&&typeof window.KATACHI_EST_CARD==='function'){try{$('#mEst').innerHTML=window.KATACHI_EST_CARD(A.codes,qmax,+((S.idea.match(/(\d[\d,]*)\s*(個|台|枚|本|着|セット|pcs|units)/i)||[])[1]||'').replace(/,/g,''))||''}catch(e){}}
   $('#mEdit').onclick=()=>{S.mode='free';location.hash=''};
   $('#mGuided')&&($('#mGuided').onclick=()=>{S.mode='guided';S.g={step:0};location.hash=''});

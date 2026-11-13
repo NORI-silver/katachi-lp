@@ -623,4 +623,11 @@ T.update({
 "読み直しました": ("Updated", "已重新识别"),
 "回答を貼り付けてください": ("Please paste the answer", "请粘贴回答"),
 "まだ考えがまとまっていなければ": ("Not sure yet?", "还没想好的话"),
+"この内容で、KATACHIでできること": ("What KATACHI can do for this", "针对此内容，KATACHI 能做的事"),
+"お酒そのものの製造先はご紹介できませんが、ラベル・パッケージ・グッズなど、お酒以外の部分を作る会社は探せます。": ("We can't introduce makers of the alcoholic drink itself, but we can find companies for everything else, such as labels, packaging and merchandise.", "我们无法介绍酒类本身的生产商，但可以为标签、包装、周边等酒类以外的部分寻找公司。"),
+"一般向けの健康・ペット用品の範囲なら、作る会社を探せます。書き直すときは、診断・治療などの効果ではなく、形・材質・使い方を書いてください。": ("We can find makers for general health and pet products. When you rewrite, describe the shape, material and how it is used rather than effects such as diagnosis or treatment.", "如果是面向一般消费者的健康、宠物用品，我们可以寻找生产公司。改写时，请描述形状、材质和用法，而不是诊断、治疗等效果。"),
+"ラベル・化粧箱を作る会社を探す": ("Find label and gift box makers", "寻找标签、礼盒生产公司"),
+"グラス・ノベルティを作る会社を探す": ("Find glassware and novelty makers", "寻找玻璃杯、赠品生产公司"),
+"この内容はご案内できません": ("We can't help with this", "无法提供此内容的服务"),
+"ほかに作りたいものがあれば、「書き直す」から入力してください。": ("If there is something else you want to make, enter it with \"Edit\".", "如有其他想做的东西，请通过\"重新填写\"输入。"),
 })
