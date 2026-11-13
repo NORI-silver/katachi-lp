@@ -404,6 +404,32 @@ details.grp>.in{display:grid;gap:12px;padding:0 14px 14px}
 .rno{font-size:18px;color:var(--ice)}.rt{display:grid;min-width:0}.rt b{font-size:14px}.rt small{font-size:12px;color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .rbar{height:6px;border-radius:3px;background:var(--bg2);overflow:hidden}.rbar i{display:block;height:100%;background:var(--ice);opacity:.55}.rn{font-size:12.5px;color:var(--mute);text-align:right}
 @media (max-width:760px){.integ,.rlist{grid-template-columns:1fr}.rlist button{grid-template-columns:24px 1fr 60px}.rbar{display:none}}
+/* ideas（作例・業種別の候補） */
+.ideas{padding:28px 0 8px}
+.inds{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 10px;margin:0 -2px;scrollbar-width:thin}
+.inds button{flex:none;font-size:13px;padding:7px 14px;border:1px solid var(--line2);border-radius:99px;background:var(--panel);color:var(--mute);white-space:nowrap}
+.inds button:hover{border-color:var(--ice);color:var(--fg)}
+.inds button[aria-selected="true"]{border-color:var(--ice);background:var(--ice);color:var(--ice-ink)}
+.icards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:8px}
+.icard{display:flex;flex-direction:column;gap:6px;padding:16px 16px 14px;border:1px solid var(--line);border-radius:var(--r);background:var(--panel);transition:border-color .15s}
+.icard:hover{border-color:var(--line2)}
+.itop{display:flex;gap:8px;align-items:center;justify-content:space-between;font-size:12px;color:var(--mute)}
+.iind{color:var(--ice)}.ilot{margin-left:auto;padding:2px 8px;border-radius:99px;background:var(--bg2);font-size:11.5px}
+.icard h3{font-size:16px;font-weight:700}.icard>p{margin:0;font-size:13px;color:var(--mute);line-height:1.6}
+.ifoot{margin-top:auto;padding-top:10px;border-top:1px dashed var(--line2)}
+.ilab{display:flex;justify-content:space-between;gap:8px;font-size:11.5px;color:var(--dim);margin-bottom:4px}.ilab b{color:var(--fg);font-size:12px}
+.iest{list-style:none;margin:0;padding:0;display:grid;gap:4px}
+.iest li{display:grid;grid-template-columns:auto 1fr auto;gap:2px 8px;align-items:baseline;font-size:12.5px}
+.iest li>span{color:var(--mute);font-size:12px}.iest li>b{font-size:13px}
+.iest li>small{grid-column:1/3;grid-row:2;color:var(--dim);font-size:11px;line-height:1.5}
+.iest li>a,.iest li>.mk{grid-column:3;grid-row:1/3;align-self:center;text-decoration:none}
+.iest .mk{display:inline-flex;gap:6px;padding:0;border:0;border-radius:0;background:none}
+.iest.none{margin:0;font-size:12.5px;color:var(--mute)}
+.iact{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:10px}
+.inote{margin:12px 0 0;font-size:11.5px;color:var(--dim);max-width:760px}
+.exi{color:var(--ice);border-color:color-mix(in srgb,var(--ice) 35%,transparent);background:#fff}
+@media (max-width:980px){.icards{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:620px){.icards{grid-template-columns:minmax(0,1fr)}}
 .logn{max-width:760px;margin:10px 2px 0;font-size:11.5px;color:var(--dim)}
 /* guided (選んで探す) */
 .modes{display:grid;grid-template-columns:1fr 1fr;gap:8px;max-width:760px;margin:0 0 12px}
@@ -579,9 +605,10 @@ function renderHome(){
       <input type="file" id="fileIn" multiple hidden>
     </form>
     <p class="logn">入力した内容は、サービスの改善と傾向の分析のために保存します。メールアドレスや電話番号は書かないでください。</p>
-    <div class="examples" ${S.mode==='guided'?'hidden':''}><span>試す</span>${EX.map(([k,t])=>`<button class="ex" data-ex="${k}">${t}</button>`).join('')}</div>
+    <div class="examples" ${S.mode==='guided'?'hidden':''}><span>試す</span>${EX.map(([k,t])=>`<button class="ex" data-ex="${k}">${t}</button>`).join('')}<button type="button" class="ex exi" id="toIdeas">思いつかないときは、業種から選ぶ ↓</button></div>
     <div class="aihome" ${S.mode==='guided'?'hidden':''}><span>まだ考えがまとまっていなければ</span>${['ChatGPT','Claude'].map(n=>`<a data-haigo="${n}" href="${n==='ChatGPT'?'https://chatgpt.com/':'https://claude.ai/new'}" target="_blank" rel="noopener">${AI_ICON}${n}で相談</a>`).join('')}</div>
   </div></section>
+  <section class="gut"><div class="wrap ideas" id="ideas"></div></section>
   <section class="gut"><div class="wrap rank" id="rank"></div></section>
   <section class="gut"><div class="wrap figs">
     <div class="fig"><b class="mono">${fmt(D.realCount)}</b><span>登録している実在の会社（公開情報）</span></div>
@@ -609,7 +636,8 @@ function renderHome(){
   bindHome();field();
   $$('[data-mode]').forEach(b=>b.onclick=()=>{if(S.mode===b.dataset.mode)return;S.mode=b.dataset.mode;track('switch_mode',{to:S.mode});if(S.mode==='guided')loadGDB();renderHome()});
   if(S.mode==='guided'){renderGuided();loadGDB()}
-  renderRank();
+  renderIdeas();renderRank();
+  $('#toIdeas')&&($('#toIdeas').onclick=()=>{track('idea_jump',{});$('#ideas')?.scrollIntoView({behavior:'smooth',block:'start'})});
 }
 /* ランキング: 依頼の集計（stats.requests）ができたら「依頼の多いもの」、それまでは「登録している会社が多い分野」 */
 let STATS=null;
@@ -622,6 +650,77 @@ async function renderRank(){const el=$('#rank');if(!el)return;
   $('#rank').innerHTML=`<div class="rhead"><div class="eyebrow">Ranking</div><h2>${req?'依頼の多いもの':'登録している会社が多い分野'}</h2><p class="muted">${req?'KATACHIに届いた見積の依頼から集計しています。':'まだ依頼の実績が少ないため、いまは登録している会社の数で並べています。依頼がたまったら「依頼の多いもの」に切り替えます。'}</p></div>
     <ol class="rlist">${rows.map(([c,n],i)=>`<li><button type="button" data-rank="${c.k}"><span class="mono rno">${i+1}</span><span class="rt"><b>${esc(c.t)}</b><small>${esc(c.d)}</small></span><span class="rbar"><i style="width:${Math.max(6,n/mx*100)}%"></i></span><span class="mono rn">${req?fmt(n)+'件':fmt(n)+'社'}</span></button></li>`).join('')}</ol>`;
   $$('[data-rank]').forEach(b=>b.onclick=()=>{track('ranking_click',{category:b.dataset.rank});S.mode='guided';S.g={step:1,cat:b.dataset.rank};renderHome();$('#gw')?.scrollIntoView({behavior:'smooth',block:'center'})});
+}
+/* ---------- 作るものを思いつける入口（作例・業種別の候補） ----------
+   白紙から考えにくい人のために、中小企業が作れるもののモデルケースを並べる。実在の他社事例ではなく「作例」。
+   目安は tools/estimates.py の出典つきの数字（est: [工程コード, 行の文言]）か、企業DBの最小ロット（D.est.db）だけを出す。無ければ「見積が必要」。
+   押すと文章入力に入れて、そのまま工程・候補の会社（#match）へ進む。ex があれば既存の作例（結果画面）へ。 */
+const IND=[['pick','おすすめ'],['pet','ペット用品・トリミング'],['outdoor','アウトドア・キャンプ'],['cafe','カフェ・飲食店'],['salon','美容室・サロン'],['hotel','宿泊・観光施設'],['shop','小売・ネットショップ'],['farm','農家・食品の店'],['mfg','町工場・製造業'],['hw','ハードウェアのスタートアップ']];
+const IDEAS=[
+ {k:'pet_shampoo',ind:'pet',t:'自社ブランドの犬用シャンプー',d:'サロンで使っている品を、自社のボトルとラベルで店頭・ネット販売',lot:'300本',q:'small',code:'cosmetics.household',idea:'トリミングサロンで使っている犬用シャンプーを、自社ブランドのボトルとラベルで300本作り、店頭とネットで販売したい'},
+ {k:'pet_treat',ind:'pet',t:'国産素材の犬用おやつ',d:'ジャーキーなどを自社ブランドの袋で',lot:'500袋',q:'small',code:'food.pet_food',idea:'国産の鶏肉を使った犬用ジャーキーを、自社ブランドの袋に入れて500袋作りたい'},
+ {k:'pet_lead',ind:'pet',t:'ロゴ入りのリードと首輪',d:'色違いをそろえて、店のオリジナル商品に',lot:'各30本',q:'small',code:'apparel.leather',est:[['apparel.leather','革小物・布小物のOEM']],idea:'店のロゴを入れた犬用のリードと首輪を、革で3色・各30本作りたい'},
+ {k:'pet_collar',ind:'pet',t:'健康を見守るスマート首輪',d:'センサー・基板・ケース・アプリを複数の会社で分担する作例',lot:'試作5個',q:'proto',code:'electronics.pcba',ex:'collar',idea:''},
+ {k:'out_cup',ind:'outdoor',t:'刻印入りのシェラカップ',d:'キャンプ場の売店や自社ブランドのグッズに',lot:'100個',q:'small',code:'crafts.metal_goods',idea:'キャンプ場のロゴを刻印したステンレスのシェラカップを100個作り、売店で販売したい'},
+ {k:'out_case',ind:'outdoor',t:'帆布のペグケース',d:'縫製の工場で小ロットから',lot:'100個',q:'small',code:'manufacturing.textile',idea:'帆布を縫って作るテント用のペグ入れの袋を、自社ブランドで100個作りたい'},
+ {k:'out_hanger',ind:'outdoor',t:'アルミのランタンハンガー',d:'まず数個試作して、使い心地を確かめてから',lot:'試作5個',q:'proto',code:'manufacturing.sheet_metal',est:[['manufacturing.sheet_metal','1個の価格例（アルミ・鉄・ステンレスの曲げ品など）'],['manufacturing.sheet_metal','最低ロット']],idea:'アルミの板を曲げて作るキャンプ用のランタンハンガーを、まず5個試作したい。よければ300個作りたい'},
+ {k:'out_board',ind:'outdoor',t:'焼印入りの木製カッティングボード',d:'キャンプ用品やギフトに',lot:'100枚',q:'small',code:'crafts.wood_furniture',idea:'キャンプで使う木製のカッティングボードに、ロゴの焼印を入れて100枚作りたい'},
+ {k:'cafe_mug',ind:'cafe',t:'店のロゴ入りマグカップ',d:'店頭販売にも、常連さんへの記念品にも',lot:'100個',q:'small',code:'crafts.ceramics_glass',idea:'自分のカフェのロゴを入れた陶器のマグカップを100個作り、店頭で販売したい'},
+ {k:'cafe_sweets',ind:'cafe',t:'人気の焼き菓子を通販・ギフトに',d:'店のレシピをもとに、食品の工場で作ってもらう',lot:'300個',q:'small',code:'food.processed_oem',est:[['food.processed_oem','菓子']],idea:'店で人気のクッキーを、食品の工場で作ってもらい、通販とギフト用に300個販売したい'},
+ {k:'cafe_box',ind:'cafe',t:'焼き菓子のギフト箱',d:'ロゴを印刷した化粧箱を小ロットで',lot:'200個',q:'small',code:'packaging.box',est:[['packaging.box','キャラメル箱 50個（印刷あり）']],idea:'焼き菓子の詰め合わせに使う、ロゴを印刷した化粧箱を200個作りたい'},
+ {k:'cafe_apron',ind:'cafe',t:'ロゴを刺繍したエプロン',d:'スタッフの制服や、物販のグッズに',lot:'30枚',q:'small',code:'manufacturing.textile',idea:'店のロゴを刺繍したスタッフ用のエプロンを30枚作りたい'},
+ {k:'salon_lotion',ind:'salon',t:'サロン専売の化粧水',d:'自社ブランドのスキンケアを店頭で',lot:'100本',q:'small',code:'cosmetics.oem',est:[['cosmetics.oem','化粧水・美容液・乳液'],['cosmetics.oem','化粧水・美容液など 100個〜']],idea:'サロン専売の自社ブランドの化粧水を100本作り、店頭で販売したい'},
+ {k:'salon_shampoo',ind:'salon',t:'自社ブランドのシャンプー',d:'香りや容器を選んで、オリジナルのヘアケアに',lot:'300本',q:'small',code:'cosmetics.oem',idea:'美容室の自社ブランドとして、シャンプーとトリートメントを各300本作りたい'},
+ {k:'salon_candle',ind:'salon',t:'店の香りのアロマキャンドル',d:'店内の香りをそのまま持ち帰れる物販に',lot:'100個',q:'small',code:'cosmetics.household',idea:'サロンの香りに合わせたアロマキャンドルを100個作り、店頭で販売したい'},
+ {k:'salon_towel',ind:'salon',t:'ロゴ入りのタオル',d:'施術用にも、物販にも',lot:'100枚',q:'small',code:'manufacturing.textile',idea:'サロンのロゴを刺繍したタオルを100枚作りたい'},
+ {k:'hotel_soap',ind:'hotel',t:'オリジナルの固形石けん',d:'客室のアメニティや、お土産に',lot:'300個',q:'small',code:'cosmetics.oem',est:[['cosmetics.oem','固形石けん']],idea:'旅館オリジナルの化粧石けん（固形）を化粧品の工場で300個作り、客室のアメニティと売店で使いたい'},
+ {k:'hotel_sweets',ind:'hotel',t:'ご当地のお菓子のお土産',d:'地元の素材を使って、売店のオリジナル品に',lot:'300個',q:'small',code:'food.processed_oem',est:[['food.processed_oem','菓子']],idea:'地元の果物を使ったオリジナルのお菓子を、旅館の売店のお土産として300個作りたい'},
+ {k:'hotel_slipper',ind:'hotel',t:'ロゴ入りの館内スリッパ',d:'客室用に、刺繍やプリントで',lot:'200足',q:'small',code:'manufacturing.textile',idea:'ホテルのロゴを刺繍した客室用のスリッパを200足作りたい'},
+ {k:'hotel_pin',ind:'hotel',t:'施設のピンバッジ',d:'記念品や、スタッフの名札に',lot:'300個',q:'small',code:'crafts.metal_goods',idea:'観光施設のロゴを入れた金属のピンバッジを300個作り、売店で販売したい'},
+ {k:'shop_tshirt',ind:'shop',t:'オリジナルのTシャツ',d:'無地にプリントするなら10枚から',lot:'50枚',q:'small',code:'apparel.print_embroidery',est:[['apparel.print_embroidery','Tシャツ片面1色シルク印刷 10枚'],['apparel.print_embroidery','同 100枚']],idea:'店のロゴを1色でプリントしたオリジナルのTシャツを50枚作り、ネットショップで販売したい'},
+ {k:'shop_tote',ind:'shop',t:'ロゴ入りの帆布トートバッグ',d:'ショップ袋代わりにも、商品にも',lot:'100枚',q:'small',code:'manufacturing.textile',idea:'店のロゴを印刷した帆布のトートバッグを100枚作りたい'},
+ {k:'shop_sweets',ind:'shop',t:'自社ブランドのお菓子',d:'パッケージまでそろえてネットで販売',lot:'300個',q:'small',code:'food.processed_oem',est:[['food.processed_oem','菓子']],idea:'自社ブランドの焼き菓子を、パッケージも含めて300個作り、ネットショップで販売したい'},
+ {k:'shop_supp',ind:'shop',t:'自社ブランドのサプリメント',d:'粒・粉などの形と原料から相談',lot:'1,000袋',q:'mass',code:'food.beverage_oem',idea:'自社ブランドのサプリメント（粒タイプ）を1,000袋作り、ネットショップで販売したい'},
+ {k:'farm_juice',ind:'farm',t:'自家栽培の果物でジュース',d:'規格外の果物を、瓶詰めの商品に',lot:'500本',q:'small',code:'food.beverage_oem',est:[['food.beverage_oem','500mlびん'],['food.beverage_oem','200mlびん']],idea:'自分の農園で採れたりんごでジュースを作り、瓶詰めで500本販売したい'},
+ {k:'farm_jam',ind:'farm',t:'果物のジャム',d:'加工を任せて、直売所やネットで',lot:'300個',q:'small',code:'food.processed_oem',idea:'自分の農園のいちごでジャムを作り、瓶詰めで300個販売したい'},
+ {k:'farm_dry',ind:'farm',t:'規格外野菜のドライ野菜',d:'捨てていた野菜を、日持ちする商品に',lot:'300袋',q:'small',code:'food.processed_oem',idea:'規格外の野菜を加工食品の工場で乾燥させ、ドライ野菜として袋詰めで300袋作り販売したい'},
+ {k:'farm_box',ind:'farm',t:'贈答用のギフト箱',d:'果物や加工品の詰め合わせに',lot:'1,000個',q:'mass',code:'packaging.box',est:[['packaging.box','無地のギフト箱 1,000個']],idea:'果物の贈答用に、農園の名前を入れたギフト箱を1,000個作りたい'},
+ {k:'mfg_fire',ind:'mfg',t:'自社の加工技術で作る焚き火台',d:'下請けの技術を、自社ブランドの商品に',lot:'試作3個',q:'proto',code:'manufacturing.cnc',est:[['manufacturing.cnc','1個の価格例（50mm角の樹脂〜200mmのステンレス）'],['manufacturing.cnc','最低ロット']],idea:'自社の板金と切削の技術を使って、キャンプ用の焚き火台を自社ブランドで作りたい。まず3個試作したい'},
+ {k:'mfg_scrap',ind:'mfg',t:'端材で作る金属の雑貨',d:'栓抜き・キーホルダーなど、捨てていた材料を商品に',lot:'100個',q:'small',code:'crafts.metal_goods',idea:'工場で出る金属の端材を使って、栓抜きとキーホルダーを100個作り販売したい'},
+ {k:'mfg_jig',ind:'mfg',t:'社内の治具を製品化',d:'自社で使って便利だった道具を、他社にも売る',lot:'50個',q:'small',code:'manufacturing.sheet_metal',est:[['manufacturing.sheet_metal','1個の価格例（アルミ・鉄・ステンレスの曲げ品など）']],idea:'社内で使っている板金の治具を製品にして、他社にも販売したい。まず50個作りたい'},
+ {k:'mfg_part',ind:'mfg',t:'廃番になった部品の作り直し',d:'現物から寸法を測って、少量だけ作る',lot:'10個',q:'proto',code:'manufacturing.cnc',est:[['manufacturing.cnc','丸物1個の価格例（φ50樹脂〜φ128鉄）']],idea:'廃番になった金属の部品を、現物から寸法を測って切削加工で10個作り直したい'},
+ {k:'hw_sensor',ind:'hw',t:'スマホとつながる小型センサー',d:'基板・ケース・アプリ・電波の認証まで',lot:'試作10台',q:'proto',code:'electronics.pcba',est:[['electronics.pcba','基板10枚（10cm角まで）の製造'],['testing.radio_cert','技適（2.4GHz帯）申込の基本料']],idea:'温度と湿度を測ってBluetoothでスマホに送る小型のセンサーを、10台試作したい'},
+ {k:'hw_case',ind:'hw',t:'基板を入れるケースの試作',d:'3Dプリントなら1個から',lot:'試作5個',q:'proto',code:'manufacturing.rapid_proto',est:[['manufacturing.rapid_proto','手のひら大のボディ1個（ナイロン造形）']],idea:'手のひらくらいの大きさの樹脂のケースを、3Dプリントで5個試作したい'},
+ {k:'hw_mold',ind:'hw',t:'ケースを金型で量産',d:'試作のあと、射出成形に切り替える',lot:'1,000個',q:'mass',code:'manufacturing.injection_molding',est:[['manufacturing.injection_molding','試作・少量向けの金型（プロトラブズの例）']],idea:'3Dプリントで試作した樹脂のケースを、金型を作って1,000個量産したい'},
+ {k:'hw_light',ind:'hw',t:'防水の自転車ライト',d:'回路・防水ケース・組立を組み合わせる作例',lot:'試作',q:'proto',code:'manufacturing.assembly',ex:'bike',idea:''},
+];
+const PICKS=['pet_shampoo','out_cup','cafe_mug','salon_lotion','hotel_soap','shop_tshirt','farm_juice','mfg_fire','hw_sensor'];
+function ideaEst(x){const E=D.est||{};const out=[];
+  for(const [c,t] of (x.est||[])){const r=((E.rows||{})[c]||{rows:[]}).rows.find(r=>r.t===t);if(!r||r.lo==null)continue;const s=(E.src||{})[r.s]||{};const lv=ELV[s.level]||ELV.rough;
+    out.push(`<li><span>${esc(EKIND[r.k]||'')}</span><b class="mono" data-r='${JSON.stringify([r.lo,r.hi,r.u])}'>${rngTxt(r.lo,r.hi,r.u)}</b><small>${esc(r.t)}</small>${s.url?`<a href="${esc(s.url)}" target="_blank" rel="noopener" title="${esc(s.t||'')}">${mk(lv[0],lv[1])}</a>`:mk(lv[0],lv[1])}</li>`)}
+  if(!out.length){const db=(E.db||{})[x.code];
+    if(db&&db.n>=3)out.push(`<li><span>最低ロット</span><b class="mono" data-r='${JSON.stringify([db.med,db.med,'pcs'])}'>${rngTxt(db.med,db.med,'pcs')}</b><small>掲載企業の最小ロットの中央値 · ${fmt(db.n)}社</small>${mk('pub','掲載ページ')}</li>`)}
+  return out.length?`<ul class="iest">${out.join('')}</ul>`:`<p class="iest none">公開相場なし・見積が必要</p>`}
+async function renderIdeas(){const el=$('#ideas');if(!el)return;S.ind=S.ind||'pick';
+  if(!STATS){try{STATS=await (await fetch('data/stats.json')).json()}catch(e){STATS=window.KATACHI_STATS||null}}
+  if(!$('#ideas'))return;
+  const list=S.ind==='pick'?PICKS.map(k=>IDEAS.find(x=>x.k===k)):IDEAS.filter(x=>x.ind===S.ind);const indN=k=>(IND.find(i=>i[0]===k)||[])[1]||'';
+  el.innerHTML=`<div class="rhead"><div class="eyebrow">Ideas</div><h2>何をつくるか、まだ決まっていなくても</h2><p class="muted">白紙からは思いつきにくいものです。業種を選ぶと、同じ立場の会社が作りやすいものを並べます。押すと、その内容で工程と候補の会社を探します。</p></div>
+    <div class="inds" role="tablist" aria-label="業種">${IND.map(([k,t])=>`<button type="button" role="tab" data-ind="${k}" aria-selected="${S.ind===k}">${esc(t)}</button>`).join('')}</div>
+    <div class="icards">${list.map(x=>{const n=STATS&&STATS.caps?STATS.caps[x.code]:0;return `<article class="icard">
+      <div class="itop">${S.ind==='pick'?`<span class="iind">${esc(indN(x.ind))}</span>`:''}<span class="ilot mono">${esc(x.lot)}</span></div>
+      <h3>${esc(x.t)}</h3><p>${esc(x.d)}</p>
+      <div class="ifoot"><div class="ilab"><span>目安</span>${n?`<span>対応する会社 <b class="mono">${fmt(n)}</b>社</span>`:''}</div>${ideaEst(x)}</div>
+      <div class="iact"><button type="button" class="btn sm pri" data-idea="${x.k}">この内容で探す<svg width="12" height="12" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>${x.ex?'':`<button type="button" class="glink" data-iedit="${x.k}">書き換えてから探す</button>`}</div>
+    </article>`}).join('')}</div>
+    <p class="inote">作例（モデルケース）です。実在の会社の事例や見積ではありません。目安は公開されている料金表・記事と、掲載企業の最小ロットから出しています。期間は形・数量・工場の混み具合で変わるため、見積で確かめます。</p>`;
+  {const r=el.querySelector('.inds'),c=r&&r.querySelector('[aria-selected="true"]');if(r&&c){const a=r.getBoundingClientRect(),z=c.getBoundingClientRect();r.scrollLeft+=z.left-a.left-(a.width-z.width)/2}}
+  $$('[data-ind]').forEach(b=>b.onclick=()=>{S.ind=b.dataset.ind;track('idea_industry',{industry:S.ind});renderIdeas()});
+  $$('[data-idea]').forEach(b=>b.onclick=()=>{const x=IDEAS.find(i=>i.k===b.dataset.idea);track('idea_click',{idea:x.k,industry:x.ind,picked_from:S.ind});S.qty=x.q;
+    if(x.ex){S.mode='free';const ta=$('#idea');if(ta)ta.value=D.scen[x.ex].idea;go(x.ex);return}
+    S.mode='free';S.files=S.files||[];const ta=$('#idea');ta.value=x.idea;go(null)});
+  $$('[data-iedit]').forEach(b=>b.onclick=()=>{const x=IDEAS.find(i=>i.k===b.dataset.iedit);track('idea_edit',{idea:x.k,industry:x.ind});S.mode='free';S.qty=x.q;S.idea=x.idea;renderHome();
+    const ta=$('#idea');if(ta){ta.scrollIntoView({behavior:'smooth',block:'center'});ta.focus();ta.setSelectionRange(ta.value.length,ta.value.length);ta.oninput()}});
 }
 function bindHome(){
   const f=$('#cmp'),ta=$('#idea');

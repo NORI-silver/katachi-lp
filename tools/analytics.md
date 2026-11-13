@@ -17,6 +17,10 @@
 | form_cta | 「チームを組む」を押した | quantity, files, chars | ○ |
 | form_error | 空のまま送信しようとした | reason | |
 | example_click | 例のボタン | example | |
+| idea_jump | 「思いつかないときは、業種から選ぶ」 | | |
+| idea_industry | 作例の業種を切り替え | industry | |
+| idea_click | 作例の「この内容で探す」 | idea, industry, picked_from | |
+| idea_edit | 作例の「書き換えてから探す」 | idea, industry | |
 | filter_company | 絞り込み・並べ替えを変えた | filter, active_filters | |
 | select_quantity | 試作/小ロット/量産 | quantity | |
 | import_design | AI設計の取り込み | file_kind, file_ext / source | |
