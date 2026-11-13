@@ -36,6 +36,9 @@
 | upload_files | 見積依頼・相談と一緒にファイルを送り終えた | files, sent, failed, skipped, mb（件数と大きさだけ。ファイル名は送らない） | |
 | ai_prompt_copy | 「写真・動画を、お使いのAIで仕様メモにする」の指示文をコピー | ok | |
 | ai_prompt_open | 同じ欄から ChatGPT/Claude/Gemini を開いた | ai | |
+| ai_consult_open | 文章入力の結果画面で「ChatGPTで相談」「Claudeで相談」を押した | ai, steps, short（URLに入りきらず全文をコピーだけで渡した） | |
+| ai_consult_copy | 同じ欄の「質問文をコピー」 | ok | |
+| ai_answer_paste | AIの回答を貼って「読み直す」 | chars（文字数だけ） | |
 | lang_change | 言語切替 | from, to | |
 | view_estimate | 概算の目安を表示（タブ・選択式・文章入力） | scenario | |
 | estimate_qty | 概算の数量を変えた | qty_bucket (1-10/11-100/101-1000/1001+) | |
