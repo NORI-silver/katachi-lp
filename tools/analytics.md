@@ -84,6 +84,7 @@
 | choose_plan | （追記）おすすめに戻す・担当者に任せる | plan（rec/staff） | |
 | ref_open | トップの「既製品をもとに作る」を開いた・閉じた | open | |
 | ref_product | 既製品をもとにした依頼で「はじめる」を押した | changes（変える点の数）, has_url, host（参考URLのドメインだけ） | URLの全体や商品名は送らない |
+| rfq_fs_answer | 見積依頼のフォームで「見積に要ること」の項目を選んだ | item（項目のキー。例 scope・docs・fabric） | 選んだ値は送らない |
 | ref_peek | 入れたURLのページを受付が読み取った結果 | result（ok／失敗の種類）, host（ドメインだけ） | URLの全体・読み取った文字は送らない |
 | fspec_answer | 工場向け仕様書の質問に答えて「答えを反映する」を押した | answered（答えた数） | 答えの中身は送らない |
 | fspec_copy | 工場向け仕様書を「テキストをコピー」した | ok | |
