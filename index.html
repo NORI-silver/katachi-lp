@@ -1256,18 +1256,22 @@ const pdbRx=r=>{if(r._rx===undefined){try{r._rx=new RegExp(r.kw,'i')}catch(e){r.
 function jsccRow(J,i){const[code,name]=J.items[i];let rule=null;for(let k=code.length;k>1&&!rule;k--)rule=J.rules[code.slice(0,k)]||null;rule=rule||{};
   const names=[];for(let k=2;k<code.length;k++){const n=J.name[code.slice(0,k)];if(n&&names[names.length-1]!==n)names.push(n)}
   const proc=rule.proc||[],lot=[];for(const p of proc)for(const x of (PDB.lots[p]||[]))if(lot.length<6)lot.push(Object.assign({proc:p},x));
-  return{id:'j_'+code,name,ind:rule.ind||'',kind:rule.kind||'',proc,parts:[],mat:[],lot,reg:(rule.reg||[]).map(k=>PDB.regs[k]).filter(Boolean),cls:names.concat(name).join(' > '),src:[J.src],from:'jscc'}}
+  return{id:'j_'+code,name,ind:rule.ind||'',kind:rule.kind||'',proc,parts:[],mat:[],lot,reg:(rule.reg||[]).map(k=>PDB.regs[k]).filter(Boolean),cls:names.concat(name).join(' > '),src:[code[0]==='H'&&J.src2?J.src2:J.src],from:'jscc'}}
 function pdbMatch(s){if(!PDB||!s)return null;const t=String(s).toLowerCase();let best=null,bl=0;
   const iK=c=>/[ァ-ヺー]/.test(c||'');
   for(const r of PDB.products){if(!r.kw||r.from==='concept')continue;const rx=pdbRx(r);const m=rx&&t.match(rx);if(m&&m[0].length+1>bl&&!(iK(m[0][0])&&iK(t[m.index-1]))&&!(iK(m[0].slice(-1))&&iK(t[m.index+m[0].length]))){best=r;bl=m[0].length+1}}
   const J=PDB.jscc;if(J){const KA=/[ァ-ヺー]/,fold=x=>x.replace(/[ァ-ヶ]/g,c=>String.fromCharCode(c.charCodeAt(0)-96)),isK=c=>KA.test(c||'');
-    if(!J.name){J.name={};J.kws=[];J.items.forEach(([c,n,k],i)=>{J.name[c]=n;if(k)for(const w of (k===1?[n.normalize('NFKC').toLowerCase()]:k.split('|')))J.kws.push([fold(w),i,w,/^(7[2-9]|8|9)/.test(c)?0:1])})}
-    const tn=t.normalize('NFKC'),tf=fold(tn);
+    /* 「・」と空白は無視する（「リチウム・イオン蓄電池」＝「リチウムイオン蓄電池」） */
+    const sq=x=>x.normalize('NFKC').toLowerCase().replace(/[・\s]/g,'');
+    if(!J.name){J.name={};J.kws=[];J.items.forEach(([c,n,k],i)=>{J.name[c]=n;if(k)for(const w of (k===1?[n]:k.split('|'))){const wn=sq(w);J.kws.push([fold(wn),i,w,/^(7[2-9]|8|9)/.test(c)?0:1,wn])}})}
+    let tn=sq(t),tf=fold(tn);
     /* 入力のカタカナの語の途中には当てない（「ベアリング」の中の「リング」）。同じ長さなら暮らしの品（72〜95）を先に */
     const hit=k=>{let p=tf.indexOf(k);while(p>=0){const e=p+k.length;if(!(isK(tn[p])&&isK(tn[p-1]))&&!(isK(tn[e-1])&&isK(tn[e])))return true;p=tf.indexOf(k,p+1)}return false};
+    /* 言い換え語（「ボールベアリング」→「玉軸受」）：入力にあれば分類の名前も探す語に足す */
+    for(const[a,b]of (PDB.syn||[])){const fa=fold(sq(a)),wb=sq(b);if(!tf.includes(wb.length?fold(wb):'\0')&&hit(fa)){tn+='|'+wb;tf+='|'+fold(wb)}}
     let bi=-1,bw='',bp=9;for(const[k,i,w,pr]of J.kws)if((k.length>bl||(k.length===bl&&bi>=0&&pr<bp))&&hit(k)){bl=k.length;bi=i;bw=w;bp=pr}
     /* 短い入力（「ギター」など）は、分類名のほうに入力が含まれるものを探す（暮らしの品・短い名前を先に。カタカナの語の途中は除く） */
-    if(!best&&bi<0&&tf.length>=2&&tf.length<=12){let sl=1e9;for(const[k,i,w,pr]of J.kws){const p=k.indexOf(tf),L=k.length+pr*100;if(p>=0&&L<sl&&!(isK(w[p])&&isK(w[p-1]))&&!(isK(w[p+tf.length-1])&&isK(w[p+tf.length]))){sl=L;bi=i;bw=w}}}
+    if(!best&&bi<0&&tf.length>=2&&tf.length<=12){let sl=1e9;for(const[k,i,w,pr,wn]of J.kws){const p=k.indexOf(tf),L=k.length+pr*100;if(p>=0&&L<sl&&!(isK(wn[p])&&isK(wn[p-1]))&&!(isK(wn[p+tf.length-1])&&isK(wn[p+tf.length]))){sl=L;bi=i;bw=w}}}
     if(bi>=0){best=jsccRow(J,bi);if(/[、，,]|及び|並びに/.test(best.name)&&bw)best.name=bw}}
   return best}
 window.KATACHI_PDB={load:pdbLoad,match:s=>pdbMatch(s)};  // 回帰テスト（tools/tests）用

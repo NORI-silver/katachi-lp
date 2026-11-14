@@ -256,6 +256,46 @@ C('store', 'partition', '仕切り・パーテーション', r'パーテーシ�
 C('store', 'hanger', 'ハンガー・フック・ブラケット', r'ハンガー|フック|ブラケット', 'shape:holder', 'manufacturing.sheet_metal crafts.metal_goods', '', '本体・取付部', 'スチール・真鍮')
 C('store', 'amenity', 'ホテルのアメニティ', r'アメニティ', 'cosme', 'cosmetics.oem cosmetics.household packaging.label_print', 'cosme', '中身・小分け容器・個包装', 'PET・フィルム')
 
+# ---- 新しい製品（2026-11-14 追加。通販・クラウドファンディングでよく見るガジェット・推し活グッズ・暮らしの品）
+# 日本標準商品分類（1990年）にない、または名前が違う品。構成・素材は「よくある例」（AI推定）。
+C('iot', 'powerstation', 'ポータブル電源', r'ポータブル電源|ポータブル蓄電池|ポータブルバッテリー', 'device', 'electronics.pcba manufacturing.assembly testing.battery_safety', 'battery pse pl', 'リチウムイオン電池・インバーター基板・筐体・出力端子', 'アルミ・難燃樹脂')
+C('iot', 'usbhub', 'USBハブ・ドッキングステーション', r'usb-?c?ハブ|ドッキングステーション', 'device', 'electronics.pcb_design electronics.pcba manufacturing.injection_molding', 'origin', '基板・端子・ケース・ケーブル', 'アルミ・樹脂')
+C('iot', 'cable', 'USBケーブル・変換アダプター', r'usbケーブル|type-?cケーブル|変換アダプタ', 'device', 'electronics.pcba manufacturing.assembly', 'origin', '導線・端子・被覆・コネクタ部の成形', 'TPE・ナイロン編み')
+C('iot', 'keyboard', 'キーボード・マウス', r'キーボード|ワイヤレスマウス|ゲーミングマウス', 'device', 'electronics.pcba electronics.wireless manufacturing.injection_molding testing.radio_cert', 'giteki battery', 'スイッチ・キーキャップ・基板・ケース', 'ABS・PBT樹脂・アルミ')
+C('iot', 'smartlock', 'スマートロック', r'スマートロック|電子錠', 'device', 'electronics.pcba electronics.wireless electronics.firmware manufacturing.assembly testing.radio_cert', 'giteki battery pl', 'モーター・基板・電池・取付部', 'アルミ・樹脂')
+C('iot', 'smartlight', 'スマート電球・LEDテープライト', r'スマート電球|ledテープ|テープライト|ledライト', 'light', 'electronics.pcba electronics.wireless testing.radio_cert', 'giteki pse', 'LED・基板・電源・カバー', '樹脂・アルミ')
+C('iot', 'robotvacuum', 'ロボット掃除機', r'ロボット掃除機|お掃除ロボ', 'machine', 'electronics.pcba electronics.firmware sensing.position manufacturing.injection_molding manufacturing.assembly testing.radio_cert', 'giteki battery pse pl', 'モーター・センサー・電池・本体', 'ABS樹脂')
+C('iot', 'handyfan', 'ハンディファン・ネッククーラー', r'ハンディファン|携帯扇風機|ネッククーラー|首掛け扇風機', 'device', 'electronics.pcba manufacturing.injection_molding testing.battery_safety', 'battery pse', 'ファン・モーター・電池・本体', 'ABS樹脂')
+C('iot', 'beautydevice', 'ヘアアイロン・美容家電', r'ヘアアイロン|美顔器|美容家電|電動歯ブラシ', 'device', 'electronics.pcba mechanical.waterproof manufacturing.injection_molding manufacturing.assembly', 'pse battery pl', 'ヒーターやモーター・基板・電池・本体', '耐熱樹脂・アルミ')
+C('iot', 'humidifier', '加湿器・空気清浄機・アロマディフューザー（電気）', r'加湿器|除湿機|空気清浄機|アロマディフューザー', 'device', 'electronics.pcba manufacturing.injection_molding manufacturing.assembly', 'pse pl', 'タンク・振動子かファン・基板・本体', 'PP・ABS樹脂')
+C('iot', 'projector', 'プロジェクター', r'プロジェクター', 'device', 'electronics.pcba electronics.firmware manufacturing.assembly', 'pse', '光源・レンズ・基板・筐体', 'アルミ・樹脂')
+C('iot', 'vr', 'VR・ARゴーグル、スマートグラス', r'vr(ゴーグル|ヘッドセット)|arグラス|スマートグラス', 'wearable', 'electronics.pcba electronics.wireless electronics.firmware mechanical.wearable_fit testing.radio_cert', 'giteki battery', 'ディスプレイ・レンズ・基板・バンド', '樹脂・シリコーン')
+C('iot', 'nfctag', 'NFCタグ・ICカード', r'nfc(タグ|カード|シール)|icタグ|rfid', 'goods', 'packaging.label_print electronics.wireless', '', 'ICチップ・アンテナ・印刷面', 'PET・紙・PVC')
+C('iot', 'kit', '電子工作キット・プログラミング教材', r'電子工作キット|プログラミング教材|stem教材|ロボットキット', 'device', 'electronics.pcb_design electronics.pcba packaging.box', 'pl', '基板・部品・説明書・箱', 'ガラスエポキシ・紙')
+C('iot', 'lasercutter', 'レーザー加工機・小型の加工機（機械として作る）', r'レーザー加工機|レーザーカッター|レーザー彫刻機|cncルーター', 'machine', 'manufacturing.sheet_metal electronics.pcba electronics.firmware manufacturing.assembly', 'pse pl', 'フレーム・駆動部・光源や主軸・制御基板', 'アルミ・スチール')
+C('iot', 'monitorarm', 'モニターアーム・PCスタンド', r'モニターアーム|pcスタンド|ノートパソコンスタンド|タブレットスタンド', 'shape:holder', 'manufacturing.sheet_metal manufacturing.cnc', 'pl', 'アーム・クランプ・ばね', 'スチール・アルミ')
+C('iot', 'screenfilm', '画面保護フィルム・ガラスフィルム', r'保護フィルム|ガラスフィルム|保護ガラス', 'goods', 'packaging.label_print', 'origin', 'フィルム・粘着層・パッケージ', 'PET・強化ガラス')
+C('iot', 'tabletcase', 'タブレットケース・ノートパソコンケース', r'タブレットケース|ipadケース|ノートパソコンケース|パソコンケース|pcケース', 'case', 'manufacturing.injection_molding manufacturing.textile apparel.leather', 'origin', 'ケース本体・内張り・留め具', 'TPU・ポリエステル・合成皮革')
+C('wood', 'standingdesk', '昇降デスク・スタンディングデスク', r'昇降デスク|スタンディングデスク|電動デスク', 'furniture', 'manufacturing.sheet_metal electronics.pcba crafts.wood_furniture manufacturing.assembly', 'pse pl', '天板・脚・モーター・制御箱', 'スチール・木')
+C('goods', 'acrylicpanel', 'アクリルパネル・アクリルジオラマ', r'アクリル(パネル|ジオラマ|フレーム|コースター)', 'goods', 'cosmetics.household packaging.label_print', 'premium origin', 'アクリル板・印刷・台座', 'アクリル')
+C('goods', 'rubber', 'ラバーストラップ・ラバーキーホルダー', r'ラバー(ストラップ|キーホルダー|マスコット|コースター)|ラバスト', 'goods', 'manufacturing.silicone_molding', 'premium origin', '本体・ボールチェーン', 'PVC・シリコーン')
+C('goods', 'patch', '刺繍ワッペン', r'ワッペン|刺繍(パッチ|エンブレム)', 'goods', 'apparel.print_embroidery', 'premium', '刺繍・裏の接着シート', 'ポリエステル糸')
+C('goods', 'card', 'トレーディングカード・オリジナルカード', r'トレカ|トレーディングカード|カードゲーム|オリジナルカード', 'goods', 'packaging.label_print packaging.box', 'premium', 'カード・パック・箱', '紙・ホイル')
+C('goods', 'tape', 'マスキングテープ', r'マスキングテープ|マステ', 'goods', 'packaging.label_print', 'premium', 'テープ・芯・印刷', '和紙')
+C('goods', 'tapestry', 'タペストリー・布ポスター・のぼり', r'タペストリー|布ポスター|のぼり旗', 'goods', 'apparel.print_embroidery manufacturing.textile', 'premium', '生地・印刷・棒', 'ポリエステル')
+C('goods', 'pillowcover', '抱き枕カバー・クッションカバー（印刷）', r'抱き枕(カバー)?|クッションカバー', 'apparel', 'manufacturing.textile apparel.print_embroidery', 'fiber premium', 'カバーの生地・印刷・ファスナー', 'ポリエステル（2WAYトリコット）')
+C('goods', 'capsuletoy', 'カプセルトイ（ガチャ）', r'カプセルトイ|ガチャガチャ|ガチャポン', 'shape:toy', 'manufacturing.injection_molding manufacturing.silicone_molding packaging.box', 'toy premium pl', 'フィギュアやグッズ・カプセル・説明書', 'PVC・ABS・PP')
+C('goods', 'penlight', 'ペンライト', r'ペンライト|サイリウム', 'light', 'electronics.pcba manufacturing.injection_molding', 'battery', 'LED・電池・ケース・ストラップ', 'ポリカーボネート')
+C('outdoor', 'sauna', 'サウナグッズ（サウナハット・マット・ポンチョ）', r'サウナ(ハット|マット|グッズ|ポンチョ)', 'apparel', 'manufacturing.textile apparel.knit', 'fiber', '本体・タグ', 'ウール・綿・リネン')
+C('daily', 'bousai', '防災グッズ・防災セット', r'防災(グッズ|セット|用品)|非常持ち?出し', 'goods', 'packaging.box manufacturing.textile', 'zakka pl', '袋・ライト・保存食など中身の組み合わせ', 'ポリエステルの袋')
+C('daily', 'bathmat', '珪藻土マット・バスマット', r'珪藻土|バスマット', 'shape:mat', 'crafts.ceramics_glass manufacturing.textile', 'zakka', '本体・滑り止め', '珪藻土・綿')
+C('wood', 'acoustic', '吸音パネル・防音材', r'吸音(パネル|材)|防音(パネル|材|マット)', 'shape:mat', 'manufacturing.textile crafts.wood_furniture', '', 'パネル・表面の布・取付具', 'ポリエステル繊維・フェルト')
+C('pet', 'cattower', 'キャットタワー・爪とぎ', r'キャットタワー|キャットウォーク|爪とぎ|つめとぎ', 'furniture', 'crafts.wood_furniture manufacturing.textile', 'zakka pl', '柱・台・麻縄・ボアの布', '木・麻縄・段ボール')
+C('pet', 'petcamera', 'ペットカメラ・見守りカメラ', r'ペットカメラ|見守りカメラ', 'device', 'electronics.pcba electronics.wireless electronics.firmware testing.radio_cert', 'giteki pse', 'カメラモジュール・基板・スピーカー・本体', 'ABS樹脂')
+C('kids', 'babymonitor', 'ベビーモニター', r'ベビーモニター|ベビーカメラ', 'device', 'electronics.pcba electronics.wireless electronics.firmware testing.radio_cert', 'giteki pse', 'カメラ・基板・親機・電源', 'ABS樹脂')
+C('food', 'bar', 'プロテインバー・グラノーラ・シリアルバー', r'プロテインバー|グラノーラ|シリアルバー|エナジーバー', 'food', 'food.processed_oem packaging.label_print', 'food_lic food_label haccp health', '中身・個包装・外箱', 'アルミ蒸着フィルム')
+C('drink', 'syrup', 'クラフトコーラ・シロップ', r'クラフトコーラ|シロップ|コーディアル', 'food', 'food.beverage_oem packaging.container packaging.label_print', 'food_lic food_label', '中身・瓶・ラベル', 'ガラス瓶')
+
 # 作例の型（ideas.P）→ 法規制のキー
 PROF_REG = {'cosme': 'cosme', 'household': 'zakka', 'petfood': 'petfood food_label', 'food': 'food_lic food_label haccp', 'supp': 'health nutri food_label',
             'textile': 'fiber', 'box': '', 'ceramic': 'food_pack', 'metal': 'zakka', 'wood': 'zakka', 'goods': 'premium', 'sheet': 'pl', 'iot': 'giteki battery',
@@ -359,7 +399,78 @@ def jscc():
     for k, r in jscc_rules.R.items():
         if r is not None:
             rules[k] = {x: v for x, v in dict(ind=r.get('ind', ''), proc=r.get('proc', '').split(), reg=r.get('reg', '').split(), kind=r.get('kind', '')).items() if v}
-    return dict(src=JSCC_SRC, rules=rules, items=items)
+    known = {w for i in items if i[2] for w in (_norm(i[1]),) if i[2] == 1} | {w for i in items if i[2] and i[2] != 1 for w in i[2].split('|')}
+    hitems, hrules = hs(known)
+    rules.update(hrules)
+    return dict(src=JSCC_SRC, src2=HS_SRC, rules=rules, items=items + hitems, n_jscc=len(items), n_hs=len(hitems))
+
+
+# ---- 輸出統計品目表（HSコード、財務省税関 2026年1月版）で、1990年の分類にない新しい製品を補う（tools/data/hs_2026.tsv）
+import hs_rules  # noqa: E402
+
+HS_SRC = dict(t='財務省税関「輸出統計品目表（2026年1月版）」', url='https://www.customs.go.jp/yusyutu/2026_01_01/index.htm', level='official')
+_HS_SKIP = re.compile(r'(以下|以上|超え|未満|を除く|に限る|であるか|のもの$|もの$|その他|ないもの|あるもの|これら|かつ|ための|する|した|使用|種類|[0-9０-９]|%|％|類$|品$|用$|式$|製$|系$|もので|に専ら|^その|^単位|の機器$|部分品|附属品|製品$|^.{1,2}$|^(加熱|調理|乾燥|冷却|加工|シート|ストリップ|エッセンス|濃縮物|鍛造|鋳造|圧延)$)')
+
+
+def _short(n):
+    n = re.sub(r'[（(][^）)]*[）)]', '', n)
+    n = re.sub(r'（[^）]*$', '', n).strip()
+    return n[:30]
+
+
+def hs(known):
+    path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data', 'hs_2026.tsv')
+    if not os.path.exists(path):
+        return [], {}
+    items, h4, stack = [], '', []
+    for line in open(path, encoding='utf-8'):
+        if line.startswith('#') or '\t' not in line:
+            continue
+        ch, code, st, dep, name = line.rstrip('\n').split('\t')
+        dep = int(dep or 0)
+        m = re.match(r'^(\d{2})\.(\d{2})$', code) or re.match(r'^(\d{2})(\d{2})\.\d{2}$', code)
+        if dep == 0 and m:
+            h4, stack = m.group(1) + m.group(2), []
+            c = 'H' + h4
+        elif h4:
+            stack = stack[:max(dep - 1, 0)]
+            stack.append(0)
+            c = None
+        else:
+            continue
+        if c is None:
+            # 同じ深さの何番目か（2桁）でコードをつくる。上の分類のコードが先頭になる
+            prefix = 'H' + h4 + ''.join('%02d' % x for x in stack[:-1])
+            n = sum(1 for i in items if i[0].startswith(prefix) and len(i[0]) == len(prefix) + 2)
+            stack[-1] = n + 1
+            c = prefix + '%02d' % (n + 1)
+        rule = None
+        for k in ('H' + h4, 'H' + h4[:2]):
+            if k in hs_rules.R:
+                rule = hs_rules.R[k]
+                break
+        if rule is None:
+            continue
+        nm = _short(name) if dep == 0 else re.sub(r'[（(][^）)]*[）)]', '', name).strip()
+        kws = []
+        if re.search(r'たばこ|医療|医薬|銃|弾薬|爆薬|酒|麻薬|武器', name):
+            items.append([c, nm, ''])  # 扱わない分野（項の中の一部だけのもの）は探す語を付けない
+            continue
+        # 項（見出し）の名前は法令の書き方で長いので、短いものだけ探す語にする。かっこが閉じていない名前は使わない
+        ok = not re.search(r'[（）()]', nm) and (dep > 0 or (len(name) <= 14 and '、' not in name))
+        for w in (re.split(r'[、，,]|及び|並びに|又は', nm) if ok else []):
+            w = _norm(w.strip(' 　・'))
+            w = re.sub(r'^(その他の|その他)', '', w)
+            if 2 <= len(w) <= 20 and not _HS_SKIP.search(w) and w not in known:
+                kws.append(w)
+        kws = list(dict.fromkeys(kws))
+        items.append([c, nm if dep else _short(name), '|'.join(kws)])
+    rules = {k: {x: v for x, v in dict(ind=r.get('ind', ''), proc=r.get('proc', '').split(), reg=r.get('reg', '').split()).items() if v}
+             for k, r in hs_rules.R.items() if r is not None}
+    codes = [i[0] for i in items]
+    anc = {c[:k] for c in codes for k in range(3, len(c))}
+    items = [i for i in items if i[2] or i[0] in anc]
+    return items, rules
 
 
 def build():
@@ -401,6 +512,18 @@ def build():
         out['lots'] = {p: v for p, v in out['lots'].items() if v}
         out['regs'] = {k: _reg([k])[0] for k in REG}
         out['jscc'] = J
+        import product_syn
+        fold = lambda x: re.sub(r'[ァ-ヶ]', lambda m: chr(ord(m.group(0)) - 96), _norm(x)).replace('・', '').replace(' ', '')
+        kw = set()
+        for i in J['items']:
+            if i[2]:
+                for w in ([_norm(i[1])] if i[2] == 1 else i[2].split('|')):
+                    kw.add(fold(w))
+        out['syn'], bad = [], []
+        for a, b in product_syn.SYN:
+            (out['syn'] if fold(b) in kw else bad).append([_norm(a), _norm(b)])
+        if bad:
+            print('言い換え語のうち、右の名前が分類にないもの（捨てた）:', bad)
     return out
 
 
