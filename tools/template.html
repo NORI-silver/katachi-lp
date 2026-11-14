@@ -723,6 +723,30 @@ details.grp>.in{display:grid;gap:12px;padding:0 14px 14px}
 .glinks{display:flex;gap:14px;font-size:12.5px}
 .gdl{display:grid;min-width:0}.gdl b{font-size:14px}.gdl small{font-size:12px;color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 @media (max-width:640px){.modes{grid-template-columns:1fr 1fr}.modes button{padding:10px 12px}.modes button small{font-size:11px}.gcats{grid-template-columns:1fr 1fr}.gcat{padding:10px 12px}.gcount{justify-items:start}.gco{padding:12px}}
+/* 見積の依頼を1問ずつ */
+.sheet.wzon > p.muted{display:none}
+#wz{display:grid;gap:12px}
+.wzbar{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--mute)}.wzbar i{flex:1;height:4px;border-radius:9px;background:var(--line)}.wzbar b{display:block;height:100%;border-radius:9px;background:var(--ice);transition:width .25s}
+.wzq .wzs{display:grid;gap:10px}.wzq .wzs > span{font-size:19px!important;font-weight:700;color:var(--fg)!important;line-height:1.4}.wzq .wzs > span .req,.wzq .wzs > span .opt-t{display:none}
+.wzq input,.wzq textarea{font-size:16px!important;padding:12px!important}
+.wzq .cks{display:grid;grid-template-columns:1fr 1fr;gap:8px}.wzq .cks .chk{border:1px solid var(--line2);border-radius:12px;padding:12px;background:#fff}.wzq .cks .chk:has(input:checked){border-color:var(--ice);background:var(--hover)}
+.wzq .wzs[hidden]{display:none!important}.wzq .cks .chk{display:flex;gap:10px;align-items:center}
+.wzhide{display:none!important}
+.wzopts{display:grid;gap:8px}.wzopt{text-align:left;font-size:15px;padding:14px 16px;border:1px solid var(--line2);border-radius:12px;background:#fff;color:var(--fg)}.wzopt.on,.wzopt:hover{border-color:var(--ice);background:var(--hover)}
+.wzh{margin:0;font-size:13px;color:var(--mute)}.wzh:empty,.wzerr:empty{display:none}.wzerr{margin:0;font-size:13px;color:#b42318}
+.wznav{display:flex;gap:10px}.wznav .btn{height:48px;flex:1}.wznav .btn.pri{flex:2}.wznav .btn[hidden]{display:none}
+#wz.done .wzq,#wz.done .wznav,#wz.done .wzh{display:none}
+.wzsum{display:grid;gap:8px}.wzsum h4{margin:0;font-size:17px}.wzsum dl{margin:0;display:grid;gap:6px}.wzsum dl > div{display:grid;grid-template-columns:7.5em 1fr auto;gap:8px;align-items:start;font-size:13.5px;padding:8px 0;border-bottom:1px solid var(--line)}.wzsum dt{color:var(--mute)}.gflash{outline:3px solid var(--ice)!important;outline-offset:4px;border-radius:12px;animation:gfl 1.1s ease-in-out 2}@keyframes gfl{50%{outline-color:transparent}}
+.wzsum dd{margin:0;white-space:pre-wrap;overflow-wrap:anywhere;max-height:6.5em;overflow:hidden}
+/* ②イメージを確かめる：最初に見るのは図と質問だけ（Nori 2026-11-14「幼児でも使えるレベル」）。数字・説明・直す道具は畳む */
+body.m2 .gcount,body.m2 .gchips .chip,body.m2 .fstrip .fstt .muted,body.m2 .cfoot,body.m2 .gonext,body.m2 #mFspec .fshd p,body.m2 #mFspec .chd p{display:none}
+body.m2 .gh1{font-size:18px;line-height:1.5}
+.cedf>summary{font-weight:600}
+.wzatt{display:grid;gap:10px;border:1px solid var(--line2);border-radius:14px;padding:14px;background:#fff}.wzatt h4{margin:0;font-size:15px}
+.wzfig{max-height:180px;overflow:hidden;border-radius:10px;background:var(--bg2);display:grid;place-items:center}.wzfig svg{max-width:100%;max-height:176px;height:auto}
+.sheet.wzon #rf label.chk{display:flex!important;flex-direction:row!important;align-items:center}.sheet.wzon #rf button[type=submit]{width:100%}
+.wzatt .mbox p,.wzatt .mbox small,.wzatt .mbox details,.wzatt .mbox .muted,.wzatt .mdraft small,.wzatt .ready > .muted{display:none!important}
+.wzatl{margin:0;padding-left:1.2em;font-size:13.5px;display:grid;gap:4px}
 </style>
 
 <nav class="nav gut"><div class="wrap">
@@ -825,7 +849,8 @@ const demoR=n=>{const h=hash(n);return Array.from({length:1+h%3},(_,i)=>({t:REV[
 const ravg=r=>+(r.reduce((a,x)=>a+x.ax.reduce((p,c)=>p+c,0)/4,0)/r.length).toFixed(1);
 
 /* ---------- routing ---------- */
-function route(){const h=location.hash.slice(1);if(h==='result'){renderResult();pageview('/result','チーム編成')}else if(h==='pick'){renderPick();pageview('/pick','候補の会社（選択式）')}else if(h==='match'){renderMatch();pageview('/match','2 イメージを確かめる')}else if(h==='co'){renderMatch();pageview('/companies','3 会社を選ぶ')}else{renderHome();pageview('/','トップ')}window.scrollTo(0,0)}
+addEventListener('toggle',e=>{const t=e.target;if(t&&t.classList&&t.classList.contains('cedf'))S.edOpen=t.open},true);
+function route(){const h=location.hash.slice(1);document.body.classList.toggle('m2',h==='match');if(h==='result'){renderResult();pageview('/result','チーム編成')}else if(h==='pick'){renderPick();pageview('/pick','候補の会社（選択式）')}else if(h==='match'){renderMatch();pageview('/match','2 イメージを確かめる')}else if(h==='co'){renderMatch();pageview('/companies','3 会社を選ぶ')}else{renderHome();pageview('/','トップ')}window.scrollTo(0,0)}
 addEventListener('hashchange',route);
 
 /* ---------- 4ステップ（書く→イメージを確かめる→会社を選ぶ→見積を依頼）。1画面に1つの目的、次に押すボタンは常に1つ ---------- */
@@ -1605,7 +1630,7 @@ function conceptCard(c){const v=cvarOf(c);
   return `<section class="ccard" id="mConcept"><div class="chd"><h2>製品イメージ案</h2>${mk('ai','AI推定・たたき台')}${c.lai?'<span class="chip on">内蔵AIと詰めた案</span>':''}</div>
     <div class="cgrid"><div class="cleft">${cview(c)}</div>
       <div><h3 class="cname">${esc(c.name)}</h3>${c.chips&&c.chips.length?`<div class="cchips"><span class="muted">あなたの文章から読み取った条件</span>${c.chips.map(x=>`<span class="chip">${frg(x)}</span>`).join('')}</div>`:''}
-      ${c.fig?`<dl class="cspec"><dt>サイズ（目安）</dt><dd id="cSize">${sizeLine(c)}</dd></dl>${edBox(c)}`:`<dl class="cspec">${c.rows.slice(0,1).map(([k,x])=>`<dt>${esc(k)}</dt><dd>${frg(x)}</dd>`).join('')}</dl>`}
+      ${c.fig?`<dl class="cspec"><dt>サイズ（目安）</dt><dd id="cSize">${sizeLine(c)}</dd></dl><details class="fold cedf"${S.edOpen||S.edMsg?' open':''}><summary>形・大きさを直す</summary>${edBox(c)}</details>`:`<dl class="cspec">${c.rows.slice(0,1).map(([k,x])=>`<dt>${esc(k)}</dt><dd>${frg(x)}</dd>`).join('')}</dl>`}
       ${fold('cinfo','この案の説明・素材・スペック',`<p class="clead">${esc(c.lead)}</p><dl class="cspec">${c.rows.slice(c.fig?0:1).map(([k,x])=>`<dt>${esc(k)}</dt><dd>${frg(x)}</dd>`).join('')}</dl>`)}</div></div>
     ${c.alt?`<div class="calt" role="note"><p><span>AIの回答からは、別の種類の製品とも読めます。</span><b>${esc(c.alt.name)}</b><span>製品の種類は変えずに、寸法・素材・条件だけを反映しました。</span></p><button type="button" class="btn" data-calt="${esc(c.alt.id)}">この種類に切り替える</button></div>`
       :c.altBack?`<div class="calt" role="note"><p><span>AIの回答に合わせて、製品の種類を切り替えています。元の案：</span><b>${esc(c.altBack.name)}</b></p><button type="button" class="btn" data-calt="">元の種類に戻す</button></div>`:''}
@@ -1963,7 +1988,7 @@ function fspecCard(A){const F=fsBuild(A);if(!F)return '';S.fs=F;const fa=fsAns()
 function wireFspec(A){const el=$('#mFspec');if(!el)return;const fa=fsAns();
   // 選ぶだけでは書き換えない（「次へ」で確定）。確定したら作り直し、質問の箱が同じ高さに来るようにずらす
   document.querySelectorAll('#fsQ .fsb').forEach(b=>b.onclick=()=>{const on=!b.classList.contains('on');b.classList.toggle('on',on);b.setAttribute('aria-pressed',on);$('#fsQErr').textContent=''});
-  const redraw=(focus)=>{const q0=$('#fsQ')||el,top=q0.getBoundingClientRect().top;el.outerHTML=fspecCard(A);wireFspec(A);bindGoNext();const q1=$('#fsQ')||$('#mFspec');
+  const redraw=(focus)=>{const q0=$('#fsQ')||el,top=q0.getBoundingClientRect().top;el.outerHTML=fspecCard(A);wireFspec(A);bindGoNext();if(location.hash==='#match'&&!S.aiAway)renderMatchDock();const q1=$('#fsQ')||$('#mFspec');
     if(focus){q1&&q1.scrollIntoView({block:'center'})}else if(q1)window.scrollBy(0,q1.getBoundingClientRect().top-top)};
   const curK=()=>{const f=document.querySelector('#fsQ .fsqi');return f&&f.dataset.fk};
   $('#fsOk')&&($('#fsOk').onclick=()=>{const k=curK();const v=[...document.querySelectorAll('#fsQ .fsb.on')].map(b=>b.dataset.fv),o=($('#fsOth').value||'').trim().slice(0,100);if(o)v.push(o);
@@ -2738,9 +2763,13 @@ function recBox(R3,secs,qmax){S.whoN=0;if(!R3||!R3.rows.length)return `<div clas
     <div class="qrow"><button type="button" class="glink" data-recself>自分で選ばず、会社選びを担当者に任せる</button></div></section>`}
 function trustNote(){return `<div class="trust3"><b>口コミ・評価について</b><span>KATACHIで見積・取引をした人だけが、取引のあとに評価（納期・見積どおりか・連絡・また頼みたいか）を書けるようにします。まだ取引の評価はないため、いまは公式サイト等での確認・国の公開データ・認証の記載を「信頼の目安」として出しています。Googleの口コミは、各社の「Googleの口コミを見る」で、押したときにGoogleから取り寄せて表示します（KATACHIは保存・転載しません）。作った口コミは載せません。</span></div>`}
 /* ②の下のボタン: AIへ行って戻ってきたら「回答を貼る」が先 */
+/* ②で、工場が見積に要る点のうち、まだ答えていない数（質問の箱が出ているときだけ） */
+const mAskN=()=>{const F=S.fs;return F&&F.core&&$('#fsQ')?F.core.filter(x=>!x.ok).length:0};
 function renderMatchDock(){const A=S.anal||{};const away=!!S.aiAway;const arrow='<svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   $('#dock').innerHTML=`<div class="dock gut"><div class="wrap">${away?`<button type="button" class="glink" id="mSkip" style="font-size:12.5px">貼らずに会社を探す</button><span class="sp"></span><button class="btn pri" id="mPaste">${esc(S.aiAway.ai)}の回答を貼る ↓</button>`
+    :mAskN()?`<div class="gdl"><b><span>あと</span><span translate="no"> ${mAskN()} </span><span>問</span></b><button type="button" class="glink" id="mNext" style="font-size:12.5px;justify-self:start;text-align:left">とばす</button></div><span class="sp"></span><button class="btn pri nxb" id="mAsk">質問に答える ↓</button>`
     :`<div class="gdl nx"><b>${A.concept?'この案でよければ、次は会社選び':'次は、作れる会社を選びます'}</b><small><span>工程ごとの候補 合計</span> <span>${fmt(S.mTotal||0)}社</span></small></div><span class="sp"></span><button class="btn pri nxb" id="mNext">${A.concept?'この案で会社を探す':'会社を探す'}${arrow}</button>`}</div></div>`;
+  $('#mAsk')&&($('#mAsk').onclick=()=>{track('step2_ask',{left:mAskN()});const q=$('#fsQ');if(!q)return;q.scrollIntoView({behavior:'smooth',block:'center'});q.classList.remove('gflash');void q.offsetWidth;q.classList.add('gflash')});
   const nx=()=>{track('step_next',{to:3,concept:A.concept?A.concept.id:'',tuned:Object.keys((S.chat||{}).ans||{}).length});S.aiAway=null;saveFlow();location.hash='co'};
   $('#mNext')&&($('#mNext').onclick=nx);$('#mSkip')&&($('#mSkip').onclick=nx);$('#mPaste')&&($('#mPaste').onclick=gotoAiPaste)}
 /* ②「この案を、相談して詰める」: 質問に答える（KATACHI内）／AIに相談（ChatGPT・Claude・Gemini）／人に相談（担当者・工場） */
@@ -3216,6 +3245,43 @@ function allVals(r,qty){return RFQ(r,qty).flatMap(g=>g[1]).filter(f=>f[2]!=='not
   const v=f[2]==='cks'?[...el.querySelectorAll('input:checked')].map(i=>i.value).join('、'):el.value.trim();return {id:f[0],label:f[1],value:v}}).filter(x=>x&&x.value)}
 function rfqVals(r,qty){return RFQ(r,qty).flatMap(g=>g[1]).filter(f=>!PRIV.includes(f[0])).map(f=>{const el=$('#'+f[0]);if(!el)return null;
   const v=f[2]==='cks'?[...el.querySelectorAll('input:checked')].map(i=>i.value).join('、'):el.value.trim();return [f[1],v]}).filter(x=>x&&x[1])}
+/* ---------- 見積の依頼を1問ずつ（Nori 2026-11-14「UIに沿ってやっていったらできるって感じに。わざわざ説明を読んで理解して進めるのではなく」） ----------
+   工場が見積に要る点と連絡先だけを1問ずつ出し、「次へ」で進む。選ぶ項目は大きなボタンで、押すと次へ。最後に確かめて送る。
+   任意の欄は最後の画面の「もっと詳しく伝える」に畳む（開かなくても送れる）。項目は RFQ() の必須（品目で材料・仕上げの聞き方が変わる）から作るので、製品ごとの手作業はない */
+const WZH={'f-sum':'最初に書いた文が入っています。そのままで大丈夫です。','f-qty':'1つだけなら「1個」。','mat':'わからなければ「おまかせ（工場の提案で）」。','f-size':'「幅60×長さ200×高さ80cmくらい」のように、だいたいで大丈夫です。測れなければ、置く場所や使う物の大きさを書いてください。','fin':'こだわりがなければ「そのまま」か「おまかせ」。','f-due':'「3月ごろ」「急がない」のような書き方で大丈夫です。','f-fix':'急がないほど、工場の空いた時期に入れてもらいやすくなります。','f-who':'','f-mail':'見積の返事が届きます。ほかの人には公開されません。'};
+const wzEmail=v=>/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(String(v||'').trim());
+function rfqWizard(){const f=$('#rf');if(!f||f.dataset.wz)return;f.dataset.wz=1;const sh=f.closest('.sheet');sh&&sh.classList.add('wzon');
+  const K=rfqCoreKeys();
+  const steps=[['f-sum'],['f-qty'],...(K.mat?[['fs-'+K.mat.k,'mat']]:[]),['f-size','f-size'],...(K.fin?[['fs-'+K.fin.k,'fin']]:[]),['f-due'],['f-fix'],['f-who'],['f-mail']].filter(([id])=>f.querySelector('#'+id)).map(([id,ck])=>{const el=f.querySelector('#'+id);let w=el;while(w.parentElement&&!w.parentElement.classList.contains('in'))w=w.parentElement;if(!w.parentElement)w=el.closest('label')||el;return {id,ck,el,w}});
+  const ok=s=>{const c=rfqCoreOk();if(s.el.tagName==='SELECT'&&s.el.options[0]&&s.el.options[0].value&&!s.touched)return false;if(s.ck&&c[s.ck==='f-size'?'size':s.ck])return true;const el=s.el;if(el.classList.contains('cks'))return !!el.querySelector('input:checked');const v=String(el.value||'').trim();return s.id==='f-mail'?wzEmail(v):!!v};
+  const lab=s=>{const sp=s.w.querySelector('span');return sp?sp.childNodes[0]?.textContent||sp.textContent:''};
+  const wz=document.createElement('div');wz.id='wz';wz.innerHTML=`<div class="wzbar"><span class="wzn mono"></span><i><b></b></i></div><div class="wzq"></div><p class="wzh"></p><p class="wzerr" role="alert"></p><div class="wznav"><button type="button" class="btn" id="wzBack">戻る</button><button type="button" class="btn pri" id="wzNext">次へ</button></div>`;
+  const rest=document.createElement('div');rest.id='wzRest';while(f.firstChild)rest.appendChild(f.firstChild);f.appendChild(wz);f.appendChild(rest);
+  const q=wz.querySelector('.wzq');steps.forEach(s=>{s.w.classList.add('wzs');q.appendChild(s.w);
+    /* 選ぶ項目は大きなボタンに（選ぶと次へ） */
+    if(s.el.tagName==='SELECT'){s.el.classList.add('wzhide');const box=document.createElement('div');box.className='wzopts';
+      [...s.el.options].filter(o=>o.value).forEach(o=>{const b=document.createElement('button');b.type='button';b.className='wzopt';b.textContent=o.value;b.onclick=()=>{s.touched=1;s.el.value=o.value;s.el.dispatchEvent(new Event('change',{bubbles:true}));s.el.dispatchEvent(new Event('input',{bubbles:true}));paint();setTimeout(()=>go(1),180)};box.appendChild(b)});s.w.appendChild(box)}
+    if(s.el.tagName==='INPUT')s.el.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();go(1)}})});
+  /* 最後の画面：確かめる → 任意は畳む → 同意して送る */
+  const opt=document.createElement('details');opt.className='grp wzopt-more';opt.innerHTML='<summary><span>もっと詳しく伝える</span><small>任意・開かなくても送れます</small></summary><div class="in"></div>';
+  [...rest.querySelectorAll(':scope > details.grp')].forEach(d=>{if(!d.querySelector('.in > *')){d.remove();return}d.open=false;opt.querySelector('.in').appendChild(d)});
+  const sum=document.createElement('div');sum.className='wzsum';rest.prepend(sum);
+  /* 工場に届くもの：仕様書・寸法図・3D・写真（図面がなくても、工場が見積・設計に使える形でまとめて届く） */
+  const fig=S.anal&&S.anal.concept&&S.anal.concept.fig;const att=document.createElement('div');att.className='wzatt';
+  att.innerHTML=`<h4>工場に届くもの</h4>${fig?`<div class="wzfig">${(()=>{try{return cfig(fig)}catch(e){return ''}})()}</div>`:''}<ul class="wzatl"><li>仕様書（上の内容と、工場が見積に要る点）</li>${fig?'<li>寸法図・3Dデータ（KATACHIが作ったたたき台）</li>':''}<li>工場への質問（自動で付きます）</li></ul>`;
+  const mb=opt.querySelector('#mediaBox')||f.querySelector('#mediaBox');if(mb){const g=mb.closest('details.grp');att.appendChild(mb);if(g&&!g.querySelector('.in > *'))g.remove()}sum.after(att);att.after(opt);
+  let i=Math.max(0,steps.findIndex(s=>!ok(s)));if(steps.every(ok))i=steps.length;
+  function paint(){const last=i>=steps.length;wz.classList.toggle('done',last);rest.hidden=!last;
+    wz.querySelector('.wzn').textContent=last?'確認':`${i+1} / ${steps.length}`;wz.querySelector('.wzbar b').style.width=Math.round(Math.min(i,steps.length)/steps.length*100)+'%';
+    steps.forEach((s,k)=>{s.w.hidden=k!==i;const v=s.el.tagName==='SELECT'?s.el.value:'';s.w.querySelectorAll('.wzopt').forEach(b=>b.classList.toggle('on',b.textContent===v))});
+    const s=steps[i];wz.querySelector('.wzh').textContent=s?(WZH[s.ck||s.id]||''):'';wz.querySelector('.wzerr').textContent='';
+    $('#wzBack').hidden=i===0;$('#wzNext').hidden=last||(s&&s.el.tagName==='SELECT');
+    if(last)sum.innerHTML=`<h4>この内容で工場に届きます</h4><dl>${steps.map((s,k)=>{const v=s.el.classList.contains('cks')?[...s.el.querySelectorAll('input:checked')].map(x=>x.value).join('、'):String(s.el.value||'').trim();return `<div><dt>${esc(lab(s))}</dt><dd>${esc(v||(ok(s)?'前の画面で回答済み':'—'))}</dd><button type="button" class="glink" data-wzgo="${k}">直す</button></div>`}).join('')}</dl>`,sum.querySelectorAll('[data-wzgo]').forEach(b=>b.onclick=()=>{i=+b.dataset.wzgo;paint();focusCur()});
+    sh&&(sh.scrollTop=0)}
+  const focusCur=()=>{const s=steps[i];if(s&&/^(INPUT|TEXTAREA)$/.test(s.el.tagName))setTimeout(()=>{try{s.el.focus({preventScroll:true})}catch(e){}},50)};
+  function go(d){if(d>0&&steps[i]&&!ok(steps[i])){wz.querySelector('.wzerr').textContent=steps[i].id==='f-mail'?'メールアドレスを入れてください':steps[i].el.classList.contains('cks')?'1つ以上選んでください':'入れてから「次へ」を押してください';return}
+    i=Math.max(0,Math.min(steps.length,i+d));track('rfq_wizard',{step:i,of:steps.length});paint();focusCur()}
+  $('#wzNext').onclick=()=>go(1);$('#wzBack').onclick=()=>go(-1);paint();focusCur()}
 function rfq(names){
   track('open_inquiry',{type:'rfq',companies:names.length,overseas:names.filter(n=>abroad(D.companies[n])).length});
   const r=R();const qty=S.scen==='guided'&&S.src==='guided'&&S.g.qty?S.g.qty:(S.src!=='guided'&&S.qn>0?S.qn+'個':{proto:'試作 1〜10個',small:'小ロット 〜500個',mass:'量産 500個〜'}[S.qty]);
@@ -3236,6 +3302,7 @@ function rfq(names){
       <button class="btn pri" type="submit" style="height:48px">この内容で依頼する</button>
     </form>`);
   renderMedia();fsFormFill();{const F=fsNow(),ok=v=>v&&v.v&&CORE_OKL.includes(v.lv);if(F){if(ok(F.V.size)&&!$('#f-size').value)$('#f-size').value=F.V.size.v;if(ok(F.V.due)&&!$('#f-due').value)$('#f-due').value=F.V.due.v;if(ok(F.V.mat)&&$('#f-matl')&&!$('#f-matl').value)$('#f-matl').value=F.V.mat.v;const df=fsAns().dueflex,dv=df&&df.v?[].concat(df.v)[0]:(ok(F.V.dueflex)?F.V.dueflex.v:'');if(dv&&$('#f-fix')&&FLEX.includes(dv))$('#f-fix').value=dv}}renderReady();$('#f-fix')&&$('#f-fix').addEventListener('change',e=>{const fa=fsAns();if(e.target.value)fa.dueflex={v:[e.target.value]};else delete fa.dueflex;fsSave()});$('#rf').addEventListener('input',renderReady);$('#rf').addEventListener('change',e=>{const el=e.target.closest('[id^="fs-"]');if(el){fsFormSave(el);track('rfq_fs_answer',{item:el.id.slice(3)})}});
+  rfqWizard();
   $('#trPrev')&&($('#trPrev').onclick=async()=>{track('translate_preview',{});
     const langs=[...new Set(names.map(n=>dlvLang(D.companies[n])))];const out=$('#trOut');
     const want=langs.filter(l=>l!==({ja:'日本語',en:'英語',zh:'中国語'})[window.KATACHI_LANG()]);
