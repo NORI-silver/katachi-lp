@@ -263,6 +263,9 @@ UI = [
     ('部品名か型番を2文字以上入れてください', 'Enter at least 2 characters', '请输入至少2个字符的零件名称或型号'),
     ('いまは調べられませんでした。少し時間をおいてお試しください。', 'Could not check right now. Please try again later.', '暂时无法查询。请稍后再试。'),
     ('見つかりませんでした。英語の部品名や型番でお試しください。', 'Nothing found. Try an English part name or a part number.', '未找到。请尝试英文零件名称或型号。'),
+    ('加速度センサー', 'Accelerometer', '加速度传感器'), ('心拍センサー', 'Heart-rate sensor', '心率传感器'), ('GPSモジュール', 'GPS module', 'GPS模块'),
+    ('Bluetoothモジュール', 'Bluetooth module', '蓝牙模块'), ('Wi-Fiモジュール', 'Wi-Fi module', 'Wi-Fi模块'), ('温度センサー', 'Temperature sensor', '温度传感器'),
+    ('振動モーター', 'Vibration motor', '振动马达'), ('マイコン', 'Microcontroller', '单片机'), ('充電IC', 'Charger IC', '充电IC'), ('ブザー', 'Buzzer', '蜂鸣器'),
     ('型番・メーカー', 'Part no. / maker', '型号・厂商'), ('説明', 'Description', '说明'), ('単価（1個）・在庫', 'Unit price (qty 1) / stock', '单价（1个）・库存'),
 ]
 
