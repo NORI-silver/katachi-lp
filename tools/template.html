@@ -928,7 +928,12 @@ async function renderIdeas(){const el=$('#ideas');if(!el)return;S.ind=S.ind||'pi
 function ideaEdit(k,place){const x=IDEAS.find(i=>i.k===k);if(!x)return;track('idea_edit',{idea:x.k,industry:x.ind,place});S.mode='free';S.qty=x.q;S.idea=x.idea;renderHome();
   const ta=$('#idea');if(ta){ta.scrollIntoView({behavior:'smooth',block:'center'});ta.focus();ta.setSelectionRange(ta.value.length,ta.value.length);ta.oninput()}}
 /* 作例のページ（/idea/<k>/）から ?idea=<k>（&edit=1）で来たとき */
-function ideaFromUrl(){let q;try{q=new URLSearchParams(location.search)}catch(e){return false}const k=q.get('idea');const x=k&&IDEAS.find(i=>i.k===k);if(!x)return false;
+/* AIエージェント（KATACHI API の katachi_url）から ?q=<作りたいもの>&qty=<数>&from=<AI名> で来たとき：入力を引き継いで探す */
+function agentFromUrl(q){const t=(q.get('q')||'').slice(0,2000).trim();if(!t)return false;const from=(q.get('from')||'ai').replace(/[^\w-]/g,'').slice(0,20);
+  try{history.replaceState(null,'',location.pathname+location.hash)}catch(e){}
+  const n=parseInt(String(q.get('qty')||'').replace(/[^\d]/g,''),10);if(n>0)S.qty=n<=10?'proto':n<=1000?'small':'mass';
+  track('agent_referral',{from});S.mode='free';location.hash='';renderHome();$('#idea').value=t;go(null);return true}
+function ideaFromUrl(){let q;try{q=new URLSearchParams(location.search)}catch(e){return false}if(q.get('q'))return agentFromUrl(q);const k=q.get('idea');const x=k&&IDEAS.find(i=>i.k===k);if(!x)return false;
   try{history.replaceState(null,'',location.pathname+location.hash)}catch(e){}
   track('idea_from_page',{idea:x.k,edit:q.get('edit')==='1'});
   if(q.get('edit')==='1'&&!x.ex){location.hash='';renderHome();ideaEdit(x.k,'page');return true}

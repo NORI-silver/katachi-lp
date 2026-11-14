@@ -96,3 +96,4 @@
 ## 送らないもの
 入力文・会社名・ファイル名などの中身は送らない（個人情報や未公開アイデアを含みうるため）。種類・件数・文字数だけを送る。
 | plan_question | ③の「おすすめを確かめる質問」に答えた | question（fit/docs） | 答えの中身は送らない |
+| agent_referral | AIエージェント（KATACHI API の katachi_url）から ?q= で来た | from（claude / chatgpt / gemini など） | 入力文は送らない |
