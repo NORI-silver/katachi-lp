@@ -33,7 +33,8 @@ var CONFIG = {
   REVIEW_MONTHLY_LIMIT: 900,        // 1か月に口コミを取り寄せる回数（無料の範囲 1,000回に収める。超えたら月末までリンクだけ）
   REVIEW_SEARCH_MONTHLY_LIMIT: 900, // 1か月に場所を探す回数（場所IDは覚えるので、同じ会社は2回目から探さない）
   PEEK_DAILY_LIMIT: 500,            // 参考品ページの読み取り：1日の上限
-  GITEKI_DAILY_LIMIT: 500,          // 技適の検索（総務省 Web-API）：1日の上限
+  GITEKI_DAILY_LIMIT: 500,
+  PARTS_DAILY_LIMIT: 800,           // 部品の参考価格（DigiKey Product Information v4、無料枠は1日1,000回）：1日の上限          // 技適の検索（総務省 Web-API）：1日の上限
   SPEC_DAILY_LIMIT: 500,            // 仕様の整理結果の保存・読み出し：1日の上限（いたずら対策）
   SPEC_MAX_CHARS: 20000,            // 依頼文の文字数の上限
   REVIEW_DAILY_LIMIT: 150,          // 1日の上限（いたずら対策）
@@ -59,6 +60,7 @@ function doPost(e) {
     if (p.type === 'reviews') return json_(reviews_(p));
     if (p.type === 'peek') return json_(peek_(p));
     if (p.type === 'giteki') return json_(giteki_(p));
+    if (p.type === 'parts') return json_(parts_(p));
     if (p.type === 'spec') return json_(spec_(p));
     if (p.type === 'specsave') return json_(specSave_(p));
     if (!limit_()) return json_({ok: false, error: 'busy'});
@@ -571,6 +573,51 @@ function reviews_(p) {
 function placeNorm_(x) {
   return String(x).normalize('NFKC').replace(/\s/g, '').toLowerCase()
     .replace(/株式会社|有限会社|合同会社|合資会社|合名会社|\(株\)|\(有\)|co\.,?ltd\.?|inc\.?|corp(oration)?\.?|limited|ltd\.?|,/g, '');
+}
+
+
+// ---------- 部品の参考価格・在庫（DigiKey Product Information API v4） ----------
+// 利用者が入れた部品名・型番だけを DigiKey に送り、上位5件の型番・メーカー・説明・単価（1個）・在庫・製品ページを返す。
+// キーはスクリプトのプロパティ DIGIKEY_CLIENT_ID / DIGIKEY_CLIENT_SECRET（無ければ error:'off'）。結果は保存しない（同じ語は6時間だけ覚えておく）。
+function parts_(p) {
+  var q = String(p.q || '').normalize('NFKC').replace(/[\s　]+/g, ' ').trim().slice(0, 80);
+  if (q.length < 2) return {ok: false, error: 'short'};
+  var id = prop_('DIGIKEY_CLIENT_ID'), secret = prop_('DIGIKEY_CLIENT_SECRET');
+  if (!id || !secret) return {ok: false, error: 'off'};
+  var cache = CacheService.getScriptCache(), ck = 'dk_' + Utilities.base64EncodeWebSafe(Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, q, Utilities.Charset.UTF_8)).slice(0, 22);
+  var hit = cache.get(ck);
+  if (hit) return JSON.parse(hit);
+  if (!limit_('dk', CONFIG.PARTS_DAILY_LIMIT)) return {ok: false, error: 'busy'};
+  try {
+    var tok = cache.get('dk_token');
+    if (!tok) {
+      var t = UrlFetchApp.fetch('https://api.digikey.com/v1/oauth2/token', {method: 'post', muteHttpExceptions: true,
+        payload: {client_id: id, client_secret: secret, grant_type: 'client_credentials'}});
+      if (t.getResponseCode() !== 200) { Logger.log('DigiKey token ' + t.getResponseCode() + ' ' + t.getContentText().slice(0, 300)); return {ok: false, error: 'auth'}; }
+      var tj = JSON.parse(t.getContentText());
+      tok = tj.access_token;
+      cache.put('dk_token', tok, Math.max(60, Math.min(540, (Number(tj.expires_in) || 600) - 60)));
+    }
+    var r = UrlFetchApp.fetch('https://api.digikey.com/products/v4/search/keyword', {method: 'post', contentType: 'application/json', muteHttpExceptions: true,
+      headers: {'X-DIGIKEY-Client-Id': id, 'Authorization': 'Bearer ' + tok, 'X-DIGIKEY-Locale-Site': 'JP', 'X-DIGIKEY-Locale-Language': 'ja', 'X-DIGIKEY-Locale-Currency': 'JPY'},
+      payload: JSON.stringify({Keywords: q, Limit: 5, Offset: 0})});
+    var code = r.getResponseCode();
+    if (code === 401) cache.remove('dk_token');
+    if (code !== 200) { Logger.log('DigiKey search ' + code + ' ' + r.getContentText().slice(0, 300)); return {ok: false, error: 'http' + code}; }
+    var o = JSON.parse(r.getContentText()), list = (o.ExactMatches && o.ExactMatches.length ? o.ExactMatches : []).concat(o.Products || []);
+    var seen = {}, rows = [];
+    list.forEach(function (x) {
+      var mpn = String(x.ManufacturerProductNumber || '');
+      if (!mpn || seen[mpn] || rows.length >= 5) return;
+      seen[mpn] = 1;
+      rows.push({mpn: mpn.slice(0, 80), maker: String((x.Manufacturer || {}).Name || '').slice(0, 60),
+        desc: String((x.Description || {}).ProductDescription || '').slice(0, 120), price: Number(x.UnitPrice) || 0,
+        stock: Number(x.QuantityAvailable) || 0, status: String((x.ProductStatus || {}).Status || '').slice(0, 30), url: String(x.ProductUrl || '').slice(0, 300)});
+    });
+    var out = {ok: true, total: Number(o.ProductsCount) || rows.length, currency: 'JPY', at: Utilities.formatDate(new Date(), 'Asia/Tokyo', 'yyyy-MM-dd'), rows: rows};
+    try { cache.put(ck, JSON.stringify(out), 21600); } catch (e) {}
+    return out;
+  } catch (err) { Logger.log('DigiKey error ' + err); return {ok: false, error: 'fetch'}; }
 }
 
 
