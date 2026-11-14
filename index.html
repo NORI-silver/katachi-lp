@@ -1409,7 +1409,17 @@ function shapeConcept(s,R){let[w,l,h]=s.dims;const big=R.pet==='L'||(R.kg>=60),s
 /* AIの回答（貼り付けたメモ）は、寸法・素材・条件だけに使う。製品の種類は元の文章（参考品のページを含む）で決める */
 const AIMEMO='【AIと整理した仕様メモ】';
 function splitAi(text){let s=String(text||''),m='';for(let i=s.indexOf('\n\n'+AIMEMO);i>=0;i=s.indexOf('\n\n'+AIMEMO)){const r=s.slice(i+2+AIMEMO.length),j=r.indexOf('\n\n【');m+=(j<0?r:r.slice(0,j))+'\n';s=s.slice(0,i)+(j<0?'':r.slice(j))}return[s,m]}
-function conceptKind(t,A,R,strong){let c=CONCEPTS.find(c=>rx(c.kw,t));
+/* 何を作るかの中心の言葉（「〜を作りたい」の直前、1文目の終わり）。ここに当たる種類を先に選ぶ（Nori 2026-11-14「質問がコンテクストを汲んでない」：
+   「犬がプールに入れるスロープ。健康のために…」が「犬…健康」で首輪のデバイスになった） */
+function headSegs(t){const T=String(t||'').split(/\n\n【/)[0],out=[];
+  const m=T.match(/([^。．.!！?？\n]{1,40}?)\s*(?:を|が|は)?\s*(?:[0-9０-９一二三四五六七八九十]+\s*(?:個|台|枚|本|着|セット|点|つ)\s*(?:だけ)?)?\s*(?:作りたい|つくりたい|作ってほしい|作って欲しい|ほしい|欲しい|試作したい|製作したい|開発したい|作れますか|作れる)/);if(m)out.push(m[1].slice(-30));
+  const s1=(T.split(/[。．!！?？\n]/)[0]||'').trim();if(s1)out.push(s1.slice(-20));return out}
+function conceptKind(t,A,R,strong){let c=null;
+  /* 中心の言葉の中では、いちばん後ろ（作りたいの直前）で当たった種類を選ぶ（「猫のセンサー付き給水器」→給水器） */
+  const endAt=(k,h)=>{if(!k)return -1;let e=-1;try{const re=new RegExp(k,'gi');let m;while((m=re.exec(h))){e=Math.max(e,m.index+m[0].length);if(!m[0].length)re.lastIndex++}}catch(x){}return e};
+  for(const h of headSegs(t)){let best=null,be=-1;for(const x of CONCEPTS){const e=endAt(x.kw,h);if(e>be){be=e;best={c:x}}}for(const x of CGEN.shapes){if(x.id==='product')continue;const e=endAt(x.kw,h);if(e>be){be=e;best={s:x}}}
+    if(best){c=best.c||shapeConcept(best.s,R);break}}
+  if(!c)c=CONCEPTS.find(c=>rx(c.kw,t));
   if(!c){const s=CGEN.shapes.find(s=>(!strong||s.id!=='product')&&rx(s.kw,t));if(s)c=shapeConcept(s,R)}
   if(c||strong||!A)return c||null;
   if(A.mach)return CONCEPTS.find(c=>c.id==='machine');
@@ -2043,6 +2053,8 @@ function fsBuild(A){const c=A&&A.concept;if(!c)return null;const base=splitAi(S.
     parts:db&&db.parts.length?[db.parts.join('、'),'製品DB「'+db.name+'」']:null,qs:['工場のすすめる数で相談',''],qf:['工場の最小ロットに合わせて相談',''],due:['急がない（相談）',''],
     docs:['ない',''],scope:[/図面|3Dデータ|現物/.test((V.docs||{}).v||'')?'図面・データがあり、作るだけ':'設計から（図面がない）','']};
   for(const k in kari)if(!V[k]&&kari[k]&&(fa[k]&&fa[k].unk||!['qs','qf','due','docs','scope'].includes(k)))put(k,kari[k][0],'仮',kari[k][1]);
+  /* 大きさ・形は、KATACHIの図（寸法つき、②で直せる）があれば聞かない。確かさは「図」（たたき台、工場が確かめる） */
+  if(c.fig&&(!V.size||V.size.lv==='仮')&&!(fa.size&&!fa.size.unk&&fa.size.v)){const z=rows('サイズ（目安）');if(z)V.size={v:flat(z[1]),lv:'図',src:'KATACHIの図（たたき台）'}}
   for(const k in fa)if(fa[k]&&fa[k].unk&&!V[k])V[k]={v:'',lv:'要確認',src:''};
   const items=[...(RF?[{k:'ref',t:'参考にした既製品',cat:''},{k:'diff',t:'変えるところ',cat:'',req:1},{k:'rights',t:'権利の確認（特許・意匠・商標）',cat:''}]:[]),...FSPEC.common.map(i=>Object.assign({cat:''},i)),...cats.flatMap(k=>k.items.map(i=>Object.assign({cat:k.id,req:i.key},i)))];
   const req=items.filter(i=>i.req);const sc2=req.reduce((a,i)=>a+(FSPEC.levels[(V[i.k]||{}).lv]||0),0);const score=req.length?Math.round(sc2/req.length*100):0;
@@ -2060,7 +2072,7 @@ function fsBuild(A){const c=A&&A.concept;if(!c)return null;const base=splitAi(S.
   return {V,items,cats,score,mode,ask,fq:[...new Set(fq)],db,c,ref:RF,core,ready}}
 /* 工場が見積を出すのに最低限要る6点（何を作るか・数量・材料・大きさと形・仕上げ・納期）。FSPEC.core が品目ごとの項目を決める。
    材料・仕上げは「おまかせ」（工場が提案）でもよい。仮（似た製品の目安）や「わからない」は、そろったことにしない */
-const CORE_OKL=['原文','回答','製品DB','参考品'],CORE_OMK=['mat','fin'];
+const CORE_OKL=['原文','回答','製品DB','参考品','図'],CORE_OMK=['mat','fin'];
 function coreKeys(c,catIds){if((c.skip||[]).some(x=>catIds.includes(x)))return null;for(const id of catIds)if(c.cat&&c.cat[id])return c.cat[id];return c.keys}
 function fsCore(F,fa){const ids=F.cats.map(k=>k.id),its=F.items;
   return FSPEC.core.map(c=>{let keys=coreKeys(c,ids);if(!keys)return null;keys=keys.filter(k=>its.some(i=>i.k===k));
