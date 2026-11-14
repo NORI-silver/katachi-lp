@@ -2,3 +2,5 @@ node_modules/
 src/gen/
 *.cpuprofile
 .wrangler/
+dist/
+.pages/
