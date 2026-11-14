@@ -731,6 +731,7 @@ details.grp>.in{display:grid;gap:12px;padding:0 14px 14px}
 .wzq input,.wzq textarea{font-size:16px!important;padding:12px!important}
 .wzq .cks{display:grid;grid-template-columns:1fr 1fr;gap:8px}.wzq .cks .chk{border:1px solid var(--line2);border-radius:12px;padding:12px;background:#fff}.wzq .cks .chk:has(input:checked){border-color:var(--ice);background:var(--hover)}
 .wzq .wzs[hidden]{display:none!important}.wzq .cks .chk{display:flex;gap:10px;align-items:center}
+.wzql{font-size:20px;line-height:1.4;color:var(--fg)}.wzq .wzs.wzqd > span{display:none!important}
 .wzhide{display:none!important}
 .wzopts{display:grid;gap:8px}.wzopt{text-align:left;font-size:15px;padding:14px 16px;border:1px solid var(--line2);border-radius:12px;background:#fff;color:var(--fg)}.wzopt.on,.wzopt:hover{border-color:var(--ice);background:var(--hover)}
 .wzh{margin:0;font-size:13px;color:var(--mute)}.wzh:empty,.wzerr:empty{display:none}.wzerr{margin:0;font-size:13px;color:#b42318}
@@ -3249,6 +3250,7 @@ function rfqVals(r,qty){return RFQ(r,qty).flatMap(g=>g[1]).filter(f=>!PRIV.inclu
    工場が見積に要る点と連絡先だけを1問ずつ出し、「次へ」で進む。選ぶ項目は大きなボタンで、押すと次へ。最後に確かめて送る。
    任意の欄は最後の画面の「もっと詳しく伝える」に畳む（開かなくても送れる）。項目は RFQ() の必須（品目で材料・仕上げの聞き方が変わる）から作るので、製品ごとの手作業はない */
 const WZH={'f-sum':'最初に書いた文が入っています。そのままで大丈夫です。','f-qty':'1つだけなら「1個」。','mat':'わからなければ「おまかせ（工場の提案で）」。','f-size':'「幅60×長さ200×高さ80cmくらい」のように、だいたいで大丈夫です。測れなければ、置く場所や使う物の大きさを書いてください。','fin':'こだわりがなければ「そのまま」か「おまかせ」。','f-due':'「3月ごろ」「急がない」のような書き方で大丈夫です。','f-fix':'急がないほど、工場の空いた時期に入れてもらいやすくなります。','f-who':'','f-mail':'見積の返事が届きます。ほかの人には公開されません。'};
+const WZQ={"f-sum": "何を作りますか？", "f-qty": "何個ほしいですか？", "mat": "何でできていてほしいですか？", "f-size": "だいたいの大きさは？", "fin": "見た目の仕上げは？", "f-due": "いつまでにほしいですか？", "f-fix": "その時期は、ずれても大丈夫ですか？", "f-who": "個人ですか、会社ですか？", "f-mail": "見積の返事を受け取るメールアドレスは？"};
 const wzEmail=v=>/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(String(v||'').trim());
 function rfqWizard(){const f=$('#rf');if(!f||f.dataset.wz)return;f.dataset.wz=1;const sh=f.closest('.sheet');sh&&sh.classList.add('wzon');
   const K=rfqCoreKeys();
@@ -3257,7 +3259,7 @@ function rfqWizard(){const f=$('#rf');if(!f||f.dataset.wz)return;f.dataset.wz=1;
   const lab=s=>{const sp=s.w.querySelector('span');return sp?sp.childNodes[0]?.textContent||sp.textContent:''};
   const wz=document.createElement('div');wz.id='wz';wz.innerHTML=`<div class="wzbar"><span class="wzn mono"></span><i><b></b></i></div><div class="wzq"></div><p class="wzh"></p><p class="wzerr" role="alert"></p><div class="wznav"><button type="button" class="btn" id="wzBack">戻る</button><button type="button" class="btn pri" id="wzNext">次へ</button></div>`;
   const rest=document.createElement('div');rest.id='wzRest';while(f.firstChild)rest.appendChild(f.firstChild);f.appendChild(wz);f.appendChild(rest);
-  const q=wz.querySelector('.wzq');steps.forEach(s=>{s.w.classList.add('wzs');q.appendChild(s.w);
+  const q=wz.querySelector('.wzq');steps.forEach(s=>{s.w.classList.add('wzs');q.appendChild(s.w);{const t=WZQ[s.ck||s.id];if(t){const b=document.createElement('b');b.className='wzql';b.textContent=t;s.w.prepend(b);s.w.classList.add('wzqd')}}
     /* 選ぶ項目は大きなボタンに（選ぶと次へ） */
     if(s.el.tagName==='SELECT'){s.el.classList.add('wzhide');const box=document.createElement('div');box.className='wzopts';
       [...s.el.options].filter(o=>o.value).forEach(o=>{const b=document.createElement('button');b.type='button';b.className='wzopt';b.textContent=o.value;b.onclick=()=>{s.touched=1;s.el.value=o.value;s.el.dispatchEvent(new Event('change',{bubbles:true}));s.el.dispatchEvent(new Event('input',{bubbles:true}));paint();setTimeout(()=>go(1),180)};box.appendChild(b)});s.w.appendChild(box)}
@@ -3273,7 +3275,7 @@ function rfqWizard(){const f=$('#rf');if(!f||f.dataset.wz)return;f.dataset.wz=1;
   let i=Math.max(0,steps.findIndex(s=>!ok(s)));if(steps.every(ok))i=steps.length;
   function paint(){const last=i>=steps.length;wz.classList.toggle('done',last);rest.hidden=!last;
     wz.querySelector('.wzn').textContent=last?'確認':`${i+1} / ${steps.length}`;wz.querySelector('.wzbar b').style.width=Math.round(Math.min(i,steps.length)/steps.length*100)+'%';
-    steps.forEach((s,k)=>{s.w.hidden=k!==i;const v=s.el.tagName==='SELECT'?s.el.value:'';s.w.querySelectorAll('.wzopt').forEach(b=>b.classList.toggle('on',b.textContent===v))});
+    steps.forEach((s,k)=>{s.w.hidden=k!==i;const v=s.el.tagName==='SELECT'?s.el.value:'';s.w.querySelectorAll('.wzopt').forEach(b=>b.classList.toggle('on',b.textContent===v&&(s.touched||!s.el.options[0].value)))});
     const s=steps[i];wz.querySelector('.wzh').textContent=s?(WZH[s.ck||s.id]||''):'';wz.querySelector('.wzerr').textContent='';
     $('#wzBack').hidden=i===0;$('#wzNext').hidden=last||(s&&s.el.tagName==='SELECT');
     if(last)sum.innerHTML=`<h4>この内容で工場に届きます</h4><dl>${steps.map((s,k)=>{const v=s.el.classList.contains('cks')?[...s.el.querySelectorAll('input:checked')].map(x=>x.value).join('、'):String(s.el.value||'').trim();return `<div><dt>${esc(lab(s))}</dt><dd>${esc(v||(ok(s)?'前の画面で回答済み':'—'))}</dd><button type="button" class="glink" data-wzgo="${k}">直す</button></div>`}).join('')}</dl>`,sum.querySelectorAll('[data-wzgo]').forEach(b=>b.onclick=()=>{i=+b.dataset.wzgo;paint();focusCur()});
