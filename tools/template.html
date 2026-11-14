@@ -487,6 +487,7 @@ table.cmp{border-collapse:separate;border-spacing:0;width:100%;min-width:760px;f
 .cvar{text-align:left;border:1px solid var(--line2);border-radius:10px;padding:10px 12px;display:grid;gap:2px;font-size:12.5px;color:var(--mute);line-height:1.55}.cvar b{color:var(--fg);font-size:13.5px}.cvar:hover{background:var(--hover)}
 .cvar.on{border-color:var(--ice);background:color-mix(in srgb,var(--ice) 7%,#fff);box-shadow:inset 0 0 0 1px var(--ice)}
 .cfoot{border-top:1px solid var(--line);padding-top:12px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}.cfoot p{margin:0;font-size:12.5px;flex:1;min-width:240px}
+.calt{display:flex;gap:10px 14px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin:12px 0 0;padding:10px 12px;border:1px solid #f0c36d;background:#fff8e6;border-radius:10px;font-size:13px}.calt p{margin:0;flex:1;min-width:220px;line-height:1.6}.calt b{margin:0 4px}.calt .btn{flex:none}
 @media(max-width:720px){.ccard{padding:16px}.cgrid,.ccols{grid-template-columns:minmax(0,1fr);gap:14px}.cvars{grid-template-columns:minmax(0,1fr)}.cspec{grid-template-columns:1fr;gap:0}.cspec dd{margin-bottom:8px}}
 .aic textarea{width:100%;min-height:92px;border:1px solid var(--line2);border-radius:10px;padding:10px 12px;font:14px/1.6 var(--f-body);resize:vertical;background:#fff;color:var(--fg)}
 .aic .aistat{font-size:12.5px;color:var(--mint)}
@@ -792,9 +793,9 @@ function bindStepBar(root){(root||document).querySelectorAll('[data-stepgo]').fo
   if(k===1){S.mode='free';location.hash=''}else if(k===2)location.hash='match';else if(k===3)location.hash='co'})}
 /* 相談の続き: 外部のAIへ行って戻っても、書いた内容・答え・貼りかけの回答が消えないよう、この端末の sessionStorage に置く（どこにも送らない） */
 const SAVEK='katachi-flow';
-function saveFlow(){try{sessionStorage.setItem(SAVEK,JSON.stringify({idea:S.idea,qty:S.qty,chat:S.chat,cvar:S.cvar,folds:S.folds,tune:S.tune,aiAway:S.aiAway,aiDraft:S.aiDraft,lai:S.lai?{base:S.lai.base,log:S.lai.log.slice(-12),concept:S.lai.concept}:null,nfiles:(S.files||[]).length,t:Date.now()}))}catch(e){}}
+function saveFlow(){try{sessionStorage.setItem(SAVEK,JSON.stringify({idea:S.idea,qty:S.qty,chat:S.chat,cvar:S.cvar,folds:S.folds,tune:S.tune,aiAway:S.aiAway,aiDraft:S.aiDraft,ckind:S.ckind||null,lai:S.lai?{base:S.lai.base,log:S.lai.log.slice(-12),concept:S.lai.concept}:null,nfiles:(S.files||[]).length,t:Date.now()}))}catch(e){}}
 function loadFlow(){try{const o=JSON.parse(sessionStorage.getItem(SAVEK)||'null');if(!o||!o.idea||Date.now()-o.t>864e5)return false;
-  Object.assign(S,{idea:o.idea,qty:o.qty||S.qty,chat:o.chat,cvar:o.cvar,folds:o.folds||{},tune:o.tune,lai:o.lai||null,aiAway:o.aiAway,aiDraft:o.aiDraft||'',src:'text',matched:'text',gsel:[],gstep:{},gmore:{},planPick:'',gf:{area:'',proto:false}});
+  Object.assign(S,{idea:o.idea,qty:o.qty||S.qty,chat:o.chat,cvar:o.cvar,folds:o.folds||{},tune:o.tune,lai:o.lai||null,aiAway:o.aiAway,aiDraft:o.aiDraft||'',ckind:o.ckind||null,src:'text',matched:'text',gsel:[],gstep:{},gmore:{},planPick:'',gf:{area:'',proto:false}});
   if(o.nfiles&&!(S.files||[]).length)S.lostFiles=o.nfiles;return true}catch(e){return false}}
 /* 補助の機能は畳む。開いた状態は描き直しても保つ */
 const fold=(k,t,body,note)=>`<details class="fold" data-fold="${k}" ${(S.folds||{})[k]?'open':''}><summary><span>${t}</span>${note?`<small>${note}</small>`:''}</summary><div class="fb">${body}</div></details>`;
@@ -1170,7 +1171,7 @@ const rx=(k,t)=>{try{return !!k&&new RegExp(k,'i').test(t)}catch(e){return false
 const MEMO='【相談で決めたこと】';
 function readConds(text){const t=String(text||'').toLowerCase();const R={conds:CGEN.conds.filter(c=>rx(c.kw,t))};
   const n=(v,u)=>{v=parseFloat(v);return /^m$|メートル/.test(u)?v*1000:/cm|センチ/.test(u)?v*10:v};
-  const kg=t.match(/(\d+(?:\.\d+)?)\s*(kg|キロ)/);R.kgx=!!kg;R.kg=kg?+kg[1]:/大型犬/.test(t)?40:/中型犬/.test(t)?20:/小型犬|猫|ねこ/.test(t)?8:/人が乗|大人が乗|人が座/.test(t)?100:0;
+  const kg=t.replace(/(重さ|重量)[^\d\n]{0,8}\d+(?:\.\d+)?\s*(kg|キロ|g)/g,'').match(/(\d+(?:\.\d+)?)\s*(kg|キロ)/);R.kgx=!!kg;R.kg=kg?+kg[1]:/大型犬/.test(t)?40:/中型犬/.test(t)?20:/小型犬|猫|ねこ/.test(t)?8:/人が乗|大人が乗|人が座/.test(t)?100:0;
   const dim=w=>{const m=t.match(new RegExp('(?:'+w+')[^\\d\\n]{0,8}(\\d+(?:\\.\\d+)?)\\s*(mm|cm|m|センチ|ミリ|メートル)'));return m?n(m[1],m[2]):0};
   R.h=dim('高さ|縁|ふち|段差');R.w=dim('幅');R.l=dim('長さ');R.d=dim('奥行');R.max=dim('大きさ');
   R.pet=/大型犬/.test(t)?'L':/中型犬/.test(t)?'M':/小型犬|猫|ねこ|ネコ/.test(t)?'S':/犬|いぬ|イヌ|dog/.test(t)?'M':'';
@@ -1193,15 +1194,36 @@ function shapeConcept(s,R){let[w,l,h]=s.dims;const big=R.pet==='L'||(R.kg>=60),s
   if(R.conds.some(c=>c.id==='power'))rows.push(['動力・電源',CGEN.conds.find(c=>c.id==='power').feats[0]]);
   return {id:'g_'+s.id,gen:s,fig:{k:s.fig,w:String(w),l:String(l),h:String(h),ang:'22°',pool:R.conds.some(c=>c.id==='pool'),pet:!!R.pet},name:s.name,lead:s.lead,rows,
     feats:s.feats.slice(),check:s.check.slice(),vars:s.vars,proto:s.proto,mass:s.mass}}
+/* AIの回答（貼り付けたメモ）は、寸法・素材・条件だけに使う。製品の種類は元の文章（参考品のページを含む）で決める */
+const AIMEMO='【AIと整理した仕様メモ】';
+function splitAi(text){let s=String(text||''),m='';for(let i=s.indexOf('\n\n'+AIMEMO);i>=0;i=s.indexOf('\n\n'+AIMEMO)){const r=s.slice(i+2+AIMEMO.length),j=r.indexOf('\n\n【');m+=(j<0?r:r.slice(0,j))+'\n';s=s.slice(0,i)+(j<0?'':r.slice(j))}return[s,m]}
+function conceptKind(t,A,R,strong){let c=CONCEPTS.find(c=>rx(c.kw,t));
+  if(!c){const s=CGEN.shapes.find(s=>(!strong||s.id!=='product')&&rx(s.kw,t));if(s)c=shapeConcept(s,R)}
+  if(c||strong||!A)return c||null;
+  if(A.mach)return CONCEPTS.find(c=>c.id==='machine');
+  if(!A.fallback&&A.codes.some(c=>/^(sensing|electronics)/.test(c)))return CONCEPTS.find(c=>c.id==='device');
+  return null}
+const flowText=()=>S.idea+(S.files&&S.files.length?'\n\n【ファイル】 '+S.files.map(f=>f.name).join(' '):'');
 function pickConcept(text,A){if(!A||(A.notices.length&&!A.codes.length))return null;const t=String(text||'').toLowerCase();const R=readConds(t);
-  let c=CONCEPTS.find(c=>rx(c.kw,t));
-  if(!c){const s=CGEN.shapes.find(s=>rx(s.kw,t));if(s)c=shapeConcept(s,R)}
-  if(!c&&A.mach)c=CONCEPTS.find(c=>c.id==='machine');
-  if(!c&&!A.fallback&&A.codes.some(c=>/^(sensing|electronics)/.test(c)))c=CONCEPTS.find(c=>c.id==='device');
+  const[bo,memo]=splitAi(text),bt=bo.toLowerCase(),mt=memo.toLowerCase();
+  let c=conceptKind(bt,bt===t?A:analyzeText(bt),R),alt=mt?conceptKind(mt,null,R,true):null,back=null;
   if(!c)c=shapeConcept(CGEN.shapes.find(s=>s.id==='product'),R);
+  if(alt&&alt.id===c.id)alt=null;
+  if(alt&&S.ckind&&S.ckind.key===bt&&S.ckind.id===alt.id){back=c;c=alt;alt=null}
   // 文章から読めた条件は、どの案にも足す（同じ項目は足さない）
-  c=Object.assign({},c,{feats:c.feats.slice(),check:c.check.slice(),chips:R.conds.map(x=>x.id==='load'?[x.chip,' '+R.kg+'kg']:x.chip)});
+  c=Object.assign({},c,{feats:c.feats.slice(),check:c.check.slice(),rows:c.rows.map(r=>r.slice()),fig:Object.assign({},c.fig),chips:R.conds.map(x=>x.id==='load'?[x.chip,' '+R.kg+'kg']:x.chip),
+    alt:alt?{id:alt.id,name:alt.name}:null,altBack:back?{id:back.id,name:back.name}:null});
   for(const x of R.conds){for(const f of x.feats)if(!c.feats.includes(f))c.feats.push(f);for(const f of x.check)if(!c.check.includes(f))c.check.push(f)}
+  // 決まった種類の案でも、文章に書いた寸法は図と表に反映する
+  if(!c.gen&&(R.w||R.l||R.h||R.d)){const w=R.w||+c.fig.w||0,l=R.l||R.d||+c.fig.l||0,h=R.h||+c.fig.h||0;
+    c.fig.w=String(w);c.fig.l=String(l);c.fig.h=String(h);
+    const size=[...(w?['幅',' ','約',mmc(w)]:[]),...(l?[' × ','長さ',' ','約',mmc(l)]:[]),...(h?[' × ','高さ',' ','約',mmc(h)]:[])];if(!w&&size.length)size.shift();
+    const r=c.rows.find(r=>r[0]==='サイズ（目安）');if(r)r[1]=size;else c.rows.unshift(['サイズ（目安）',size])}
+  // AIの回答に「素材：〜」があれば、その素材にする
+  const mm=memo.match(/(?:主な|使う)?(?:素材|材質|材料)\s*(?:\*\*)?\s*[：:]\s*([^\n]{2,120})/);
+  if(mm){const v=mm[1].replace(/[*`#]/g,'').trim().slice(0,100);const r=c.rows.find(r=>r[0]==='主な素材');if(v){if(r)r[1]=v;else c.rows.push(['主な素材',v])}}
+  const mw=memo.match(/(?:重さ|重量)\s*(?:\*\*)?\s*[：:]\s*([^\n]{1,60})/);
+  if(mw){const v=mw[1].replace(/[*`#]/g,'').trim();const r=c.rows.find(r=>r[0]==='重さ（目安）');if(v){if(r)r[1]=v;else c.rows.splice(1,0,['重さ（目安）',v])}}
   return c}
 /* 相談しながら詰める（AIなし）: 形に合う質問を順に出し、答えを依頼の文章に足して組み直す */
 const ideaBase=()=>String(S.idea||'').split('\n\n'+MEMO)[0];
@@ -1403,6 +1425,8 @@ function conceptCard(c){const v=cvarOf(c);
     <div class="cgrid">${cview(c)}
       <div><h3 class="cname">${esc(c.name)}</h3>${c.chips&&c.chips.length?`<div class="cchips"><span class="muted">あなたの文章から読み取った条件</span>${c.chips.map(x=>`<span class="chip">${frg(x)}</span>`).join('')}</div>`:''}<p class="clead">${esc(c.lead)}</p>
       <dl class="cspec">${c.rows.map(([k,x])=>`<dt>${esc(k)}</dt><dd>${frg(x)}</dd>`).join('')}</dl></div></div>
+    ${c.alt?`<div class="calt" role="note"><p><span>AIの回答からは、別の種類の製品とも読めます。</span><b>${esc(c.alt.name)}</b><span>製品の種類は変えずに、寸法・素材・条件だけを反映しました。</span></p><button type="button" class="btn" data-calt="${esc(c.alt.id)}">この種類に切り替える</button></div>`
+      :c.altBack?`<div class="calt" role="note"><p><span>AIの回答に合わせて、製品の種類を切り替えています。元の案：</span><b>${esc(c.altBack.name)}</b></p><button type="button" class="btn" data-calt="">元の種類に戻す</button></div>`:''}
     ${fold('cfeat','主な機能と、試作で確かめること',`<div class="ccols"><div><h4>主な機能</h4><ul class="cl">${c.feats.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>
       <div><h4>試作で確かめること</h4><ul class="cl">${c.check.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div></div>`)}
     ${fold('cvar','方向性と、作り方の目安',`<div><h4>方向性を選ぶ</h4><div class="cvars">${c.vars.map(([n,d],i)=>`<button type="button" class="cvar${v===i?' on':''}" data-cvar="${i}" aria-pressed="${v===i}"><b>${esc(n)}</b><span>${esc(d)}</span></button>`).join('')}</div>
@@ -1410,6 +1434,8 @@ function conceptCard(c){const v=cvarOf(c);
     <div><h4>作り方の目安</h4><dl class="cspec"><dt>試作</dt><dd>${esc(c.proto)}</dd><dt>量産</dt><dd>${esc(c.mass)}</dd></dl></div>`)}
     <div class="cfoot"><p class="muted">${c.lai?'このパソコンのChromeに入っているAIとの会話をもとにした案です（AIの推定）。':'製品の種類ごとの典型例から、KATACHIが組み立てた案です（AIの推定）。'}寸法・素材・性能は、工場・専門家との打ち合わせと試作で決まります。図は大きさと形の目安で、設計図ではありません。</p></div></section>`}
 function wireConcept(A){const c=A.concept;if(!c||!$('#mConcept'))return;wireChat(c);wireV3($('#mConcept'));
+  $$('#mConcept [data-calt]').forEach(b=>b.onclick=()=>{const id=b.dataset.calt;S.ckind=id?{key:splitAi(flowText())[0].toLowerCase(),id}:null;S.cvar=null;
+    track('concept_kind',{concept:id||c.id,switched:!!id});renderMatch().then(()=>{const el=$('#mConcept');if(el)el.scrollIntoView({behavior:'smooth',block:'start'})})});
   $$('#mConcept [data-cvar]').forEach(b=>b.onclick=()=>{const i=+b.dataset.cvar;S.cvar=cvarOf(c)===i?null:{id:c.id,i};
     $$('#mConcept [data-cvar]').forEach(x=>{const on=S.cvar&&+x.dataset.cvar===S.cvar.i;x.classList.toggle('on',!!on);x.setAttribute('aria-pressed',!!on)});
     const pre=$('#mAi pre');if(pre&&pre.closest('details').open)pre.textContent=aiQuestion(A);track('concept_direction',{concept:c.id,direction:S.cvar?S.cvar.i:-1})});
@@ -1772,7 +1798,7 @@ async function renderMatch(){
   $('#app').innerHTML=`<section class="gut build"><div><div class="eyebrow">Building your team</div><h2 style="margin-top:10px">工程を読み取っています</h2></div></section>`;
   const db=await loadGDB();
   if(!db){$('#app').innerHTML=`<section class="gut"><div class="wrap" style="padding:60px 0"><h2>会社の一覧を読み込めませんでした</h2><p class="muted">通信の状態を確かめて、もう一度お試しください。</p><button class="btn" onclick="location.reload()">再読み込み</button></div></section>`;return}
-  const A=analyzeText(S.idea+' '+S.files.map(f=>f.name).join(' '));A.concept=pickConcept(S.idea+' '+S.files.map(f=>f.name).join(' '),A);if(A.concept&&S.lai&&S.lai.base===ideaBase()&&S.lai.concept)A.concept=laiConcept(A.concept,S.lai.concept);S.anal=A;
+  const A=analyzeText(S.idea+' '+S.files.map(f=>f.name).join(' '));A.concept=pickConcept(flowText(),A);if(A.concept&&S.lai&&S.lai.base===ideaBase()&&S.lai.concept)A.concept=laiConcept(A.concept,S.lai.concept);S.anal=A;
   if(S.qnFor!==ideaBase()){S.qnFor=ideaBase();const m=String(S.idea).match(/(\d[\d,]*)\s*(個|台|枚|本|着|セット|点|pcs|units)/i);if(m){const n=+m[1].replace(/,/g,'');if(n>0){S.qn=n;S.qty=n<=10?'proto':n<=500?'small':'mass'}}else S.qn=0}
   const qmax=S.qn>0?S.qn:({proto:10,small:500,mass:1e9}[S.qty]||500);S.axq=qmax;
   const secs=A.codes.map(c=>{let list=rankFor([c],{qmax});if(!list.length&&c.includes('.'))list=rankFor([c.split('.').slice(0,-1).join('.')],{qmax});return {c,list}});
@@ -2030,7 +2056,7 @@ function laiApply(dec,upd){nextQuestion(S.anal.concept);delete S.chat.ans.ai;del
   if(dec.length){S.chat.ans.ai=dec.join('\n- ');S.chat.lab.ai='内蔵AIと決めたこと'}
   const lines=Object.values(S.chat.ans);S.idea=S.chat.base+(lines.length?'\n\n'+MEMO+'\n'+lines.map(x=>'- '+x).join('\n'):'');S.loggedIdea='';S.tune='lai';saveFlow();
   // ページを描き直さず、その場で案だけ差し替える（スクロール位置を動かさない）。候補の会社は「会社を探す」で組み直す
-  const t=S.idea+' '+S.files.map(f=>f.name).join(' ');const A2=analyzeText(t);let c=pickConcept(t,A2);if(c&&S.lai&&S.lai.concept)c=laiConcept(c,S.lai.concept);
+  const t=flowText();const A2=analyzeText(t);let c=pickConcept(t,A2);if(c&&S.lai&&S.lai.concept)c=laiConcept(c,S.lai.concept);
   if(!c){renderMatch();return}const before=LAI.snap;S.anal.concept=c;const card=$('#mConcept');if(card){card.outerHTML=conceptCard(c);wireConcept(S.anal)}
   LAI.chg=upd?laiDiff(before,laiSnap(c)):{};laiRender(c)}
 const laiFlat=v=>Array.isArray(v)?v.join(''):String(v||'');
