@@ -1072,7 +1072,7 @@ function offerSummary_(id) {
   };
   var r = find(sheet_(), 1);
   if (r) {
-    out.kind = r[2]; out.summary = String(r[9] || '').slice(0, 2000); out.qty = String(r[10] || '').slice(0, 300); out.due = String(r[11] || '').slice(0, 200);
+    out.kind = r[2]; out.summary = String(r[9] || '').slice(0, 2000); out.qty = String(r[10] || '').slice(0, 300); out.due = (r[11] instanceof Date ? Utilities.formatDate(r[11], 'Asia/Tokyo', 'yyyy-MM-dd') : String(r[11] || '')).slice(0, 200);
     out.files = String(r[15] || '') || /\d+件/.test(String(r[17] || '')) ? 1 : 0;
     var items = [], cur = null;
     String(r[14] || '').split('\n').forEach(function (line) {

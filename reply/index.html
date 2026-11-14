@@ -61,6 +61,7 @@ textarea{min-height:96px;resize:vertical}
   <div class="card" aria-busy="true"><div class="sk" style="width:40%"></div><div class="sk"></div><div class="sk" style="width:70%"></div></div>
 </main>
 <script>
+function dueTxt(v){v=String(v||"");if(/^[A-Z][a-z]{2} [A-Z][a-z]{2} \d{2} \d{4} /.test(v)){const d=new Date(v.replace(/ \(.*\)$/,""));if(!isNaN(d)){const j=new Date(d.getTime()+9*3600e3);return j.toISOString().slice(0,10)}}return v}
 const FORM_URL="https://script.google.com/macros/s/AKfycbz-tcsKOOAI7HKegzVCGPtMG5nLjfdh-ttPPd5wRFFdBGl8N_q8-M4ME5fg31-YIO5wIQ/exec";
 const T={
  title:["依頼のご相談が届いています","A job request for you","您收到一份委托咨询"],
@@ -104,7 +105,7 @@ function row(k,v){return v?`<dt>${esc(t(k))}</dt><dd>${esc(v)}</dd>`:""}
 function reqCard(){const q=D.req||{};const win=q.from||q.to?`${q.from||""} 〜 ${q.to||""}`:"";
   const items=(q.items||[]).map(([a,b])=>`<dt>${esc(a)}</dt><dd>${esc(b)}</dd>`).join("");
   return `<section class="card"><h2>${esc(t("req"))}</h2>
-   <dl>${row("to",D.company)}${row("no",q.id)}${row("sum",q.summary)}${q.steps&&q.steps.length?`<dt>${esc(t("steps"))}</dt><dd><div class="chips">${q.steps.map(s=>`<span class="chip" translate="no">${esc(s)}</span>`).join("")}</div></dd>`:""}${row("mat",q.mat)}${row("qty",q.qty)}${row("due",q.due)}${row("win",win)}${q.flex?`<dt>${esc(t("flex"))}</dt><dd>${esc(FLEXJ[q.flex]?t(FLEXJ[q.flex]):q.flex)}</dd>`:""}</dl>
+   <dl>${row("to",D.company)}${row("no",q.id)}${row("sum",q.summary)}${q.steps&&q.steps.length?`<dt>${esc(t("steps"))}</dt><dd><div class="chips">${q.steps.map(s=>`<span class="chip" translate="no">${esc(s)}</span>`).join("")}</div></dd>`:""}${row("mat",q.mat)}${row("qty",q.qty)}${row("due",dueTxt(q.due))}${row("win",win)}${q.flex?`<dt>${esc(t("flex"))}</dt><dd>${esc(FLEXJ[q.flex]?t(FLEXJ[q.flex]):q.flex)}</dd>`:""}</dl>
    ${q.bundle?`<div class="chips"><span class="chip hi">${esc(t("bundle"))}</span></div>`:""}
    ${items?`<details><summary>${esc(t("more"))}</summary><dl style="margin-top:10px">${items}</dl></details>`:""}
    ${q.files?`<p class="note">${esc(t("files"))}</p>`:""}<p class="mute">${esc(t("priv"))}</p></section>`}
