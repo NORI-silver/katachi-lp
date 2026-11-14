@@ -921,4 +921,8 @@ T.update({
 "頼む会社を、会社ごとにまとめて見る": ("See the chosen companies grouped by company", "按公司汇总查看委托对象"),
 "工程の流れ": ("Process flow", "工序流程"),
 "ほかの候補から選ぶ": ("Choose another candidate", "从其他候选中选择"),
+"つくる数（見積に使います）": ("Quantity (used for the quote)", "生产数量（用于报价）"),
+"自分で選ばず、会社選びを担当者に任せる": ("Let a KATACHI coordinator choose the companies instead", "不自己选择，交给负责人挑选公司"),
+"条件に合う会社が一覧にありません。このまま見積を依頼してください。担当者が探してお声がけします。": ("No matching companies are listed. Send the quote request as is, and a coordinator will find and contact companies.", "列表中没有符合条件的公司。请直接申请报价，负责人会寻找并联系公司。"),
+"✓ 選択中。下の「見積を依頼する」で送れます": ("✓ Selected. Send it with \"Request a quote\" below.", "✓ 已选择。点击下方的「申请报价」即可发送。"),
 })

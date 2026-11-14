@@ -380,6 +380,7 @@ table.cmp{border-collapse:separate;border-spacing:0;width:100%;min-width:760px;f
 .c2q{font-size:13px;color:var(--mute)}
 .gonext{margin-top:14px;display:flex}.gonext .btn{flex:1;justify-content:center;padding:14px;font-size:15px}
 /* ③ 条件（数量・試作対応）とおすすめ */
+.qmini{margin-top:12px}.qmini .qlab{display:block;font-size:12.5px;color:var(--mute);margin-bottom:6px}
 .qbar{margin:4px 0 14px;border:1px solid var(--line2);border-radius:14px;padding:12px 14px;display:grid;gap:10px;background:#fff}
 .qrow{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.qrow .ql{font-size:12.5px;color:var(--mute);min-width:3em}
 .qbar .pillset button{font-size:13px}
@@ -1767,7 +1768,7 @@ function bindPlans(re){$$('[data-plan-pick]').forEach(b=>b.onclick=()=>{const k=
 async function renderMatch(){
   $('#dock').innerHTML='';
   if(!S.idea){location.hash='';return}
-  S.gf=S.gf||{area:'',proto:false};S.gsel=S.gsel||[];S.gstep=S.gstep||{};S.gmore=S.gmore||{};
+  S.gf=S.gf||{area:'',proto:false};Object.assign(S.gf,{area:'',proto:false,lot:false,near:false,sort:''});S.gsel=S.gsel||[];S.gstep=S.gstep||{};S.gmore=S.gmore||{};
   $('#app').innerHTML=`<section class="gut build"><div><div class="eyebrow">Building your team</div><h2 style="margin-top:10px">工程を読み取っています</h2></div></section>`;
   const db=await loadGDB();
   if(!db){$('#app').innerHTML=`<section class="gut"><div class="wrap" style="padding:60px 0"><h2>会社の一覧を読み込めませんでした</h2><p class="muted">通信の状態を確かめて、もう一度お試しください。</p><button class="btn" onclick="location.reload()">再読み込み</button></div></section>`;return}
@@ -1828,15 +1829,9 @@ async function renderMatch(){
     const multi=secs.length>=2;
     const R3=A.codes.length?recOf(secs,one,qmax):null;
     body=`${stepBar(3)}${head}
-    ${A.codes.length?`<h2 class="stepnow">${multi?'この組み合わせで完成します':'おすすめの頼み方'}</h2>
+    ${A.codes.length?`<h2 class="stepnow">${multi&&R3&&R3.kind!=='one'?'この組み合わせで完成します':'おすすめの頼み方'}</h2>
       ${recBox(R3,secs,qmax)}
-      <h2 class="stepnow" style="margin-top:6px">何個つくりますか？</h2>${qBar(total,cinfo)}
-      ${multi&&R3.P?fold('alt','ほかの頼み方：'+(R3.kind==='one'?'工程ごとに組み合わせる':'一社にまとめる'),planCard(R3.kind==='one'?'combo':'one',R3.P,secs,'')+`<button type="button" class="btn ${S.planPick==='both'?'pri':''}" data-plan-pick="both" aria-pressed="${S.planPick==='both'}">${S.planPick==='both'?'両方の案の会社を選択中':'両方に見積を依頼して比べる'}</button>`):''}
-      ${fold('flt','並べ替え・地域・届け先',filt)}
-      ${fold('all',multi?'工程ごとの候補を、すべて見る':'ほかの候補を、すべて見る',readout+lists,fmt(total)+'社')}
-      ${fold('est','概算の目安',`<div id="mEst"></div>`,'AIの目安')}
-      ${trustNote()}
-      ${A.regs.length?fold('reg','確かめておきたい法規制・認証',`<div class="blk"><ul class="list">${A.regs.map(x=>`<li>${esc(x)}</li>`).join('')}</ul><p class="muted" style="margin:6px 0 0;font-size:12px">キーワードから当たりを付けた参考情報です。正式な判断は専門家・認証機関が行います。</p></div>`):''}`
+      ${qBar()}`
     :`<div class="empty" style="margin-top:16px"><b>文章から工程を読み取れませんでした</b>このまま見積を依頼すれば、担当者が内容を読んで工程と会社を探します。型が決まっているもの（部品・ノベルティ・袋物など）なら「選んで探す」が早いです。<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn" id="mGuided">選んで探す</button></div></div>${(()=>{const ts=textSearch(S.idea);return ts.length?`<section class="mstep" data-step="文章に近い会社"><div class="mhead"><span class="mono mno">?</span><h2>文章の言葉が会社の説明に出てくる会社</h2><span class="muted">${fmt(ts.length)}社</span></div><p class="muted" style="margin:0 0 12px;font-size:13px">工程は読み取れませんでしたが、書いた言葉が社名や説明に含まれる会社です。参考にしてください。</p><ol class="glist">${ts.slice(0,10).map(r=>coCard(r,[])).join('')}</ol></section>`:''})()}`}`;
   }
   body=body.replace('__WHON__',fmt(S.whoN||0));
@@ -1866,15 +1861,8 @@ async function renderMatch(){
 }
 
 /* ③ 数量と「試作に対応」で絞る。根拠（掲載情報）のない会社は外さず「要確認」 */
-function qBar(total,ci){const f=S.gf||{};ci=ci||{steps:1,all:total,ok:0,unk:total};
-  return `<div class="qbar"><div class="qrow"><div class="pillset" role="group" aria-label="数量">${[['proto','試作 1〜10個'],['small','小ロット'],['mass','量産']].map(([v,t])=>`<button type="button" data-q3="${v}" aria-pressed="${S.qty===v}">${t}</button>`).join('')}</div>
-    <label class="qn"><input id="qN" type="number" min="1" inputmode="numeric" value="${S.qn||''}" placeholder="例 5" aria-label="個数">個</label></div>
-    <div class="qrow"><button type="button" class="axchip" data-qf="proto" aria-pressed="${!!f.proto}">試作に対応している会社だけ</button><button type="button" class="axchip" data-ax="lot" aria-pressed="${!!f.lot}">この数から受ける会社だけ</button></div>
-    <ul class="qstat">${ci.steps>=2?`<li><span>工程ごとの候補（合計）</span><b>${fmt(total)}社</b><small><span>${fmt(ci.steps)}工程</span><span>のどれかを受ける会社の合計です。1社で全部作れるわけではありません。</span></small></li>
-      <li><span>全工程を1社で受けられそうな会社</span><b>${fmt(ci.all)}社</b>${ci.all?'':'<small>工程ごとに会社を組み合わせて頼みます（下の「おすすめの頼み方」）。</small>'}</li>`:`<li><span>この工程を受ける会社</span><b>${fmt(total)}社</b></li>`}
-      <li><span>この数量・試作に合うと確かめられた会社</span><b>${fmt(ci.ok)}社</b></li>
-      <li><span>要確認（最小ロットや試作対応の掲載がない）</span><b>${fmt(ci.unk)}社</b><small>見積の依頼で確かめます。</small></li></ul>
-    <p class="qcount"> <span>海外の工場は、日本から注文できる（日本へ発送する）と確かめた会社だけを出しています。</span></p></div>`}
+function qBar(){return `<div class="qbar qmini"><span class="qlab">つくる数（見積に使います）</span><div class="qrow"><div class="pillset" role="group" aria-label="数量">${[['proto','試作 1〜10個'],['small','小ロット'],['mass','量産']].map(([v,t])=>`<button type="button" data-q3="${v}" aria-pressed="${S.qty===v}">${t}</button>`).join('')}</div>
+    <label class="qn"><input id="qN" type="number" min="1" inputmode="numeric" value="${S.qn||''}" placeholder="例 5" aria-label="個数">個</label></div></div>`}
 /* 会社ごとの「信頼の目安」: 確かめられた事実だけ。口コミは取引した人だけが書ける（まだ無い）ので作らない */
 /* 第三者の口コミ（ペットサイトと同じ方式）: 「Googleの口コミを見る」を押したときだけ、受付（Apps Script）が Google Places API から
    星・件数・口コミ最大5件を取り寄せて見せる。保存しない・転載しない。書いた人と元の口コミへのリンク、「Google Maps」の表示を付ける。
@@ -1956,9 +1944,9 @@ function whoBox(AS,qmax){const by=new Map();for(const a of AS){if(!a.r)continue;
         <span class="om">${esc(r[1]==='JP'?(r[2]||'国内'):(CTRY[r[1]]||r[1]))}${r[8]!=null?` · <span>最小ロット ${fmt(r[8])}個</span>`:''}${r[6]?' · <span>試作に対応</span>':''}</span>${on?gmapA(r,'compare'):''}</span></label>`};
         const cur=a.cmp.filter(r=>a.r&&r[0]===a.r[0]),alt=a.cmp.filter(r=>!(a.r&&r[0]===a.r[0]));
         return cur.map(opt).join('')+(alt.length?`<details class="alts" data-pc="${esc(a.c)}" ${S.folds['pc_'+a.c]?'open':''}><summary><span>ほかの候補から選ぶ</span> <span>${fmt(alt.length)}社</span></summary><div class="altl">${alt.map(opt).join('')}</div></details>`:'')})():'<p class="whon" style="margin:0">この工程の会社は、まだ一覧にありません。担当者が探してお声がけします。</p>'}</li>`}).join('')}</ol>
-    ${W.length>=2?fold('whoall',`<span>頼む会社を、会社ごとにまとめて見る</span>`,`<ol class="wlist">${W.map((w,i)=>`<li><span class="wn">${i+1}</span><b translate="no">${esc(w.r[0])}</b><small><span>担当：</span>${w.steps.map(t=>`<span>${esc(t)}</span>`).join('・')}</small></li>`).join('')}</ol>`,fmt(W.length)+'社'):''}`}
-function recBox(R3,secs,qmax){S.whoN=0;if(!R3||!R3.rows.length)return `<div class="empty">条件に合う会社が一覧にありません。数量や「試作に対応」の条件を外すか、このまま見積を依頼してください。担当者が探してお声がけします。</div>`;
-  const AS=secs.length>=2?stepAssign(R3,secs):null;
+    `}
+function recBox(R3,secs,qmax){S.whoN=0;if(!R3||!R3.rows.length)return `<div class="empty">条件に合う会社が一覧にありません。このまま見積を依頼してください。担当者が探してお声がけします。</div>`;
+  const AS=secs.length?stepAssign(R3,secs):null;
   if(AS){const rows=[];const seen=new Map();for(const a of AS){if(!a.r)continue;if(!seen.has(a.r[0])){seen.set(a.r[0],[]);rows.push({r:a.r})}seen.get(a.r[0]).push(a.name)}
     R3={...R3,rows:rows.map(x=>({...x,step:seen.get(x.r[0]).join('・'),key:seen.get(x.r[0]).join('・')}))}}
   if(S.autoPick!==false){S.gsel=[];S.gstep={};for(const x of R3.rows){if(S.gsel.includes(x.r[0])||S.gsel.length>=8)continue;S.gsel.push(x.r[0]);S.gstep[x.r[0]]=x.key}S.planPick=R3.kind}
@@ -1966,9 +1954,8 @@ function recBox(R3,secs,qmax){S.whoN=0;if(!R3||!R3.rows.length)return `<div clas
   return `<section class="rec" id="mPlans"><span class="rtag">★ おすすめ</span>${AS&&R3.kind!=='one'?'':`<h3>${R3.title}</h3><p class="why">${R3.why}</p>`}
     ${AS?whoBox(AS,qmax)+(R3.rows.length>8?`<p class="whon" style="margin-top:8px"><span>見積の依頼は、上から8社に送ります。残りの</span><span translate="no"> ${R3.rows.length-8} </span><span>社の工程は、担当者が手配します。</span></p>`:''):(()=>{const li=x=>`<li><span class="rs">${esc(x.step)}</span><b translate="no">${esc(x.r[0])}</b>${tBadges(x.r,qmax)}${gmapA(x.r,'recommend')}</li>`;const N=4;
       return `<ul class="rcos">${R3.rows.slice(0,N).map(li).join('')}</ul>${R3.rows.length>N?`<details class="rmore"><summary>ほかの工程の会社も見る</summary><ul class="rcos">${R3.rows.slice(N).map(li).join('')}</ul></details>`:''}`})()}
-    <span class="rvw">KATACHIでの口コミ：まだありません（取引した人だけが書けます）。Googleの口コミは各社の「Googleの口コミを見る」から。</span>
-    <div class="qrow">${picked?'<span class="rsel">✓ この会社を選択中。下の「見積を依頼する」で送れます</span>':'<button type="button" class="btn sm pri" data-plan-pick="rec">おすすめに戻す</button>'}</div>
-    <div class="qrow"><button type="button" class="glink" data-recall>会社を入れ替える</button><button type="button" class="glink" data-recself>会社選びは担当者に任せる</button></div></section>`}
+    <div class="qrow">${picked?'<span class="rsel">✓ 選択中。下の「見積を依頼する」で送れます</span>':'<button type="button" class="btn sm pri" data-plan-pick="rec">おすすめに戻す</button>'}</div>
+    <div class="qrow"><button type="button" class="glink" data-recself>自分で選ばず、会社選びを担当者に任せる</button></div></section>`}
 function trustNote(){return `<div class="trust3"><b>口コミ・評価について</b><span>KATACHIで見積・取引をした人だけが、取引のあとに評価（納期・見積どおりか・連絡・また頼みたいか）を書けるようにします。まだ取引の評価はないため、いまは公式サイト等での確認・国の公開データ・認証の記載を「信頼の目安」として出しています。Googleの口コミは、各社の「Googleの口コミを見る」で、押したときにGoogleから取り寄せて表示します（KATACHIは保存・転載しません）。作った口コミは載せません。</span></div>`}
 /* ②の下のボタン: AIへ行って戻ってきたら「回答を貼る」が先 */
 function renderMatchDock(){const A=S.anal||{};const away=!!S.aiAway;const arrow='<svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
