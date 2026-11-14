@@ -124,6 +124,30 @@ concept('cart', r'台車|搬送|運搬|配膳|agv|amr|(?<!ス)カート|荷物�
   ("角パイプの溶接フレームに市販の車輪モーター・電池をのせて1〜2台", "1–2 units: welded square-tube frame with off-the-shelf wheel motors and batteries", "在方管焊接车架上装市售轮毂电机和电池，做1–2台"),
   ("板金のプレス・曲げと溶接の治具、制御基板を専用に設計", "Sheet-metal pressing and bending with welding jigs, and a dedicated control board", "钣金冲压折弯和焊接夹具，专门设计控制板"))
 
+# ---------------------------------------------------------------- 犬・猫の車椅子（歩行補助カート）
+concept('pet_wheelchair', r'(犬|猫|ペット|老犬|わんちゃん|dog|cat|pet)[^。\n]{0,15}(車椅子|車いす|車イス|歩行器|歩行補助|wheelchair|walker)|(車椅子|車いす|車イス|歩行器|wheelchair)[^。\n]{0,15}(犬|猫|ペット|dog|cat|pet)|k-?9\s?カート|k-?9\s?cart',
+  dict(k='wheelchair', w='300', l='450', h='350'),
+  ("犬・猫用の車椅子（後ろ足を支える2輪タイプ）", "Dog/cat wheelchair (2-wheel rear support)", "犬猫用轮椅（支撑后腿的双轮款）"),
+  ("後ろ足が弱った犬・猫の腰をハーネスで支え、左右の車輪で歩くのを助ける車椅子です。体の大きさに合わせて長さ・幅・高さを調節できるようにし、前足が弱い子向けの4輪にも広げられます。",
+   "A wheelchair that supports the hips of a dog or cat with weak hind legs in a harness, helping it walk on two wheels. Length, width and height adjust to the body, and it can be extended to a 4-wheel version for weak front legs.",
+   "一种用背带托住后腿无力的犬猫腰部、靠左右两个轮子辅助行走的轮椅。长度、宽度、高度可按体型调节，也可扩展为前腿无力时使用的四轮款。"),
+  ("中型犬用で 幅 約30cm × 長さ 約45cm × 高さ 約35cm（体の大きさで XS〜XL に分ける）", "For a medium dog approx. W 30 cm × L 45 cm × H 35 cm (sized XS–XL by body size)", "中型犬用约宽30cm × 长45cm × 高35cm（按体型分 XS–XL）"),
+  ("約1〜2kg（中型犬用）", "approx. 1–2 kg (medium dog)", "约1–2kg（中型犬用）"),
+  ("フレーム：アルミのパイプ／車輪：樹脂のホイール＋ウレタンかゴムのタイヤ／ハーネス：ナイロン・ネオプレン（肌に当たる所はやわらかい生地）", "Frame: aluminium tube · Wheels: plastic hubs with urethane or rubber tyres · Harness: nylon and neoprene (soft fabric where it touches the skin)", "车架：铝管／车轮：树脂轮毂＋聚氨酯或橡胶轮胎／背带：尼龙・氯丁橡胶（接触皮肤处用柔软面料）"),
+  ("なし（犬・猫が自分で歩く力で動く）", "None (moved by the animal's own walking)", "无（靠犬猫自己行走的力量移动）"),
+  ("乗せられる体重 約5〜30kg（サイズ違いで対応）、長さ・幅・高さをそれぞれ数cmずつ調節", "Supports body weight approx. 5–30 kg (by size), length, width and height each adjustable by a few cm", "可承重约5–30kg（按尺寸对应），长度、宽度、高度各可调节数厘米"),
+  [("腰と後ろ足をハーネスで支え、足を地面から浮かせる／軽く着かせるを選べる", "Supports the hips and hind legs in a harness; legs can be lifted off the ground or lightly touch it", "用背带托住腰和后腿，可选择让后腿离地或轻轻着地"),
+   ("体に合わせて長さ・幅・車高を調節", "Length, width and ride height adjust to the body", "按体型调节长度、宽度和车高"),
+   ("排せつしやすい開いた形", "Open shape so the animal can relieve itself", "便于排泄的开放式结构"),
+   ("段差・芝生でも転びにくい車輪の大きさと幅", "Wheel size and track that resist tipping on steps and grass", "在台阶和草地上也不易翻倒的车轮尺寸和轮距")],
+  [(("A. 後ろ足を支える2輪", "A. 2-wheel rear support", "A. 支撑后腿的双轮款"), ("後ろ足だけが弱い子向け。軽くて小回りが利く", "For weak hind legs only. Light and nimble", "适合只有后腿无力的情况。轻便灵活")),
+   (("B. 体全体を支える4輪", "B. 4-wheel full support", "B. 支撑全身的四轮款"), ("前足も弱い子向け。安定するが大きく重くなる", "For weak front legs too. Stable but larger and heavier", "适合前腿也无力的情况。稳定但更大更重"))],
+  [("体に当たる所で皮ふがすれないか（長く使ったとき）", "Whether the skin chafes where it touches the body (over long use)", "接触身体的地方长时间使用是否会磨破皮肤"),
+   ("段差・坂・芝生で倒れないか", "Whether it tips over on steps, slopes and grass", "在台阶、坡道和草地上是否会翻倒"),
+   ("サイズごとの調節幅で、実際の犬・猫に合うか", "Whether each size's adjustment range fits real dogs and cats", "各尺寸的调节范围是否适合真实的犬猫")],
+  ("市販のアルミパイプと継ぎ手、車輪で組み、採寸した犬に合わせて数台", "A few units built from off-the-shelf aluminium tube, joints and wheels, fitted to measured dogs", "用市售铝管、接头和车轮组装，按量好尺寸的狗做几台"),
+  ("パイプの曲げ・溶接か継ぎ手の金型、ハーネスの縫製をサイズごとに。数十〜数百台から", "Tube bending and welding or moulded joints, plus sewn harnesses per size. From tens to hundreds of units", "按尺寸做弯管焊接或接头模具，以及背带缝制。几十到几百台起"))
+
 # ---------------------------------------------------------------- ドローン
 concept('drone', r'ドローン|drone|マルチコプター',
   dict(k='drone', w='450', l='450', h='150'),
@@ -449,7 +473,7 @@ concept('device', '', dict(k='device', w='100', l='70', h='30'),
 
 
 # 当てる順番: 細かい種類を先に（アクリル「スタンド」をケース・スタンドより先に、など）
-ORDER = ['slope_mower', 'lawn_mower', 'cart', 'drone', 'collar', 'wearable', 'sensor', 'light', 'goods', 'case', 'bag', 'apparel', 'cosme', 'food', 'furniture', 'machine', 'device']
+ORDER = ['slope_mower', 'lawn_mower', 'pet_wheelchair', 'cart', 'drone', 'collar', 'wearable', 'sensor', 'light', 'goods', 'case', 'bag', 'apparel', 'cosme', 'food', 'furniture', 'machine', 'device']
 C.sort(key=lambda c: ORDER.index(c['id']))
 
 

@@ -32,6 +32,7 @@ var CONFIG = {
   // Googleの口コミ（Places API。ペットサイトと同じ方式）。スクリプトのプロパティ PLACES_API_KEY が無ければ動かず、サイトはGoogleマップへのリンクだけ出す
   REVIEW_MONTHLY_LIMIT: 900,        // 1か月に口コミを取り寄せる回数（無料の範囲 1,000回に収める。超えたら月末までリンクだけ）
   REVIEW_SEARCH_MONTHLY_LIMIT: 900, // 1か月に場所を探す回数（場所IDは覚えるので、同じ会社は2回目から探さない）
+  PEEK_DAILY_LIMIT: 500,            // 参考品ページの読み取り：1日の上限
   REVIEW_DAILY_LIMIT: 150,          // 1日の上限（いたずら対策）
 };
 
@@ -53,6 +54,7 @@ function doPost(e) {
     if (p.type === 'file') return json_(saveChunk_(p));
     if (p.type === 'partner') return json_(partner_(p));
     if (p.type === 'reviews') return json_(reviews_(p));
+    if (p.type === 'peek') return json_(peek_(p));
     if (!limit_()) return json_({ok: false, error: 'busy'});
     if (p.type !== 'rfq' && p.type !== 'consult') return json_({ok: false, error: 'type'});
     var f = {};
@@ -565,3 +567,54 @@ function placeNorm_(x) {
     .replace(/株式会社|有限会社|合同会社|合資会社|合名会社|\(株\)|\(有\)|co\.,?ltd\.?|inc\.?|corp(oration)?\.?|limited|ltd\.?|,/g, '');
 }
 
+
+// ---------- 参考品のページを読む（既製品をもとに作る） ----------
+// 利用者が入れたURLのページを、この受付が1回だけ取りに行き、題名・説明・商品名・パンくずなど「何の製品か」がわかる短い文字だけを返す。
+// 画像や本文は返さない・保存しない（同じURLは6時間だけ一時的に覚えておく）。会員ページ・社内のアドレスは読まない。
+function peek_(p) {
+  var url = String(p.url || '').trim().slice(0, 1000);
+  if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+  var m = url.match(/^https?:\/\/([^\/?#:]+)/i);
+  if (!m || !/^[a-z0-9.-]+\.[a-z]{2,}$/i.test(m[1]) || /^(localhost|.*\.local|.*\.internal)$/i.test(m[1]) || /^\d+\.\d+\.\d+\.\d+$/.test(m[1])) return {ok: false, error: 'url'};
+  var cache = CacheService.getScriptCache();
+  var ck = 'pk_' + Utilities.base64EncodeWebSafe(Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, url, Utilities.Charset.UTF_8)).slice(0, 22);
+  var hit = cache.get(ck);
+  if (hit) return JSON.parse(hit);
+  if (!limit_('pk', CONFIG.PEEK_DAILY_LIMIT)) return {ok: false, error: 'busy'};
+  var res;
+  try {
+    res = UrlFetchApp.fetch(url, {muteHttpExceptions: true, followRedirects: true, validateHttpsCertificates: true,
+      headers: {'User-Agent': 'Mozilla/5.0 (compatible; KATACHI-preview/1.0; +https://katachi.shiokonbu.com/)', 'Accept-Language': 'ja,en;q=0.8'}});
+  } catch (err) { return {ok: false, error: 'fetch'}; }
+  var code = res.getResponseCode();
+  if (code >= 400) return {ok: false, error: 'http' + code};
+  var blob = res.getBlob(), html = blob.getDataAsString('UTF-8');
+  var cs = (html.slice(0, 4000).match(/<meta[^>]+charset=["']?([\w-]+)/i) || [])[1] || '';
+  if (cs && !/utf-?8/i.test(cs)) { try { html = blob.getDataAsString(cs); } catch (e) {} }
+  html = html.slice(0, 800000);
+  var dec = function (t) {
+    return String(t || '').replace(/<[^>]*>/g, ' ').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#0?39;|&apos;/g, "'")
+      .replace(/&#(\d+);/g, function (a, n) { return String.fromCharCode(Number(n)); }).replace(/\s+/g, ' ').trim();
+  };
+  var meta = function (name) {
+    var re = new RegExp('<meta[^>]+(?:name|property)=["\']' + name + '["\'][^>]*>', 'i'), t = (html.match(re) || [])[0] || '';
+    return dec((t.match(/content=["']([^"']*)["']/i) || [])[1] || '').slice(0, 300);
+  };
+  var out = {ok: true, title: dec((html.match(/<title[^>]*>([\s\S]*?)<\/title>/i) || [])[1]).slice(0, 200),
+    desc: meta('description') || meta('og:description'), ogtitle: meta('og:title'), site: meta('og:site_name'), keywords: meta('keywords').slice(0, 200),
+    h1: dec((html.match(/<h1[^>]*>([\s\S]*?)<\/h1>/i) || [])[1]).slice(0, 120), product: {}, crumbs: []};
+  (html.match(/<script[^>]+application\/ld\+json[^>]*>[\s\S]*?<\/script>/gi) || []).slice(0, 8).forEach(function (blk) {
+    try {
+      var j = JSON.parse(blk.replace(/^<script[^>]*>|<\/script>$/gi, ''));
+      var all = [].concat(j['@graph'] || j);
+      all.forEach(function (o) {
+        var ty = [].concat(o['@type'] || []).join(',');
+        if (/Product/.test(ty) && !out.product.name) out.product = {name: dec(o.name).slice(0, 150), desc: dec(o.description).slice(0, 300), category: dec(o.category).slice(0, 100), material: dec(o.material).slice(0, 100)};
+        if (/BreadcrumbList/.test(ty)) out.crumbs = (o.itemListElement || []).map(function (x) { return dec(x.name || (x.item && x.item.name)).slice(0, 40); }).filter(String).slice(0, 6);
+      });
+    } catch (e) {}
+  });
+  if (!out.title && !out.desc && !out.ogtitle && !out.product.name) out = {ok: false, error: 'empty'};
+  cache.put(ck, JSON.stringify(out), 21600);
+  return out;
+}

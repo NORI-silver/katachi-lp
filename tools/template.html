@@ -924,25 +924,40 @@ function bindHome(){
   ['dragenter','dragover'].forEach(t=>f.addEventListener(t,e=>{e.preventDefault();f.classList.add('drag')}));
   ['dragleave','drop'].forEach(t=>f.addEventListener(t,e=>{e.preventDefault();f.classList.remove('drag')}));
   f.addEventListener('drop',e=>[...(e.dataTransfer?.files||[])].forEach(addFile));
-  f.onsubmit=e=>{e.preventDefault();if(S.ref&&S.ref.on){const r=refRead();if(r.url||r.name){if(!r.chg.length&&!r.how){const er=$('#refErr');er.classList.add('on');$('#refHow').focus();track('form_error',{form:'idea',reason:'ref_no_change'});return}
+  f.onsubmit=async e=>{e.preventDefault();if(f.dataset.busy)return;if(S.ref&&S.ref.on){const r=refRead();if(!r.url&&findUrl(r.name)){r.url=findUrl(r.name);if(r.name.trim()===r.url)r.name=''}if(r.url)r.url=normUrl(r.url);if(r.url||r.name){if(!r.chg.length&&!r.how){const er=$('#refErr');er.classList.add('on');$('#refHow').focus();track('form_error',{form:'idea',reason:'ref_no_change'});return}
       const base=ta.value.trim().split('\n\n【参考にした既製品】')[0];ta.value=(base?base+'\n\n':'')+refText(r);track('ref_product',{changes:r.chg.length,has_url:!!r.url,host:refHost(r.url)})}}
-    if(!ta.value.trim()&&!S.files.length){ta.focus();ta.placeholder='つくりたいものを、ひとことでも書いてください';track('form_error',{form:'idea',reason:'empty'});return}track('form_cta',{form:'idea',quantity:S.qty,files:S.files.length,chars:ta.value.trim().length});go(null)};
+    if(!ta.value.trim()&&!S.files.length){ta.focus();ta.placeholder='つくりたいものを、ひとことでも書いてください';track('form_error',{form:'idea',reason:'empty'});return}const u=(S.ref&&S.ref.on&&S.ref.url)||findUrl(ta.value);
+    if(u&&!/【参考品のページから読み取った内容】/.test(ta.value)){const sb=f.querySelector('button[type=submit]'),lb=sb.innerHTML;f.dataset.busy=1;sb.disabled=true;sb.textContent='参考品のページを読んでいます…';
+      const v=await peekUrl(normUrl(u));sb.innerHTML=lb;sb.disabled=false;delete f.dataset.busy;if(v)ta.value=ta.value.trim()+'\n'+peekText(v)}
+    track('form_cta',{form:'idea',quantity:S.qty,files:S.files.length,chars:ta.value.trim().length});go(null)};
   ta.onkeydown=e=>{if(e.key==='Enter'&&(e.metaKey||e.ctrlKey)){e.preventDefault();f.requestSubmit()}};
   ta.addEventListener('paste',e=>{const t=(e.clipboardData?.getData('text')||'').trim();if(!/^https?:\/\/\S+$/.test(t))return;let h='';try{h=new URL(t).hostname.replace(/^www\.|^m\./,'').toLowerCase()}catch(x){return}
     if(PLATS.some(p=>p[0].test(h))&&addLink(t)){e.preventDefault();renderFiles()}});
   renderFiles();
 }
-/* 既製品をもとに作る: 参考にしたい製品のURLと「どこを変えるか」を聞く。ページはこの画面から読みに行かない（ほかのサイトに送らない）。
-   URLの中の商品名らしい言葉だけを手がかりにし、寸法・素材は分かる範囲で書いてもらう。そっくりの複製にならないよう、変える点を必須にする */
+/* 既製品をもとに作る: 参考にしたい製品のURLと「どこを変えるか」を聞く。ページは利用者の端末からは読みに行かず、受付（GAS）が題名・説明だけを読む（peekUrl）。
+   寸法・素材は分かる範囲で書いてもらう。そっくりの複製にならないよう、変える点を必須にする */
 const RCHG=['形','サイズ','素材','色・柄','機能を足す','機能を減らす','価格を下げる','自社のロゴ・ブランド','パッケージ'];
 function refPanel(){const r=S.ref||{};const ch=r.chg||[];
   return `<div class="refp ${r.on?'on':''}" id="refp"><h4>既製品をもとに、オリジナルを作る</h4>
-    <label>参考にしたい製品のURL<input id="refUrl" type="url" inputmode="url" placeholder="https://…（通販サイト・メーカーの製品ページなど）" value="${esc(r.url||'')}"></label>
+    <label>参考にしたい製品のURL<input id="refUrl" type="text" inputmode="url" autocapitalize="off" spellcheck="false" placeholder="https://…（通販サイト・メーカーの製品ページなど）" value="${esc(r.url||'')}"></label>
     <div class="refrow"><label>商品名（わかれば）<input id="refName" value="${esc(r.name||'')}" placeholder="例：折りたたみドッグスロープ"></label><label>大きさ（わかれば）<input id="refSize" value="${esc(r.size||'')}" placeholder="例：幅40×長さ150cm"></label><label>素材（わかれば）<input id="refMat" value="${esc(r.mat||'')}" placeholder="例：アルミ・樹脂"></label></div>
     <div><span style="font-size:12.5px;color:var(--mute)">どこを変えますか？（いくつでも）</span><div class="rchips" role="group" aria-label="変えるところ">${RCHG.map(t=>`<button type="button" data-rchg="${esc(t)}" aria-pressed="${ch.includes(t)}">${esc(t)}</button>`).join('')}</div></div>
     <label>どう変えたいか<textarea id="refHow" placeholder="例：大型犬でも滑らないよう幅を広げ、踏み面をゴムに。プールの縁に掛けられる形にしたい">${esc(r.how||'')}</textarea></label>
     <p class="referr" id="refErr" role="alert">変えたいところを1つ以上選ぶか、どう変えたいかを書いてください。そのままの複製は作れません。</p>
-    <p class="refwarn">そっくりそのままの複製は作れません。参考の製品の特許・意匠（デザイン）・商標を侵さないよう、変える点を決め、工場・専門家と確かめながら進めます。ページの内容はKATACHIからは読みに行きません。わかる範囲で書いてください。</p></div>`}
+    <p class="refwarn">そっくりそのままの複製は作れません。参考の製品の特許・意匠（デザイン）・商標を侵さないよう、変える点を決め、工場・専門家と確かめながら進めます。URLを入れると、KATACHIの受付がそのページの題名・説明を読み取り、何の製品かを判断します（画像や本文は取り込みません）。大きさ・素材は、わかる範囲で書いてください。</p></div>`}
+/* 文章や欄に入ったURL（https:// がなくても wancare.jp のようなドメインなら）を見つけ、受付（backend/forms.gs の type:peek）に読んでもらう。
+   受付がページを1回だけ読み、題名・説明・商品名・分類だけを返す。読めたら「【参考品のページから読み取った内容】」として依頼の文章に足し、製品の種類の読み取りに使う */
+const URLRE=/(https?:\/\/[^\s　、。）)」』]+|(?:[a-z0-9][a-z0-9-]*\.)+(?:co\.jp|ne\.jp|or\.jp|jp|com|net|org|shop|store|io|cn|tw|kr|us|uk|de|fr|info|biz|tokyo)(?:\/[^\s　、。）)」』]*)?)/i;
+const findUrl=t=>{const m=String(t||'').replace(/^URL：/gm,'').match(URLRE);return m?m[1].replace(/[.,]$/,''):''};
+const normUrl=u=>/^https?:\/\//i.test(u)?u:'https://'+u;
+async function peekUrl(u){if(!u||!FORM_URL)return null;S.peekC=S.peekC||{};if(u in S.peekC)return S.peekC[u];let v=null;
+  try{const ctl=new AbortController(),to=setTimeout(()=>ctl.abort(),10000);const r=await fetch(FORM_URL,{method:'POST',body:JSON.stringify({type:'peek',url:u}),signal:ctl.signal});clearTimeout(to);const j=await r.json();v=j&&j.ok?j:null;track('ref_peek',{result:v?'ok':String((j&&j.error)||'fail').slice(0,20),host:refHost(u)})}
+  catch(e){track('ref_peek',{result:'error',host:refHost(u)})}
+  return S.peekC[u]=v}
+function peekText(v){const p=v.product||{},nm=p.name||v.ogtitle||v.title;
+  const parts=[nm,v.title!==nm&&v.title,p.category,(v.crumbs||[]).length&&v.crumbs.join(' > '),p.desc||v.desc,p.material&&'素材：'+p.material,v.h1&&v.h1];
+  const seen=new Set();return '【参考品のページから読み取った内容】'+parts.filter(x=>x&&!seen.has(x)&&seen.add(x)).join('／').slice(0,600)}
 const refHost=u=>{try{return new URL(u).hostname.replace(/^www\./,'')}catch(e){return ''}};
 /* URLの中の商品名らしい部分（Amazon・楽天などは日本語の商品名がURLに入っていることがある） */
 function refGuess(u){try{const x=new URL(u);const segs=x.pathname.split('/').map(t=>{try{return decodeURIComponent(t)}catch(e){return t}});
@@ -1237,6 +1252,8 @@ const CFIG={
   <rect class="o n a h" x="136" y="146" width="88" height="8" rx="2"/>${CDH(98,262,172,'L '+f.l)}${CDV(276,76,150,'H '+f.h)}</g>`,
  lawn:f=>`<path class="d" d="M20 192H340"/><path class="o af" d="M80 168Q86 110 168 104L250 108Q288 118 282 168Z"/><circle class="o" cx="112" cy="170" r="22"/><circle class="o" cx="112" cy="170" r="7"/><circle class="o" cx="252" cy="178" r="14"/><rect class="o" x="150" y="96" width="44" height="12" rx="4"/><path class="o n a h" d="M150 186H230"/>${CDH(80,282,208,'L '+f.l)}${CDV(310,96,192,'H '+f.h)}`,
  cart:f=>`<path class="d" d="M20 186H340"/><rect class="o af" x="70" y="132" width="220" height="14" rx="3"/><rect class="o" x="84" y="146" width="192" height="18" rx="3"/><circle class="o" cx="102" cy="170" r="16"/><circle class="o" cx="258" cy="170" r="16"/><path class="o n" d="M288 132L300 56H322"/><rect class="o a" x="58" y="134" width="10" height="28" rx="3"/><rect class="o n h" x="110" y="96" width="70" height="36"/><rect class="o n h" x="186" y="108" width="60" height="24"/>${CDH(70,290,206,'L '+f.l)}<path class="d" d="M39 132h10M39 186h10M44 132V186"/><text x="6" y="163">H ${f.h}</text>`,
+ wheelchair:f=>`<path class="d" d="M20 200H340"/><path class="o n" d="M100 120V198M114 122V198M196 118l8 28M208 116l12 24"/><ellipse class="o" cx="150" cy="106" rx="62" ry="21"/><ellipse class="o" cx="82" cy="86" rx="17" ry="15"/><path class="o" d="M66 84l-14 4l2 8l14-2z"/><path class="o n" d="M86 72l6-12l6 10M211 100l18-12"/>
+  <path class="o af" d="M172 90h44v32h-44z" style="fill-opacity:.8"/><path class="o n a" d="M190 106H252M252 106L226 160M196 106L226 160" style="stroke-width:3"/><circle class="o n" cx="226" cy="160" r="38" style="stroke-width:4"/><circle class="o" cx="226" cy="160" r="6"/>${CDH(64,264,214,'L '+f.l)}${CDV(300,84,200,'H '+f.h)}`,
  drone:f=>`<path class="o n" d="M180 110L100 50M180 110L260 50M180 110L100 170M180 110L260 170"/>${[[100,50],[260,50],[100,170],[260,170]].map(([x,y])=>`<circle class="o n a h" cx="${x}" cy="${y}" r="32"/><circle class="o" cx="${x}" cy="${y}" r="7"/>`).join('')}<rect class="o af" x="158" y="90" width="44" height="40" rx="10"/><circle class="o" cx="180" cy="122" r="5"/>${CDH(100,260,210,'W '+f.w)}`,
  collar:f=>`<ellipse class="o n" cx="180" cy="112" rx="122" ry="56" style="stroke-width:12;stroke:#d9dfeb"/><ellipse class="o n" cx="180" cy="112" rx="128" ry="62"/><ellipse class="o n" cx="180" cy="112" rx="116" ry="50"/><rect class="o" x="48" y="96" width="22" height="34" rx="4"/><rect class="o af" x="148" y="140" width="64" height="44" rx="10"/><circle class="a2f" cx="198" cy="152" r="3.5"/>${CDH(148,212,204,'W '+f.w)}`,
  band:f=>`<rect class="o" x="160" y="10" width="40" height="70" rx="6"/><rect class="o" x="160" y="160" width="40" height="56" rx="6"/><rect class="o" x="145" y="74" width="70" height="90" rx="18"/><rect class="o af" x="155" y="86" width="50" height="66" rx="10"/><path class="o n" d="M215 110h5v18h-5"/>${CDV(250,74,164,'L '+f.l)}`,
@@ -1281,7 +1298,7 @@ function v3make(T,box){const fig=box.closest('.cview'),f=JSON.parse(fig.dataset.
   const gc=document.createElement('canvas');gc.width=gc.height=128;const gx=gc.getContext('2d'),gr=gx.createRadialGradient(64,64,4,64,64,64);gr.addColorStop(0,'rgba(20,30,60,.28)');gr.addColorStop(1,'rgba(20,30,60,0)');gx.fillStyle=gr;gx.fillRect(0,0,128,128);
   const sh=new T.Mesh(new T.PlaneGeometry(1,1),new T.MeshBasicMaterial({map:new T.CanvasTexture(gc),transparent:true,depthWrite:false}));sh.rotation.x=-Math.PI/2;sh.scale.set(sz.x*.0016,sz.z*.0016,1);sh.position.y=.0005;sc.add(sh);
   const rad=Math.max(sz.x,sz.y,sz.z)*.001*.62+1e-3,tgt=new T.Vector3(0,sz.y*.001*.45,0);
-  const cam=new T.PerspectiveCamera(32,1,rad/50,rad*60);const th0=f.k==='slope'||f.k==='step'?-2.25:-.75;const st={th:th0,ph:1.08,dist:rad*3.3,auto:true,dirty:true,vis:true,id:++V3N};
+  const cam=new T.PerspectiveCamera(32,1,rad/50,rad*60);const th0=f.k==='slope'||f.k==='step'?-2.25:f.k==='wheelchair'?-1.95:-.75;const st={th:th0,ph:1.08,dist:rad*3.3,auto:true,dirty:true,vis:true,id:++V3N};
   const place=()=>{const s=Math.sin(st.ph);cam.position.set(tgt.x+st.dist*s*Math.sin(st.th),tgt.y+st.dist*Math.cos(st.ph),tgt.z+st.dist*s*Math.cos(st.th));cam.lookAt(tgt)};
   const size=()=>{const w=box.clientWidth||300,h=box.clientHeight||200;R.setSize(w,h,false);cam.aspect=w/h;cam.updateProjectionMatrix();st.dirty=true};size();
   const ro=window.ResizeObserver?new ResizeObserver(size):null;if(ro)ro.observe(box);
@@ -1353,6 +1370,10 @@ function v3build(T,f,mt){const has=r=>r.test(mt);const M=(c,o)=>new T.MeshStanda
    cart(){const dh=H*.45,t=Math.max(18,H*.05),wr=H*.2;RB(W,t,L,t*.4,0,dh,0,m.main);B(W*.92,H*.25,L*.94,0,dh+H*.12,0,m.sub);
      for(const[a,b]of[[-1,-1],[1,-1],[-1,1],[1,1]])Cy(wr,wr,W*.08,a*(W/2-W*.04),wr,b*(L/2-wr*1.2),m.rubber,0,Math.PI/2);
      for(const s of[-1,1])Cy(t*.35,t*.35,H*.7,s*W*.4,dh+H*.3,-L/2,m.metal,-.35,0);Cy(t*.35,t*.35,W*.8,0,dh+H*.62,-L/2-H*.22,m.metal,0,Math.PI/2)},
+   wheelchair(){const len=Math.max(L,200),r=len*.17,by=len*.36+r,z0=-L*.22+len*.42;dog(g,len,0,0,z0);const zr=z0-len*.42,wr=Math.min(by*.82,Math.max(H*.45,80)),zw=zr-wr*.15,tb=Math.max(6,W*.025);
+     for(const s of[-1,1]){const x=s*W/2;Cy(tb,tb,len*.55,x*.9,by,zr+len*.22,m.metal,Math.PI/2,0);Cy(tb,tb,Math.hypot(by-wr,len*.12),x*.92,(by+wr)/2,zw+len*.04,m.metal,.5,0);Cy(tb,tb,by-wr+tb,x*.92,(by+wr)/2,zw-len*.05,m.metal,-.4,0);
+       add(new T.TorusGeometry(wr*.9,wr*.1,10,40),m.rubber,x,wr,zw,0,Math.PI/2,0);Cy(wr*.18,wr*.18,tb*2.4,x,wr,zw,m.resin,0,Math.PI/2);for(let i=0;i<6;i++)Cy(2.5,2.5,wr*1.6,x,wr,zw,m.metal,i*Math.PI/6,0,undefined,6)}
+     Cy(tb,tb,W*.92,0,by+tb,zr+len*.05,m.metal,0,Math.PI/2);RB(W*.8,r*1.4,len*.28,r*.4,0,by,zr+len*.14,m.fabric);for(const s of[-1,1])RB(tb*1.5,r*1.6,len*.08,4,s*W*.36,by+r*.3,zr+len*.42,m.fabric)},
    drone(){const c=Math.min(W,L)*.22;RB(c,H*.45,c*1.3,c*.25,0,H*.55,0,m.main);for(const[a,b]of[[-1,-1],[1,-1],[-1,1],[1,1]]){const x=a*W*.36,z=b*L*.36;
        const arm=B(Math.hypot(x,z),H*.08,H*.12,x/2,H*.6,z/2,m.dark);arm.rotation.y=-Math.atan2(z,x);Cy(H*.1,H*.1,H*.2,x,H*.68,z,m.dark,0,0,0,16);Cy(W*.15,W*.15,2,x,H*.8,z,m.clear,0,0,0,32)}
      Sp(c*.18,0,H*.4,c*.62,m.dark);for(const s of[-1,1])B(H*.04,H*.35,c*1.2,s*c*.5,H*.18,0,m.dark)},
@@ -1785,7 +1806,7 @@ async function renderMatch(){
     ${upd?`<div class="updn" id="mUpd"><b>✓ 更新しました</b><span>${upd}よければ、このまま会社選びへ進めます。</span></div>`:''}
     ${S.lostFiles?`<div class="updn" style="background:#fff7e6;border-color:#f3d39b"><span>前に追加した写真・動画（${S.lostFiles}件）は、画面を開き直したため消えました。お手数ですが、もう一度追加してください。</span></div>`:''}
     <div id="fstrip">${stripHTML()}</div>
-    ${/【参考にした既製品】/.test(S.idea)?`<div class="refwarn" style="margin-top:12px"><b>既製品をもとにした依頼です。</b>参考品の特許・意匠（デザイン）・商標にかからないか、見積の前に担当者・工場と確かめます。変えたところが少ないと、作れない・売れないことがあります。</div>`:''}
+    ${/【参考にした既製品】/.test(S.idea)?`<div class="refwarn" style="margin-top:12px"><b>既製品をもとにした依頼です。</b>参考品の特許・意匠（デザイン）・商標にかからないか、見積の前に担当者・工場と確かめます。変えたところが少ないと、作れない・売れないことがあります。${/【参考品のページから読み取った内容】/.test(S.idea)?'':'<br><b>参考品のページは読み取れませんでした。</b>「書き直す」で商品名や、どんな製品か（例：犬用の車いす）を書き足すと、案が具体的になります。'}</div>`:''}
     ${A.concept?conceptCard(A.concept):blocked?'':'<div class="empty" style="margin-top:16px">この文章からは、製品の種類を特定できませんでした。下の「AIで相談」を開くと、外観・サイズ・素材・機能の案も作ってもらえます。</div>'}
     ${notices}
     ${blocked?'':costPeek(A)}
