@@ -1171,6 +1171,10 @@ const AIQ={
   ask:'请按以下顺序回答。\n1. 整理规格（用途、尺寸、材质、功能、使用环境）。尚未决定的地方，请以向我提问的形式列出\n2. 需要的工序。如果上面的工序列表有缺少或多余的，请指出\n3. 技术上可能较难的地方，以及在试制中如何验证\n4. 可能涉及的法规和认证\n5. 从试制到小批量再到量产的推进方法\n6. 最后，请用条目列出向工厂询价用的"规格备忘"（形状、尺寸、材质、数量、使用环境、未决定事项）\n\n价格、公司名称和数值不要凭推测编造，不清楚的请写"待确认"。',
   json:'7. 最后，请按下面的格式只输出一个 ```json 代码块（粘贴回 KATACHI 后会填入这些项目）。\n- value 是值，quote 是从【想做的东西】原文中逐字照抄的依据部分（40字以内）\n- 【想做的东西】中没有写的，或写着未定的，value 填“要確認”，quote 留空（不要推测）\n- 尺寸、重量、数量请带单位（width=宽，length=长或深，height=高，weight=产品重量，load=承载重量，scope=委托到哪一步（从设计开始／有图纸只需制作 等），due=希望时间，budget=预算・目标单价，docs=手头的资料）。每个数组最多8项\n'+SX_TPL,cil:'- category_items 的 item 请从下列项目名中选择，并原样照写：',
   back:'规格备忘完成后，我会回到 KATACHI（'+KSITE+'）粘贴并向工厂询价。',q:{proto:'试制（1-10个）',small:'小批量（500个以内）',mass:'量产（500个以上）'}}};
+// 仕様書で決まっていること・まだのこと（AIに聞き直させない）
+function fsDoneLines(A){let F=null;try{F=A&&A.concept&&A.concept===(S.anal&&S.anal.concept)?fsNow():(A&&A.concept?fsBuild(A):null)}catch(e){}if(!F)return {done:[],open:[]};
+  const done=[],open=[];for(const i of F.items){const v=F.V[i.k];if(v&&v.v&&!/要確認/.test(v.v))done.push('- '+i.t+'：'+String(v.v).slice(0,160)+'（'+(v.lv||'')+'）');else open.push(i.t)}return {done,open}}
+function fileLines(){return (S.files||[]).map((f,i)=>{const m=[f.k,f.role&&f.role!==MROLE[0]?f.role:'',f.dim?'大きさ '+f.dim:'',f.memo||'',f.url||''].filter(Boolean).join(' ／ ');return '- '+f.name+(m?'（'+m.slice(0,200)+'）':'')})}
 function aiQuestion(A,max){const L=AIQ[typeof LANG==='string'&&AIQ[LANG]?LANG:'ja'];const t=x=>typeof tx==='function'?tx(x):x;
   let idea=(A&&A.idea!==undefined?A.idea:S.idea||'').trim();if(max&&idea.length>max)idea=idea.slice(0,max)+' …';
   const steps=(A?.names||(A?.codes||[]).map(c=>CAPN[c]||c)).map(x=>'- '+t(x));
@@ -1179,6 +1183,7 @@ function aiQuestion(A,max){const L=AIQ[typeof LANG==='string'&&AIQ[LANG]?LANG:'j
     ...(A?.regs?.length?['',`【${L.regs}】`,A.regs.map(x=>'- '+t(x)).join('\n')]:[]),
     ...(S.files?.length?['',`【${L.files}】`,S.files.map(f=>'- '+f.name).join('\n')]:[]),
     ...(A?.concept?['',`【${L.concept}】`,t(A.concept.name),...A.concept.rows.map(([k,v])=>`- ${t(k)}: ${Array.isArray(v)?v.map(x=>JA.test(x)?t(x):x).join(''):t(v)}`),...(cvarOf(A.concept)>=0?[`- ${L.dir}: ${t(A.concept.vars[cvarOf(A.concept)][0])} — ${t(A.concept.vars[cvarOf(A.concept)][1])}`]:[])]:[]),
+    ...(A?.concept&&(typeof LANG!=='string'||LANG==='ja')?(()=>{const D=fsDoneLines(A);return D.done.length?['','【決まっていること（質問への回答・図で決めた形を含む。聞き直さないでください）】',...D.done,...(D.open.length?['まだ決まっていないこと：'+D.open.join('、')]:[])]:[]})():[]),
     '',...(A?.home?[]:[A?.concept?L.cask:L.iask]),L.ask,...(A?.home?[]:['',L.json+(()=>{const n=A&&A.concept?fsCats(A,A.concept).flatMap(k=>k.items.map(i=>i.t)):[];return n.length?'\n'+L.cil+n.join('、'):''})()]),'',L.back].join('\n')}
 // URLが長すぎると開けないことがあるので、文章を短くして渡す（全文はクリップボードに入れる）
 // Gemini は質問文をURLで渡せないので、開くだけ（質問文はクリップボードに入れて貼ってもらう）
@@ -1689,7 +1694,9 @@ function edParse(raw,c){const t=String(raw||'').normalize('NFKC').replace(/\s+/g
     if(/手すり|手摺|柵|ガード|落下防止|転落防止/.test(tt))set.rail=!neg.test(tt)}
   if(!Object.keys(set).length){const big=tt.match(/(\d+)(%|割)(大きく|小さく)/);
     if(/(全体|大きさ|サイズ)を?(もっと|少し|ひと回り|一回り)?大き/.test(tt)||/ひと回り大き|一回り大き/.test(tt))['w','l','h'].forEach(k=>set[k]=r10(f[k]*1.2));else if(/(全体|大きさ|サイズ)を?(もっと|少し|ひと回り|一回り)?小さ/.test(tt)||/ひと回り小さ|一回り小さ/.test(tt))['w','l','h'].forEach(k=>set[k]=r10(f[k]*.8));
-    else if(big){const p=+big[1]*(big[2]==='割'?10:1)/100;['w','l','h'].forEach(k=>set[k]=r10(f[k]*(big[3]==='大きく'?1+p:1-p)))}}
+    else if(big){const p=+big[1]*(big[2]==='割'?10:1)/100;['w','l','h'].forEach(k=>set[k]=r10(f[k]*(big[3]==='大きく'?1+p:1-p)))}
+    // 何を、が無い「もっと大きく」「小さめに」は全体
+    else if(/^(もっと|少し|すこし|ちょっと|全体的に)?(大きく|大きめ|でかく)/.test(tt))['w','l','h'].forEach(k=>set[k]=r10(f[k]*1.2));else if(/^(もっと|少し|すこし|ちょっと|全体的に)?(小さく|小さめ|コンパクトに)/.test(tt))['w','l','h'].forEach(k=>set[k]=r10(f[k]*.8))}
   return set}
 // 値を図に入れる。高さを変えたら傾きは保つ（長さを直す）。傾きを変えたら長さを直す。階段は段数から1段の高さを出す
 function edApply(c,set,src){const E=edOf(),f0=figOf(c),log=[];const nm={w:'幅',l:'長さ',h:'高さ'};
@@ -1728,18 +1735,29 @@ function kzFrame(f){if(f.k!=='slope')return `x=左右（中心が0）、y=上（
   return `x=左右（中心が0、幅は${-Math.round(f.w/2)}〜${Math.round(f.w/2)}）、y=上（地面が0、上の端は${f.h}）、z=長さの向き（上り口が${-Math.round(f.l/2)}、上の端が${Math.round(f.l/2)}`+(f.pool?`、プールの壁が${pz}、プールの中は${pz+35}より先`:'')+'）'}
 function kzLine(f){const E=edOf();return ['v1','s='+kzSid(),'w='+f.w,'l='+f.l,'h='+f.h,...(f.k==='slope'?['o='+(f.ost?'t':'s'),'i='+(f.inpool?(f.ist?'t':'s'):'0'),'r='+f.rise,'tr='+f.tread,'rail='+(f.rail?1:0)]:[]),
   ...(E.parts||[]).map(p=>p.t==='cyl'?`cyl=${p.x},${p.y},${p.z},${p.r},${p.h}`:`box=${p.x},${p.y},${p.z},${p.w},${p.h},${p.d}`)].join(';')}
-function kzPrompt(c,ask){const f=figOf(c),L=shList(),E=edOf();const ex=KZ_HOST+'?kz='+kzLine(f);
-  return [`KATACHI（製品づくりのサイト）で作った「${c.name}」の参考図（たたき台）を、私と相談しながら直してください。`,'',
-  '【いまの形（単位mm）】','- '+shapeTxt(f).replace(/cm/g,'cm'),`- 数値：幅 ${f.w} / 長さ ${f.l} / 高さ ${f.h}`+(f.k==='slope'?` / 外側 ${f.ost?'階段':'スロープ'} / プールの中 ${f.inpool?(f.ist?'階段':'スロープ'):'なし'} / 1段の高さ ${f.rise} / 踏み面 ${f.tread} / 手すり ${f.rail?'あり':'なし'}`:''),
+function kzPrompt(A,ask,max){const c=A.concept,f=figOf(c),L=shList(),E=edOf();const ex=KZ_HOST+'?kz='+kzLine(f);
+  let idea=splitAi(A.idea!==undefined?A.idea:S.idea||'')[0].trim();if(max&&idea.length>max)idea=idea.slice(0,max)+' …';
+  const D=fsDoneLines(A),fl=fileLines(),lim=(a,n)=>max&&a.length>n?[...a.slice(0,n),'- ほか'+(a.length-n)+'件']:a;
+  return [`KATACHI（製品づくりのサイト）で「${c.name}」を作る相談をしています。下の内容はKATACHIで入力・回答済みです。`,'**ここに書いてあることは聞き直さず、前提として使ってください。**足りない点だけ、まとめて短く聞いてください。','',
+  '【作りたいもの（私が書いた文章）】',idea||'（なし）','',
+  '【数量】',{proto:'試作（1〜数個）',small:'小ロット（数十〜数百個）',mass:'量産（数千個〜）'}[S.qty]||'試作',
+  ...(()=>{const r=(c.rows||[]).map(([k,v])=>[k,Array.isArray(v)?v.join(''):String(v)]).filter(([k,v])=>!D.done.some(d=>d.includes(v.slice(0,24))));return r.length?['','【KATACHIが読み取った内容】',...r.map(([k,v])=>`- ${k}：${v}`)]:[]})(),
+  ...(D.done.length?['','【決まっていること（質問への回答・図で決めた形を含む）】',...lim(D.done,max?12:99)]:[]),
+  ...(D.open.length?['','【まだ決まっていないこと（今回の相談に関係するものだけ聞いてください）】',D.open.slice(0,max?8:99).join('、')]:[]),
+  ...(fl.length?['','【添付した写真・資料（KATACHIに保存済み。AIには送っていません）】',...lim(fl,max?5:99)]:[]),'',
+  '【いまの参考図（単位mm）】','- '+shapeTxt(f),`- 数値：幅 ${f.w} / 長さ ${f.l} / 高さ ${f.h}`+(f.k==='slope'?` / 外側 ${f.ost?'階段':'スロープ'} / プールの中 ${f.inpool?(f.ist?'階段':'スロープ'):'なし'} / 1段の高さ ${f.rise} / 踏み面 ${f.tread} / 手すり ${f.rail?'あり':'なし'}`:''),
   ...((E.parts||[]).length?['- 追加した部品：'+E.parts.map(p=>p.t==='cyl'?`円柱(中心 ${p.x},${p.y},${p.z} 半径 ${p.r} 高さ ${p.h})`:`箱(中心 ${p.x},${p.y},${p.z} 幅 ${p.w} 高さ ${p.h} 奥行 ${p.d})`).join('、')]:[]),
   ...(L.length?['- 図に出ていない要望：'+L.map(x=>x.t).join('、')]:[]),
-  '- 座標：'+kzFrame(f),'',`【私の要望】`,ask||'（これから話します。何を直したいか聞いてください）','',
-  '【お願い】','1. 形・寸法・安全の点で気になることがあれば、短く質問・提案してください。',
+  '- 座標：'+kzFrame(f),'',`【今回、直したいこと】`,ask||'（特になし。上の内容を見て、図と仕様で直したほうがよい点を提案してください）','',
+  '【お願い】','1. 上の前提を踏まえて答えてください。質問は本当に必要なものだけ、1回にまとめてください。',
   '2. 決まったら、最後に必ず次の形のリンクを1つだけ出してください（Markdownのリンク、URLに空白を入れない）。',
   `[KATACHIで開く](${ex})`,
   '書き方：v1;s=…（そのまま）;w=幅;l=長さ;h=高さ'+(f.k==='slope'?';o=外側（s=スロープ,t=階段）;i=プールの中（0=なし,s=スロープ,t=階段）;r=1段の高さ;tr=踏み面;rail=手すり（0か1）':'')+
-  '。数値はmmの整数。変えない項目もすべて書く。上の数値で表せない形は、部品を足す：box=中心x,中心y,中心z,幅,高さ,奥行（直方体）、cyl=中心x,中心y,中心z,半径,高さ（縦の円柱）。部品は全部で20個まで、いまある部品も残すなら書く。図にできない要望は req=短い文（「;」と空白は使わない）。',
+  '。数値はmmの整数。変えない項目もすべて書く。上の数値で表せない形は、部品を足す：box=中心x,中心y,中心z,幅,高さ,奥行（直方体）、cyl=中心x,中心y,中心z,半径,高さ（縦の円柱）。部品は全部で20個まで、いまある部品も残すなら書く。図にできない要望・仕様の変更は req=短い文（「;」と空白は使わない、いくつでも）。',
   '3. リンクの前に、変えた点を3行以内でまとめてください。'].join('\n')}
+// URLで渡せる長さに収める（全文はクリップボード）
+function kzUrl(n,A,ask){if(n==='Gemini')return AI_HOME.Gemini;const base=n==='ChatGPT'?'https://chatgpt.com/?q=':'https://claude.ai/new?q=';
+  for(const max of [0,2500,1200,600,250]){const u=base+encodeURIComponent(kzPrompt(A,ask,max));if(u.length<=14000)return u}return AI_HOME[n]}
 function kzParse(raw){const m=String(raw||'').normalize('NFKC').match(/kz=([^\s)\]>"'`]+)/);if(!m)return {err:'KATACHIのリンク（kz=…）が見つかりませんでした。'};
   let s=m[1];try{s=decodeURIComponent(s)}catch(e){}const out={set:{},parts:null,reqs:[],skip:[]};const n=x=>/^-?\d+(\.\d+)?$/.test(x)?Math.round(+x):NaN;
   for(const tok of s.split(';').map(x=>x.trim()).filter(Boolean)){const [k,...vv]=tok.split('=');const v=vv.join('=');if(k==='v1'||k==='s')continue;
@@ -1763,8 +1781,8 @@ function kzBox(c){return `<div class="kzai"><b>AIと相談して直す</b><span 
     <details class="kzpaste"><summary>AIの答えを貼る（リンクが開けなかったとき）</summary><textarea id="kzIn" rows="3" placeholder="AIの答え（KATACHIで開くリンクを含む）を貼り付け"></textarea><button type="button" class="btn sm" id="kzGo">図に入れる</button></details></div>`}
 function wireKz(A){const c=A.concept,box=$('#cEd');if(!c||!box)return;
   box.querySelectorAll('[data-kzgo]').forEach(b=>b.onclick=async()=>{const n=b.dataset.kzgo,ask=($('#cEdT').value||'').trim();const w=window.open('about:blank','_blank');
-    await kzKeep();const q=kzPrompt(c,ask);aiCopy(q);track('ai_shape_go',{ai:n});
-    const url=n==='Gemini'?AI_HOME.Gemini:(n==='ChatGPT'?'https://chatgpt.com/?q=':'https://claude.ai/new?q=')+encodeURIComponent(q);
+    await kzKeep();const q=kzPrompt(A,ask);aiCopy(q);track('ai_shape_go',{ai:n});
+    const url=kzUrl(n,A,ask);
     if(w){w.opener=null;w.location.href=url}else location.href=url;
     S.edMsg=`<p class="cedok"><span>${esc(n)}を開きました。</span>${n==='Gemini'?'<span>質問文をコピーしたので、貼り付けて送ってください。</span>':'<span>質問文が入っていないときは、貼り付けて送ってください（コピー済み）。</span>'}<span>AIの答えの最後にある「KATACHIで開く」を押すと、ここに戻ります。</span></p>`;$('#cEdMsg').innerHTML=S.edMsg});
   $('#kzGo')&&($('#kzGo').onclick=()=>{const K=kzParse($('#kzIn').value);if(K.err){$('#cEdMsg').innerHTML=`<p class="cedq"><b>${esc(K.err)}</b><span>AIに「KATACHIで開くリンクを、決まった形でもう一度出して」と頼んでください。</span></p>`;track('ai_shape_back',{ok:0,via:'paste'});return}
