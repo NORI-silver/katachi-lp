@@ -137,7 +137,7 @@ def idea_pages():
         for g in graph:
             if g.get("@type") == "Article":
                 g["image"] = SITE + img
-        head = IDEAS_MOD.CSS + V.CSS + og(title, desc, url, "article", img) + ld({"@context": "https://schema.org", "@graph": graph})
+        head = IDEAS_MOD.CSS + V.CSS + F.CSS + og(title, desc, url, "article", img) + ld({"@context": "https://schema.org", "@graph": graph})
         # 濃くしてから公開（Nori 2026-11-14）：中身が足りない作例は検索に出さない（ideas.is_deep）
         page(OUT, f"/idea/{x['k']}/", title, desc, body, head=head, full_title=True, noindex=not IDEAS_MOD.is_deep(x))
     title, desc, body, graph = IDEAS_MOD.index_html()
@@ -149,8 +149,21 @@ def idea_factory(x):
     ps = [F.PROC_BY[c] for c in codes if c in F.PROC_BY]
     if not ps:
         return ""
-    return ('<h2 class="sub">この作例を頼める会社</h2><ul>'
+    # 会社の例：その工程で試作対応・図面なし相談・最小ロットの記載がある会社（企業DBの公開情報。推薦や評価ではない）
+    global _FDB
+    if _FDB is None:
+        _FDB = F.DB(OUT)
+    rows = sorted((r for r in _FDB.nat.get(ps[0][0], []) if r[6] or r[7] or r[8] is not None), key=F._key)[:6]
+    ex = ""
+    if rows:
+        ex = (f'<h2>{ps[0][2]}で試作・小ロットの記載がある会社（例）</h2>'
+              '<p>KATACHIの企業DB（公開情報）から、試作対応・図面なし相談・最小ロットの記載がある会社を挙げています。掲載の順は推薦や評価ではありません。</p>'
+              '<ul class="clist">' + "".join(F.company_li(r, show_pref=True) for r in rows) + "</ul>")
+    return (ex + '<h2 class="sub">この作例を頼める会社</h2><ul>'
             + "".join(f'<li><a href="/factory/{p[1]}/">{p[2]}の会社を都道府県から探す</a></li>' for p in ps) + "</ul>")
+
+
+_FDB = None
 
 
 def sitemap(fpages=()):
