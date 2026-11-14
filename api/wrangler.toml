@@ -21,3 +21,9 @@ simple = { limit = 10, period = 60 }
 
 [observability]
 enabled = true
+
+# データ（data/*.json）は文字列のまま同梱して起動時に JSON.parse する（JSのオブジェクトにすると日本語が \u エスケープされ3倍の大きさになる）
+[[rules]]
+type = "Text"
+globs = ["**/*.json"]
+fallthrough = false
