@@ -267,6 +267,13 @@ UI = [
     ('Bluetoothモジュール', 'Bluetooth module', '蓝牙模块'), ('Wi-Fiモジュール', 'Wi-Fi module', 'Wi-Fi模块'), ('温度センサー', 'Temperature sensor', '温度传感器'),
     ('振動モーター', 'Vibration motor', '振动马达'), ('マイコン', 'Microcontroller', '单片机'), ('充電IC', 'Charger IC', '充电IC'), ('ブザー', 'Buzzer', '蜂鸣器'),
     ('型番・メーカー', 'Part no. / maker', '型号・厂商'), ('説明', 'Description', '说明'), ('単価（1個）・在庫', 'Unit price (qty 1) / stock', '单价（1个）・库存'),
+    ('質問', 'Question', '问题'),
+    ('いくつでも選べます', 'Pick as many as apply', '可多选'),
+    ('その他（自由に書く）', 'Other (type freely)', '其他（自由填写）'),
+    ('次へ', 'Next', '下一步'),
+    ('あとで', 'Later', '稍后'),
+    ('直す', 'Edit', '修改'),
+    ('選ぶか、書いてから「次へ」を押してください', 'Pick or type something, then press "Next".', '请先选择或填写，再按「下一步」。'),
 ]
 
 def _j(x):
