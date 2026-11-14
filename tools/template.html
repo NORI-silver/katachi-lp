@@ -733,6 +733,15 @@ details.grp>.in{display:grid;gap:12px;padding:0 14px 14px}
 .wzq .wzs[hidden]{display:none!important}.wzq .cks .chk{display:flex;gap:10px;align-items:center}
 .wzql{font-size:20px;line-height:1.4;color:var(--fg)}.wzq .wzs.wzqd > span{display:none!important}
 .wzhide{display:none!important}
+.mine{margin-top:18px;max-width:760px}.mineh{display:flex;align-items:center;gap:10px;font-size:14px;margin-bottom:8px}.mineh b{font-weight:700}
+.minerow{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;padding:2px 2px 8px;-webkit-overflow-scrolling:touch}
+.mcard{position:relative;flex:0 0 200px;scroll-snap-align:start}.mgo{display:grid;gap:4px;align-content:start;width:100%;height:100%;min-height:104px;text-align:left;padding:12px 30px 12px 12px;border:1px solid var(--line2);border-radius:14px;background:#fff;color:var(--fg);font:inherit;cursor:pointer}
+.mgo:hover{border-color:var(--ice);background:var(--hover)}.mgo b{font-size:14.5px;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.mgo small{font-size:12px;color:var(--mute);line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.mst{justify-self:start;font-size:11.5px;padding:2px 8px;border-radius:99px;border:1px dashed var(--ice);color:var(--ice)}.mcard[data-st=sent] .mst{border:1px solid var(--mint);color:var(--mint)}
+.mt{font-size:11.5px;color:var(--dim)}.mdel{position:absolute;top:6px;right:6px;width:28px;height:28px;border:0;border-radius:99px;background:transparent;color:var(--dim);font-size:16px;cursor:pointer}.mdel:hover{background:var(--bg2);color:var(--fg)}
+.mundo{display:flex;align-items:center;gap:10px;font-size:13.5px;padding:10px 12px;border-radius:12px;background:var(--bg2)}
+.mdl{display:grid;gap:8px;margin:0}.mdl div{display:grid;gap:2px}.mdl dt{font-size:12px;color:var(--mute)}.mdl dd{margin:0;font-size:14px;white-space:pre-wrap;word-break:break-word}
 .wzopts{display:grid;gap:8px}.wzopt{text-align:left;font-size:15px;padding:14px 16px;border:1px solid var(--line2);border-radius:12px;background:#fff;color:var(--fg)}.wzopt.on,.wzopt:hover{border-color:var(--ice);background:var(--hover)}
 .wzh{margin:0;font-size:13px;color:var(--mute)}.wzh:empty,.wzerr:empty{display:none}.wzerr{margin:0;font-size:13px;color:#b42318}
 .wznav{display:flex;gap:10px}.wznav .btn{height:48px;flex:1}.wznav .btn.pri{flex:2}.wznav .btn[hidden]{display:none}
@@ -863,10 +872,66 @@ function bindStepBar(root){(root||document).querySelectorAll('[data-stepgo]').fo
   if(k===1){S.mode='free';location.hash=''}else if(k===2)location.hash='match';else if(k===3)location.hash='co'})}
 /* 相談の続き: 外部のAIへ行って戻っても、書いた内容・答え・貼りかけの回答が消えないよう、この端末の sessionStorage に置く（どこにも送らない） */
 const SAVEK='katachi-flow';
-function saveFlow(){try{sessionStorage.setItem(SAVEK,JSON.stringify({idea:S.idea,qty:S.qty,chat:S.chat,cvar:S.cvar,folds:S.folds,tune:S.tune,aiAway:S.aiAway,aiDraft:S.aiDraft,ckind:S.ckind||null,sx:S.sx||null,lai:S.lai?{base:S.lai.base,log:S.lai.log.slice(-12),concept:S.lai.concept}:null,nfiles:(S.files||[]).length,t:Date.now()}))}catch(e){}}
+function saveFlow(){try{sessionStorage.setItem(SAVEK,JSON.stringify({idea:S.idea,qty:S.qty,chat:S.chat,cvar:S.cvar,folds:S.folds,tune:S.tune,aiAway:S.aiAway,aiDraft:S.aiDraft,ckind:S.ckind||null,sx:S.sx||null,lai:S.lai?{base:S.lai.base,log:S.lai.log.slice(-12),concept:S.lai.concept}:null,nfiles:(S.files||[]).length,t:Date.now()}))}catch(e){}try{mineSave()}catch(e){}}
 function loadFlow(){try{const o=JSON.parse(sessionStorage.getItem(SAVEK)||'null');if(!o||!o.idea||Date.now()-o.t>864e5)return false;
   Object.assign(S,{idea:o.idea,qty:o.qty||S.qty,chat:o.chat,cvar:o.cvar,folds:o.folds||{},tune:o.tune,lai:o.lai||null,aiAway:o.aiAway,aiDraft:o.aiDraft||'',ckind:o.ckind||null,sx:o.sx||null,src:'text',matched:'text',gsel:[],gstep:{},gmore:{},planPick:'',gf:{area:'',proto:false}});
   if(o.nfiles&&!(S.files||[]).length)S.lostFiles=o.nfiles;return true}catch(e){return false}}
+/* ---------- 自分の依頼（Nori 2026-11-14「過去の依頼のドラフトとか依頼したやつとか保存できるようにしたい」） ----------
+   書きかけは自動で、送った依頼は送ったときに、この端末（localStorage・IndexedDB）にだけ残す。ログインなし、どこにも送らない。
+   トップの「つづきから」に並び、押すと続きの画面に戻る。送った依頼は中身と送り先を見返せて、「これをもとに新しく依頼する」で写して始められる。
+   文章で書く流れ（S.src==='text'）だけ。製品の種類によらず同じ形で残す */
+const MINEK='katachi-mine',MINEMAX=30;
+function mineAll(){try{const a=JSON.parse(localStorage.getItem(MINEK)||'[]');return Array.isArray(a)?a:[]}catch(e){return []}}
+function minePut(a){const keep=a.slice(0,MINEMAX);a.slice(MINEMAX).forEach(x=>mineDrop(x.sid));try{localStorage.setItem(MINEK,JSON.stringify(keep))}catch(e){}}
+const mineGet=sid=>sid?mineAll().find(x=>x.sid===sid):null;
+const mineLine=t=>String(t||'').split('\n\n'+MEMO)[0].replace(/\s+/g,' ').trim();
+function mineDrop(sid){try{localStorage.removeItem('katachi-ks-'+sid)}catch(e){}kzIdb().then(db=>{db.transaction('files','readwrite').objectStore('files').delete(sid)}).catch(()=>{})}
+function mineSave(){if(S.src!=='text'||!S.idea||S.matched==='example'||demo())return null;const sid=kzSid(),a=mineAll();let it=a.find(x=>x.sid===sid);
+  if(it&&it.st==='sent')return it;
+  try{localStorage.setItem('katachi-ks-'+sid,sessionStorage.getItem(SAVEK)||'')}catch(e){}
+  const c=S.anal&&S.anal.concept;it=Object.assign(it||{sid,st:'draft',c:Date.now()},{t:Date.now(),idea:mineLine(S.idea).slice(0,160)});if(c&&c.name)it.name=c.name;
+  if(/^#(match|co)$/.test(location.hash))it.step=location.hash==='#co'?3:2;
+  const sig=(S.files||[]).map(f=>f.name+':'+(f.size||'')).join('|');if(sig!==(it.fsig||'')){it.fsig=sig;kzFilesPut(sid)}
+  minePut([it,...a.filter(x=>x.sid!==sid)]);return it}
+function mineSet(sid,o){const a=mineAll(),it=a.find(x=>x.sid===sid);if(!it)return;Object.assign(it,o,{t:Date.now()});minePut([it,...a.filter(x=>x!==it)])}
+/* 見積の依頼の欄：書いた答えを残し、開き直したら戻す。初めての依頼でも、前に入れた連絡先（区分・会社名・名前・メール・電話）は入れておく */
+function mineRfVals(){const o={};$$('#rf [id^="f-"],#rf [id^="fs-"]').forEach(el=>{if(/^(f-agree|f-abroad-ok|f-spec)$/.test(el.id)||el.type==='file')return;if(el.type==='checkbox'){o[el.id]=el.checked;return}
+  if(el.classList.contains('cks')){const v=[...el.querySelectorAll('input:checked')].map(i=>i.value);if(v.length)o[el.id]=v}else if(/^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName)&&el.value)o[el.id]=el.value});return o}
+/* 欄は、最初に出た値（自動の下書き）と違うものだけ残す */
+function mineRfFill(){const it=mineSave();if(!it)return;const D0=mineRfVals(),diff=()=>{const o=mineRfVals();Object.keys(o).forEach(k=>{if(JSON.stringify(o[k])===JSON.stringify(D0[k]))delete o[k]});return o};const prev=mineAll().find(x=>x!==it&&x.rf),src=it.rf||(prev?Object.fromEntries(Object.entries(prev.rf).filter(([k])=>['f-who','f-org','f-name','f-mail','f-tel'].includes(k))):null);
+  if(src)Object.entries(src).forEach(([id,v])=>{const el=$('#'+CSS.escape(id));if(!el)return;
+    if(el.type==='checkbox')el.checked=!!v;else if(el.classList.contains('cks')){const vs=[].concat(v);el.querySelectorAll('input').forEach(i=>i.checked=vs.includes(i.value))}else if(el.tagName==='SELECT'){if([...el.options].some(o=>o.value===v))el.value=v}else el.value=v});
+  let tm=0;const keep=()=>{clearTimeout(tm);tm=setTimeout(()=>{if(S.sid===it.sid&&mineGet(it.sid)?.st!=='sent')mineSet(it.sid,{rf:diff()})},400)};$('#rf').addEventListener('input',keep);$('#rf').addEventListener('change',keep)}
+function mineSent(to,vals){const sid=S.sid;if(!sid||!mineGet(sid))return;mineSet(sid,{st:'sent',at:Date.now(),to,vals,rf:mineRfVals()});track('mine_save',{st:'sent'})}
+/* トップの「つづきから」 */
+function mineWhen(t){const d=new Date(t),n=new Date(),hm=String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'),day=x=>new Date(x.getFullYear(),x.getMonth(),x.getDate()).getTime(),k=(day(n)-day(d))/864e5;
+  return k===0?`<span>今日</span> ${hm}`:k===1?`<span>昨日</span> ${hm}`:`${d.getMonth()+1}/${d.getDate()}`}
+/* カードは利用者自身の言葉を題名に（同じ種類の製品が並んでも見分けられる） */
+const mineCard=x=>`<div class="mcard" data-st="${x.st}"><button type="button" class="mgo" data-mine="${esc(x.sid)}"><span class="mst">${x.st==='sent'?'依頼済み':'書きかけ'}</span><b translate="no">${esc(x.idea||x.name)}</b><span class="mt">${mineWhen(x.st==='sent'?x.at:x.t)}</span></button><button type="button" class="mdel" data-mdel="${esc(x.sid)}" aria-label="消す">×</button></div>`;
+function mineRow(){const a=mineAll();if(S.mode==='guided'||(!a.length&&!S.mineUndo))return '';
+  return `<section class="mine" id="mine" aria-label="つづきから"><div class="mineh"><b>つづきから</b></div>${S.mineUndo?`<div class="mundo"><span>消しました</span><button type="button" class="glink" id="mUndo">元に戻す</button></div>`:''}${a.length?`<div class="minerow">${a.map(mineCard).join('')}</div>`:''}</section>`}
+function mineBind(){const el=$('#mine');if(!el)return;
+  el.querySelectorAll('[data-mine]').forEach(b=>b.onclick=()=>mineOpen(b.dataset.mine));
+  el.querySelectorAll('[data-mdel]').forEach(b=>b.onclick=()=>{const a=mineAll(),i=a.findIndex(x=>x.sid===b.dataset.mdel);if(i<0)return;const it=a[i];track('mine_delete',{st:it.st});
+    if(S.mineUndo){clearTimeout(S.mineUndo.tm);mineDrop(S.mineUndo.it.sid)}
+    S.mineUndo={it,i,tm:setTimeout(()=>{mineDrop(it.sid);S.mineUndo=null;mineRedraw()},6000)};minePut(a.filter(x=>x!==it));if(S.sid===it.sid)S.sid=null;mineRedraw()});
+  $('#mUndo')&&($('#mUndo').onclick=()=>{const u=S.mineUndo;if(!u)return;clearTimeout(u.tm);S.mineUndo=null;const a=mineAll();a.splice(Math.min(u.i,a.length),0,u.it);minePut(a);mineRedraw()})}
+function mineRedraw(){const el=$('#mine'),h=mineRow();if(el){if(h)el.outerHTML=h;else el.remove()}else if(h&&$('#cmp'))$('#cmp').insertAdjacentHTML('afterend',h);mineBind()}
+async function mineOpen(sid){const it=mineGet(sid);if(!it)return;track('mine_open',{st:it.st});
+  if(it.st==='sent'){mineSheet(it);return}
+  try{const v=JSON.parse(localStorage.getItem('katachi-ks-'+sid)||'null');if(v){v.t=Date.now();localStorage.setItem('katachi-ks-'+sid,JSON.stringify(v))}}catch(e){}
+  const ok=await kzRestore(sid);if(!ok){minePut(mineAll().filter(x=>x.sid!==sid));mineRedraw();return}
+  S.autoPick=true;loadGDB();const h=it.step===3?'co':'match';if(location.hash==='#'+h)route();else location.hash=h}
+function mineSheet(it){
+  sheet(`${head('Sent','送った依頼')}<p class="muted" style="margin:0;font-size:13.5px">${mineWhen(it.at)} <span>に送りました。返事はメールで届きます。</span></p>
+    <button type="button" class="btn pri" id="mCopy" style="height:48px">これをもとに、新しく依頼する</button>
+    ${it.to&&it.to.length?`<div class="blk"><h4>送り先 · ${it.to.length}社</h4><ul class="list">${it.to.map(x=>`<li><span><b style="font-weight:600" translate="no">${esc(x.n)}</b>${x.role?`<span class="s" style="display:block" translate="no">${esc(x.role)}</span>`:''}</span></li>`).join('')}</ul></div>`:''}
+    <div class="blk"><h4>依頼した内容</h4><dl class="mdl">${(it.vals||[]).map(([l,v])=>`<div><dt>${esc(l)}</dt><dd translate="no">${esc(v)}</dd></div>`).join('')||`<div><dd translate="no">${esc(it.idea)}</dd></div>`}</dl></div>`);
+  $('#mCopy').onclick=async()=>{track('mine_copy',{});const sid=Math.random().toString(36).slice(2,10);
+    try{localStorage.setItem('katachi-ks-'+sid,localStorage.getItem('katachi-ks-'+it.sid)||'')}catch(e){}
+    try{const db=await kzIdb();const x=await new Promise(r=>{const q=db.transaction('files').objectStore('files').get(it.sid);q.onsuccess=()=>r(q.result);q.onerror=()=>r(null)});if(x)await new Promise(r=>{const tx=db.transaction('files','readwrite');tx.objectStore('files').put(x,sid);tx.oncomplete=r;tx.onerror=r})}catch(e){}
+    const rf=Object.assign({},it.rf||{});delete rf['f-due'];delete rf['f-wfrom'];delete rf['f-wto'];
+    minePut([{sid,st:'draft',c:Date.now(),t:Date.now(),idea:it.idea,name:it.name,step:3,rf,fsig:it.fsig},...mineAll()]);closeSheet();mineOpen(sid)}}
 /* 補助の機能は畳む。開いた状態は描き直しても保つ */
 const fold=(k,t,body,note)=>`<details class="fold" data-fold="${k}" ${(S.folds||{})[k]?'open':''}><summary><span>${t}</span>${note?`<small>${note}</small>`:''}</summary><div class="fb">${body}</div></details>`;
 function bindFolds(){S.folds=S.folds||{};$$('details[data-fold]').forEach(d=>d.ontoggle=()=>{S.folds[d.dataset.fold]=d.open;if(d.open)track('fold_open',{fold:d.dataset.fold})})}
@@ -898,6 +963,7 @@ function renderHome(){
       </div>
       <input type="file" id="fileIn" multiple hidden>
     </form>
+    ${mineRow()}
     <p class="logn">入力した内容は、サービスの改善と傾向の分析のために保存します。メールアドレスや電話番号は書かないでください。</p>
     ${S.mode==='guided'?'':`<ol class="nexts" aria-label="このあとの流れ">
       <li><b><i>1</i>書く</b><span>作りたいものを一文で</span></li><li><b><i>2</i>イメージを確かめる</b><span>形・サイズ・素材の案</span></li>
@@ -922,7 +988,7 @@ function renderHome(){
       <dt>${mk('unk','要確認')}</dt><dd>まだわからないこと。減点せず、見積依頼で確かめます。</dd>
     </dl>
   </div></div></section>`;
-  bindHome();field();
+  bindHome();field();mineBind();
   $$('[data-mode]').forEach(b=>b.onclick=()=>{if(S.mode===b.dataset.mode)return;S.mode=b.dataset.mode;track('switch_mode',{to:S.mode});if(S.mode==='guided')loadGDB();renderHome()});
   if(S.mode==='guided'){renderGuided();loadGDB()}
   renderIdeas();renderRank();
@@ -1755,9 +1821,10 @@ const KZ_HOST='https://katachi.shiokonbu.com/';
 const kzSid=()=>S.sid||(S.sid=Math.random().toString(36).slice(2,10));
 function kzIdb(){return new Promise((ok,ng)=>{try{const r=indexedDB.open('katachi',1);r.onupgradeneeded=()=>r.result.createObjectStore('files');r.onsuccess=()=>ok(r.result);r.onerror=()=>ng(r.error)}catch(e){ng(e)}})}
 async function kzKeep(){const sid=kzSid();saveFlow();try{localStorage.setItem('katachi-ks-'+sid,sessionStorage.getItem(SAVEK)||'')}catch(e){}
+  await kzFilesPut(sid);return sid}
+async function kzFilesPut(sid){
   try{const db=await kzIdb();const fs=(S.files||[]).map(f=>({name:f.name,k:f.k,m:f.m,role:f.role,dim:f.dim,memo:f.memo,url:f.url,thumb:f.thumb&&!/^blob:/.test(f.thumb)?f.thumb:'',text:f.text,file:f.file||null,size:f.size}));
-    await new Promise(r=>{const tx=db.transaction('files','readwrite');tx.objectStore('files').put({t:Date.now(),fs},sid);tx.oncomplete=r;tx.onerror=r})}catch(e){}
-  return sid}
+    await new Promise(r=>{const tx=db.transaction('files','readwrite');tx.objectStore('files').put({t:Date.now(),fs},sid);tx.oncomplete=r;tx.onerror=r})}catch(e){}}
 async function kzRestore(sid){let ok=false;try{const v=localStorage.getItem('katachi-ks-'+sid);if(v){sessionStorage.setItem(SAVEK,v);ok=loadFlow()}}catch(e){}
   if(ok){S.sid=sid;S.lostFiles=0;try{const db=await kzIdb();const x=await new Promise(r=>{const q=db.transaction('files').objectStore('files').get(sid);q.onsuccess=()=>r(q.result);q.onerror=()=>r(null)});
     if(x&&x.fs){S.files=x.fs.map(f=>Object.assign({},f,f.file?{thumb:/^image\//.test(f.file.type||'')?URL.createObjectURL(f.file):f.thumb}:{}));S.files.forEach(f=>{if(f.file&&typeof mediaPrep==='function'&&/^video\//.test(f.file.type||''))try{mediaPrep(f)}catch(e){}})}}catch(e){}}
@@ -2902,7 +2969,7 @@ function wireLai(c){const b=$('#mLai');if(!b)return;const inp=$('#mLaiIn');const
 function pick(text){for(const [k,re] of [['collar',/犬|猫|ペット|首輪|動物|心拍/],['mimamori',/見守|高齢|ドア|開閉|室温|部屋/],['bike',/自転車|ライト|ハンドル|バイク/]])if(re.test(text))return[k,'near'];return['collar','fallback']}
 function go(ex){
   S.idea=$('#idea').value.trim()||S.files.map(f=>f.name).join('、');
-  if(!ex){S.aiAway=null;S.aiDraft='';S.autoPick=true;S.src='text';S.matched='text';S.gsel=[];S.gstep={};S.gmore={};S.planPick='';S.gf={area:'',proto:false,to:(S.gf||{}).to||''};loadGDB();location.hash='match';if(location.hash==='#match')renderMatch();return}
+  if(!ex){const pv=mineGet(S.sid),hd=t=>mineLine(t).slice(0,10);if(!pv||pv.st==='sent'||hd(pv.idea)!==hd(S.idea))S.sid=null;S.aiAway=null;S.aiDraft='';S.autoPick=true;S.src='text';S.matched='text';S.gsel=[];S.gstep={};S.gmore={};S.planPick='';S.gf={area:'',proto:false,to:(S.gf||{}).to||''};loadGDB();location.hash='match';if(location.hash==='#match')renderMatch();return}
   S.scen=ex;S.matched='example';S.src='example'
   S.lastReal=S.scen;S.plan=0;S.custom=false;S.tab='team';setPlan(0);S.viewSent=false;
   const R=D.scen[S.scen];const steps=['要件を読み取る',`${R.per_requirement.length}の工程に分ける`,`${fmt(D.realCount)}社から候補を探す`,'チームを組む'];
@@ -3318,7 +3385,7 @@ function rfq(names){
       <button class="btn pri" type="submit" style="height:48px">この内容で依頼する</button>
     </form>`);
   renderMedia();fsFormFill();{const F=fsNow(),ok=v=>v&&v.v&&CORE_OKL.includes(v.lv);if(F){if(ok(F.V.size)&&!$('#f-size').value)$('#f-size').value=F.V.size.v;if(ok(F.V.due)&&!$('#f-due').value)$('#f-due').value=F.V.due.v;if(ok(F.V.mat)&&$('#f-matl')&&!$('#f-matl').value)$('#f-matl').value=F.V.mat.v;const df=fsAns().dueflex,dv=df&&df.v?[].concat(df.v)[0]:(ok(F.V.dueflex)?F.V.dueflex.v:'');if(dv&&$('#f-fix')&&FLEX.includes(dv))$('#f-fix').value=dv}}renderReady();$('#f-fix')&&$('#f-fix').addEventListener('change',e=>{const fa=fsAns();if(e.target.value)fa.dueflex={v:[e.target.value]};else delete fa.dueflex;fsSave()});$('#rf').addEventListener('input',renderReady);$('#rf').addEventListener('change',e=>{const el=e.target.closest('[id^="fs-"]');if(el){fsFormSave(el);track('rfq_fs_answer',{item:el.id.slice(3)})}});
-  rfqWizard();
+  mineRfFill();rfqWizard();
   $('#trPrev')&&($('#trPrev').onclick=async()=>{track('translate_preview',{});
     const langs=[...new Set(names.map(n=>dlvLang(D.companies[n])))];const out=$('#trOut');
     const want=langs.filter(l=>l!==({ja:'日本語',en:'英語',zh:'中国語'})[window.KATACHI_LANG()]);
@@ -3342,7 +3409,7 @@ function rfq(names){
     const team=G?names.map(n=>({step:roles(n),company:n,country:D.companies[n]?.country||'JP'})):Object.entries(S.assign).map(([rid,n])=>({step:R().per_requirement.find(p=>p.requirement.id===rid)?.requirement.purpose||rid,company:n,country:D.companies[n]?.country||'JP'}));
     const ups=await upListD(),upKey=ups.list.length?rkey():'';
     const ok=await sendForm({type:'rfq',upload:upKey?{key:upKey,count:ups.list.length,bytes:ups.bytes}:undefined,lang:window.KATACHI_LANG?window.KATACHI_LANG():'ja',idea:S.idea||r.idea,matched:S.matched||'',scenario:S.scen,plan:R().teams[S.plan]?.profile||'',steps:G&&S.src==='text'?(S.anal?.codes||[]).map(c=>CAPN[c]||c):undefined,guided:G&&S.src==='guided'?{category:gCat()?.t,process:S.g.proc,material:S.g.mat,quantity:S.g.qty,drawing:S.g.draw,due:S.g.due,region:S.g.reg,caps:gCodes()}:undefined,fields:allVals(r,qty).concat(mediaVals()),team:team.filter(t=>abroadOk||!abroad(D.companies[t.company])),abroad_ok:abroadOk,files:S.files.map(f=>f.name),slot:slotOf(),page:location.href.split('#')[0]});
-    btn.disabled=false;
+    btn.disabled=false;if(ok)mineSent(names.map(n=>({n,role:roles(n)})),rfqVals(r,qty));
     track('generate_lead',{type:'rfq',sent:ok,requester:$('#f-who').selectedIndex?'individual':'company',companies:names.length,quantity:S.qty,files:S.files.length,material:$('#f-mat').selectedIndex,optional_filled:rfqVals(r,qty).length,optional_total:all.length,nda:$('#f-nda').selectedIndex,overseas_ok:$('#f-abr').selectedIndex===0});
     const upr=ok&&upKey?await uploadWithUI(upKey,ups):null;done('見積の依頼を受け付けました',`<ol class="tl"><li class="now"><span><b>今日</b> 担当者が内容を確認</span></li><li><span><b>1〜3日</b> ${names.length}社へ打診</span></li><li><span><b>1〜2週間</b> 見積が届き、表に金額と納期が並ぶ</span></li><li><span><b>あなたが決める</b> 発注先を選んで試作へ</span></li></ol>${lastSent?upNote(upr,ups):''}`)};
 }
