@@ -80,6 +80,7 @@ function doPost(e) {
       team, p.abroad_ok ? 'はい' : '', other.join('\n').slice(0, 45000), (p.files || []).join('、'), '未対応', openUpload_(id, p.upload)];
     var sh = sheet_();
     sh.appendRow(row.map(safe_));
+    if (p.type === 'rfq') { try { slotRequest_(id, p.slot, f); } catch (err) { console.error(err); } }
     notifyAdmin_(id, row, sh);
     replyUser_(id, email, p, f);
     out = {ok: true, id: id};
@@ -464,6 +465,7 @@ function partner_(p) {
     (prof.completeness != null ? prof.completeness + '%' : ''), (r.agreements || {}).reviews_publish ? 'はい' : 'いいえ', '未確認', '', openUpload_(id, p.upload), json];
   var sh = partnerSheet_();
   sh.appendRow(row.map(safe_));
+  try { slotPartner_(id, name, prof); } catch (err) { console.error(err); }
   try { notifyPartnerAdmin_(id, row, sh); } catch (err) { console.error(err); }
   try { replyPartner_(id, email, p.lang, name, p.upload); } catch (err) { console.error(err); }
   return {ok: true, id: id};
@@ -781,4 +783,205 @@ function specSheet_() {
     sh.setFrozenRows(1);
   }
   return sh;
+}
+
+// ---------- 空き枠と時期の幅（小口の依頼を工場の空き時期に合わせる） ----------
+// 依頼: 見積の依頼の slot = {flex, from, to, due, bundle, codes, mat, qty} を「依頼の時期」タブに1行。
+//   flex は時期の幅（fixed=この日までに必要／m1=1か月ほど前後してよい／m3=2〜3か月のうちいつでも／any=急がない／''=選ばない）
+// 工場: 提携申込みの profile.idle_slots = [{code, material, qty_min, qty_max, from, to, discount}] を「空き枠」タブに1行ずつ。
+// 照らし合わせ: 関数 matchSlots（毎朝。setupSlots を1回実行すると時間の引き金が入る）が
+//   工程が同じ・材料が合う（どちらかが空なら通す）・個数が幅に入る・期間が重なる組を「空き枠に合う」タブに、
+//   まとめてよいと答えた同じ工程・材料の依頼で期間が重なるものを「まとめ候補」タブに書き、新しく見つかった組を運営者にメールする。
+// 工場への連絡は担当者が内容を確認してから手で行う（自動では送らない）。値引きは工場が入れた場合だけ表示する。
+var SLOT_REQ_HEAD = ['受付番号', '受付日時', '工程コード', '工程', '材料', '数量', '時期の幅', '作り始めてよい月', '遅くとも受け取りたい月', '希望の時期（入力）', 'まとめてよいか', '状態'];
+var SLOT_HEAD = ['申込番号', '登録日時', '会社名', '工程コード', '材料', '個数の下限', '個数の上限', '空く月（から）', '空く月（まで）', '空き時期の値引き', '小口をまとめて受けられる', '状態'];
+var SLOT_FLEX = {fixed: 'この日までに必要', m1: '1か月ほど前後してよい', m3: '2〜3か月のうちいつでも', any: '急がない（空き時期でよい）'};
+var SLOT_DISC = {none: '値引きなし', ask: '値引きは相談可', '5': '目安 5%', '10': '目安 10%', '15': '目安 15%以上'};
+
+function slotTab_(name, head) {
+  var ss = sheet_().getParent(), sh = ss.getSheetByName(name);
+  if (!sh) { sh = ss.insertSheet(name); sh.appendRow(head); sh.setFrozenRows(1); }
+  return sh;
+}
+
+function slotRequest_(id, sl, f) {
+  if (!sl || typeof sl !== 'object') return;
+  var s = function (v, n) { return String(v == null ? '' : v).slice(0, n || 200); };
+  var codes = [].concat(sl.codes || []).map(function (c) { return s(c, 80); }).filter(String).slice(0, 12);
+  slotTab_('依頼の時期', SLOT_REQ_HEAD).appendRow([id, new Date(), codes.join('\n'), [].concat(sl.names || []).slice(0, 12).map(function (x) { return s(x, 60); }).join('\n'), s(sl.mat), s(sl.qty), SLOT_FLEX[sl.flex] || '',
+    slotMonth_(sl.from), slotMonth_(sl.to), s(sl.due || f['f-due'], 100), sl.bundle === 1 ? 'まとめてよい' : sl.bundle === -1 ? 'まとめない' : '', '未対応'].map(safe_));
+}
+
+function slotPartner_(id, name, prof) {
+  var list = [].concat((prof || {}).idle_slots || []).slice(0, 8);
+  if (!list.length) return;
+  var sh = slotTab_('空き枠', SLOT_HEAD), now = new Date();
+  list.forEach(function (x) {
+    if (!x || !x.code) return;
+    var n = function (v) { v = Number(v); return v > 0 && v < 1e9 ? Math.round(v) : ''; };
+    sh.appendRow([id, now, String(name).slice(0, 200), String(x.code).slice(0, 80), String(x.material || '').slice(0, 200), n(x.qty_min), n(x.qty_max),
+      slotMonth_(x.from), slotMonth_(x.to), SLOT_DISC[x.discount] || '', prof.bundle_ok ? 'はい' : '', '未確認'].map(safe_));
+  });
+}
+
+// 'YYYY-MM' だけ通す（それ以外は空）
+function slotMonth_(v) {
+  if (v instanceof Date) return Utilities.formatDate(v, 'Asia/Tokyo', 'yyyy-MM');
+  var m = String(v || '').match(/^(\d{4})-(\d{1,2})/);
+  return m && +m[2] >= 1 && +m[2] <= 12 ? m[1] + '-' + ('0' + +m[2]).slice(-2) : '';
+}
+// 月を数に（年*12+月-1）と、その逆
+function slotN_(ym) { var m = String(ym || '').match(/^(\d{4})-(\d{2})/); return m ? +m[1] * 12 + +m[2] - 1 : null; }
+function slotYm_(n) { return Math.floor(n / 12) + '-' + ('0' + (n % 12 + 1)).slice(-2); }
+
+// 希望の時期の文から、受け取りたい月を読む（読めなければ null）。now は受付の月（数）
+function slotDue_(t, now) {
+  t = String(t || '').replace(/[０-９]/g, function (c) { return String.fromCharCode(c.charCodeAt(0) - 0xFEE0); });
+  var m = t.match(/(\d{4})\s*[年\/.-]\s*(\d{1,2})\s*月?/);
+  if (m && +m[2] >= 1 && +m[2] <= 12) return +m[1] * 12 + +m[2] - 1;
+  m = t.match(/(\d{1,2})\s*月/);
+  if (m && +m[1] >= 1 && +m[1] <= 12) { var y = Math.floor(now / 12), n = y * 12 + +m[1] - 1; return n < now ? n + 12 : n; }
+  m = t.match(/(\d+)\s*(か月|ヶ月|カ月|ケ月|month)/i); if (m) return now + Math.min(+m[1], 36);
+  m = t.match(/(\d+)\s*(週間|週|week)/i); if (m) return now + Math.ceil(+m[1] / 4.3);
+  if (/年内/.test(t)) return Math.floor(now / 12) * 12 + 11;
+  if (/来年/.test(t)) return Math.floor(now / 12) * 12 + 14;  // 来年3月ごろを目安
+  return null;
+}
+
+// 依頼の期間 [from, to]（月の数）。作り始めてよい月・遅くとも受け取りたい月が入っていればそれを使う
+function slotWin_(r, now) {
+  var due = slotDue_(r.due, now), from = slotN_(r.from), to = slotN_(r.to);
+  var fx = r.flex;
+  if (from == null) from = fx === 'm1' && due != null ? Math.max(now, due - 1) : now;
+  if (to == null) {
+    if (fx === 'fixed') to = due != null ? due : from + 1;
+    else if (fx === 'm1') to = (due != null ? due : from + 1) + 1;
+    else if (fx === 'm3') to = Math.max(due != null ? due : 0, from + 3);
+    else if (fx === 'any') to = Math.max(due != null ? due : 0, from + 6);
+    else to = due != null ? due : from + 3;
+  }
+  if (to < from) to = from;
+  return [from, to];
+}
+
+function slotQty_(t) {
+  var ns = String(t || '').replace(/[０-９]/g, function (c) { return String.fromCharCode(c.charCodeAt(0) - 0xFEE0); }).replace(/(\d),(\d{3})/g, '$1$2').match(/\d+(\.\d+)?\s*(万)?/g) || [];
+  var v = ns.map(function (x) { return parseFloat(x) * (/万/.test(x) ? 10000 : 1); }).filter(function (x) { return x > 0 && x < 1e8; });
+  return v.length ? Math.max.apply(null, v) : null;
+}
+
+function slotMatNorm_(t) {
+  return String(t || '').toLowerCase().replace(/[Ａ-Ｚａ-ｚ０-９]/g, function (c) { return String.fromCharCode(c.charCodeAt(0) - 0xFEE0); })
+    .replace(/樹脂|素材|材質|材料|わからない|未定|要確認|おまかせ|工場に任せる/g, '').replace(/\s+/g, '');
+}
+function slotMatOk_(a, b) {
+  a = slotMatNorm_(a); b = slotMatNorm_(b);
+  if (!a || !b) return true;
+  if (a.indexOf(b) >= 0 || b.indexOf(a) >= 0) return true;
+  var ta = a.split(/[、,\/・+＋]+/).filter(String), tb = b.split(/[、,\/・+＋]+/).filter(String);
+  return ta.some(function (x) { return tb.some(function (y) { return x.indexOf(y) >= 0 || y.indexOf(x) >= 0; }); });
+}
+
+// 依頼 reqs = [{id, codes:[], mat, qty, flex, from, to, due, bundle, recv（受付の月の数）}]、空き枠 slots = [{pid, company, code, mat, qmin, qmax, from, to, disc, bundleOk}]
+// 戻り値 {pairs:[{req, slot, code, win:[a,b], over:[a,b]}], bundles:[{code, mat, reqs:[...], win:[a,b], qty, slots:[...]}]}
+function slotMatch_(reqs, slots, now) {
+  var pairs = [], bundles = [];
+  reqs.forEach(function (r) {
+    r.win = slotWin_(r, r.recv != null ? r.recv : now); r.q = slotQty_(r.qty);  // 期間は受付の月から（古い「急がない」が伸び続けないように）
+    if (r.win[1] < now) return;
+    slots.forEach(function (sl) {
+      if (r.codes.indexOf(sl.code) < 0) return;
+      var a = slotN_(sl.from), b = slotN_(sl.to);
+      if (a == null) a = b; if (b == null) b = a; if (a == null) return;
+      if (b < a) { var t = a; a = b; b = t; }
+      var lo = Math.max(a, r.win[0]), hi = Math.min(b, r.win[1]);
+      if (lo > hi || hi < now) return;
+      if (!slotMatOk_(r.mat, sl.mat)) return;
+      if (r.q != null && ((sl.qmin && r.q < sl.qmin) || (sl.qmax && r.q > sl.qmax))) return;
+      pairs.push({req: r, slot: sl, code: sl.code, over: [lo, hi]});
+    });
+  });
+  // まとめ候補: まとめてよいと答えた依頼を、工程×材料で分け、期間の重なる順につなぐ
+  var groups = {};
+  reqs.forEach(function (r) {
+    if (r.bundle !== 1 || r.win[1] < now) return;
+    r.codes.forEach(function (c) { var k = c + '|' + slotMatNorm_(r.mat); (groups[k] = groups[k] || []).push(r); });
+  });
+  Object.keys(groups).forEach(function (k) {
+    var list = groups[k].slice().sort(function (x, y) { return x.win[0] - y.win[0]; }), cur = null;
+    var flush = function () {
+      if (cur && cur.reqs.length >= 2) {
+        cur.slots = slots.filter(function (sl) {
+          var a = slotN_(sl.from), b = slotN_(sl.to); if (a == null) a = b; if (b == null) b = a;
+          return sl.code === cur.code && a != null && Math.max(a, cur.win[0]) <= Math.min(b, cur.win[1]) && slotMatOk_(cur.mat, sl.mat) &&
+            (!sl.qmax || cur.qty == null || cur.qty <= sl.qmax);
+        });
+        bundles.push(cur);
+      }
+    };
+    list.forEach(function (r) {
+      if (cur && r.win[0] <= cur.win[1]) {
+        cur.reqs.push(r); cur.win = [Math.max(cur.win[0], r.win[0]), Math.min(cur.win[1], r.win[1])];
+        cur.qty = cur.qty != null && r.q != null ? cur.qty + r.q : null;
+      } else { flush(); cur = {code: k.split('|')[0], mat: r.mat, reqs: [r], win: r.win.slice(), qty: r.q}; }
+    });
+    flush();
+  });
+  return {pairs: pairs, bundles: bundles};
+}
+
+// 時間の引き金（毎朝8時台）を入れる。はじめの1回だけ実行する
+function setupSlots() {
+  ScriptApp.getProjectTriggers().forEach(function (t) { if (t.getHandlerFunction() === 'matchSlots') ScriptApp.deleteTrigger(t); });
+  ScriptApp.newTrigger('matchSlots').timeBased().everyDays(1).atHour(8).inTimezone('Asia/Tokyo').create();
+  slotTab_('依頼の時期', SLOT_REQ_HEAD); slotTab_('空き枠', SLOT_HEAD);
+  matchSlots();
+}
+
+function matchSlots() {
+  var ss = sheet_().getParent(), tz = 'Asia/Tokyo';
+  var now = slotN_(Utilities.formatDate(new Date(), tz, 'yyyy-MM'));
+  var rows = function (name) { var sh = ss.getSheetByName(name); return sh && sh.getLastRow() > 1 ? sh.getRange(2, 1, sh.getLastRow() - 1, sh.getLastColumn()).getValues() : []; };
+  var flexK = {}; Object.keys(SLOT_FLEX).forEach(function (k) { flexK[SLOT_FLEX[k]] = k; });
+  var ended = /完了|見送り|取り下げ|対応済み/;
+  var reqs = rows('依頼の時期').filter(function (r) { return r[0] && !ended.test(r[11]); }).map(function (r) {
+    return {id: String(r[0]), codes: String(r[2]).split(/\s+/).filter(String), mat: r[4], qty: r[5], flex: flexK[r[6]] || '',
+      from: slotMonth_(r[7]), to: slotMonth_(r[8]), due: r[9], bundle: r[10] === 'まとめてよい' ? 1 : 0,
+      recv: r[1] instanceof Date ? slotN_(Utilities.formatDate(r[1], tz, 'yyyy-MM')) : now};
+  });
+  var pst = {}; rows('提携申込').forEach(function (r) { pst[String(r[0])] = String(r[PARTNER_HEAD.indexOf('状態')] || ''); });
+  var slots = rows('空き枠').filter(function (r) { return r[0] && !/見送り|終了/.test(r[11]) && !/見送り/.test(pst[String(r[0])] || ''); }).map(function (r) {
+    return {pid: String(r[0]), company: String(r[2]), code: String(r[3]), mat: r[4], qmin: Number(r[5]) || 0, qmax: Number(r[6]) || 0,
+      from: slotMonth_(r[7]), to: slotMonth_(r[8]), disc: String(r[9] || ''), bundleOk: r[10] === 'はい', pstate: pst[String(r[0])] || ''};
+  });
+  var res = slotMatch_(reqs, slots, now);
+
+  var span = function (w) { return slotYm_(w[0]) + ' 〜 ' + slotYm_(w[1]); };
+  var outP = slotTab_('空き枠に合う', ['見つけた日', '受付番号', '申込番号', '会社名', '提携の状態', '工程コード', '依頼の材料', '空き枠の材料', '依頼の数量', '依頼の期間', '空き枠と重なる期間', '空き時期の値引き', '小口をまとめて受けられる']);
+  var old = {}; if (outP.getLastRow() > 1) outP.getRange(2, 1, outP.getLastRow() - 1, 6).getValues().forEach(function (r) { old[r[1] + '|' + r[2] + '|' + r[5]] = r[0]; });
+  var today = Utilities.formatDate(new Date(), tz, 'yyyy-MM-dd'), fresh = [];
+  var body = res.pairs.map(function (x) {
+    var k = x.req.id + '|' + x.slot.pid + '|' + x.code, first = old[k] || today;
+    if (!old[k]) fresh.push(x);
+    return [first, x.req.id, x.slot.pid, x.slot.company, x.slot.pstate, x.code, String(x.req.mat || ''), String(x.slot.mat || ''), String(x.req.qty || ''),
+      span(x.req.win), span(x.over), x.slot.disc, x.slot.bundleOk ? 'はい' : ''];
+  });
+  outP.getRange(2, 1, Math.max(outP.getLastRow() - 1, 1), 13).clearContent();
+  if (body.length) outP.getRange(2, 1, body.length, 13).setValues(body.map(function (r) { return r.map(safe_); }));
+
+  var outB = slotTab_('まとめ候補', ['工程コード', '材料', '依頼の件数', '受付番号', '合計の数量（読めた分）', '全員が受けられる期間', '合う空き枠（まとめて受けられる会社に★）']);
+  var bb = res.bundles.map(function (g) {
+    return [g.code, String(g.mat || '（材料は未記入）'), g.reqs.length, g.reqs.map(function (r) { return r.id; }).join('\n'), g.qty == null ? '' : g.qty, span(g.win),
+      g.slots.map(function (sl) { return (sl.bundleOk ? '★' : '') + sl.company + '（' + sl.pid + '）'; }).join('\n')];
+  });
+  outB.getRange(2, 1, Math.max(outB.getLastRow() - 1, 1), 7).clearContent();
+  if (bb.length) outB.getRange(2, 1, bb.length, 7).setValues(bb.map(function (r) { return r.map(safe_); }));
+
+  if (fresh.length) {
+    var to = CONFIG.ADMIN_EMAIL || Session.getEffectiveUser().getEmail();
+    var lines = fresh.map(function (x) { return '・' + x.req.id + ' × ' + x.slot.company + '（' + x.code + '、' + span(x.over) + (x.slot.disc ? '、' + x.slot.disc : '') + '）'; });
+    MailApp.sendEmail({to: to, subject: '[KATACHI] 空き枠に合う依頼 ' + fresh.length + '件',
+      body: '工場の空き枠と時期が合う依頼が新しく見つかりました。工場への連絡は、内容を確かめてから手で行ってください。\n\n' + lines.join('\n') +
+        (bb.length ? '\n\nまとめ候補: ' + bb.length + '組（「まとめ候補」タブ）' : '') + '\n\n一覧（「空き枠に合う」タブ）: ' + ss.getUrl()});
+  }
 }
