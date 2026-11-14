@@ -212,6 +212,8 @@ T_DESIGN = {
   '作りたいものを書くだけ。図面を作ってくれる相談先（設計込みの工場・設計事務所・工事もする会社・無料の公的窓口など）を、内容に合わせて★でおすすめします。': ('Just describe what you want to make. We star the best place to get drawings made (design-and-build factories, design firms, companies that also install, free public advice and more) based on what you write.', '只需写下想做的东西。我们会根据内容用★推荐能帮你画图纸的咨询对象（含设计的工厂、设计事务所、也负责施工的公司、免费公共窗口等）。'),
   '何を作りたいですか？（例：家庭用プールに犬が入れるスロープ。大型犬2頭が乗る）': ('What do you want to make? (e.g. A ramp so dogs can get into a home pool. Two large dogs stand on it.)', '想做什么？（例：让狗能进入家用泳池的坡道，两只大型犬会站上去）'),
   '相談先を探す': ('Find design help', '查找咨询对象'),
+  '設計の相談先を見る': ('See who can design it', '查看设计咨询对象'),
+  '図面を作ってくれる相談先を、内容に合わせて★でおすすめします': ('We star who can make your drawings, based on what you write', '根据内容用★推荐能帮你画图纸的咨询对象'),
   '設計の相談先': ('Where to get it designed', '设计咨询对象'),
   'この品は、作る会社が配合・処方から考えます': ('For this item, the maker works out the recipe or formula', '这类产品由生产公司从配方开始考虑'),
   '図面だけを先に頼む必要はありません。下のおすすめの会社に、そのまま相談してください。': ('There is no need to get drawings first. Talk directly to the recommended companies below.', '不需要先单独委托图纸，直接咨询下面推荐的公司即可。'),
