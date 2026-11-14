@@ -48,3 +48,8 @@ python3 seo_pages.py <リポジトリ>             # ガイド記事・sitemap.x
 - 手で集めた会社は、出典URLと確認日を付ける。公式サイトで確かめた会社だけ確かさ `pub`、まとめ記事だけの会社は `unk`。OEMを受けるかなど書いていないことは書かない。
 - 同じ会社を企業DB（katachi-matching）にも `data/real/batch_finished_goods.jsonl` で入れてある。
 - 組み合わせ案では、組立・検査の工程がなければ「取りまとめ役」（組立と品質の責任を持つ会社）を必ず1社足し、見積の送り先の先頭に入れる（`integOf`）。
+
+## 製品イメージ案の回帰テスト
+- 長い仕様文で違う種類の製品にならないかを確かめる。`tools/tests/specs/` に入力文と期待する種類（`cases.json`）がある。
+- リポジトリのルートで `python3 -m http.server 8765` を動かし、`node tools/tests/concept_cases.js` を実行（Playwright、ローカル）。
+- 仕様文に【製品名】があればその名前で種類を決め、種類にない製品は名前のまま、構成・外観（車輪・脚・担架・昇降など）から形を組む（`specRead`・`specConcept`、3Dは `parts`）。
