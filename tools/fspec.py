@@ -241,8 +241,19 @@ UI = [
     ('参考品をもとに、変えるところを入れたオリジナルとして作れますか。', 'Can you make this as an original product based on the reference, with the changes listed?', '能否以参考品为基础，加入修改点，作为原创产品制作？'),
     ('現物を採寸・3Dスキャンして、図面や3Dデータにできますか。費用と期間を教えてください（できない場合は、できる会社の紹介も歓迎です）。', 'Can you measure or 3D-scan the item and turn it into drawings or 3D data? Please give the cost and time (if not, a referral is welcome).', '能否测量・3D扫描实物，制作成图纸或3D数据？请告诉我们费用和周期（如无法承接，也欢迎介绍可以做的公司）。'),
     ('参考品の特許・意匠・商標にかからない形にするため、気をつける点があれば教えてください（権利の最終確認は依頼者が行います）。', 'If there is anything to watch for so the product avoids the reference\'s patents, designs or trademarks, please tell us (the requester makes the final rights check).', '为避免涉及参考品的专利、外观设计、商标，如有需要注意的地方请告诉我们（权利的最终确认由委托方进行）。'),
+    # 法令の条文リンク・技適の検索
+    ('条文（e-Gov法令検索）：', 'Law text (e-Gov): ', '法条原文（e-Gov法令检索）：'),
+    ('技適（電波法）を調べる', 'Check radio certification (Giteki)', '查询技适（日本电波法认证）'),
+    ('無線（Bluetooth・Wi-Fi・LTEなど）を使うなら、技適を取った無線モジュールを使うと、製品ごとの認証が要らないことがあります。使う予定のモジュールの型式を入れると、総務省の登録を調べます。', 'If the product uses radio (Bluetooth, Wi-Fi, LTE, etc.), using a module that already has Japanese radio certification (Giteki) may remove the need to certify the product itself. Enter the module model to check the Ministry\'s register.', '如使用无线（Bluetooth、Wi-Fi、LTE等），使用已取得技适的无线模块，有时可免去整机认证。输入计划使用的模块型号，即可查询总务省的登记。'),
+    ('調べる', 'Check', '查询'),
+    ('総務省の技適検索で調べる', 'Search on the Ministry\'s Giteki site', '在总务省技适检索中查询'),
+    ('調べています…', 'Checking…', '正在查询…'),
+    ('型式を3文字以上入れてください', 'Enter at least 3 characters of the model', '请输入至少3个字符的型号'),
+    ('いまは調べられませんでした。下の「総務省の技適検索」で調べてください。', 'Could not check right now. Please use the Ministry\'s Giteki search below.', '暂时无法查询。请使用下方的「总务省技适检索」。'),
+    ('この型式では見つかりませんでした。型式の書き方（ハイフン・末尾の英字）を変えるか、モジュールの販売元に技適番号を聞いてください。', 'Nothing found for this model. Try another spelling (hyphens, trailing letters) or ask the module seller for the certification number.', '未找到该型号。请尝试改变型号写法（连字符、末尾字母），或向模块销售商询问技适编号。'),
+    ('型式・名称', 'Model / name', '型号・名称'), ('番号・日付', 'Number / date', '编号・日期'), ('取得した会社', 'Holder', '取得公司'),
+    ('技適の有無の最終確認は、モジュールの販売元・工場と行ってください。製品の作り方（アンテナの変更など）によっては、追加の手続きが要ります。', 'Confirm the certification with the module seller and factory. Some design changes (such as a different antenna) need extra procedures.', '技适的最终确认请与模块销售商、工厂进行。根据产品的做法（如更换天线），可能需要额外手续。'),
 ]
-
 
 def _j(x):
     return x[0] if isinstance(x, tuple) else x
