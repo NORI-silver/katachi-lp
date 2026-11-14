@@ -1,24 +1,23 @@
 // OpenAPI 3.1（ChatGPT の GPTs Actions などから使える形）
 export const openapi = origin => ({
   openapi: '3.1.0',
-  info: {title: 'KATACHI API', version: '1.0.0', description: '作りたいものを工場に頼める形に整え、注文できる会社を探すAPI。1回10件・上位30件まで、IPごとに1分30回まで。会社の情報は公開情報で、受注の可否・価格・納期は各社への確認で決まります。',
+  info: {title: 'KATACHI API', version: '1.0.0', description: 'AIエージェント向けの KATACHI の入口。製品の工程・法規制、仕様書の検査、候補の会社（上位3社の名前と理由）を返し、くわしい情報・工場向け仕様書・依頼はKATACHIのページ（katachi_url）へ案内する。IPごとに1分30回まで。会社の情報は公開情報で、受注の可否・価格・納期は各社への確認で決まります。',
     termsOfService: 'https://katachi.shiokonbu.com/terms/'},
   servers: [{url: origin}],
   paths: {
-    '/v1/products': {get: {operationId: 'lookupProduct', summary: '製品を調べる（工程・部品・素材・最小ロット・法規制）',
+    '/v1/products': {get: {operationId: 'lookupProduct', summary: '製品を調べる（工程・法規制）',
       parameters: [{name: 'q', in: 'query', required: true, schema: {type: 'string', maxLength: 200}, description: '製品名'}],
       responses: {200: {description: '近い製品と似た候補'}}}},
     '/v1/products/{id}': {get: {operationId: 'getProduct', summary: '製品IDで調べる', parameters: [{name: 'id', in: 'path', required: true, schema: {type: 'string'}}], responses: {200: {description: '製品'}}}},
     '/v1/processes': {get: {operationId: 'listProcesses', summary: '工程の一覧', responses: {200: {description: '工程のコードと名前'}}}},
-    '/v1/companies': {get: {operationId: 'searchCompanies', summary: '注文できる会社を探す（1回10社・上位30社まで）',
+    '/v1/companies': {get: {operationId: 'searchCompanies', summary: '注文できる会社を探す（候補の社数と上位3社の名前・理由。詳細は katachi_url のKATACHIのページで）',
       parameters: [
         {name: 'product', in: 'query', schema: {type: 'string'}, description: '製品名（工程を自動で当てる）'},
         {name: 'process', in: 'query', schema: {type: 'string'}, description: '工程のコードか名前（カンマ区切り）'},
         {name: 'q', in: 'query', schema: {type: 'string'}, description: '社名・事業内容のキーワード'},
         {name: 'area', in: 'query', schema: {type: 'string'}}, {name: 'country', in: 'query', schema: {type: 'string', enum: ['JP', 'ABROAD']}},
         {name: 'prototype', in: 'query', schema: {type: 'boolean'}}, {name: 'no_drawing', in: 'query', schema: {type: 'boolean'}},
-        {name: 'quantity', in: 'query', schema: {type: 'integer'}}, {name: 'limit', in: 'query', schema: {type: 'integer', maximum: 10}},
-        {name: 'offset', in: 'query', schema: {type: 'integer', maximum: 20}}],
+        {name: 'quantity', in: 'query', schema: {type: 'integer'}}],
       responses: {200: {description: '会社'}}}},
     '/v1/spec/schema': {get: {operationId: 'getSpecSchema', summary: '工場向け仕様書の形', responses: {200: {description: '共通項目と品目別項目'}}}},
     '/v1/spec/check': {post: {operationId: 'checkSpec', summary: '仕様書を検査する（抜け・矛盾・根拠なし・工場に出せる度）',
