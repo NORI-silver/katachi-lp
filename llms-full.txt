@@ -343,14 +343,21 @@ URL: https://katachi.shiokonbu.com/guide/3d-print-request/
 - 売るなら個人でも事業者：ネット販売は特定商取引法の表示（氏名・住所・電話番号など）が要る。開業届など全体の手順は個人でも自分の商品は作れるへ。
 
 ### 自分で3Dプリンターを買うか、頼むか
-3Dプリンターは個人でも買えます（家庭用は通販や家電量販店で売られています）。たまにしか作らない・きれいに仕上げたい・データがないなら頼む、何度も作り直すなら買うのが目安です。
+3Dプリンターは個人でも買えます（家庭用は数万〜30万円ほど）。たまにしか作らない・きれいに仕上げたい・データがないなら頼む、何度も作り直すなら買うのが目安です。
 比べること | 自分で買って作る | 出力サービス・試作会社に頼む | 
 1回ごとの費用 | 材料代だけ（機械代は最初にかかる） | 出力費と送料が毎回かかる | 
 早さ | 思いついたらすぐ。1個に数時間 | 届くまで数日 | 
 仕上がり・材料 | 家庭用は樹脂を溶かして積む方式が多く、筋が出やすい。材料は限られる | 業務用の機械で、ナイロン・透明樹脂・ゴムのような樹脂・金属まで選べる | 
 3Dデータ | 自分で用意する | データ作りから頼める会社もある | 
 手間 | 設定・失敗への対処を覚える | 失敗のリスクは相手持ち | 
-機械を時間単位で借りる方法もあります（産業技術センターの光造形で1時間4,100〜6,430円、材料・作業は別。3Dプリントの価格の決まり方）。
+3Dプリンターの価格相場
+種類 | 本体の価格 | 出典（確かさ） | 
+家庭用（個人向け） | 数万〜30万円ほど | アイミツ（まとめサイト、2025年1月更新） | 
+家庭用の例：Bambu Lab A1 mini | 29,900円（材料を自動で替える装置つきは49,900円） | INTERNET Watch（報道、2026年9月14日、Amazonのセール中の記事） | 
+家庭用の上位機の例：Bambu Lab P2S | 107,000円（セール価格。材料を自動で替える装置つきは140,000円） | INTERNET Watch（報道、2026年9月14日） | 
+業務用（産業用） | 150万〜1,000万円超 | アイミツ（まとめサイト、2025年1月更新） | 
+本体のほかに材料（樹脂の糸・液体の樹脂）、交換部品、電気代がかかります。頼む場合の費用は3Dプリントの価格の決まり方（素材別の1cm³あたりの目安）へ。
+機械を時間単位で借りる方法もあります（産業技術センターの光造形で1時間4,100〜6,430円、材料・作業は別）。
 
 ### 3Dプリンターの依頼先4つ：どこに頼むか
 頼み先 | 3Dデータ | 向いている場面 | 
@@ -417,6 +424,8 @@ URL: https://katachi.shiokonbu.com/guide/3d-print-request/
 ### よくある質問
 Q. 3Dプリントは個人でも1個から頼めますか？
 A. 頼めます。個人の注文を受ける出力サービスでは、データを上げて見積を見て1個から注文できます。
+Q. 3Dプリンターの価格相場はいくらですか？
+A. 家庭用は数万〜30万円ほど、業務用は150万〜1,000万円を超えます（アイミツ）。家庭用の例ではBambu Lab A1 miniが29,900円でした（2026年9月の報道）。
 Q. 3Dプリンターは自分で買うのと頼むのとどちらがいいですか？
 A. たまにしか作らない、きれいに仕上げたい、データがないなら頼むほうが向きます。何度も作り直すようになったら、買うことを考えます。
 Q. 3Dプリンターは1台で何でも作れますか？
@@ -430,7 +439,7 @@ A. 受ける先はありますが、他人の著作物（アニメや商品の�
 Q. 3Dプリントの試作品をそのまま販売できますか？
 A. 少量なら丈夫な素材でそのまま販売する例もあります。数が多い・安全基準がある製品は、量産方法と検査を依頼先と相談してください。
 
-出典: Protolabs「3D Printing Trend Report 2024」（Protolabs Network 調査、2024年3月、n=712） https://protolabs.com/media/ktnlshtk/pl_3dp-trend-report-2024_en-2-1.pdf / MONOist「3Dプリンタは本当にダメなのか？」（製造業における3Dプリンタの利用に関する調査、2024年7月） https://monoist.itmedia.co.jp/mn/articles/2411/26/news045.html / DMM.make 3Dプリント 個人のお客様 https://make.dmm.com/print/personal / ミスミ meviy パンフレット（価格例、2024年6月） https://jp.meviy.misumi-ec.com/info/ja/wp-content/uploads/2024/06/meviy_brochure20240601.pdf / MONOist「DMM.makeでミニ四駆ボディー」（2016年5月） https://monoist.itmedia.co.jp/mn/articles/1605/10/news011.html / MONOist「コストは金型代だけじゃない!」（2015年4月） https://monoist.itmedia.co.jp/mn/articles/1504/24/news001.html
+出典: INTERNET Watch「Bambu Labの3DプリンターがAmazonでセール中！」（2026年9月14日） https://internet.watch.impress.co.jp/docs/shopping/2140479.html / アイミツ「3Dプリンターの価格相場」（2025年1月8日更新） https://imitsu.jp/cost/printing/3d-printer-price / Protolabs「3D Printing Trend Report 2024」（Protolabs Network 調査、2024年3月、n=712） https://protolabs.com/media/ktnlshtk/pl_3dp-trend-report-2024_en-2-1.pdf / MONOist「3Dプリンタは本当にダメなのか？」（製造業における3Dプリンタの利用に関する調査、2024年7月） https://monoist.itmedia.co.jp/mn/articles/2411/26/news045.html / DMM.make 3Dプリント 個人のお客様 https://make.dmm.com/print/personal / ミスミ meviy パンフレット（価格例、2024年6月） https://jp.meviy.misumi-ec.com/info/ja/wp-content/uploads/2024/06/meviy_brochure20240601.pdf / MONOist「DMM.makeでミニ四駆ボディー」（2016年5月） https://monoist.itmedia.co.jp/mn/articles/1605/10/news011.html / MONOist「コストは金型代だけじゃない!」（2015年4月） https://monoist.itmedia.co.jp/mn/articles/1504/24/news001.html
 
 ## 小ロットOEMの始め方：業界別の注意点、委託先の探し方、見積で確かめること
 URL: https://katachi.shiokonbu.com/guide/small-lot-oem/
