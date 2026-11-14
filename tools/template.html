@@ -327,7 +327,14 @@ table.cmp{border-collapse:separate;border-spacing:0;width:100%;min-width:760px;f
 .cshape{border:1px solid var(--line2);border-radius:12px;padding:12px 14px;display:grid;gap:8px}.cshape h4{margin:0}.cshape h4 .muted{font-weight:400;font-size:12px}
 .cshl{list-style:none;margin:0;padding:0;display:grid;gap:6px}.cshl li{display:flex;gap:8px;align-items:baseline;font-size:13.5px}.cshl li .glink{margin-left:auto;font-size:12px}
 .cshin{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:6px}.cshin select,.cshin input{font:inherit;font-size:13.5px;padding:7px 9px;border:1px solid var(--line2);border-radius:8px;min-width:0;background:#fff}
-.cshn{margin:0;font-size:12px}@media(max-width:720px){.cshin{grid-template-columns:minmax(0,1fr) auto}.cshin select{grid-column:1/-1}.cleft{display:contents}.cleft .cshape{order:2}}
+.cshn{margin:0;font-size:12px}
+.ced{border:1px solid var(--line2);border-radius:12px;padding:12px 14px;display:grid;gap:10px;margin-top:12px;background:color-mix(in srgb,var(--ice) 3%,#fff)}.ced h4{margin:0}
+.cedin{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px}.cedin input{font:inherit;font-size:14px;padding:8px 10px;border:1px solid var(--line2);border-radius:8px;min-width:0;background:#fff}
+#cEdMsg:empty{display:none}#cEdMsg p{margin:0;font-size:13px}.cedok{color:var(--ink);font-weight:600}.cedq{display:grid;gap:6px;font-size:13px}
+.cedp,.fssz{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;font-size:13px}.cedp label,.fssz label{display:inline-flex!important;flex-direction:row!important;align-items:center;gap:4px}
+.cedp input[type=number],.fssz input[type=number]{width:72px;font:inherit;font-size:14px;padding:5px 6px;border:1px solid var(--line2);border-radius:6px;background:#fff}
+.cedang{color:var(--mute)}.cedang b{color:var(--ink)}.cedlog{display:grid;gap:4px;font-size:12.5px}.cedlog ol{margin:0;padding-left:18px}.cedlog .glink{justify-self:start;font-size:12px}
+@media(max-width:720px){.cgrid .cleft{display:block;position:sticky;top:var(--stk,60px);z-index:3;background:#fff;padding:4px 0 6px;margin:0 -4px}.cgrid .cleft .v3box{aspect-ratio:360/190}}@media(max-width:720px){.cshin{grid-template-columns:minmax(0,1fr) auto}.cshin select{grid-column:1/-1}}
 .mdraft{display:flex!important;flex-direction:row!important;gap:10px;align-items:flex-start;border:1px solid var(--line2);border-radius:10px;padding:10px 12px;margin-bottom:10px;background:color-mix(in srgb,var(--ice) 4%,#fff);cursor:pointer}.mdraft input{margin-top:4px}.mdraft span{display:grid;gap:2px;font-size:13.5px}.mdraft small{color:var(--mute);font-size:12px}.fsqi{border:0;padding:0;margin:0;display:grid;gap:6px}.fsqi legend{font-size:14px;font-weight:600;padding:0;margin-bottom:6px}
 .fsch{display:flex;flex-wrap:wrap;gap:6px}.fsb{font:inherit;font-size:13px;border:1px solid var(--line);background:#fff;border-radius:99px;padding:6px 12px;cursor:pointer;color:var(--fg)}
 .fsqh{display:flex;justify-content:space-between;gap:8px;font-size:12.5px;margin-bottom:4px}.fsqh b{font-size:15px}
@@ -1389,7 +1396,7 @@ const CDH=(x1,x2,y,l)=>`<path class="d" d="M${x1} ${y-5}v10M${x2} ${y-5}v10M${x1
 const CDV=(x,y1,y2,l)=>`<path class="d" d="M${x-5} ${y1}h10M${x-5} ${y2}h10M${x} ${y1}V${y2}"/><text x="${x+8}" y="${(y1+y2)/2+4}">${l}</text>`;
 const CFIG={
  slope:f=>`<path class="d" d="M8 200H352"/>${f.pool?`<rect class="o" x="278" y="96" width="10" height="104"/><path class="g" d="M288 118H352V200H288Z" style="fill:color-mix(in srgb,var(--ice) 16%,#fff)"/><path class="o n a" d="M292 118q8-5 16 0t16 0t16 0" /><path class="o n a h" d="M290 104L338 184"/>${f.inpool?'<path class="o" d="M292 114L350 192" style="stroke-width:5"/>':''}`:''}
-  <path class="o af" d="M40 200L262 100H278V108H264L50 200Z"/><path class="o n" d="M52 188L262 94"/>${[[150,151],[214,122]].map(([x,y])=>`<path class="o n" d="M${x} ${y}V200"/><rect class="o" x="${x-6}" y="197" width="12" height="5" rx="2"/>`).join('')}<path class="o n" d="M272 108V200"/><rect class="o" x="266" y="197" width="12" height="5" rx="2"/>
+  <path class="o af" d="M40 200L262 100H278V108H264L50 200Z"/><path class="o n" d="M52 188L262 94"/>${f.rail?'<path class="o n" d="M52 166L262 72M70 158V180M130 131V153M190 104V126M250 77V99"/>':''}${[[150,151],[214,122]].map(([x,y])=>`<path class="o n" d="M${x} ${y}V200"/><rect class="o" x="${x-6}" y="197" width="12" height="5" rx="2"/>`).join('')}<path class="o n" d="M272 108V200"/><rect class="o" x="266" y="197" width="12" height="5" rx="2"/>
   ${f.pet?`<g transform="rotate(-24.2 140 155)"><path class="o n" d="M124 140V155M131 141V155M150 141V155M157 140V155M119 133l-9-7"/><ellipse class="o" cx="140" cy="134" rx="23" ry="9"/><path class="o" d="M158 130l4-12h10l6 6l-2 6h-8z"/><path class="o n" d="M164 118l-3-6"/></g>`:''}
   <path class="d a" d="M86 200A46 46 0 0 0 82 182"/><text x="92" y="197" class="a2">${f.ang}</text>${CDV(24,100,200,'H '+f.h)}${CDH(40,270,206,'L '+f.l)}`,
  step:f=>`<path class="d" d="M20 200H340"/><path class="o af" d="M70 200V164H130V126H190V88H260V200Z"/><path class="o n" d="M70 164h60M130 126h60M190 88h70" style="stroke-width:3"/>${CDH(70,260,206,'L '+f.l)}${CDV(290,88,200,'H '+f.h)}`,
@@ -1441,7 +1448,7 @@ const V3OK=(()=>{try{const c=document.createElement('canvas');return !!(window.W
 let V3P=null,V3N=0;const V3L=[],V3T={};
 const loadThree=()=>V3P||(V3P=new Promise((ok,ng)=>{if(window.THREE)return ok(window.THREE);const s=document.createElement('script');s.src='/vendor/three-0.149.0.min.js';s.onload=()=>ok(window.THREE);s.onerror=()=>{V3P=null;ng()};document.head.appendChild(s)}));
 const v3mat=c=>laiFlat((c.rows.find(r=>r[0]==='主な素材')||[,''])[1]);
-function cview(c,cls){const f=c.fig||{};const dims=[+f.w&&'W '+f.w,+f.l&&(f.k==='bag'?'D ':'L ')+f.l,+f.h&&'H '+f.h].filter(Boolean).join(' × ');const v=V3OK&&S.v3!=='fig';
+function cview(c,cls){const f=c.fig?figOf(c):{};const dims=[+f.w&&'W '+f.w,+f.l&&(f.k==='bag'?'D ':'L ')+f.l,+f.h&&'H '+f.h].filter(Boolean).join(' × ');const v=V3OK&&S.v3!=='fig';
   return `<figure class="cfig cview${cls?' '+cls:''}" data-v3f="${esc(JSON.stringify(figOf(c)))}" data-v3m="${esc(v3mat(c))}">
     ${V3OK?`<div class="v3tabs" role="group" aria-label="表示"><button type="button" data-v3t="3d" aria-pressed="${v}">3D</button><button type="button" data-v3t="fig" aria-pressed="${!v}">寸法図</button></div>`:''}
     ${V3OK?`<div class="v3box"${v?'':' hidden'}><canvas aria-label="製品イメージ案の3D表示"></canvas><span class="v3cap mono">${dims} mm</span><span class="v3hint">ドラッグで回せます</span><span class="v3load">3Dを準備しています…</span>
@@ -1505,6 +1512,7 @@ function v3build(T,f,mt){const has=r=>r.test(mt);const M=(c,o)=>new T.MeshStanda
      for(const s of[-1,1])B(t*.7,t*1.8,len,s*(W/2+t*.35),t*.5,0,m.frame,dk);
      for(const fr of[.5,.8]){const z=-L/2+L*fr,h=H*fr;for(const s of[-1,1])B(t*.8,h,t*.8,s*(W/2-t*.6),h/2,z,m.frame)}
      for(const s of[-1,1])B(t*.8,H,t*.8,s*(W/2-t*.6),H/2,L/2-t*.4,m.frame);B(W,t*.8,t*3,0,H+t*.2,L/2+t,m.frame);
+     if(f.rail){const rh=Math.max(260,Math.min(W*.6,420)),n3=Math.max(3,Math.round(len/500));for(const s of[-1,1]){B(t*.5,t*.5,len,s*(W/2+t*.35),rh,0,m.frame,dk);for(let i=0;i<=n3;i++)B(t*.45,rh,t*.45,s*(W/2+t*.35),rh/2,-len/2+len*i/n3,m.frame,dk)}}
      if(f.pet)dog(dk,Math.min(W*1.5,len*.45),0,t*.5,-len*.1);
      if(f.pool){const drop=H*.85,run=drop*L/Math.max(H,1),pw=Math.max(W*2.2,1100),pz=L/2+t*2.6+35,wd=f.inpool?run+260:Math.min(L*.45,900);B(pw,H*1.02,70,0,H*.51,pz,m.pool);B(pw,40,90,0,H*1.02+20,pz,m.resin);B(pw,H*.82,wd,0,H*.41,pz+35+wd/2,m.water);
        const hk=new T.Group();g.add(hk);B(W*.8,t*.8,140,0,H*1.04+t,pz,m.frame,hk);B(W*.8,H*.3,t*.8,0,H*.9,pz+75,m.frame,hk);
@@ -1579,11 +1587,10 @@ const frg=v=>Array.isArray(v)?v.map(x=>/^\s*$/.test(x)?x:`<span>${esc(x)}</span>
 const cvarOf=c=>S.cvar&&S.cvar.id===c.id?S.cvar.i:-1;
 function conceptCard(c){const v=cvarOf(c);
   return `<section class="ccard" id="mConcept"><div class="chd"><h2>製品イメージ案</h2>${mk('ai','AI推定・たたき台')}${c.lai?'<span class="chip on">内蔵AIと詰めた案</span>':''}</div>
-    <div class="cgrid"><div class="cleft">${cview(c)}${c.fig?'<!--SHAPE-->':''}</div>
+    <div class="cgrid"><div class="cleft">${cview(c)}</div>
       <div><h3 class="cname">${esc(c.name)}</h3>${c.chips&&c.chips.length?`<div class="cchips"><span class="muted">あなたの文章から読み取った条件</span>${c.chips.map(x=>`<span class="chip">${frg(x)}</span>`).join('')}</div>`:''}
-      <dl class="cspec">${c.rows.slice(0,1).map(([k,x])=>`<dt>${esc(k)}</dt><dd>${frg(x)}</dd>`).join('')}</dl>
-      <div id="fsQSlot"><!--FSQ--></div>
-      ${fold('cinfo','この案の説明・素材・スペック',`<p class="clead">${esc(c.lead)}</p><dl class="cspec">${c.rows.slice(1).map(([k,x])=>`<dt>${esc(k)}</dt><dd>${frg(x)}</dd>`).join('')}</dl>`)}</div></div>
+      ${c.fig?`<dl class="cspec"><dt>サイズ（目安）</dt><dd id="cSize">${sizeLine(c)}</dd></dl>${edBox(c)}`:`<dl class="cspec">${c.rows.slice(0,1).map(([k,x])=>`<dt>${esc(k)}</dt><dd>${frg(x)}</dd>`).join('')}</dl>`}
+      ${fold('cinfo','この案の説明・素材・スペック',`<p class="clead">${esc(c.lead)}</p><dl class="cspec">${c.rows.slice(c.fig?0:1).map(([k,x])=>`<dt>${esc(k)}</dt><dd>${frg(x)}</dd>`).join('')}</dl>`)}</div></div>
     ${c.alt?`<div class="calt" role="note"><p><span>AIの回答からは、別の種類の製品とも読めます。</span><b>${esc(c.alt.name)}</b><span>製品の種類は変えずに、寸法・素材・条件だけを反映しました。</span></p><button type="button" class="btn" data-calt="${esc(c.alt.id)}">この種類に切り替える</button></div>`
       :c.altBack?`<div class="calt" role="note"><p><span>AIの回答に合わせて、製品の種類を切り替えています。元の案：</span><b>${esc(c.altBack.name)}</b></p><button type="button" class="btn" data-calt="">元の種類に戻す</button></div>`:''}
     ${fold('cfeat','主な機能と、試作で確かめること',`<div class="ccols"><div><h4>主な機能</h4><ul class="cl">${c.feats.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>
@@ -1623,28 +1630,88 @@ const fsKey=()=>'katachi-fa-'+sxHash(ideaBase());
 function fsAns(){if(S.faFor!==ideaBase()){S.faFor=ideaBase();try{S.fa=JSON.parse(localStorage.getItem(fsKey())||'{}')}catch(e){S.fa={}}}return S.fa||(S.fa={})}
 window.KATACHI_FS=()=>S.fs;window.KATACHI_RL=()=>S.lastRL;window.KATACHI_RFQ=n=>rfq(n||[]);window.KATACHI_SX=(v,t)=>sxParse(v,t);  // 回帰テスト（tools/tests）用
 function fsSave(){try{localStorage.setItem(fsKey(),JSON.stringify(S.fa||{}))}catch(e){}}
-/* 形の要望（図に足したい・変えたいところ）。仕様書と見積の依頼に入る。「プールの中まで続ける」だけは3D・寸法図にも出す */
+/* イメージ図を見ながら直す（Nori 2026-11-14）。図は数値（幅・長さ・高さ・傾き・プールの中・手すり）から描く。
+   指示の文は、決まった言い方を数値に置き換える（有料AIは使わない）。読み取れない指示は項目を選んでもらうか、形の要望として工場に渡す。
+   図で決めた値は仕様書の「大きさ」「図で決めた形」に入り、仕様書の表で直すと図も変わる（どちらから直しても同じ値）。 */
 const shKey=()=>'katachi-sh-'+sxHash(ideaBase());
 function shList(){if(S.shFor!==ideaBase()){S.shFor=ideaBase();try{S.sh=JSON.parse(localStorage.getItem(shKey())||'[]')}catch(e){S.sh=[]}}return S.sh||(S.sh=[])}
 function shSave(){try{localStorage.setItem(shKey(),JSON.stringify(S.sh||[]))}catch(e){}}
+const edKey=()=>'katachi-ed-'+sxHash(ideaBase());
+function edOf(){if(S.edFor!==ideaBase()){S.edFor=ideaBase();try{S.ed=JSON.parse(localStorage.getItem(edKey())||'{}')}catch(e){S.ed={}}}return S.ed||(S.ed={})}
+function edSave(){try{localStorage.setItem(edKey(),JSON.stringify(S.ed||{}))}catch(e){}}
 const SH_POOL=/プールの(中|内)|水の中|水中/;
-function figOf(c){const f=c.fig||{};return {k:f.k,w:+f.w||0,l:+f.l||0,h:+f.h||0,pool:!!f.pool,pet:!!f.pet,p:f.p||'',inpool:!!f.pool&&shList().some(x=>SH_POOL.test(x.t))}}
-function shParts(c){const m=String(laiFlat((c.rows.find(r=>r[0]==='主な素材')||[,''])[1])).match(/[^／：、。\s]{1,8}(?=：)/g)||[];return ['全体',...new Set(m),'足したい部品']}
-function shEx(c){const f=c.fig||{};return f.k==='slope'?[...(f.pool?['プールの中まで続ける']:[]),'2頭が並んで通れる幅にする','手すり・柵を付ける','滑り止めを付ける','たためる・外せるようにする']
-  :['大きさを変える','角を丸くする','部品を足す','分解できるようにする','色・仕上げを変える']}
-function shapeBox(c){const L=shList(),f=c.fig||{};
-  return `<div class="cshape" id="cShape"><h4>形の要望 <span class="muted">図に足したい・変えたいところ</span></h4>
-    ${L.length?`<ul class="cshl">${L.map((x,i)=>`<li><span class="chip">${esc(x.p)}</span><span translate="no">${esc(x.t)}</span><button type="button" class="glink" data-shx="${i}" aria-label="消す">消す</button></li>`).join('')}</ul>`:''}
-    <div class="fsch">${shEx(c).map(e=>`<button type="button" class="fsb" data-shex="${esc(e)}">＋ <span>${esc(e)}</span></button>`).join('')}</div>
-    <div class="cshin"><select id="cShP" aria-label="どこを">${shParts(c).map(x=>`<option>${esc(x)}</option>`).join('')}</select><input id="cShT" type="text" placeholder="例：スロープをプールの中まで続けて、水の中もゆるやかに下りたい" aria-label="形の要望"><button type="button" class="btn sm" id="cShGo">足す</button></div>
-    <p class="muted cshn"><span>${f.pool&&f.k==='slope'?'「プールの中まで続ける」は図にも出ます。ほかの要望は、仕様書と見積の依頼に入り、工場・設計者が図に起こします。':'要望は図には自動で出ません。仕様書と見積の依頼に入り、工場・設計者が図に起こします。'}</span><span>この3Dと寸法図は、見積の依頼にそのまま添付できます。</span></p></div>`}
+const r10=x=>Math.max(10,Math.round(x/10)*10),degOf=(h,l)=>l>0?Math.round(Math.atan2(h,l)*180/Math.PI):0;
+function figOf(c){const f=c.fig||{},E=edOf();const w=E.w||+f.w||0,h=E.h||+f.h||0,l=E.l||+f.l||0;
+  return {k:f.k,w,l,h,ang:f.k==='slope'?degOf(h,l)+'°':f.ang,pool:!!f.pool,pet:!!f.pet,p:f.p||'',inpool:!!f.pool&&f.k==='slope'&&(E.inpool!=null?!!E.inpool:shList().some(x=>SH_POOL.test(x.t))),rail:f.k==='slope'&&!!E.rail}}
+const cmS=mm=>(Math.round(mm/10*10)/10)+'cm';
+function sizeLine(c){const f=figOf(c);return `<span>幅</span> ${cmS(f.w)}${f.l>60?` × <span>長さ</span> ${cmS(f.l)}`:''} × <span>高さ</span> ${cmS(f.h)}${f.k==='slope'?` / <span>傾き</span> ${f.ang}`:''}`}
+// 指示の文 → 変える値。返り値 {set:{w,l,h,ang,inpool,rail}, done:[説明]}。何も読めなければ done は空
+function edParse(raw,c){const t=String(raw||'').normalize('NFKC').replace(/\s+/g,''),f=figOf(c),set={},done=[];const slope=f.k==='slope';
+  const unit=(n,u)=>{n=+n;u=u||'';if(/^(mm|ミリ)/.test(u))return n;if(/^(m|メートル)$/.test(u)||/^(m|メートル)/.test(u)&&!/^(mm|ミリ)/.test(u))return n*1000;return n*10};
+  const NUM='(\\d+(?:\\.\\d+)?)(mm|ミリ|cm|センチ|メートル|m)?';
+  const F=[['w','幅|横幅|はば'],['l','長さ|全長|奥行き?|距離'],['h','高さ|段差']];
+  for(const [k,wd] of F){const m=t.match(new RegExp('('+wd+')[^\\d]{0,6}?'+NUM));if(m){set[k]=r10(unit(m[2],m[3]));continue}
+    const up=new RegExp('('+wd+')[^。]{0,6}?(もっと|少し|ちょっと)?(広|大き|長|高)'),dn=new RegExp('('+wd+')[^。]{0,6}?(もっと|少し|ちょっと)?(狭|小さ|短|低)');
+    if(up.test(t))set[k]=r10(f[k]*1.2);else if(dn.test(t))set[k]=r10(f[k]*.8)}
+  if(slope){const a=t.match(/(傾き|角度|勾配)[^\d]{0,6}?(\d+(?:\.\d+)?)度?/)||t.match(/(\d+(?:\.\d+)?)度/);if(a)set.ang=+a[a.length-1]||+a[1];
+    else if(/ゆるやか|緩やか|なだらか|ゆるく|緩く|ゆるい|緩い/.test(t))set.ang=Math.max(8,degOf(f.h,f.l)-4);else if(/急に|きつく|急な|短く済/.test(t))set.ang=Math.min(35,degOf(f.h,f.l)+4);
+    if(/(2|二|２)頭|並んで|すれ違/.test(t)&&set.w==null)set.w=r10(Math.max(f.w*1.8,700));
+    const neg=/(なし|無し|いらない|要らない|やめ|外して|取って|不要)/;
+    if(/(プール|水)の?(中|内)|中にも|水中/.test(t))set.inpool=!neg.test(t);
+    if(/手すり|手摺|柵|ガード|落下防止/.test(t))set.rail=!neg.test(t)}
+  if(!Object.keys(set).length){const big=t.match(/(全体|大きさ|サイズ)?[^\d]{0,4}?(\d+)(%|割)(大きく|小さく)?/);
+    if(/(全体|大きさ|サイズ)を?(もっと|少し)?大き/.test(t))['w','l','h'].forEach(k=>set[k]=r10(f[k]*1.2));else if(/(全体|大きさ|サイズ)を?(もっと|少し)?小さ/.test(t))['w','l','h'].forEach(k=>set[k]=r10(f[k]*.8));
+    else if(big&&big[4]){const p=+big[2]*(big[3]==='割'?10:1)/100;['w','l','h'].forEach(k=>set[k]=r10(f[k]*(big[4]==='大きく'?1+p:1-p)))}}
+  return set}
+// 値を図に入れる。高さを変えたら傾きは保つ（長さを直す）。傾きを変えたら長さを直す
+function edApply(c,set,src){const E=edOf(),f0=figOf(c),log=[];const nm={w:'幅',l:'長さ',h:'高さ'};
+  for(const k of ['w','l','h'])if(set[k]&&set[k]!==f0[k]){E[k]=set[k];log.push(nm[k]+' '+cmS(f0[k])+' → '+cmS(set[k]))}
+  if(f0.k==='slope'){const keep=degOf(f0.h,f0.l);if(set.h&&!set.l&&!set.ang)E.l=r10(E.h/Math.tan(keep*Math.PI/180));
+    if(set.ang){const h=E.h||f0.h;E.l=r10(h/Math.tan(set.ang*Math.PI/180));log.push('傾き '+keep+'° → '+set.ang+'°（長さ '+cmS(E.l)+'）')}
+    if(set.inpool!=null&&set.inpool!==f0.inpool){E.inpool=set.inpool;log.push(set.inpool?'プールの中まで続ける':'プールの中の部分をなくす')}
+    if(set.rail!=null&&set.rail!==f0.rail){E.rail=set.rail;log.push(set.rail?'手すりを付ける':'手すりを外す')}}
+  if(log.length){(E.log||(E.log=[])).push({t:log.join('、'),src:src||'',prev:{w:f0.w,l:f0.l,h:f0.h,inpool:f0.inpool,rail:f0.rail}});E.log=E.log.slice(-20);edSave()}
+  return log}
+function edEx(c){const f=c.fig||{};return f.k==='slope'?[...(f.pool?['プールの中にも続けて']:[]),'幅を80cmに','もっとゆるやかに','高さを70cmに','手すりを付けて']:['幅を30cmに','高さを少し低く','全体を2割大きく']}
+function edBox(c){const f=figOf(c),E=edOf(),L=shList(),slope=f.k==='slope';const num=(k,lb)=>`<label><span>${lb}</span><input type="number" inputmode="decimal" min="1" step="1" data-edn="${k}" value="${Math.round(f[k]/10)}"><span>cm</span></label>`;
+  return `<div class="ced" id="cEd"><h4>図を見ながら直す</h4>
+    <div class="cedin"><input id="cEdT" type="text" placeholder="例：幅を80cmに／もっとゆるやかに／プールの中にも続けて" aria-label="図を直す指示"><button type="button" class="btn pri sm" id="cEdGo">図に反映</button></div>
+    <div class="fsch">${edEx(c).map(e=>`<button type="button" class="fsb" data-edex="${esc(e)}">${esc(e)}</button>`).join('')}</div>
+    <div id="cEdMsg" role="status" aria-live="polite">${S.edMsg||''}</div>
+    <div class="cedp">${num('w','幅')}${f.l>60||slope?num('l','長さ'):''}${num('h','高さ')}${slope?`<span class="cedang"><span>傾き</span> <b class="mono">${f.ang}</b></span>`:''}
+      ${slope&&f.pool?`<label class="cedck"><input type="checkbox" data-edc="inpool"${f.inpool?' checked':''}><span>プールの中まで続ける</span></label>`:''}${slope?`<label class="cedck"><input type="checkbox" data-edc="rail"${f.rail?' checked':''}><span>手すり</span></label>`:''}</div>
+    ${E.log&&E.log.length?`<div class="cedlog"><span class="muted">図に反映したこと</span><ol>${E.log.slice(-4).map(x=>`<li translate="no">${esc(x.t)}</li>`).join('')}</ol><button type="button" class="glink" id="cEdUndo">ひとつ戻す</button></div>`:''}
+    ${L.length?`<div class="cedlog"><span class="muted">図には出ない要望（工場に伝えます）</span><ul class="cshl">${L.map((x,i)=>`<li><span class="chip">${esc(x.p)}</span><span translate="no">${esc(x.t)}</span><button type="button" class="glink" data-shx="${i}">消す</button></li>`).join('')}</ul></div>`:''}
+    <p class="muted cshn">図は簡易なたたき台です。寸法・材質・作り方は、工場から確認や提案の連絡が来るのがふつうです。</p></div>`}
+function edPick(c,txt){const opts=[['w','幅'],['l','長さ'],['h','高さ'],...((c.fig||{}).k==='slope'?[['ang','傾き']]:[])];
+  return `<div class="cedq"><b>読み取れませんでした。どこのことですか？</b><div class="fsch">${opts.map(([k,l])=>`<button type="button" class="fsb" data-edk="${k}">${l}</button>`).join('')}<button type="button" class="fsb" data-edreq="1">図には出さず、要望として工場に伝える</button></div></div>`}
+// 図・直す欄・仕様書をまとめて描き直す（直す欄の入力欄が画面の同じ高さに残るようにずらす）
+function edRedraw(A,keep){if(S.edBusy)return;S.edBusy=1;try{edRedraw0(A,keep)}catch(e){}finally{S.edBusy=0}}
+function edRedraw0(A,keep){const c=A.concept;const k0=keep&&document.querySelector(keep),top=k0?k0.getBoundingClientRect().top:0;
+  const fg=$('#mConcept .cview');if(fg){const t3=S.v3;fg.outerHTML=cview(c);wireV3($('#mConcept'))}
+  const sz=$('#cSize');if(sz)sz.innerHTML=sizeLine(c);
+  const bx=$('#cEd');if(bx)bx.outerHTML=edBox(c);
+  const fs=$('#mFspec');if(fs){fs.outerHTML=fspecCard(A);wireFspec(A)}
+  wireShape(A);const k1=keep&&document.querySelector(keep);if(k1)window.scrollBy(0,k1.getBoundingClientRect().top-top)}
+function wireShape(A){const c=A.concept,box=$('#cEd');if(!c||!box)return;
+  const go=(txt,src)=>{const t=String(txt||'').trim().slice(0,200);if(!t){$('#cEdT').focus();return}
+    const set=edParse(t,c);const log=Object.keys(set).length?edApply(c,set,t):[];
+    track('shape_edit',{how:src||'text',ok:log.length?1:0});
+    if(log.length){S.edMsg=`<p class="cedok">✓ <span translate="no">${esc(log.join('、'))}</span></p>`;S.edPend='';edRedraw(A,'#cEdT')}
+    else if(Object.keys(set).length){S.edMsg='<p class="muted">いまの図と同じです。</p>';edRedraw(A,'#cEdT')}
+    else{S.edPend=t;$('#cEdMsg').innerHTML=edPick(c,t);wirePick()}};
+  const wirePick=()=>{box.querySelectorAll('[data-edk]').forEach(b=>b.onclick=()=>{const k=b.dataset.edk,n=(S.edPend||'').normalize('NFKC').match(/\d+(?:\.\d+)?/);
+      if(n&&k!=='ang'){go({w:'幅',l:'長さ',h:'高さ'}[k]+'を'+n[0]+'cmに','pick');return}if(n&&k==='ang'){go('傾き'+n[0]+'度','pick');return}
+      const el=box.querySelector(k==='ang'?'#cEdT':`[data-edn="${k}"]`);if(el){el.focus();el.select&&el.select()}$('#cEdMsg').innerHTML=`<p class="muted">${k==='ang'?'「傾き15度」のように書いてください。':'下の数字を直すと、図に反映します。'}</p>`});
+    box.querySelectorAll('[data-edreq]').forEach(b=>b.onclick=()=>{shList().push({p:'全体',t:S.edPend||''});shSave();S.edPend='';S.edMsg='<p class="cedok">✓ 要望として仕様書に入れました。工場・設計者が図に起こします。</p>';track('shape_request',{n:shList().length});edRedraw(A,'#cEdT')})};
+  $('#cEdGo').onclick=()=>go($('#cEdT').value);
+  $('#cEdT').onkeydown=e=>{if(e.key==='Enter'&&!e.isComposing){e.preventDefault();go($('#cEdT').value)}};
+  box.querySelectorAll('[data-edex]').forEach(b=>b.onclick=()=>go(b.dataset.edex,'example'));
+  box.querySelectorAll('[data-edn]').forEach(i=>i.onchange=()=>{const v=+i.value;if(!(v>0))return;const set={[i.dataset.edn]:r10(v*10)};if(i.dataset.edn==='l')set.l=r10(v*10);const log=edApply(c,set,'数値');S.edMsg=log.length?`<p class="cedok">✓ <span translate="no">${esc(log.join('、'))}</span></p>`:'';track('shape_edit',{how:'number',ok:log.length?1:0});edRedraw(A,'#cEdT')});
+  box.querySelectorAll('[data-edc]').forEach(i=>i.onchange=()=>{const log=edApply(c,{[i.dataset.edc]:i.checked},'選択');S.edMsg=log.length?`<p class="cedok">✓ <span translate="no">${esc(log.join('、'))}</span></p>`:'';track('shape_edit',{how:'toggle',ok:1});edRedraw(A,'#cEdT')});
+  $('#cEdUndo')&&($('#cEdUndo').onclick=()=>{const E=edOf(),x=(E.log||[]).pop();if(x){Object.assign(E,x.prev);edSave()}S.edMsg='<p class="muted">ひとつ前に戻しました。</p>';edRedraw(A,'#cEdT')});
+  box.querySelectorAll('[data-shx]').forEach(b=>b.onclick=()=>{shList().splice(+b.dataset.shx,1);shSave();edRedraw(A,'#cEdT')})}
 function bindGoNext(){$$('[data-gonext]').forEach(b=>b.onclick=()=>$('#mNext')?.click())}
-function wireShape(A){const c=A.concept,box=$('#cShape');if(!c||!box)return;
-  const upd=()=>{box.outerHTML=shapeBox(c);const fg=$('#mConcept .cview');if(fg){fg.outerHTML=cview(c);wireV3($('#mConcept'))}const fs=$('#mFspec');if(fs){fs.outerHTML=fspecCard(A);const sl=$('#fsQSlot');if(sl)sl.innerHTML=S.fsQh||'';wireFspec(A)}wireShape(A)};
-  box.querySelectorAll('[data-shex]').forEach(b=>b.onclick=()=>{const t=$('#cShT');t.value=b.dataset.shex;t.focus()});
-  $('#cShGo').onclick=()=>{const t=($('#cShT').value||'').trim().slice(0,200);if(!t){$('#cShT').focus();return}shList().push({p:$('#cShP').value,t});shSave();track('shape_request',{n:shList().length,pool:SH_POOL.test(t)?1:0});upd()};
-  $('#cShT').onkeydown=e=>{if(e.key==='Enter'&&!e.isComposing){e.preventDefault();$('#cShGo').click()}};
-  box.querySelectorAll('[data-shx]').forEach(b=>b.onclick=()=>{shList().splice(+b.dataset.shx,1);shSave();upd()})}
 function fsCats(A,c){const pc=c&&c.pdb?c.pdb.proc:[],ind=c&&c.pdb?c.pdb.ind:'',ac=A&&A.codes||[],t=String(ideaBase()).toLowerCase();
   const on=(k,codes)=>codes.some(x=>k.proc.some(p=>x===p||x.startsWith(p+'.')));
   /* 製品DBで当てた種類（3点）＞文章の言葉（2点）＞工程の読み取り（1点）。2点以上の品目を最大2つ。なければ一番上の1つ */
@@ -1656,6 +1723,7 @@ function fsBuild(A){const c=A&&A.concept;if(!c)return null;const base=splitAi(S.
   const xs=k=>X&&X[k]&&X[k].value&&X[k].value!==NA?X[k]:null;
   // 1) 回答（選択式で答えたもの）が最優先
   for(const k in fa){const a=fa[k];if(!a)continue;if(a.unk)continue;put(k,Array.isArray(a.v)?a.v.join('、'):a.v,'回答')}
+  if(c.fig){const E=edOf();if(E.w||E.l||E.h){const f=figOf(c);put('size','幅 '+cmS(f.w)+(f.l>60?' × 長さ '+cmS(f.l):'')+' × 高さ '+cmS(f.h)+(f.k==='slope'?'（傾き '+f.ang+'）':''),'回答','イメージ図で調整')}}
   // 2) 利用者の文章（原文）と、貼り戻したJSON（根拠の原文を確かめ済み）
   put('name',P.name||(xs('product_name')||{}).value||(P.long||P.head.length<=40?P.head:''),'原文',P.name?'【製品名】':(xs('product_name')||{}).quote||'');
   const pu=[[/販売|売る|売りたい|ブランド|商品化|自社製品|ec|通販/i,'自社・自分の商品として売る'],[/店舗|店で|施設|ホテル|サロン|飲食店|クリニック/,'お店・施設で使う'],[/ノベルティ|記念品|配布|配る|販促|イベント/,'配る（ノベルティ・記念品）'],[/自分用|自分で使|家族|趣味/,'自分・家族で使う']].find(([re])=>re.test(t));
@@ -1706,6 +1774,7 @@ function fsText(F){if(!F)return '';const L=['※ この仕様書と参考図（3
   if(F.cats.length)L.push('品目：'+F.cats.map(k=>k.t).join('、'));
   for(const i of F.items){const v=F.V[i.k];L.push('・'+i.t+'：'+(v&&v.v?v.v:'要確認')+'［'+(v?v.lv:'要確認')+']'+(v&&v.src?'（'+v.src+'）':''))}
   {const lw=fsLaws((F.V.reg||{}).v);if(lw.length)L.push('  条文（e-Gov法令検索）：'+lw.map(l=>l.n+' '+l.url).join('　'))}
+  {const c=F.c;if(c&&c.fig){const f=figOf(c),E=edOf();const d=[f.inpool?'プールの中まで続ける':'',f.rail?'手すりを付ける':''].filter(Boolean);if(d.length||(E.log||[]).length)L.push('','■ 参考図（3D・寸法図）で決めた形：'+['幅 '+cmS(f.w)+(f.l>60?' × 長さ '+cmS(f.l):'')+' × 高さ '+cmS(f.h)+(f.k==='slope'?'（傾き '+f.ang+'）':''),...d].join('、'))}}
   {const sh=shList();if(sh.length){L.push('','■ 形の要望（依頼者が追加。図に反映されていないものは、工場・設計者が図に起こしてください）');sh.forEach(x=>L.push('・'+x.p+'：'+x.t))}}
   L.push('','■ 工場に聞くこと');F.fq.forEach((q,n)=>L.push((n+1)+'. '+q));L.push('','工場に出せる度：'+F.score+'%（'+{quote:'見積に出せます',design:'設計の見積から始めます',more:'あと少しで見積に出せます'}[F.mode]+'）');return L.join('\n')}
 function fspecCard(A){const F=fsBuild(A);if(!F)return '';S.fs=F;const fa=fsAns();
@@ -1713,7 +1782,7 @@ function fspecCard(A){const F=fsBuild(A);if(!F)return '';S.fs=F;const fa=fsAns()
   const sk=S.fsSkip||(S.fsSkip=new Set()),fst=S.fsFirst;const AQ=[...F.items.filter(i=>i.k===fst&&i.q&&i.ch),...F.ask.filter(i=>i.k!==fst&&!sk.has(i.k)),...F.ask.filter(i=>i.k!==fst&&sk.has(i.k))];
   const done=F.items.filter(i=>fa[i.k]&&i.k!==fst).length,cur=AQ[0];
   const head={quote:'見積に出せます',design:'設計の見積から始めます',more:'あと少しで見積に出せます'}[F.mode];
-  const lead={quote:'必要な項目がそろいました。この仕様書を見積の依頼に付けて送れます。',design:'図面や3Dデータがないため、工場はまず設計（仕様を決める仕事）の費用を見積もります。この仕様書を設計の依頼書として送ります。',more:'上の質問に答えると、工場が見積に使える情報がそろいます。わからない所は「わからない」で大丈夫です。'}[F.mode];
+  const lead={quote:'必要な項目がそろいました。この仕様書を見積の依頼に付けて送れます。',design:'図面や3Dデータがないため、工場はまず設計（仕様を決める仕事）の費用を見積もります。この仕様書を設計の依頼書として送ります。',more:'下の質問に答えると、工場が見積に使える情報がそろいます。わからない所は「わからない」で大丈夫です。'}[F.mode];
   const qhtml=cur?(()=>{const a=fa[cur.k]||{},sel=a.unk?[]:Array.isArray(a.v)?a.v:a.v?[a.v]:[],oth=sel.filter(x=>!cur.ch.includes(x)).join('、');
     return `<div class="fsq" id="fsQ"><div class="fsqh"><span><span>質問</span> <b class="mono">${done+1}</b> / ${done+AQ.length}</span><span class="muted">いくつでも選べます</span></div>
     <fieldset class="fsqi" data-fk="${esc(cur.k)}"><legend><span>${esc(cur.q)}</span>${cur.cat?` <span class="chip">${esc((FSPEC.cats.find(k=>k.id===cur.cat)||{}).t||'')}</span>`:''}</legend><div class="fsch">
@@ -1721,13 +1790,17 @@ function fspecCard(A){const F=fsBuild(A);if(!F)return '';S.fs=F;const fa=fsAns()
       <input class="fsoth" id="fsOth" type="text" value="${esc(oth)}" placeholder="その他（自由に書く）" aria-label="その他（自由に書く）"></fieldset>
     <p class="fsqerr" id="fsQErr" role="alert"></p>
     <div class="fsqa"><button type="button" class="btn pri" id="fsOk">次へ</button><button type="button" class="btn" id="fsUnk">わからない</button>${AQ.length>1?'<button type="button" class="btn ghost" id="fsLater">あとで</button>':''}</div></div>`})()
-    :`<div class="fsq fsqdone" id="fsQ"><b>✓ 質問はすべて答えました</b><span class="muted">答えは下の「工場向け仕様書」と見積の依頼に入ります。直すときは仕様書の表の「直す」から。</span><div class="fsqa"><button type="button" class="btn pri" data-gonext>この案で会社を探す →</button></div></div>`;
+    :`<div class="fsq fsqdone" id="fsQ"><b>✓ 質問はすべて答えました</b><span class="muted">答えは下の仕様書の表と見積の依頼に入ります。直すときは表の「直す」から。</span><div class="fsqa"><button type="button" class="btn pri" data-gonext>この案で会社を探す →</button></div></div>`;
   S.fsQh=`<div class="fsqtop"><span class="fsqstep">${cur?'答えてください':'できました'}</span><span class="muted"><span>工場に出せる度</span> <b class="mono">${F.score}%</b></span></div>`+qhtml;
-  const row=i=>{const v=F.V[i.k];const lv=v?v.lv:'要確認';const lw=i.k==='reg'&&v?fsLaws(v.v):[];return `<tr><th>${esc(i.t)}${i.req?'<span class="fsreq">*</span>':''}${i.q&&i.ch&&fa[i.k]?` <button type="button" class="fsfix" data-fx="${esc(i.k)}">直す</button>`:''}</th><td>${v&&v.v?(lv==='仮'?'<span>仮：</span>':'')+`<span translate="no">${esc(v.v)}</span>`:'<span>要確認</span>'}</td><td>${mk(FS_LV[lv]||'unk',lv)}${v&&v.src?`<small translate="no">${esc(v.src)}</small>`:''}${lw.length?`<small>条文（e-Gov法令検索）：${lw.map(l=>`<a href="${l.url}" target="_blank" rel="noopener" translate="no">${esc(l.n)}</a>`).join('、')}</small>`:''}</td></tr>`};
+  const fg=F.c&&F.c.fig?figOf(F.c):null;
+  const szEd=fg?`<div class="fssz">${[['w','幅'],...(fg.l>60||fg.k==='slope'?[['l','長さ']]:[]),['h','高さ']].map(([k,l])=>`<label><span>${l}</span><input type="number" inputmode="decimal" min="1" data-fsz="${k}" value="${Math.round(fg[k]/10)}"><span>cm</span></label>`).join('')}</div>`:'';
+  const shRow=fg&&fg.k==='slope'?`<tr><th>図で決めた形</th><td><div class="fssz">${fg.pool?`<label class="cedck"><input type="checkbox" data-fsc="inpool"${fg.inpool?' checked':''}><span>プールの中まで続ける</span></label>`:''}<label class="cedck"><input type="checkbox" data-fsc="rail"${fg.rail?' checked':''}><span>手すり</span></label></div>${shList().length?`<small translate="no">${esc(shList().map(x=>x.t).join(' ／ '))}</small>`:''}</td><td>${mk('ok','回答')}<small>イメージ図</small></td></tr>`:'';
+  const row=i=>{const v=F.V[i.k];const lv=v?v.lv:'要確認';const lw=i.k==='reg'&&v?fsLaws(v.v):[];return `<tr><th>${esc(i.t)}${i.req?'<span class="fsreq">*</span>':''}${i.q&&i.ch&&fa[i.k]?` <button type="button" class="fsfix" data-fx="${esc(i.k)}">直す</button>`:''}</th><td>${i.k==='size'&&szEd?szEd+(lv==='仮'?'<small>仮：似た製品の目安。数字を直すと図も変わります</small>':''):v&&v.v?(lv==='仮'?'<span>仮：</span>':'')+`<span translate="no">${esc(v.v)}</span>`:'<span>要確認</span>'}</td><td>${mk(FS_LV[lv]||'unk',lv)}${v&&v.src?`<small translate="no">${esc(v.src)}</small>`:''}${lw.length?`<small>条文（e-Gov法令検索）：${lw.map(l=>`<a href="${l.url}" target="_blank" rel="noopener" translate="no">${esc(l.n)}</a>`).join('、')}</small>`:''}</td></tr>`};
   const draft=F.mode==='design'&&F.c&&F.c.fig?`<div class="fsdraft"><h4>設計の下書き</h4><p class="muted">KATACHIが作る下書きです。単純な形なら3Dプリントの試作に出せます。回路・基板・強度・防水・金型は、設計者が仕上げる前提です。</p><div class="fsbtns"><button type="button" class="btn sm" id="fsStl">製品イメージ案の3Dデータ（STL）を保存</button><button type="button" class="btn sm" id="fsSvg">寸法図（SVG）を保存</button></div></div>`:'';
-  return `<section class="ccard fspec" id="mFspec"><div class="chd"><h2>工場向け仕様書</h2>${F.cats.map(k=>`<span class="chip">${esc(k.t)}</span>`).join('')}</div>
+  return `<section class="ccard fspec" id="mFspec"><div class="chd"><h2>工場向け仕様書</h2>${F.c&&F.c.fig?'<span class="muted" style="font-size:12.5px">上の図と、下の答えから作ります</span>':''}${F.cats.map(k=>`<span class="chip">${esc(k.t)}</span>`).join('')}</div>
     <div class="fshd fs-${F.mode}"><div class="fsm"><span>工場に出せる度</span><b class="mono">${F.score}%</b><div class="bar"><i style="width:${F.score}%"></i></div></div><div><b>${head}</b><p>${lead}</p></div></div>
-    ${fold('fstab','仕様書',`<table class="fstb"><thead><tr><th>項目</th><th>内容</th><th>確かさ</th></tr></thead><tbody>${F.items.map(row).join('')}</tbody></table><p class="muted" style="font-size:12px;margin:6px 0 0">仮の値は、似た製品の目安です。工場との打ち合わせで決まります。</p>`,F.items.filter(i=>F.V[i.k]&&F.V[i.k].v).length+' / '+F.items.length)}
+    ${S.fsQh}
+    ${fold('fstab','仕様書',`<table class="fstb"><thead><tr><th>項目</th><th>内容</th><th>確かさ</th></tr></thead><tbody>${F.items.map(row).join('')}${shRow}</tbody></table><p class="muted" style="font-size:12px;margin:6px 0 0">仮の値は、似た製品の目安です。工場との打ち合わせで決まります。</p>`,F.items.filter(i=>F.V[i.k]&&F.V[i.k].v).length+' / '+F.items.length)}
     ${fold('fsfq','工場に聞くこと（自動で依頼書に付きます）',`<ol class="cl">${F.fq.map(q=>`<li>${esc(q)}</li>`).join('')}</ol>`,String(F.fq.length))}
     ${PARTS&&F.cats.some(k=>k.id==='elec')?`<div class="fsref" id="fsPt"><h4>部品の参考価格を調べる（DigiKey）</h4><p class="muted" style="font-size:12.5px;margin:0 0 6px">部品名か型番を入れると、電子部品の通販 DigiKey の単価（1個）と在庫を出します。量産の価格は工場の仕入れで変わるので、目安として使ってください。</p>${(()=>{const src=[(F.V.parts||{}).v,(F.V.escope||{}).v,splitAi(S.idea||'')[0]].join(' ');const pp=PQ.filter(([re])=>re.test(src)).slice(0,6);return pp.length?`<div class="fsch" style="margin-bottom:6px">${pp.map(([,l,q])=>`<button type="button" class="fsb" data-pq="${esc(q)}">${esc(l)}</button>`).join('')}</div>`:''})()}<div class="fsgk"><input id="fsPtIn" type="text" autocapitalize="off" spellcheck="false" placeholder="例：ESP32-C3、accelerometer（英語・型番が当たりやすい）" aria-label="部品名・型番"><button type="button" class="btn sm" id="fsPtGo">調べる</button></div><div id="fsPtOut" aria-live="polite"></div></div>`:''}
     ${F.cats.some(k=>k.id==='elec')?`<div class="fsref" id="fsGk"><h4>技適（電波法）を調べる</h4><p class="muted" style="font-size:12.5px;margin:0 0 6px">無線（Bluetooth・Wi-Fi・LTEなど）を使うなら、技適を取った無線モジュールを使うと、製品ごとの認証が要らないことがあります。使う予定のモジュールの型式を入れると、総務省の登録を調べます。</p>${GITEKI?`<div class="fsgk"><input id="fsGkIn" type="text" autocapitalize="off" spellcheck="false" placeholder="例：ESP32-WROOM-32E" aria-label="無線モジュールの型式"><button type="button" class="btn sm" id="fsGkGo">調べる</button></div><div id="fsGkOut" aria-live="polite"></div>`:''}<a class="btn sm" href="https://www.tele.soumu.go.jp/giteki/SearchServlet?pageID=js01" target="_blank" rel="noopener" id="fsGkSite">総務省の技適検索で調べる</a></div>`:''}
@@ -1737,7 +1810,7 @@ function fspecCard(A){const F=fsBuild(A);if(!F)return '';S.fs=F;const fa=fsAns()
 function wireFspec(A){const el=$('#mFspec');if(!el)return;const fa=fsAns();
   // 選ぶだけでは書き換えない（「次へ」で確定）。確定したら作り直し、質問の箱が同じ高さに来るようにずらす
   document.querySelectorAll('#fsQ .fsb').forEach(b=>b.onclick=()=>{const on=!b.classList.contains('on');b.classList.toggle('on',on);b.setAttribute('aria-pressed',on);$('#fsQErr').textContent=''});
-  const redraw=(focus)=>{const q0=$('#fsQ')||el,top=q0.getBoundingClientRect().top;el.outerHTML=fspecCard(A);const sl=$('#fsQSlot');if(sl)sl.innerHTML=S.fsQh||'';wireFspec(A);bindGoNext();const q1=$('#fsQ')||$('#mFspec');
+  const redraw=(focus)=>{const q0=$('#fsQ')||el,top=q0.getBoundingClientRect().top;el.outerHTML=fspecCard(A);wireFspec(A);bindGoNext();const q1=$('#fsQ')||$('#mFspec');
     if(focus){q1&&q1.scrollIntoView({block:'center'})}else if(q1)window.scrollBy(0,q1.getBoundingClientRect().top-top)};
   const curK=()=>{const f=document.querySelector('#fsQ .fsqi');return f&&f.dataset.fk};
   $('#fsOk')&&($('#fsOk').onclick=()=>{const k=curK();const v=[...document.querySelectorAll('#fsQ .fsb.on')].map(b=>b.dataset.fv),o=($('#fsOth').value||'').trim().slice(0,100);if(o)v.push(o);
@@ -1747,6 +1820,8 @@ function wireFspec(A){const el=$('#mFspec');if(!el)return;const fa=fsAns();
   $('#fsLater')&&($('#fsLater').onclick=()=>{const k=curK();(S.fsSkip||(S.fsSkip=new Set())).add(k);if(S.fsFirst===k)S.fsFirst=null;redraw()});
   el.querySelectorAll('[data-fx]').forEach(b=>b.onclick=()=>{S.fsFirst=b.dataset.fx;const k=b.dataset.fx,a=fa[k];if(a&&a.unk)delete fa[k];fsSave();redraw(true)});
 
+  el.querySelectorAll('[data-fsz]').forEach(i=>i.onchange=()=>{const v=+i.value;if(!(v>0))return;const log=edApply(A.concept,{[i.dataset.fsz]:r10(v*10)},'仕様書');S.edMsg=log.length?`<p class="cedok">✓ <span>仕様書から</span> <span translate="no">${esc(log.join('、'))}</span></p>`:'';track('shape_edit',{how:'spec',ok:log.length?1:0});edRedraw(A,'[data-fsz="'+i.dataset.fsz+'"]')});
+  el.querySelectorAll('[data-fsc]').forEach(i=>i.onchange=()=>{const log=edApply(A.concept,{[i.dataset.fsc]:i.checked},'仕様書');S.edMsg=log.length?`<p class="cedok">✓ <span>仕様書から</span> <span translate="no">${esc(log.join('、'))}</span></p>`:'';track('shape_edit',{how:'spec_toggle',ok:1});edRedraw(A,'[data-fsc="'+i.dataset.fsc+'"]')});
   $('#fsJpp')&&($('#fsJpp').onclick=()=>track('fspec_jplatpat',{}));
   document.querySelectorAll('[data-pq]').forEach(b=>b.onclick=()=>{$('#fsPtIn').value=b.dataset.pq;$('#fsPtGo').click()});
   $('#fsPtGo')&&($('#fsPtGo').onclick=async()=>{const q=($('#fsPtIn').value||'').trim(),o=$('#fsPtOut');if(q.length<2){o.textContent='部品名か型番を2文字以上入れてください';return}
@@ -2205,7 +2280,7 @@ async function renderMatch(){
     ${S.lostFiles?`<div class="updn" style="background:#fff7e6;border-color:#f3d39b"><span>前に追加した写真・動画（${S.lostFiles}件）は、画面を開き直したため消えました。お手数ですが、もう一度追加してください。</span></div>`:''}
     <div id="fstrip">${stripHTML()}</div>
     ${/【参考にした既製品】/.test(S.idea)?`<div class="refwarn" style="margin-top:12px"><b>既製品をもとにした依頼です。</b>参考品の特許・意匠（デザイン）・商標にかからないか、見積の前に担当者・工場と確かめます。変えたところが少ないと、作れない・売れないことがあります。${/【参考品のページから読み取った内容】/.test(S.idea)?'':'<br><b>参考品のページは読み取れませんでした。</b>「書き直す」で商品名や、どんな製品か（例：犬用の車いす）を書き足すと、案が具体的になります。'}</div>`:''}
-    ${A.concept?(()=>{const fc=fspecCard(A);return conceptCard(A.concept).replace('<!--SHAPE-->',shapeBox(A.concept)).replace('<!--FSQ-->',fc?S.fsQh||'':'')+fc})():blocked?'':'<div class="empty" style="margin-top:16px">この文章からは、製品の種類を特定できませんでした。下の「AIで相談」を開くと、外観・サイズ・素材・機能の案も作ってもらえます。</div>'}
+    ${A.concept?(()=>{const fc=fspecCard(A);return conceptCard(A.concept)+fc})():blocked?'':'<div class="empty" style="margin-top:16px">この文章からは、製品の種類を特定できませんでした。下の「AIで相談」を開くと、外観・サイズ・素材・機能の案も作ってもらえます。</div>'}
     ${notices}
     ${blocked?'':costPeek(A)}
     ${blocked?'':`<div class="gonext"><button type="button" class="btn pri" data-gonext>${A.concept?'この案で会社を探す':'会社を探す'} →</button></div>`}
