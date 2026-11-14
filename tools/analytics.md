@@ -58,6 +58,9 @@
 | lai_reset | 内蔵AIとの会話をやり直した | なし | |
 | concept_3d | 製品イメージ案の3Dを回した・拡大縮小した・向きを戻した・3D／寸法図を切り替えた（1つの表示につき各1回） | action（rotate/zoom/reset/tab_3d/tab_fig）, kind（図の種類） | |
 | concept_kind | AIの回答から別の種類とも読めたとき、「この種類に切り替える」「元の種類に戻す」を押した | concept（案のID）, switched（切り替えたか） | |
+| spec_paste | AIの回答を貼ったとき、最後のJSON（決まった項目）を読めたか | json（true/false） | |
+| spec_lookup | 長い仕様文で、受付に保存済みの整理結果があったか（SPECDB が true のときだけ） | hit | |
+| spec_ai_hint | 製品イメージ案の「AIで項目に整理する」を押した | なし | |
 | concept_ai | 「この案をもとにAIで詰める」を押した | concept | |
 | blocked_alt | 扱わない分野（酒類）のとき「ラベル・化粧箱」「グラス・ノベルティ」の入口を押した | alt | |
 | lang_change | 言語切替 | from, to | |

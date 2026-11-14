@@ -53,3 +53,8 @@ python3 seo_pages.py <リポジトリ>             # ガイド記事・sitemap.x
 - 長い仕様文で違う種類の製品にならないかを確かめる。`tools/tests/specs/` に入力文と期待する種類（`cases.json`）がある。
 - リポジトリのルートで `python3 -m http.server 8765` を動かし、`node tools/tests/concept_cases.js` を実行（Playwright、ローカル）。
 - 仕様文に【製品名】があればその名前で種類を決め、種類にない製品は名前のまま、構成・外観（車輪・脚・担架・昇降など）から形を組む（`specRead`・`specConcept`、3Dは `parts`）。
+
+## 製品仕様DBと、お使いのAIでの整理（AIのAPIは使わない＝費用ゼロ）
+- 製品仕様DB：`python3 tools/product_db.py .` で `data/products.json` を作る（作例44本＋全業界のよくある製品＋製品イメージ案の種類）。画面は送信時に読み込み、製品名（なければ冒頭の1行）に近い製品を当てて、工程・最小ロット・法規制を出典つきで出す。数字は `estimates.py` の出典つきの行、法規制は `REG` の公的機関のページだけ。構成・素材は「AI推定（よくある例）」と明記。
+- 長い仕様文は、AI相談の質問文の最後で、決まった項目のJSON（`SX_TPL`）を出すよう頼む。貼り戻すと `sxParse` が読み、根拠の原文（quote）が利用者の文章に見つからない値は「要確認」にする。結果はこの端末（localStorage）に保存し、同じ文章では保存済みを使う。
+- 受付への保存（`backend/forms.gs` の type:`spec`／`specsave`、シート「仕様読み取り」）は、受付を新しいバージョンにデプロイしてから `template.html` の `SPECDB` を true にする。「DBの一致」が空の行はDBにない新しい製品なので、見直して `product_db.py` に足して育てる。

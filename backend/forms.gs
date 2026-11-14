@@ -33,6 +33,8 @@ var CONFIG = {
   REVIEW_MONTHLY_LIMIT: 900,        // 1か月に口コミを取り寄せる回数（無料の範囲 1,000回に収める。超えたら月末までリンクだけ）
   REVIEW_SEARCH_MONTHLY_LIMIT: 900, // 1か月に場所を探す回数（場所IDは覚えるので、同じ会社は2回目から探さない）
   PEEK_DAILY_LIMIT: 500,            // 参考品ページの読み取り：1日の上限
+  SPEC_DAILY_LIMIT: 500,            // 仕様の整理結果の保存・読み出し：1日の上限（いたずら対策）
+  SPEC_MAX_CHARS: 20000,            // 依頼文の文字数の上限
   REVIEW_DAILY_LIMIT: 150,          // 1日の上限（いたずら対策）
 };
 
@@ -55,6 +57,8 @@ function doPost(e) {
     if (p.type === 'partner') return json_(partner_(p));
     if (p.type === 'reviews') return json_(reviews_(p));
     if (p.type === 'peek') return json_(peek_(p));
+    if (p.type === 'spec') return json_(spec_(p));
+    if (p.type === 'specsave') return json_(specSave_(p));
     if (!limit_()) return json_({ok: false, error: 'busy'});
     if (p.type !== 'rfq' && p.type !== 'consult') return json_({ok: false, error: 'type'});
     var f = {};
@@ -617,4 +621,84 @@ function peek_(p) {
   if (!out.title && !out.desc && !out.ogtitle && !out.product.name) out = {ok: false, error: 'empty'};
   cache.put(ck, JSON.stringify(out), 21600);
   return out;
+}
+
+/**
+ * 依頼の文章（長い仕様文）を項目に整理した結果の保存と読み出し（AIのAPIは使わない＝費用ゼロ）
+ * - 整理は利用者が自分の ChatGPT・Claude・Gemini で行い、決まった形の JSON を KATACHI に貼り戻す。
+ * - type:'specsave' … 依頼文と JSON を受け取り、根拠の原文（quote）が依頼文に見つからない値を「要確認」にしてから、シート「仕様読み取り」に保存。
+ * - type:'spec' … 同じ依頼文（ハッシュ）の保存済みの結果があれば返す。
+ * - 「DBの一致」が空の行は、製品仕様DB（tools/product_db.py）にない新しい製品。見直してDBに足して育てる。
+ */
+var SPEC_HEAD = ['日時', 'ハッシュ', '保存した回数', 'DBの一致', '文字数', '製品名', '種類', '結果（JSON）'];
+
+function specHash_(text) {
+  var norm = String(text || '').replace(/\r\n?/g, '\n').trim().replace(/\s+/g, ' ');
+  return Utilities.base64EncodeWebSafe(Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, norm, Utilities.Charset.UTF_8)).replace(/=+$/, '');
+}
+
+function spec_(p) {
+  var text = String(p.text || '').trim().slice(0, CONFIG.SPEC_MAX_CHARS);
+  if (text.length < 20) return {ok: false, error: 'short'};
+  var hash = specHash_(text), cache = CacheService.getScriptCache(), ck = 'sp_' + hash;
+  var hit = cache.get(ck);
+  if (hit) return {ok: true, spec: JSON.parse(hit)};
+  if (!limit_('sp', CONFIG.SPEC_DAILY_LIMIT)) return {ok: false, error: 'busy'};
+  var sh = specSheet_(), found = sh.getRange('B:B').createTextFinder(hash).matchEntireCell(true).findNext();
+  if (!found) return {ok: false, error: 'none'};
+  try { var js = sh.getRange(found.getRow(), 8).getValue(), o = JSON.parse(js); if (js.length < 90000) cache.put(ck, js, 21600); return {ok: true, spec: o}; } catch (e) { return {ok: false, error: 'parse'}; }
+}
+
+function specSave_(p) {
+  var text = String(p.text || '').trim().slice(0, CONFIG.SPEC_MAX_CHARS);
+  if (text.length < 20 || !p.spec || typeof p.spec !== 'object') return {ok: false, error: 'bad'};
+  if (!limit_('ss', CONFIG.SPEC_DAILY_LIMIT)) return {ok: false, error: 'busy'};
+  var ids = (p.kinds || []).filter(function (k) { return /^[a-z_]{1,30}$/.test(k); }).slice(0, 80).concat(['other']);
+  var out = specCheck_(p.spec, text, ids), js = JSON.stringify(out);
+  if (js.length > 45000) return {ok: false, error: 'big'};
+  var hash = specHash_(text), sh = specSheet_(), lock = LockService.getScriptLock();
+  lock.waitLock(10000);
+  try {
+    var found = sh.getRange('B:B').createTextFinder(hash).matchEntireCell(true).findNext();
+    var db = String(p.db || '').replace(/[^a-z0-9_]/g, '').slice(0, 60);
+    var row = [new Date(), hash, 1, db, text.length, out.product_name.value, out.kind.value, js].map(safe_);
+    if (found) { row[2] = (Number(sh.getRange(found.getRow(), 3).getValue()) || 1) + 1; sh.getRange(found.getRow(), 1, 1, row.length).setValues([row]); }
+    else sh.appendRow(row);
+  } finally { lock.releaseLock(); }
+  CacheService.getScriptCache().put('sp_' + hash, js, 21600);
+  return {ok: true, spec: out};
+}
+
+// 根拠の原文が依頼文に見つからない値は捨てる。数字の値は、その数字が根拠の原文に入っているものだけ残す
+function specCheck_(o, text, ids) {
+  var sq = function (s) { return String(s || '').replace(/[\s　]+/g, ''); };
+  var T = sq(text), NA = '要確認';
+  var ok1 = function (f) {
+    var v = String((f && f.value) || '').trim().slice(0, 200), q = String((f && f.quote) || '').trim().slice(0, 120);
+    if (!v || v === NA || !q || T.indexOf(sq(q)) < 0) return {value: NA, quote: ''};
+    var nums = v.match(/\d+(?:\.\d+)?/g) || [];
+    for (var i = 0; i < nums.length; i++) if (sq(q).indexOf(nums[i]) < 0) return {value: NA, quote: ''};
+    return {value: v, quote: q};
+  };
+  var list = function (a) { return (a || []).map(ok1).filter(function (f) { return f.value !== NA; }).slice(0, 8); };
+  var r = {};
+  ['product_name', 'purpose', 'shape', 'width', 'length', 'height', 'weight', 'load', 'power', 'quantity_proto', 'quantity_mass'].forEach(function (k) { r[k] = ok1(o[k]); });
+  ['components', 'processes', 'regulations', 'environment', 'open_items'].forEach(function (k) { r[k] = list(o[k]); });
+  r.materials = (o.materials || []).map(function (m) { var f = ok1(m); return {part: f.value === NA ? '' : String(m.part || '').slice(0, 30), value: f.value, quote: f.quote}; })
+    .filter(function (m) { return m.value !== NA; }).slice(0, 8);
+  var kd = o.kind || {};
+  r.kind = {value: ids.indexOf(kd.value) >= 0 ? kd.value : 'other', quote: ''};
+  if (r.kind.value !== 'other') { var kq = ok1({value: 'x', quote: kd.quote}); r.kind.quote = kq.quote; if (!kq.quote) r.kind.value = 'other'; }
+  return r;
+}
+
+function specSheet_() {
+  var ss = sheet_().getParent();
+  var sh = ss.getSheetByName('仕様読み取り');
+  if (!sh) {
+    sh = ss.insertSheet('仕様読み取り');
+    sh.appendRow(SPEC_HEAD);
+    sh.setFrozenRows(1);
+  }
+  return sh;
 }
