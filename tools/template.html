@@ -407,6 +407,11 @@ table.cmp{border-collapse:separate;border-spacing:0;width:100%;min-width:760px;f
 .rec{border:2px solid var(--ice);border-radius:16px;padding:16px;display:grid;gap:12px;background:linear-gradient(180deg,var(--hover),#fff 60%)}
 .rec>*{min-width:0}.rec .rtag{display:inline-flex;gap:6px;align-items:center;font-size:12px;font-weight:700;color:#fff;background:var(--ice);border-radius:99px;padding:3px 10px;justify-self:start}
 .rec h3{margin:0;font-size:19px}.rec .why{margin:0;font-size:13.5px;color:var(--mute)}
+.rwin{margin:0;display:flex;flex-wrap:wrap;gap:4px 8px;align-items:baseline;font-size:13px}.rwin b{font-size:14px;overflow-wrap:anywhere}.rwin>span:last-child{color:var(--mute);font-size:12.5px}
+.rwl{font-size:11.5px;font-weight:700;color:#fff;background:var(--ice);border-radius:4px;padding:1px 7px}
+.rlask{border:1px dashed color-mix(in srgb,var(--ice) 50%,transparent);border-radius:12px;padding:12px;display:grid;gap:10px;background:#fff}
+.rlask>p{margin:0;display:grid;gap:2px;font-size:13px}.rlask>p span{color:var(--mute);font-size:12.5px}
+.rlq{border:0;margin:0;padding:0;display:grid;gap:6px}.rlq legend{font-size:13.5px;font-weight:600;padding:0;margin-bottom:6px}
 .rcos{list-style:none;margin:0;padding:0;display:grid;gap:8px}
 .whoh{margin:14px 0 6px;font-size:14.5px}.whon{font-size:12.5px;color:var(--mute);margin:0 0 8px}
 .wlist{list-style:none;margin:0;padding:0;display:grid;border:1px solid var(--line);border-radius:12px;background:#fff;overflow:hidden}
@@ -1579,6 +1584,9 @@ const LAWS=[[/電波法/,'電波法','325AC0000000131'],[/電気用品安全法|
 const fsLaws=t=>LAWS.filter(([re])=>re.test(t||'')).map(([,n,id])=>({n,url:'https://laws.e-gov.go.jp/law/'+id}));
 /* 技適の検索：型式を受付（backend/forms.gs の type:giteki）に送り、受付が総務省の Web-API で調べる。受付を新しいバージョンにしてから true */
 const GITEKI=false;
+/* 体や置く場所に合わせて採寸・試着・調整が要る物（一社に頼むのが向く）。調べた根拠は「一社か複数社か」の検証（2026-11-14） */
+const FIT_Y=/採寸|体に合わせ|体型に合わせ|体格に合わせ|オーダーメ[イー]ド|車[椅い]す|歩行器|歩行補助|補助輪|装具|サポーター|コルセット|(犬|猫|ペット)[^。\n]{0,10}ハーネス|サイズ(を|に)?合わせ|部屋に合わせ|寸法に合わせ|現場に合わせ|造作|試着|オーダー家具|オーダーの家具/;
+const FIT_N=/既製(品)?の?(まま|サイズ)|決まった(形|サイズ)|規格(品|サイズ)|同じ(形|物)を(\d|量産|たくさん)/;
 const FS_LV={'原文':'ok','回答':'ok','製品DB':'pub','参考品':'pub','仮':'ai','要確認':'unk'};
 /* 既製品をもとに作る：refText が足した行（参考品・大きさ・素材・変えたいところ）と、受付が読んだ参考品のページから取り出す */
 function fsRef(t){const m=String(t||'').match(/【参考にした既製品】([^\n]*)/);if(!m)return null;const g=re=>{const x=t.match(re);return x?x[1].trim():''};
@@ -1586,7 +1594,7 @@ function fsRef(t){const m=String(t||'').match(/【参考にした既製品】([^
   const own=g(/参考品の素材：([^\n]*)/);return {name:m[1].trim(),url,host,size:g(/参考品の大きさ：([^\n]*)/),mat:own||(pm?pm[1].trim():''),chg:g(/【変えたいところ】([^\n]*)/),how:g(/【どう変えたいか】([^\n]*)/),page:!!pk}}
 const fsKey=()=>'katachi-fa-'+sxHash(ideaBase());
 function fsAns(){if(S.faFor!==ideaBase()){S.faFor=ideaBase();try{S.fa=JSON.parse(localStorage.getItem(fsKey())||'{}')}catch(e){S.fa={}}}return S.fa||(S.fa={})}
-window.KATACHI_FS=()=>S.fs;window.KATACHI_RFQ=n=>rfq(n||[]);window.KATACHI_SX=(v,t)=>sxParse(v,t);  // 回帰テスト（tools/tests）用
+window.KATACHI_FS=()=>S.fs;window.KATACHI_RL=()=>S.lastRL;window.KATACHI_RFQ=n=>rfq(n||[]);window.KATACHI_SX=(v,t)=>sxParse(v,t);  // 回帰テスト（tools/tests）用
 function fsSave(){try{localStorage.setItem(fsKey(),JSON.stringify(S.fa||{}))}catch(e){}}
 function fsCats(A,c){const pc=c&&c.pdb?c.pdb.proc:[],ind=c&&c.pdb?c.pdb.ind:'',ac=A&&A.codes||[],t=String(ideaBase()).toLowerCase();
   const on=(k,codes)=>codes.some(x=>k.proc.some(p=>x===p||x.startsWith(p+'.')));
@@ -1612,6 +1620,7 @@ function fsBuild(A){const c=A&&A.concept;if(!c)return null;const base=splitAi(S.
   const mw=[...new Set((t.match(MW)||[]))];if(mw.length)put('mat',mw.join('、'),'原文',fsQuote(t,new RegExp(mw[0])));
   if(X&&X.components&&X.components.length)put('parts',X.components.map(f=>f.value).join('、'),'原文');if(P.parts.length)put('parts',P.parts.join('、'),'原文');
   const sc=[[/図面(が|は)?(ない|無い|なし|ありません)|設計から|設計して(ほしい|欲しい)/,'設計から（図面がない）'],[/図面(が|は)?(ある|あります|あり)|cadデータ|step|図面を(送|添付)/i,'図面・データがあり、作るだけ'],[/量産(だけ|のみ)|試作(は|が)?(済|完了)/,'量産だけ（試作は済んでいる）']].find(([re])=>re.test(t));
+  {const fy=t.match(FIT_Y),fn=t.match(FIT_N);if(fy)put('fit','要る（体・場所に合わせる）','原文',fsQuote(t,FIT_Y));else if(fn)put('fit','要らない（決まった形・サイズ）','原文',fsQuote(t,FIT_N))}
   if(sc)put('scope',sc[1],'原文',fsQuote(t,sc[0]));if(xs('scope'))put('scope',X.scope.value,'原文',X.scope.quote);
   const dk=[[/図面(が|は)?(ある|あります|あり)|図面を(送|添付)/,'図面'],[/3d|stl|step|cad/i,'3Dデータ'],[/スケッチ|手書き|ラフ/,'手書きのスケッチ'],[/写真/,'写真'],[/現物|実物|サンプル(が|を)(ある|あります|送)/,'現物を送れる'],[/型紙|パターン/,'型紙・パターン'],[/レシピ|配合/,'配合・レシピ'],[/ロゴ(データ|の?データ)|入稿|aiデータ|イラストレーター/i,'入稿データ（ロゴ・デザイン）']];
   const docs=dk.filter(([re])=>re.test(t)).map(x=>x[1]);if(X&&X.docs)X.docs.forEach(f=>{if(!docs.includes(f.value))docs.push(f.value)});(S.files||[]).forEach(f=>{const k=f.k==='3D'?'3Dデータ':isVis(f)?'写真':'';if(k&&!docs.includes(k))docs.push(k)});if(docs.length)put('docs',docs.join('、'),'原文');
@@ -2053,15 +2062,15 @@ function planCard(kind,P,secs,rec){
   const sum=planSum(M,kind);
   const who=rows.map(x=>`<li><span class="pstep">${x.c?esc(CAPN[x.c]||x.c):(x.cov===secs.length?'すべての工程':'まとめて受ける工程')}</span>${x.c==null&&x.cov<secs.length?`<span class="chip">${x.cov}/${secs.length}工程</span>`:''}<b translate="no">${x.r?esc(x.r[0]):'—'}</b>${x.r?'':'<span class="axq">担当者が探します</span>'}</li>`).join('');
   return `<div class="pcard ${sel?'on':''} ${rec===kind?'rec':''}"><div class="phd"><b>${kind==='one'?'一社にまとめる案':'工程ごとに組み合わせる案'}</b>${rec===kind?'<span class="chip on">おすすめ</span>':''}</div>
-    <div class="pmeta"><b class="mono">${M.length}社</b><span>${kind==='one'?(M.length>1?'1社に多くの工程をまとめ、足りない工程は別の会社で補う':'窓口は1つ'):'取りまとめはKATACHIの担当者'}</span></div>
+    <div class="pmeta"><b class="mono">${M.length}社</b><span>${kind==='one'?(M.length>1?'1社に多くの工程をまとめ、足りない工程は別の会社で補う':'1社が完成まで受け持つ'):'工程ごとに得意な会社に分ける'}</span></div>
+    ${(w=>`<p class="rwin"><span class="rwl">窓口</span>${w?`<b translate="no">${esc(w[0])}</b>`:'<b>KATACHIの担当者</b>'}</p>`)(winOf(kind,P))}
     <ul class="pwho">${who}</ul>
     <dl class="pax"><div><dt>料金</dt><dd>${sum.price}</dd></div><div><dt>品質</dt><dd>${sum.qual}</dd></div><div><dt>納期</dt><dd>${sum.lead}</dd></div>
       <div><dt>向く場合</dt><dd><p>${kind==='one'?'管理の手間を減らしたい・品質の責任を1社に持たせたいとき':'1社では揃わない技術が混ざる・工程ごとに価格や品質を詰めたいとき'}</p></dd></div></dl>
     <button type="button" class="btn ${sel?'pri':''} sm" data-plan-pick="${kind}" aria-pressed="${sel}" ${M.length?'':'disabled'}>${sel?'この案の会社を選択中':'この案の会社を選ぶ'}</button></div>`}
-function planCmp(secs,one){if(secs.length<2)return '';
-  const P=planOf(secs,one);const rec=P.full?'one':'combo';S.plans=P;
-  const why=P.full?'読み取った工程をすべて1社で受けられそうな会社があります。窓口を1つにできるので、まずは一社案がおすすめです。組み合わせ案にも見積を取ると、価格と納期の差が分かります。':P.top?'すべての工程を1社で受けられそうな会社は見つかりませんでした。工程ごとに組み合わせる案がおすすめです。一社案は、足りない工程を別の会社で補った形です。':'1社でまとめて受けられそうな会社は見つかりませんでした。工程ごとに組み合わせる案がおすすめです。';
-  return `<section class="pcmp" id="mPlans"><div class="mhead"><h2>一社にまとめるか、組み合わせるか</h2>${mk('ai','目安（AI推定）')}</div>
+function planCmp(R3){if(!R3||!R3.P)return '';const P=R3.P,rec=R3.kind,secs=S.secs||[];
+  const why=rec==='one'?'★の一社案のほかに、工程ごとに組み合わせる案も選べます。両方に見積を取ると、価格と納期の差が分かります。':'★の組み合わせ案のほかに、一社にまとめる案も選べます。両方に見積を取ると、価格と納期の差が分かります。';
+  return `<section class="pcmp" id="mCmp"><div class="mhead"><h2>もう一方の案と比べて選ぶ</h2>${mk('ai','目安（AI推定）')}</div>
     <p class="pwhy">${why}</p>
     <div class="pgrid">${planCard('one',P,secs,rec)}${planCard('combo',P,secs,rec)}</div>
     <div class="pfoot"><button type="button" class="btn ${S.planPick==='both'?'pri':''}" data-plan-pick="both" aria-pressed="${S.planPick==='both'}">${S.planPick==='both'?'両方の案の会社を選択中':'両方に見積を依頼して比べる'}</button><span class="muted">案の会社は、下の並べ替え・絞り込みに合わせて入れ替わります。料金と納期の本当の数字は、見積で各社から届きます。</span></div></section>`}
@@ -2069,7 +2078,7 @@ function bindPlans(re){$$('[data-plan-pick]').forEach(b=>b.onclick=()=>{const k=
   if(S.planPick===k){S.planPick='';S.gsel=[];S.gstep={};track('choose_plan',{plan:'none'});re();return}
   const rows=k==='one'?P.oneRows:k==='combo'?P.combo:[...P.oneRows,...P.combo];S.gsel=[];S.gstep={};
   for(const x of rows){if(!x.r||S.gsel.includes(x.r[0])||S.gsel.length>=8)continue;S.gsel.push(x.r[0]);S.gstep[x.r[0]]=x.c?(CAPN[x.c]||x.c):'まとめて依頼'}
-  S.planPick=k;track('choose_plan',{plan:k,companies:S.gsel.length});re().then?.(()=>{const el=$('#mPlans');el&&el.scrollIntoView({block:'start'})})})}
+  S.planPick=k;track('choose_plan',{plan:k,companies:S.gsel.length});re().then?.(()=>{const el=$('#mCmp')||$('#mPlans');el&&el.scrollIntoView({block:'start'})})})}
 async function renderMatch(){
   $('#dock').innerHTML='';
   if(!S.idea){location.hash='';return}
@@ -2132,11 +2141,11 @@ async function renderMatch(){
     const filt=`<div class="gflt" style="margin:0"><label>地域<select id="gArea"><option value="">すべて</option><option value="JP">国内だけ</option><option value="ABROAD">海外だけ</option></select></label>
 </div>${axBar()}`;
     const multi=secs.length>=2;
-    const R3=A.codes.length?recOf(secs,one,qmax):null;
+    S.secs=secs;const R3=A.codes.length?recOf(secs,one,qmax):null;
     const MK=A.codes.length?makersFor(A):null;const MKv=MK&&!(S.mkView&&S.mkView===ideaBase());
     body=`${stepBar(3)}${head}
     ${A.codes.length?`<h2 class="stepnow">${!MKv&&multi&&R3&&R3.kind!=='one'?'この組み合わせで完成します':'おすすめの頼み方'}</h2>
-      ${MKv?makerBox(MK):recBox(R3,secs,qmax)+(MK?`<p class="mkback"><button type="button" class="glink" data-mkon>完成品のメーカーに1社で頼む案に戻る</button></p>`:'')}
+      ${MKv?makerBox(MK):recBox(R3,secs,qmax)+(multi&&R3&&R3.P?planCmp(R3):'')+(MK?`<p class="mkback"><button type="button" class="glink" data-mkon>完成品のメーカーに1社で頼む案に戻る</button></p>`:'')}
       ${qBar()}`
     :`<div class="empty" style="margin-top:16px"><b>文章から工程を読み取れませんでした</b>このまま見積を依頼すれば、担当者が内容を読んで工程と会社を探します。型が決まっているもの（部品・ノベルティ・袋物など）なら「選んで探す」が早いです。<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn" id="mGuided">選んで探す</button></div></div>${(()=>{const ts=textSearch(S.idea);return ts.length?`<section class="mstep" data-step="文章に近い会社"><div class="mhead"><span class="mono mno">?</span><h2>文章の言葉が会社の説明に出てくる会社</h2><span class="muted">${fmt(ts.length)}社</span></div><p class="muted" style="margin:0 0 12px;font-size:13px">工程は読み取れませんでしたが、書いた言葉が社名や説明に含まれる会社です。参考にしてください。</p><ol class="glist">${ts.slice(0,10).map(r=>coCard(r,[])).join('')}</ol></section>`:''})()}`}`;
   }
@@ -2155,6 +2164,7 @@ async function renderMatch(){
     $$('[data-mkoff]').forEach(b=>b.onclick=()=>{S.mkView=ideaBase();S.autoPick=true;track('choose_plan',{plan:'combo_from_maker'});renderMatch().then(()=>{const d=$('#mPlans');d&&d.scrollIntoView({block:'start'});window.scrollBy(0,-80)})});
     $$('[data-mkon]').forEach(b=>b.onclick=()=>{S.mkView='';S.autoPick=true;track('choose_plan',{plan:'maker'});renderMatch().then(()=>{const d=$('#mPlans');d&&d.scrollIntoView({block:'start'});window.scrollBy(0,-80)})});
     $$('details.alts').forEach(d=>d.ontoggle=()=>{S.folds['pc_'+d.dataset.pc]=d.open;if(d.open)track('fold_open',{fold:'compare'})});
+    bindRlAsk();
     $$('[data-recself]').forEach(b=>b.onclick=()=>{S.autoPick=false;S.gsel=[];S.gstep={};S.planPick='';track('choose_plan',{plan:'staff'});renderMatch()});
     $$('[data-recall]').forEach(b=>b.onclick=()=>{S.folds.all=true;const d=$('details[data-fold=all]');if(d){d.open=true;d.scrollIntoView({behavior:'smooth',block:'start'})}else{const l=$('.mstep');l&&l.scrollIntoView({behavior:'smooth',block:'start'})}})}
   if(st===2){if(!blocked)renderMatchDock();wireTune(A);if(S.aiAway&&Date.now()-S.aiAway.t>1500)setTimeout(gotoAiPaste,200)}
@@ -2209,11 +2219,44 @@ function tBadges(r,qmax){const LIM=4;const[n,ct,pref,city,web,caps,proto,nodraw,
   (x.iso||[]).slice(0,2).forEach(c=>b.push(['',c]));if(x.sub)b.push(['','補助金の採択あり']);if(x.em)b.push(['','国の公開データあり']);
   if(nodraw)b.push(['','図面なしで相談可']);
   return `<div class="tbad">${b.slice(0,LIM).map(([c,t])=>`<span class="${c}">${esc(t)}</span>`).join('')}</div>`}
-/* おすすめの頼み方を1つに決める。工程が2つ以上なら一社案か組み合わせ案、1つならその工程の上位3社 */
-function recOf(secs,one,qmax){
-  if(secs.length>=2){const P=planOf(secs,one);S.plans=P;const kind=P.full?'one':'combo';const rows=(kind==='one'?P.oneRows:P.combo).filter(x=>x.r);
-    const why=kind==='one'?`${secs.length}つの工程をすべて1社で受けられそうな会社があります。窓口が1つで済み、不具合の責任もはっきりします。`:P.top?'すべての工程を1社で受けられる会社は見つかりませんでした。工程ごとに得意な会社を組み合わせ、取りまとめはKATACHIの担当者が行います。':'工程ごとに得意な会社を組み合わせます。取りまとめはKATACHIの担当者が行います。';
-    return {kind,P,why,title:kind==='one'?'一社にまとめて頼む':'工程ごとに組み合わせて頼む',rows:rows.map(x=>({step:x.c?(CAPN[x.c]||x.c):(x.cov===secs.length?'すべての工程':'まとめて受ける工程'),r:x.r,key:x.c?(CAPN[x.c]||x.c):'まとめて依頼'}))}}
+/* 一社か組み合わせかを、物の性質から決める（Nori 2026-11-14「ユーザにとって最善にしたい」。根拠は公開情報での検証：一社の会社も部品は外から買うが、
+   合わせ込み（採寸・試着・調整）と不具合の窓口は1社が持つ）。上から順に、最初に当てはまったもので決める。
+   1 体・場所に合わせる → 一社　2 中身と容器の相性（化粧品・食品）→ 一社　3 試作の途中で図面なし → 一社　4 完成品メーカー（makersFor）
+   5 全部の工程を1社で受けられる → 一社　6 図面・3Dデータがある、または100個以上 → 組み合わせ＋取りまとめ役　7 その他 → 組み合わせ。
+   決めるのに要る情報（体に合わせるか・手元の資料）がなければ、短い質問で聞く（答えは工場向け仕様書と同じ S.fa に入る） */
+const RL_WHY={fit:'体や置く場所に合わせて、採寸・試着・調整をする物です。採寸から調整・修理まで同じ会社に頼むと、合わないときの直しもその会社に頼めます。',
+  fill:'中身と容器の相性（漏れ・変色など）を確かめる必要がある物です。中身から詰めるまでを1社に頼むと、品質の責任が一か所にまとまります。',
+  proto:'まだ試作の段階で、図面がありません。試作は何度か直すので、まず1社で形を固めるほうが早く済みます。形が決まったら、量産では工程ごとに分けて安くできます。',
+  docs:'形と寸法が決まっているので、工程ごとに得意な会社に分けられます。最後に組み立てる「取りまとめ役」の会社が窓口になり、完成品の品質を確かめます。'};
+const RL_DOCS=[['図面・3Dデータがある',['図面','3Dデータ']],['写真・スケッチ・現物だけ',['写真','手書きのスケッチ']],['まだ何もない',['ない']]];
+function planRule(A,secs,P,qmax){let F=null;try{F=A&&A.concept?fsBuild(A):null}catch(e){}const V=F?F.V:{};const codes=A.codes||[];
+  const fv=(V.fit||{}).v||'';const fit=/^要る/.test(fv)?1:/^要らない/.test(fv)?0:null;
+  const dv=V.docs&&(V.docs.lv==='原文'||V.docs.lv==='回答')?V.docs.v:'';const f3=(S.files||[]).some(f=>f.k==='3D'||f.k==='CAD');
+  const docsKnown=!!dv||f3,hasDocs=f3||/図面|3Dデータ|現物を送れる|型紙/.test(dv);
+  const cats=F?F.cats.map(k=>k.id):[];const fill=cats.some(k=>k==='cosme'||k==='food')||codes.some(c=>/^(cosmetics\.oem|food)/.test(c));
+  const ask=[];if(fit===null)ask.push('fit');if(!docsKnown)ask.push('docs');
+  let id;if(fit===1)id='fit';else if(fill)id='fill';else if(qmax<=10&&!hasDocs)id='proto';else if(P&&P.full)id='full';else if(hasDocs||qmax>=100)id='docs';else id='other';
+  return {id,kind:['fit','fill','proto','full'].includes(id)?'one':'combo',ask:id==='fit'||id==='fill'?[]:ask,fit,hasDocs}}
+/* 窓口（取りまとめ役）：一社案はその会社、組み合わせ案は組立を受ける会社（いなければ組立の候補の先頭）、それもなければKATACHIの担当者 */
+function winOf(kind,P){if(!P)return null;if(kind==='one')return P.top||null;
+  const team=P.combo.map(x=>x.r).filter(Boolean);const inT=team.find(r=>capCovers(r,'manufacturing.assembly'));if(inT)return inT;
+  const al=rankFor(['manufacturing.assembly'],{qmax:S.axq||500});return al[0]||null}
+function rlAsk(RL){if(!RL||!RL.ask.length)return '';const FIT=(FSPEC.common.find(i=>i.k==='fit')||{}).ch||[];
+  const q=k=>k==='fit'?`<fieldset class="rlq"><legend>体や置く場所に合わせて、採寸・試着・調整が要りますか</legend><div class="fsch">${FIT.map(c=>`<button type="button" class="fsb" data-rl="fit" data-rlv="${esc(c)}">${esc(c)}</button>`).join('')}</div></fieldset>`
+    :`<fieldset class="rlq"><legend>手元にある資料はどれですか</legend><div class="fsch">${RL_DOCS.map(([l],i)=>`<button type="button" class="fsb" data-rl="docs" data-rlv="${i}">${esc(l)}</button>`).join('')}</div></fieldset>`;
+  return `<div class="rlask"><p><b>おすすめを確かめる質問</b><span>答えると、一社か組み合わせかのおすすめが変わることがあります。つくる数は、下の「つくる数」で変えられます。</span></p>${RL.ask.map(q).join('')}</div>`}
+function bindRlAsk(){$$('[data-rl]').forEach(b=>b.onclick=()=>{const fa=fsAns(),k=b.dataset.rl;fa[k]=k==='fit'?{v:b.dataset.rlv}:{v:RL_DOCS[+b.dataset.rlv][1]};fsSave();S.autoPick=true;if(S.stepPick)S.stepPick.m={};
+  track('plan_question',{question:k});renderMatch().then(()=>{const d=$('#mPlans');d&&d.scrollIntoView({block:'start'});window.scrollBy(0,-80)})})}
+/* おすすめの頼み方を1つに決める。工程が2つ以上なら一社案か組み合わせ案（planRule）、1つならその工程の上位3社 */
+function recOf(secs,one,qmax){S.lastRL=null;
+  if(secs.length>=2){const P=planOf(secs,one);S.plans=P;const RL=planRule(S.anal||{},secs,P,qmax);S.lastRL=RL;
+    const kind=RL.kind==='one'&&P.top?'one':'combo';const rows=(kind==='one'?P.oneRows:P.combo).filter(x=>x.r);
+    const W=[];if(RL_WHY[RL.id])W.push(RL_WHY[RL.id]);
+    if(kind==='one')W.push(P.full?`${secs.length}つの工程をすべて1社で受けられそうな会社があります。窓口が1つで済み、不具合の責任もはっきりします。`:'すべての工程を受けられる会社は一覧にないため、いちばん多くの工程を受けられる会社を窓口にし、足りない工程は別の会社で補います。');
+    else if(RL.kind==='one')W.push('ただ、この物を通して受けられる会社が一覧にないため、工程ごとの案を出しています。1社で受けられる会社は、担当者が探します。');
+    else if(RL.id!=='docs')W.push(P.top?'すべての工程を1社で受けられる会社は見つかりませんでした。工程ごとに得意な会社を組み合わせ、取りまとめはKATACHIの担当者が行います。':'工程ごとに得意な会社を組み合わせます。取りまとめはKATACHIの担当者が行います。');
+    const why=W.map(x=>`<span>${x}</span>`).join('');
+    return {kind,P,RL,why,win:winOf(kind,P),title:kind==='one'?'一社にまとめて頼む':'工程ごとに組み合わせて頼む',rows:rows.map(x=>({step:x.c?(CAPN[x.c]||x.c):(x.cov===secs.length?'すべての工程':'まとめて受ける工程'),r:x.r,key:x.c?(CAPN[x.c]||x.c):'まとめて依頼'}))}}
   const s0=secs[0];const rows=(s0?s0.list:[]).slice(0,3).map(r=>({step:CAPN[s0.c]||s0.c,r,key:CAPN[s0.c]||s0.c}));
   return {kind:'rec',P:null,why:'1つの工程で作れる内容です。条件に合う会社のうち、確かめられた情報が多い順に3社を選びました。3社に見積を頼むと比べられます。',title:'この3社に見積を頼む',rows}}
 /* 完成品メーカー（1社で完成まで受ける会社）。製品の種類ごとの一覧は tools/makers.py（Nori 2026-11-14「犬の補助輪とか普通一つの会社で作ってるよ」） */
@@ -2233,7 +2276,8 @@ function makerBox(MK){const key=ideaBase();const def=MK.rows[0];const r=(S.mkPic
     <small class="ry">${esc(x[11]||'')}</small><span class="om">${esc(x[1]==='JP'?((x[2]||'国内')+(x[3]?' '+x[3]:'')):(CTRY[x[1]]||x[1]))} · <span>${MKLV[x[10]]||'要確認'}</span></span>${on?gmapA(x,'maker'):''}</span></label>`};
   const alt=MK.rows.filter(x=>x[0]!==r[0]);
   return `<section class="rec mkr" id="mPlans"><span class="rtag">★ おすすめ</span><h3>完成品のメーカーに1社で頼む</h3>
-    <p class="why"><span>${esc(MK.name)}</span><span>は、</span><span>${esc(MK.why)}</span></p>
+    <p class="why"><span>${esc(MK.name)}</span><span>は、</span><span>${esc(MK.why)}</span>${(x=>x&&['fill','proto'].includes(x.id)?`<span>${RL_WHY[x.id]}</span>`:'')(S.lastRL)}</p>
+    <p class="rwin"><span class="rwl">窓口</span><b translate="no">${esc(r[0])}</b><span>（設計から完成まで受け持ちます。部品や一部の加工は、この会社が外から手配することがあります）</span></p>
     <ol class="stps"><li class="stp" style="--c:${COCOL[0]}"><div class="sth"><b>設計から完成まで、1社で</b>${alt.length?`<small><span>候補</span> <span>${fmt(MK.rows.length)}社</span></small>`:''}</div>${opt(r)}
     ${alt.length?`<details class="alts" data-pc="mk" ${S.folds.pc_mk?'open':''}><summary><span>ほかのメーカーから選ぶ</span> <span>${fmt(alt.length)}社</span></summary><div class="altl">${alt.map(opt).join('')}</div></details>`:''}</li></ol>
     <p class="whon" style="margin-top:8px">${esc(MK.note)}</p>
@@ -2293,7 +2337,8 @@ function recBox(R3,secs,qmax){S.whoN=0;if(!R3||!R3.rows.length)return `<div clas
     R3={...R3,rows:rows.map(x=>({...x,step:seen.get(x.r[0]).join('・'),key:seen.get(x.r[0]).join('・')}))}}
   if(S.autoPick!==false){S.gsel=[];S.gstep={};for(const x of R3.rows){if(S.gsel.includes(x.r[0])||S.gsel.length>=8)continue;S.gsel.push(x.r[0]);S.gstep[x.r[0]]=x.key}S.planPick=R3.kind}
   const picked=R3.rows.slice(0,8).every(x=>S.gsel.includes(x.r[0]));
-  return `<section class="rec" id="mPlans"><span class="rtag">★ おすすめ</span>${AS&&R3.kind!=='one'?'':`<h3>${R3.title}</h3><p class="why">${R3.why}</p>`}
+  const win=R3.P?`<p class="rwin"><span class="rwl">窓口</span>${R3.win?`<b translate="no">${esc(R3.win[0])}</b><span>${R3.kind==='one'?'（この会社が完成まで受け持ちます。部品や一部の加工は、この会社が外から手配することがあります）':'（取りまとめ役：最後に組み立てて、完成品の品質を確かめます）'}</span>`:'<b>KATACHIの担当者</b><span>（取りまとめ役の会社を探して、会社同士の受け渡しを決めます）</span>'}</p>`:'';
+  return `<section class="rec" id="mPlans"><span class="rtag">★ おすすめ</span><h3>${R3.title}</h3><p class="why">${R3.why}</p>${win}${rlAsk(R3.RL)}
     ${AS?whoBox(AS,qmax)+(R3.rows.length>8?`<p class="whon" style="margin-top:8px"><span>見積の依頼は、上から8社に送ります。残りの</span><span translate="no"> ${R3.rows.length-8} </span><span>社の工程は、担当者が手配します。</span></p>`:''):(()=>{const li=x=>`<li><span class="rs">${esc(x.step)}</span><b translate="no">${esc(x.r[0])}</b>${tBadges(x.r,qmax)}${gmapA(x.r,'recommend')}</li>`;const N=4;
       return `<ul class="rcos">${R3.rows.slice(0,N).map(li).join('')}</ul>${R3.rows.length>N?`<details class="rmore"><summary>ほかの工程の会社も見る</summary><ul class="rcos">${R3.rows.slice(N).map(li).join('')}</ul></details>`:''}`})()}
     <div class="qrow">${picked?'<span class="rsel">✓ 選択中。下の「見積を依頼する」で送れます</span>':'<button type="button" class="btn sm pri" data-plan-pick="rec">おすすめに戻す</button>'}</div>
