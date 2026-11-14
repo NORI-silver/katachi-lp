@@ -1,7 +1,10 @@
 // KATACHI API の中身（HTTP と MCP の両方から呼ぶ）。データはデプロイ時に同梱する。
-import products from '../../data/products.json' with {type: 'json'};
-import companiesRaw from '../../data/companies.json' with {type: 'json'};
-import fspec from '../../data/fspec.json' with {type: 'json'};
+import P0 from '../../data/products.json' with {type: 'json'};
+import C0 from '../../data/companies.json' with {type: 'json'};
+import F0 from '../../data/fspec.json' with {type: 'json'};
+// Workers では文字列（wrangler.toml の rules）、Node のテストではオブジェクトで来る
+const parse = x => typeof x === 'string' ? JSON.parse(x) : x;
+const products = parse(P0), companiesRaw = parse(C0), fspec = parse(F0);
 import {setPDB, pdbMatch} from './gen/pdb.js';
 
 export const VERSION = '1.0.0';
