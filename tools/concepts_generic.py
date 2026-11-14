@@ -408,3 +408,21 @@ T_GENERIC.update({ja: (en, zh) for ja, en, zh in [
      "KATACHI assembled this from the product name and components in your spec (an AI estimate). Dimensions, materials and performance are decided in discussions with factories and experts, and through prototyping. The drawing shows rough size and shape, not a design drawing.",
      "这是 KATACHI 根据规格说明中的产品名称和构成整理的方案（AI 推测）。尺寸、材料和性能需要通过与工厂、专家的沟通和试制来决定。图示只表示大致尺寸和形状，不是设计图。"),
 ]})
+
+# 製品仕様DBと、お使いのAIで整理した項目
+T_GENERIC.update({ja: (en, zh) for ja, en, zh in [
+    ("長い仕様文は、お使いのAI（ChatGPT・Claude・Gemini）で決まった項目に整理して貼ると、寸法・素材・未確定事項まで正確に入ります（無料）。", "For a long spec, have your own AI (ChatGPT, Claude, Gemini) organize it into fixed fields and paste it back: dimensions, materials and open points will be filled in accurately (free).", "较长的规格说明，可以用您自己的 AI（ChatGPT、Claude、Gemini）整理成固定项目后粘贴回来，尺寸、材料和未定事项都会准确填入（免费）。"),
+    ("AIで項目に整理する", "Organize with AI", "用 AI 整理成项目"),
+    ("製品DBと仕様の読み取り（出典・根拠つき）", "Product database and spec reading (with sources)", "产品数据库与规格读取（附出处与依据）"),
+    ("KATACHIの製品DBで近い製品：", "Closest product in the KATACHI database:", "KATACHI 产品数据库中相近的产品："),
+    ("下は、その種類の製品で一般にかかわることです。数字と法規制は出典のあるものだけで、出典がない項目は「要確認」です。", "Below is what generally applies to this kind of product. Figures and regulations are shown only with a source; anything without one is \"to be confirmed\".", "以下是这类产品一般涉及的内容。数字和法规只列出有出处的，没有出处的项目为“待确认”。"),
+    ("主な工程", "Main processes", "主要工序"), ("よくある構成", "Typical components", "常见构成"), ("よくある素材", "Typical materials", "常见材料"),
+    ("最小ロット・費用の目安", "Minimum lot and cost guide", "最小批量与费用参考"), ("確かめる法規制・表示", "Regulations and labeling to check", "需确认的法规与标示"),
+    ("作例", "Example", "示例"), ("要確認", "To be confirmed", "待确认"), ("要確認（公開された相場が見つかっていません）", "To be confirmed (no published market price found)", "待确认（未找到公开行情）"),
+    ("公式・公的機関", "Official", "官方・公共机构"), ("報道・記事", "News / article", "报道・文章"), ("掲載ページ", "Listing page", "刊登页面"), ("KATACHIのページ", "KATACHI page", "KATACHI 页面"), ("AI推定", "AI estimate", "AI 推测"),
+    ("お使いのAIで整理した項目", "Fields organized by your AI", "由您的 AI 整理的项目"), ("AIの整理", "AI-organized", "AI 整理"),
+    ("貼り戻した整理結果のうち、根拠（あなたの文章のどこに書いてあるか）が見つかった値だけを入れています。根拠のない値と、文章にない項目は「要確認」です。", "Only values whose supporting text was found in what you wrote are used. Values without support and items not in your text are \"to be confirmed\".", "粘贴回来的整理结果中，只采用在您的原文中找到依据的值。没有依据的值和原文中没有的项目为“待确认”。"),
+    ("製品名", "Product name", "产品名称"), ("目的", "Purpose", "目的"), ("形", "Shape", "形状"), ("幅", "Width", "宽"), ("長さ", "Length", "长"), ("高さ", "Height", "高"), ("重さ", "Weight", "重量"),
+    ("乗せる重さ", "Load", "承载重量"), ("電源", "Power", "电源"), ("試作の数", "Prototype quantity", "试制数量"), ("製造の数", "Production quantity", "生产数量"), ("素材", "Materials", "材料"),
+    ("構成", "Components", "构成"), ("工程", "Processes", "工序"), ("法規制・規格", "Regulations and standards", "法规与标准"), ("使う場所・条件", "Where and how it is used", "使用场所与条件"), ("未確定・確認すること", "Open points to confirm", "未定与需确认事项"),
+]})

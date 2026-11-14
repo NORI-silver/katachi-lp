@@ -630,7 +630,7 @@ T.update({
 "Geminiで相談": ("Ask Gemini", "用 Gemini 咨询"),
 "質問文を見る": ("View the question", "查看问题"),
 "AIの回答を貼って、工程を読み直す": ("Paste the AI's answer to re-read the steps", "粘贴 AI 的回答，重新识别工序"),
-"AIがまとめた仕様メモを貼ると、その内容で工程と会社を探し直します。貼った内容は見積の依頼にもそのまま入ります。": ("Paste the spec memo from your AI and we will search for steps and companies again. The pasted text also goes into your quote request.", "粘贴 AI 整理的规格备忘后，我们会据此重新查找工序和公司。粘贴的内容也会直接用于报价委托。"),
+"AIがまとめた仕様メモを、最後のJSONまで含めて貼ると、その内容で工程と会社を探し直し、製品イメージ案の項目（寸法・素材・未確定事項など）にも入ります。貼った内容は見積の依頼にもそのまま入ります。": ("Paste the spec memo from your AI, including the JSON at the end, and we will search for steps and companies again and fill the concept fields (dimensions, materials, open points, etc.). The pasted text also goes into your quote request.", "粘贴 AI 整理的规格备忘（包括最后的 JSON）后，我们会据此重新查找工序和公司，并填入产品构想的项目（尺寸、材料、未定事项等）。粘贴的内容也会直接用于报价委托。"),
 "AIがまとめた仕様メモを貼り付け": ("Paste the spec memo from your AI", "粘贴 AI 整理的规格备忘"),
 "読み直す": ("Re-read", "重新识别"),
 "読み直しました": ("Updated", "已重新识别"),
