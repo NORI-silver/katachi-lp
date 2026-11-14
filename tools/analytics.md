@@ -73,6 +73,8 @@
 ペットサイトはキーイベントが0件のまま（2026-11-11時点のGA4レポート）。KATACHIでは最初から `generate_lead` をキーイベントに設定することを推奨。
 
 ## 提携の申込み（/partner/）
+- `offer_view`：工場が打診のページ（/reply/）を開いて依頼が読めたとき。`answered`（前に答えたことがあるか）。
+- `offer_reply`：工場が返事を送れたとき。`answer`（accept／question／decline）。会社名・依頼の中身・鍵は送らない（page_location から ?k= を外す）。
 - `partner_submit`：工場・開発企業の提携申込みを送れたとき。`completeness`（掲載の充実度 %）、`files`（写真・証明書の数）。会社名などの中身は送らない。
 | step_next | 「2 イメージを確かめる」から「3 会社を選ぶ」へ進んだ | to（3）, concept（製品イメージ案の種類ID） | |
 | step_back | 上の進み具合から前のステップに戻った | to（1〜3） | |

@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>依頼へのお返事｜KATACHI</title><meta name="description" content="KATACHIから工場・開発企業へ届いた依頼のご相談に、受ける・質問する・断るで返事をするページです。">
+<meta name="robots" content="noindex"><meta name="referrer" content="no-referrer">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-3C2RRECKB8"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date());gtag("config","G-3C2RRECKB8",{page_location:location.origin+location.pathname});gtag("config","G-ZYX17VBTWB",{page_location:location.origin+location.pathname});</script>
+</head><body>
+<style>
+:root{--bg:#fff;--soft:#f5f7fb;--fg:#0d1424;--mute:#566176;--line:rgba(16,28,58,.13);--ice:#2350c8;--ok:#14805e;--ask:#b36b00;--no:#a3324a}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:"IBM Plex Sans JP","Hiragino Sans","Noto Sans JP",system-ui,sans-serif;line-height:1.75;font-size:15.5px}
+header{display:flex;align-items:center;justify-content:space-between;gap:10px;height:60px;border-bottom:1px solid var(--line);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header a{color:var(--fg);text-decoration:none;font-weight:700;letter-spacing:.18em;font-size:14px;display:flex;gap:10px;align-items:center}
+.lang{display:flex;gap:2px;border:1px solid var(--line);border-radius:99px;padding:2px}
+.lang button{border:0;background:none;font:inherit;font-size:12.5px;padding:4px 10px;border-radius:99px;cursor:pointer;color:var(--mute)}
+.lang button[aria-pressed="true"]{background:var(--soft);color:var(--fg);font-weight:600}
+main{max-width:720px;margin:0 auto;padding-block:26px 60px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:22px}
+h1{font-size:23px;line-height:1.4;margin:0;text-wrap:balance}
+h2{font-size:16px;margin:0}
+p{margin:0}
+.mute{color:var(--mute);font-size:13.5px}
+.card{border:1px solid var(--line);border-radius:12px;padding:18px;display:grid;gap:12px;min-width:0}
+dl{margin:0;display:grid;grid-template-columns:8.5em minmax(0,1fr);gap:8px 14px}
+dt{color:var(--mute);font-size:13px;padding-top:2px}
+dd{margin:0;white-space:pre-wrap;overflow-wrap:anywhere}
+@media (max-width:520px){dl{grid-template-columns:1fr;gap:2px}dd{margin-bottom:8px}}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-size:12.5px;padding:2px 10px;border-radius:99px;background:var(--soft);border:1px solid var(--line)}
+.chip.hi{border-color:var(--ok);color:var(--ok);background:transparent;font-weight:600}
+details{border-top:1px solid var(--line);padding-top:10px}
+summary{cursor:pointer;color:var(--ice);font-size:14px}
+.choices{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+@media (max-width:520px){.choices{grid-template-columns:1fr}}
+.choice{font:inherit;text-align:left;border:1.5px solid var(--line);background:var(--bg);border-radius:12px;padding:14px;cursor:pointer;display:grid;gap:2px;color:var(--fg)}
+.choice b{font-size:16px}
+.choice span{font-size:12.5px;color:var(--mute)}
+.choice:hover{background:var(--soft)}
+.choice:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--ice);outline-offset:2px}
+.choice[data-a="accept"][aria-pressed="true"]{border-color:var(--ok);box-shadow:inset 0 0 0 1px var(--ok)}
+.choice[data-a="question"][aria-pressed="true"]{border-color:var(--ask);box-shadow:inset 0 0 0 1px var(--ask)}
+.choice[data-a="decline"][aria-pressed="true"]{border-color:var(--no);box-shadow:inset 0 0 0 1px var(--no)}
+.choice[data-a="accept"] b{color:var(--ok)}.choice[data-a="question"] b{color:var(--ask)}.choice[data-a="decline"] b{color:var(--no)}
+label.f{display:grid;gap:4px;font-size:13.5px;color:var(--mute)}
+input[type=text],textarea{font:inherit;font-size:15px;color:var(--fg);border:1px solid var(--line);border-radius:9px;padding:10px 12px;background:var(--bg);width:100%}
+textarea{min-height:96px;resize:vertical}
+.rs{display:flex;flex-wrap:wrap;gap:8px}
+.rs label{display:flex;gap:6px;align-items:center;border:1px solid var(--line);border-radius:99px;padding:4px 12px;font-size:13.5px;cursor:pointer}
+.btn{font:inherit;font-weight:600;border:0;border-radius:10px;padding:12px 22px;background:var(--ice);color:#fff;cursor:pointer;justify-self:start}
+.btn[disabled]{opacity:.5;cursor:default}
+.link{font:inherit;border:0;background:none;color:var(--ice);cursor:pointer;padding:0;text-decoration:underline}
+.note{background:var(--soft);border-radius:10px;padding:12px 14px;font-size:13.5px;color:var(--mute)}
+.done{border-color:var(--ok)}
+.err{color:var(--no);font-size:13.5px}
+.sk{height:14px;border-radius:6px;background:var(--soft)}
+</style>
+<header><a href="/"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><path d="M3 3h7v7H3z" fill="#2350c8"/><path d="M12 3h7v7h-7z" fill="none" stroke="#2350c8" stroke-width="1.5"/><path d="M3 12h7v7H3z" fill="none" stroke="#2350c8" stroke-width="1.5" stroke-dasharray="2 2"/><path d="M12 12h7v7h-7z" fill="#2350c8" opacity=".45"/></svg>KATACHI</a>
+<div class="lang" role="group" aria-label="Language"><button type="button" data-l="ja">日本語</button><button type="button" data-l="en">EN</button><button type="button" data-l="zh">中文</button></div></header>
+<main id="app">
+  <div style="display:grid;gap:8px"><h1 data-t="title"></h1><p class="mute" data-t="lead"></p></div>
+  <div class="card" aria-busy="true"><div class="sk" style="width:40%"></div><div class="sk"></div><div class="sk" style="width:70%"></div></div>
+</main>
+<script>
+const FORM_URL="https://script.google.com/macros/s/AKfycbz-tcsKOOAI7HKegzVCGPtMG5nLjfdh-ttPPd5wRFFdBGl8N_q8-M4ME5fg31-YIO5wIQ/exec";
+const T={
+ title:["依頼のご相談が届いています","A job request for you","您收到一份委托咨询"],
+ lead:["KATACHI（工場と依頼者をつなぐサービス）からの打診です。内容を見て、受ける・質問する・断るのどれかを押してください。登録や費用はいりません。","This request comes from KATACHI, a service that connects clients with factories. Please review it and choose Accept, Ask a question or Decline. No sign-up or fee is needed.","这是 KATACHI（连接委托人与工厂的服务）发来的咨询。请查看内容，选择接单、提问或拒绝。无需注册，也不收费。"],
+ to:["宛先","To","收件方"],no:["受付番号","Request no.","受理编号"],
+ req:["依頼の要点","Request summary","委托要点"],
+ sum:["つくりたいもの","What they want to make","想做的东西"],steps:["工程","Processes","工序"],mat:["材料","Material","材料"],qty:["数量","Quantity","数量"],due:["希望の時期","Desired timing","希望时间"],
+ win:["受け取れる期間","Acceptable window","可接受的期间"],flex:["時期の幅","Timing flexibility","时间弹性"],bundle:["同じ材料・作り方の別の依頼とまとめて作ってよい","OK to combine with other requests using the same material and process","可与相同材料・工艺的其他委托合并制作"],
+ more:["ほかの項目を見る","Show more details","查看其他项目"],files:["写真・図面などの添付があります。受けると決まったら、KATACHIからお送りします。","Photos or drawings are attached. KATACHI will send them once you accept.","有照片或图纸等附件。确定接单后，KATACHI 会发送给您。"],
+ priv:["依頼者のお名前・連絡先は、受けていただくと決まってからKATACHIがお伝えします。","The client's name and contact details will be shared by KATACHI once you accept.","委托人的姓名和联系方式，将在确定接单后由 KATACHI 告知。"],
+ ask:["お返事","Your answer","您的答复"],
+ accept:["受ける","Accept","接单"],accept_s:["この内容で見積・製作できる","We can quote and make this","可以按此内容报价・制作"],
+ question:["質問する","Ask a question","提问"],question_s:["決める前に確かめたいことがある","We need to check something first","决定前想确认一些事项"],
+ decline:["断る","Decline","拒绝"],decline_s:["今回は受けられない","We can't take this one","这次无法接单"],
+ when:["着手できる時期（任意）","When you could start (optional)","可以开始的时间（可选）"],when_p:["例：2027年1月から、図面確定後2週間","e.g. From Jan 2027, 2 weeks after drawings","例：2027年1月起，图纸确定后2周"],
+ price:["見積の目安（任意・概算で構いません）","Rough estimate (optional)","报价大致金额（可选，概算即可）"],price_p:["例：試作1個 3〜5万円","e.g. ¥30,000–50,000 per prototype","例：试制1个 3〜5万日元"],
+ msg:["メッセージ（任意）","Message (optional)","留言（可选）"],qmsg:["質問","Your question","问题"],qmsg_p:["例：材料の指定はありますか。数量は100個で確定ですか。","e.g. Is the material fixed? Is 100 units final?","例：有指定材料吗？数量确定是100个吗？"],
+ reasons:["理由（あてはまるものを選んでください）","Reason (choose any)","理由（请选择符合的项）"],
+ r1:["時期が合わない","Timing doesn't fit","时间不合适"],r2:["設備・工程が合わない","Equipment or process doesn't fit","设备・工序不合适"],r3:["数量が合わない","Quantity doesn't fit","数量不合适"],r4:["材料が合わない","Material doesn't fit","材料不合适"],r5:["情報が足りない","Not enough information","信息不足"],r6:["そのほか","Other","其他"],
+ send:["送る","Send","发送"],sending:["送っています…","Sending…","发送中…"],
+ thanks_accept:["「受ける」を受け付けました","Thanks, we received your acceptance","已收到您的「接单」答复"],thanks_question:["質問を受け付けました","Thanks, we received your question","已收到您的问题"],thanks_decline:["お返事を受け付けました","Thanks for your answer","已收到您的答复"],
+ next_accept:["KATACHIから、依頼者のご連絡先と添付ファイルをメールでお送りします。","KATACHI will email you the client's contact details and attachments.","KATACHI 会通过邮件发送委托人的联系方式和附件。"],
+ next_question:["KATACHIが依頼者に確かめて、メールでお返事します。","KATACHI will check with the client and reply by email.","KATACHI 会向委托人确认后，通过邮件答复。"],
+ next_decline:["ご確認ありがとうございました。また合いそうな依頼があればご相談します。","Thank you for reviewing. We'll reach out when a better fit comes along.","感谢您的确认。如有合适的委托，我们会再联系您。"],
+ change:["答えを直す","Change my answer","修改答复"],prev:["前回のお返事","Your previous answer","上次的答复"],
+ bad:["このリンクは使えません。KATACHIからのメールに、そのまま返信してください。","This link isn't valid. Please reply directly to KATACHI's email.","此链接无法使用。请直接回复 KATACHI 的邮件。"],
+ neterr:["送れませんでした。通信を確かめて、もう一度押してください。","Couldn't send. Please check your connection and try again.","发送失败。请检查网络后再试一次。"],
+ need:["質問を書いてください。","Please write your question.","请填写问题。"],
+ flex_fixed:["この日までに必要（動かせない）","Fixed date","必须在此日期前"],flex_m1:["1か月ほど前後してよい","About a month either way","前后一个月左右均可"],flex_m3:["2〜3か月のうちいつでも","Any time within 2–3 months","2〜3个月内任何时候"],flex_any:["急がない（空き時期でよい）","No rush (whenever you're free)","不急（空闲时即可）"]
+};
+const FLEXJ={"この日までに必要":"flex_fixed","1か月ほど前後してよい":"flex_m1","2〜3か月のうちいつでも":"flex_m3","急がない（空き時期でよい）":"flex_any"};
+let L="ja";try{const s=JSON.parse(localStorage.getItem("katachi-lang")||"null");if(s&&s.lang)L=s.lang;else{const n=(navigator.language||"ja").toLowerCase();L=n.startsWith("ja")?"ja":n.startsWith("zh")?"zh":"en"}}catch(e){}
+const I={ja:0,en:1,zh:2};const t=k=>(T[k]||[k])[I[L]||0];
+const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const $=s=>document.querySelector(s);
+const K=new URLSearchParams(location.search).get("k")||"";
+let D=null,pick=null,editing=false,err="";
+function track(n,o){try{gtag("event",n,o||{})}catch(e){}}
+async function post(body){const r=await fetch(FORM_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(body)});return r.json()}
+function row(k,v){return v?`<dt>${esc(t(k))}</dt><dd>${esc(v)}</dd>`:""}
+function reqCard(){const q=D.req||{};const win=q.from||q.to?`${q.from||""} 〜 ${q.to||""}`:"";
+  const items=(q.items||[]).map(([a,b])=>`<dt>${esc(a)}</dt><dd>${esc(b)}</dd>`).join("");
+  return `<section class="card"><h2>${esc(t("req"))}</h2>
+   <dl>${row("to",D.company)}${row("no",q.id)}${row("sum",q.summary)}${q.steps&&q.steps.length?`<dt>${esc(t("steps"))}</dt><dd><div class="chips">${q.steps.map(s=>`<span class="chip" translate="no">${esc(s)}</span>`).join("")}</div></dd>`:""}${row("mat",q.mat)}${row("qty",q.qty)}${row("due",q.due)}${row("win",win)}${q.flex?`<dt>${esc(t("flex"))}</dt><dd>${esc(FLEXJ[q.flex]?t(FLEXJ[q.flex]):q.flex)}</dd>`:""}</dl>
+   ${q.bundle?`<div class="chips"><span class="chip hi">${esc(t("bundle"))}</span></div>`:""}
+   ${items?`<details><summary>${esc(t("more"))}</summary><dl style="margin-top:10px">${items}</dl></details>`:""}
+   ${q.files?`<p class="note">${esc(t("files"))}</p>`:""}<p class="mute">${esc(t("priv"))}</p></section>`}
+function form(){const c=a=>`<button type="button" class="choice" data-a="${a}" aria-pressed="${pick===a}"><b>${esc(t(a))}</b><span>${esc(t(a+"_s"))}</span></button>`;
+  let fx="";
+  if(pick==="accept")fx=`<label class="f">${esc(t("when"))}<input type="text" id="r-when" placeholder="${esc(t("when_p"))}" value="${esc(D.when||"")}"></label><label class="f">${esc(t("price"))}<input type="text" id="r-price" placeholder="${esc(t("price_p"))}" value="${esc(D.price||"")}"></label><label class="f">${esc(t("msg"))}<textarea id="r-msg"></textarea></label>`;
+  if(pick==="question")fx=`<label class="f">${esc(t("qmsg"))}<textarea id="r-msg" placeholder="${esc(t("qmsg_p"))}"></textarea></label>`;
+  if(pick==="decline")fx=`<div class="f" style="display:grid;gap:6px"><span class="mute">${esc(t("reasons"))}</span><div class="rs">${["r1","r2","r3","r4","r5","r6"].map(r=>`<label><input type="checkbox" value="${esc(T[r][0])}"><span>${esc(t(r))}</span></label>`).join("")}</div></div><label class="f">${esc(t("msg"))}<textarea id="r-msg"></textarea></label>`;
+  return `<section class="card" id="ans"><h2>${esc(t("ask"))}</h2><div class="choices" role="group">${c("accept")}${c("question")}${c("decline")}</div>
+   ${pick?`<form id="rf" style="display:grid;gap:12px">${fx}${err?`<p class="err" role="alert">${esc(err)}</p>`:""}<button class="btn" type="submit">${esc(t("send"))}</button></form>`:""}</section>`}
+function doneCard(){return `<section class="card done" role="status"><h2>${esc(t("thanks_"+D.state))}</h2><p>${esc(t("next_"+D.state))}</p>${D.msg?`<p class="mute">${esc(t("prev"))}：${esc(D.msg)}</p>`:""}<button type="button" class="link" id="chg">${esc(t("change"))}</button></section>`}
+function render(){document.documentElement.lang=L==="zh"?"zh-Hans":L;document.querySelectorAll(".lang button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.l===L));
+  const head=`<div style="display:grid;gap:8px"><h1>${esc(t("title"))}</h1><p class="mute">${esc(t("lead"))}</p></div>`;
+  if(!D){$("#app").innerHTML=head+`<div class="card"><p class="err">${esc(err||t("bad"))}</p></div>`;return}
+  $("#app").innerHTML=head+reqCard()+(D.state&&!editing?doneCard():form());
+  document.querySelectorAll(".choice").forEach(b=>b.onclick=()=>{pick=b.dataset.a;err="";render();const f=$("#rf textarea,#rf input");f&&f.focus()});
+  const chg=$("#chg");if(chg)chg.onclick=()=>{editing=true;pick=D.state;render()};
+  const f=$("#rf");if(f)f.addEventListener("input",()=>{const e=f.querySelector(".err");if(e){e.remove();err=""}});
+  if(f)f.onsubmit=async e=>{e.preventDefault();const msg=($("#r-msg")||{}).value||"";
+    if(pick==="question"&&!msg.trim()){err=t("need");render();return}
+    const btn=f.querySelector(".btn");btn.disabled=true;btn.textContent=t("sending");
+    const body={type:"offerreply",k:K,answer:pick,msg,when:($("#r-when")||{}).value||"",price:($("#r-price")||{}).value||"",reasons:[...f.querySelectorAll(".rs input:checked")].map(i=>i.value),lang:L};
+    try{const j=await post(body);if(!j.ok)throw 0;D.state=pick;D.msg=msg;D.when=body.when;D.price=body.price;editing=false;err="";track("offer_reply",{answer:pick});render();window.scrollTo({top:$("#app").scrollHeight,behavior:"smooth"})}
+    catch(_){err=t("neterr");btn.disabled=false;btn.textContent=t("send");const e2=f.querySelector(".err");if(e2)e2.textContent=err;else btn.insertAdjacentHTML("beforebegin",`<p class="err" role="alert">${esc(err)}</p>`)}}}
+document.querySelectorAll(".lang button").forEach(b=>b.onclick=()=>{L=b.dataset.l;try{localStorage.setItem("katachi-lang",JSON.stringify({lang:L}))}catch(e){}render()});
+(async()=>{render0();if(!/^[A-Za-z0-9]{24}$/.test(K)||!FORM_URL){render();return}
+  try{const j=await post({type:"offer",k:K,lang:L});if(j.ok){D=j;pick=null;track("offer_view",{answered:!!j.state})}else err=j.error==="busy"?t("neterr"):t("bad")}catch(e){err=t("neterr")}
+  render()})();
+function render0(){document.querySelectorAll("[data-t]").forEach(e=>e.textContent=t(e.dataset.t));document.querySelectorAll(".lang button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.l===L))}
+</script>
+
+</body></html>

@@ -63,6 +63,8 @@ function doPost(e) {
     if (p.type === 'parts') return json_(parts_(p));
     if (p.type === 'spec') return json_(spec_(p));
     if (p.type === 'specsave') return json_(specSave_(p));
+    if (p.type === 'offer') return json_(offerView_(p));
+    if (p.type === 'offerreply') return json_(offerReply_(p));
     if (!limit_()) return json_({ok: false, error: 'busy'});
     if (p.type !== 'rfq' && p.type !== 'consult') return json_({ok: false, error: 'type'});
     var f = {};
@@ -934,6 +936,7 @@ function slotMatch_(reqs, slots, now) {
 function setupSlots() {
   ScriptApp.getProjectTriggers().forEach(function (t) { if (t.getHandlerFunction() === 'matchSlots') ScriptApp.deleteTrigger(t); });
   ScriptApp.newTrigger('matchSlots').timeBased().everyDays(1).atHour(8).inTimezone('Asia/Tokyo').create();
+  setupOffers();
   slotTab_('依頼の時期', SLOT_REQ_HEAD); slotTab_('空き枠', SLOT_HEAD);
   matchSlots();
 }
@@ -957,17 +960,19 @@ function matchSlots() {
   var res = slotMatch_(reqs, slots, now);
 
   var span = function (w) { return slotYm_(w[0]) + ' 〜 ' + slotYm_(w[1]); };
-  var outP = slotTab_('空き枠に合う', ['見つけた日', '受付番号', '申込番号', '会社名', '提携の状態', '工程コード', '依頼の材料', '空き枠の材料', '依頼の数量', '依頼の期間', '空き枠と重なる期間', '空き時期の値引き', '小口をまとめて受けられる']);
+  var PH = ['見つけた日', '受付番号', '申込番号', '会社名', '提携の状態', '工程コード', '依頼の材料', '空き枠の材料', '依頼の数量', '依頼の期間', '空き枠と重なる期間', '空き時期の値引き', '小口をまとめて受けられる', '打診リンク（工場に送ると、受ける・質問・断るを押せる）'];
+  var outP = slotTab_('空き枠に合う', PH);
+  outP.getRange(1, 1, 1, PH.length).setValues([PH]);
   var old = {}; if (outP.getLastRow() > 1) outP.getRange(2, 1, outP.getLastRow() - 1, 6).getValues().forEach(function (r) { old[r[1] + '|' + r[2] + '|' + r[5]] = r[0]; });
   var today = Utilities.formatDate(new Date(), tz, 'yyyy-MM-dd'), fresh = [];
   var body = res.pairs.map(function (x) {
     var k = x.req.id + '|' + x.slot.pid + '|' + x.code, first = old[k] || today;
     if (!old[k]) fresh.push(x);
     return [first, x.req.id, x.slot.pid, x.slot.company, x.slot.pstate, x.code, String(x.req.mat || ''), String(x.slot.mat || ''), String(x.req.qty || ''),
-      span(x.req.win), span(x.over), x.slot.disc, x.slot.bundleOk ? 'はい' : ''];
+      span(x.req.win), span(x.over), x.slot.disc, x.slot.bundleOk ? 'はい' : '', offerEnsure_(x.req.id, x.slot.company, x.slot.pid)];
   });
-  outP.getRange(2, 1, Math.max(outP.getLastRow() - 1, 1), 13).clearContent();
-  if (body.length) outP.getRange(2, 1, body.length, 13).setValues(body.map(function (r) { return r.map(safe_); }));
+  outP.getRange(2, 1, Math.max(outP.getLastRow() - 1, 1), 14).clearContent();
+  if (body.length) outP.getRange(2, 1, body.length, 14).setValues(body.map(function (r) { return r.map(safe_); }));
 
   var outB = slotTab_('まとめ候補', ['工程コード', '材料', '依頼の件数', '受付番号', '合計の数量（読めた分）', '全員が受けられる期間', '合う空き枠（まとめて受けられる会社に★）']);
   var bb = res.bundles.map(function (g) {
@@ -984,4 +989,135 @@ function matchSlots() {
       body: '工場の空き枠と時期が合う依頼が新しく見つかりました。工場への連絡は、内容を確かめてから手で行ってください。\n\n' + lines.join('\n') +
         (bb.length ? '\n\nまとめ候補: ' + bb.length + '組（「まとめ候補」タブ）' : '') + '\n\n一覧（「空き枠に合う」タブ）: ' + ss.getUrl()});
   }
+}
+
+// ---------- 工場への打診と返事（受ける／質問する／断る） ----------
+// 「工場への打診」タブに 受付番号・会社名 を書くと（申込番号は任意）、打診リンクが自動で入る（setupOffers で編集の引き金を入れる）。
+// 「空き枠に合う」の組には、matchSlots が自動で打診リンクを作る。リンクを工場に送るのは担当者（自動では送らない）。
+// 工場はリンク（/reply/?k=鍵）で依頼の要点を見て、受ける・質問する・断るを押す。答えはこのタブに入り、運営者にメールが届く。
+// 工場に見せるのは依頼の要点だけ。依頼者の名前・メール・電話・会社名・納品先は見せない。
+var OFFER_HEAD = ['受付番号', '会社名', '申込番号', '打診リンク', '状態', '回答日時', '着手できる時期', '見積の目安', 'メッセージ・質問・断る理由', '最後に開いた日時', '作成日時', '鍵', '履歴'];
+var OFFER_STATE = {accept: '受ける', question: '質問', decline: '断る'};
+var OFFER_URL = CONFIG.SITE_URL + 'reply/?k=';
+
+function offerTab_() {
+  var sh = slotTab_('工場への打診', OFFER_HEAD);
+  return sh;
+}
+
+function setupOffers() {
+  var sh = offerTab_(), ss = sh.getParent();
+  ScriptApp.getProjectTriggers().forEach(function (t) { if (t.getHandlerFunction() === 'onOfferEdit') ScriptApp.deleteTrigger(t); });
+  ScriptApp.newTrigger('onOfferEdit').forSpreadsheet(ss).onEdit().create();
+  offerFill_();
+}
+
+function onOfferEdit(e) {
+  try { if (e && e.range && e.range.getSheet().getName() !== '工場への打診') return; } catch (err) { return; }
+  offerFill_();
+}
+
+function offerKey_() {
+  var A = 'abcdefghijkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789', b = Utilities.getUuid().replace(/-/g, '') + Utilities.getUuid().replace(/-/g, ''), k = '';
+  for (var i = 0; i < 24; i++) k += A[parseInt(b.substr(i * 2, 2), 16) % A.length];
+  return k;
+}
+
+// 受付番号と会社名があって鍵のない行に、鍵と打診リンクを入れる
+function offerFill_() {
+  var sh = offerTab_(), n = sh.getLastRow() - 1;
+  if (n < 1) return;
+  var rg = sh.getRange(2, 1, n, OFFER_HEAD.length), v = rg.getValues(), ch = false;
+  v.forEach(function (r) {
+    if (String(r[0]).trim() && String(r[1]).trim() && !r[11]) {
+      r[11] = offerKey_(); r[3] = OFFER_URL + r[11]; r[4] = r[4] || '未回答'; r[10] = new Date(); ch = true;
+    }
+  });
+  if (ch) rg.setValues(v);
+}
+
+// 受付番号×申込番号（なければ会社名）の打診リンクを返す。なければ行を足す
+function offerEnsure_(id, company, pid) {
+  var sh = offerTab_(), n = sh.getLastRow() - 1;
+  if (n > 0) {
+    var v = sh.getRange(2, 1, n, 12).getValues();
+    for (var i = 0; i < v.length; i++) {
+      if (String(v[i][0]) === String(id) && (pid ? String(v[i][2]) === String(pid) : String(v[i][1]) === String(company)) && v[i][11]) return OFFER_URL + v[i][11];
+    }
+  }
+  var k = offerKey_();
+  sh.appendRow([id, company, pid || '', OFFER_URL + k, '未回答', '', '', '', '', '', new Date(), k, ''].map(safe_));
+  return OFFER_URL + k;
+}
+
+function offerFind_(k) {
+  k = String(k || '');
+  if (!/^[A-Za-z0-9]{24}$/.test(k)) return null;
+  var sh = offerTab_(), n = sh.getLastRow() - 1;
+  if (n < 1) return null;
+  var keys = sh.getRange(2, 12, n, 1).getValues();
+  for (var i = 0; i < keys.length; i++) if (String(keys[i][0]) === k) return {sh: sh, row: i + 2, v: sh.getRange(i + 2, 1, 1, OFFER_HEAD.length).getValues()[0]};
+  return null;
+}
+
+// 工場に見せてよい依頼の要点（依頼者を特定できる項目は出さない）
+var OFFER_HIDE = /メール|電話|会社名|屋号|担当者|お名前|名前|依頼者|納品先|住所|海外への提供|写真・動画・図面|ファイル/;
+function offerSummary_(id) {
+  var ss = sheet_().getParent(), out = {id: String(id)};
+  var find = function (sh, col) {
+    if (!sh || sh.getLastRow() < 2) return null;
+    var ids = sh.getRange(2, col, sh.getLastRow() - 1, 1).getValues();
+    for (var i = ids.length - 1; i >= 0; i--) if (String(ids[i][0]) === String(id)) return sh.getRange(i + 2, 1, 1, sh.getLastColumn()).getValues()[0];
+    return null;
+  };
+  var r = find(sheet_(), 1);
+  if (r) {
+    out.kind = r[2]; out.summary = String(r[9] || '').slice(0, 2000); out.qty = String(r[10] || '').slice(0, 300); out.due = String(r[11] || '').slice(0, 200);
+    out.files = String(r[15] || '') || /\d+件/.test(String(r[17] || '')) ? 1 : 0;
+    var items = [], cur = null;
+    String(r[14] || '').split('\n').forEach(function (line) {
+      var m = line.match(/^([^:\n]{1,40}): ?(.*)$/);
+      if (m && !/^\s/.test(line)) { cur = [m[1], m[2]]; items.push(cur); } else if (cur) cur[1] += '\n' + line;
+    });
+    out.items = items.filter(function (x) { return x[1] && !OFFER_HIDE.test(x[0]); }).slice(0, 40)
+      .map(function (x) { return [x[0].slice(0, 60), x[1].slice(0, 3000)]; });
+  }
+  var t = find(ss.getSheetByName('依頼の時期'), 1);
+  if (t) { out.steps = String(t[3] || '').split('\n').filter(String); out.mat = String(t[4] || ''); out.flex = String(t[6] || ''); out.from = slotMonth_(t[7]); out.to = slotMonth_(t[8]); out.bundle = t[10] === 'まとめてよい'; }
+  return out;
+}
+
+function offerView_(p) {
+  if (!limit_('o', 2000)) return {ok: false, error: 'busy'};
+  var f = offerFind_(p.k);
+  if (!f) return {ok: false, error: 'key'};
+  f.sh.getRange(f.row, 10).setValue(new Date());
+  var v = f.v, st = String(v[4] || '未回答'), ans = null;
+  Object.keys(OFFER_STATE).forEach(function (a) { if (OFFER_STATE[a] === st) ans = a; });
+  return {ok: true, company: String(v[1]), state: ans, when: String(v[6] || ''), price: String(v[7] || ''), msg: String(v[8] || ''),
+    answered: v[5] instanceof Date ? Utilities.formatDate(v[5], 'Asia/Tokyo', 'yyyy-MM-dd HH:mm') : '', req: offerSummary_(v[0])};
+}
+
+function offerReply_(p) {
+  if (!limit_('or', 500)) return {ok: false, error: 'busy'};
+  var f = offerFind_(p.k);
+  if (!f) return {ok: false, error: 'key'};
+  var a = String(p.answer || '');
+  if (!OFFER_STATE[a]) return {ok: false, error: 'answer'};
+  var s = function (v, n) { return String(v == null ? '' : v).replace(/[\u0000-\u0008\u000b-\u001f]/g, '').slice(0, n); };
+  var msg = s(p.msg, 3000), why = [].concat(p.reasons || []).map(function (x) { return s(x, 40); }).slice(0, 6);
+  if (a === 'question' && !msg.trim()) return {ok: false, error: 'msg'};
+  if (a === 'decline' && why.length) msg = '理由: ' + why.join('、') + (msg ? '\n' + msg : '');
+  var now = new Date(), v = f.v, hist = String(v[12] || '');
+  if (v[4] && v[4] !== '未回答') hist = (Utilities.formatDate(v[5] instanceof Date ? v[5] : now, 'Asia/Tokyo', 'MM-dd HH:mm') + ' ' + v[4] + (v[8] ? '：' + String(v[8]).slice(0, 200) : '') + '\n' + hist).slice(0, 5000);
+  f.sh.getRange(f.row, 5, 1, 5).setValues([[OFFER_STATE[a], now, s(p.when, 100), s(p.price, 200), msg].map(safe_)]);
+  f.sh.getRange(f.row, 13).setValue(safe_(hist));
+  try {
+    var to = CONFIG.ADMIN_EMAIL || Session.getEffectiveUser().getEmail();
+    MailApp.sendEmail({to: to, subject: '[KATACHI] 工場の返事：' + OFFER_STATE[a] + ' ' + v[1] + '（' + v[0] + '）',
+      body: v[1] + ' から、受付 ' + v[0] + ' の打診に返事がありました。\n\n■ 答え\n' + OFFER_STATE[a] +
+        (p.when ? '\n\n■ 着手できる時期\n' + s(p.when, 100) : '') + (p.price ? '\n\n■ 見積の目安\n' + s(p.price, 200) : '') + (msg ? '\n\n■ メッセージ\n' + msg : '') +
+        '\n\n一覧（「工場への打診」タブ）: ' + f.sh.getParent().getUrl()});
+  } catch (err) { console.error(err); }
+  return {ok: true, state: a};
 }
