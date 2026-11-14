@@ -577,6 +577,7 @@ function placeNorm_(x) {
 // ---------- 技適の検索（総務省「技術基準適合証明等を受けた機器の検索」Web-API、無料・登録不要） ----------
 // 利用者が入れた無線モジュール・機器の型式（例：ESP32-WROOM-32E）だけを総務省に送り、件数と上位5件の
 // 型式・名称・番号・日付・種類を返す。保存はしない（同じ型式は6時間だけ覚えておく）。
+// ※2026-11-14 時点で総務省側が Google のサーバーからの接続を 403 で断るため、サイトからは使っていない（template.html の GITEKI=false）。
 function giteki_(p) {
   var tn = String(p.tn || '').normalize('NFKC').replace(/[\s　]+/g, ' ').trim().slice(0, 80);
   if (tn.length < 3) return {ok: false, error: 'short'};
