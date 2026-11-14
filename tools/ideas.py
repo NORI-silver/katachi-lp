@@ -474,6 +474,14 @@ I('hw_light', 'hw', ('防水の自転車ライト', 'Waterproof bike light', '�
 
 IDEAS = I_
 
+# 作例ごとの中身（tools/ideas_more.py）
+import importlib.util as _ilu, os as _os
+_ms = _ilu.spec_from_file_location('ideas_more', _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), 'ideas_more.py'))
+_mm = _ilu.module_from_spec(_ms); _ms.loader.exec_module(_mm)
+for _x in IDEAS:
+    if _x['k'] in _mm.MORE:
+        _x['more'] = _mm.MORE[_x['k']]
+
 
 def is_deep(x):
     """検索に出してよい作例か（Nori 2026-11-14「薄い記事は濃くしてから公開」「そもそも薄い記事作らないで」）。
@@ -618,6 +626,20 @@ def meta(x):
     return title, desc, ind
 
 
+def more_html(x):
+    """作例ごとの中身：作り方・材料の選び方（表）と、よくある失敗と防ぎ方。"""
+    e = html.escape
+    m = x.get('more') or {}
+    out = ''
+    if m.get('opts'):
+        out += ('<h2>作り方・材料の選び方</h2><div class="tbl"><table><tr><th>方法</th><th>向いている場面</th><th>気をつけること</th></tr>'
+                + ''.join(f'<tr><td>{e(a)}</td><td>{e(b)}</td><td>{e(c)}</td></tr>' for a, b, c in m['opts']) + '</table></div>')
+    if m.get('fail'):
+        out += ('<h2>よくある失敗と防ぎ方</h2><ul>'
+                + ''.join(f'<li><strong>{e(a)}</strong>：{e(b)}</li>' for a, b in m['fail']) + '</ul>')
+    return out
+
+
 def page_html(x, root, guides_by):
     e = html.escape
     p = P[x['prof']]
@@ -661,6 +683,7 @@ def page_html(x, root, guides_by):
             f'<div class="points"><b>この作例の要点</b><ul>' + ''.join(f'<li>{e(s)}</li>' for s in pts) + '</ul></div>'
             f'<h2>作り方の流れ</h2><ol>{steps}</ol>'
             f'<h2>この作例で工夫すること</h2><ul>{tips}</ul>'
+            + more_html(x) +
             f'<h2>依頼前に決めること</h2><p>決まっているほど見積が早く正確です。未定のことは「未定」で相談できます。</p><ul>{dec}</ul>'
             f'<h2>費用・最低ロットの目安</h2>{tbl}<p class="note">期間は形・数量・工場の混み具合で変わるため、見積で確かめます。</p>'
             f'<h2>確かめる表示・許可</h2><ul>{chk}</ul>'
