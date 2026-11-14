@@ -1234,16 +1234,20 @@ const rx=(k,t)=>{try{return !!k&&new RegExp(k,'i').test(t)}catch(e){return false
 const MEMO='【相談で決めたこと】';
 function readConds(text){const t=String(text||'').toLowerCase();const R={conds:CGEN.conds.filter(c=>rx(c.kw,t))};
   const n=(v,u)=>{v=parseFloat(v);return /^m$|メートル/.test(u)?v*1000:/cm|センチ/.test(u)?v*10:v};
-  const kg=t.replace(/(重さ|重量)[^\d\n]{0,8}\d+(?:\.\d+)?\s*(kg|キロ|g)/g,'').match(/(\d+(?:\.\d+)?)\s*(kg|キロ)/);R.kgx=!!kg;R.kg=kg?+kg[1]:/大型犬/.test(t)?40:/中型犬/.test(t)?20:/小型犬|猫|ねこ/.test(t)?8:/人が乗|大人が乗|人が座/.test(t)?100:0;
+  /* 乗る重さ：kg が複数あるとき、2頭・2人・同時・一緒・合計の言葉があれば足す（同時に乗る）。なければいちばん重いもの */
+  const kgs=[...t.replace(/(重さ|重量)[^\d\n]{0,8}\d+(?:\.\d+)?\s*(kg|キロ|g)/g,'').matchAll(/(\d+(?:\.\d+)?)\s*(kg|キロ)/g)].map(m=>+m[1]);
+  R.many=/([2-9２-９二三四五]|複数)\s*(頭|匹|人|名|羽)|同時|一緒に|いっしょに|合計|2頭|二頭/.test(t);R.kgSum=kgs.length>1&&R.many;
+  const kg=kgs.length?[0,R.kgSum?kgs.reduce((a,b)=>a+b,0):Math.max(...kgs)]:null;R.kgx=!!kg;R.kg=kg?+kg[1]:/大型犬/.test(t)?40:/中型犬/.test(t)?20:/小型犬|猫|ねこ/.test(t)?8:/人が乗|大人が乗|人が座/.test(t)?100:0;
   const dim=w=>{const m=t.match(new RegExp('(?:'+w+')[^\\d\\n]{0,8}(\\d+(?:\\.\\d+)?)\\s*(mm|cm|m|センチ|ミリ|メートル)'));return m?n(m[1],m[2]):0};
   R.h=dim('高さ|縁|ふち|段差');R.w=dim('幅');R.l=dim('長さ');R.d=dim('奥行');R.max=dim('大きさ');
-  R.pet=/大型犬/.test(t)?'L':/中型犬/.test(t)?'M':/小型犬|猫|ねこ|ネコ/.test(t)?'S':/犬|いぬ|イヌ|dog/.test(t)?'M':'';
+  const pk=R.kgx&&kgs.length?Math.max(...kgs):0;
+  R.pet=/大型犬/.test(t)?'L':/中型犬/.test(t)?'M':/小型犬|猫|ねこ|ネコ/.test(t)?'S':/犬|いぬ|イヌ|dog/.test(t)?(pk>=25?'L':pk&&pk<10?'S':'M'):'';
   R.water=R.conds.some(c=>c.water);if(R.kgx&&!R.conds.some(c=>c.id==='load'))R.conds.push(CGEN.conds.find(c=>c.id==='load'));
   return R}
 const cm=mm=>Math.round(mm/10)+'cm';
 function shapeConcept(s,R){let[w,l,h]=s.dims;const big=R.pet==='L'||(R.kg>=60),sc=R.pet==='S'?.55:R.pet==='M'?.75:1;
   if(s.scale==='pet'&&R.pet){w*=sc;l*=sc;h*=sc}
-  if(s.id==='slope'){h=R.h||(R.conds.some(c=>c.id==='pool')?760:400);l=Math.round(h*2.5/10)*10;w=R.pet?{S:350,M:450,L:600}[R.pet]:(R.kg>=60?800:600)}
+  if(s.id==='slope'){h=R.h||(R.conds.some(c=>c.id==='pool')?760:400);l=Math.round(h*2.5/10)*10;w=R.pet?{S:350,M:450,L:600}[R.pet]:(R.kg>=60?800:600);if(R.kgSum)w=Math.round(w*1.5/10)*10}
   if(s.id==='step'){h=R.h||h;l=Math.max(450,Math.round(h*1.2/10)*10);if(R.pet)w=R.pet==='L'?500:400}
   if(s.id==='platform'&&R.h)h=R.h;
   if(R.max&&!R.w&&!R.l&&!R.h){const f=R.max/Math.max(w,l,h);w*=f;l*=f;h*=f}
@@ -1253,7 +1257,7 @@ function shapeConcept(s,R){let[w,l,h]=s.dims;const big=R.pet==='L'||(R.kg>=60),s
   if(s.id==='slope')size.push(' / ','傾き',' ','約','22°');
   if((s.id==='slope'||s.id==='step')&&!R.h)size.push(' ','高さは、お使いのものに合わせて測ってください（図は例）。');
   const rows=[['サイズ（目安）',size],['主な素材',R.water&&s.matw?s.matw:s.mat]];
-  if(R.kg&&(R.kgx||s.scale==='load'))rows.push(['想定スペック',['乗る重さ',' '+R.kg+'kg',' / ','設計の目安',' '+R.kg*2+'kg','（安全率2倍）']]);
+  if(R.kg&&(R.kgx||s.scale==='load'))rows.push(['想定スペック',['乗る重さ',' '+R.kg+'kg',...(R.kgSum?['（','同時に乗る合計','）']:[]),' / ','設計の目安',' '+R.kg*2+'kg','（安全率2倍）']]);
   if(R.conds.some(c=>c.id==='power'))rows.push(['動力・電源',CGEN.conds.find(c=>c.id==='power').feats[0]]);
   return {id:'g_'+s.id,gen:s,fig:{k:s.fig,w:String(w),l:String(l),h:String(h),ang:'22°',pool:R.conds.some(c=>c.id==='pool'),pet:!!R.pet},name:s.name,lead:s.lead,rows,
     feats:s.feats.slice(),check:s.check.slice(),vars:s.vars,proto:s.proto,mass:s.mass}}
@@ -2276,12 +2280,16 @@ function analyzeText(text){text=specCore(text);
   if(hit.includes('electronics.wireless')&&!hit.includes('testing.radio_cert'))hit.push('testing.radio_cert');
   if(hit.includes('electronics.low_power')&&!hit.includes('testing.battery_safety'))hit.push('testing.battery_safety');
   // 何も読み取れないときも行き止まりにしない: どの製品でも最初に要る設計・試作・組立の会社を出す
+  /* 工程の言葉がなくても、形の言葉（スロープ・箱・ベッド…、concepts_generic.py の caps）と材料の言葉から工程を読む（Nori 2026-11-14 最初の依頼：プール用スロープが「3Dプリント・EMS」になった） */
+  let byShape='';if(!hit.length&&!notices.length){const sh=CGEN.shapes.find(x=>x.caps&&x.caps.length&&rx(x.kw,t));
+    if(sh){hit=sh.caps.slice();byShape=sh.id;
+      for(const[re,c]of[[/木製|木で|木の|天然木|無垢|合板|ウッド|wood/,'crafts.wood_furniture'],[/金属|アルミ|ステンレス|鉄|スチール|鋼|metal|alumin|steel/,'manufacturing.sheet_metal'],[/布|生地|帆布|ナイロン|ポリエステル|革|レザー|fabric|leather/,'manufacturing.textile'],[/樹脂|プラスチック|plastic/,'manufacturing.injection_molding'],[/シリコン|シリコーン|ゴム製|silicone|rubber/,'manufacturing.silicone_molding']])if(re.test(t)&&!hit.includes(c))hit.push(c)}}
   let fallback=false;if(!hit.length&&!notices.length){hit=['mechanical.enclosure_design','manufacturing.rapid_proto','manufacturing.assembly'];fallback=true}
   // 試作・設計・製造・試験の順に並べる
   const order=['sensing','electronics','mechanical','software','manufacturing','apparel','crafts','packaging','food','cosmetics','testing'];
   hit.sort((a,b)=>order.indexOf(a.split('.')[0])-order.indexOf(b.split('.')[0]));
   const regs=(GDB.regs||[]).filter(([kws])=>kws.some(k=>t.includes(k.toLowerCase()))).map(x=>x[1]);
-  return {codes:hit,regs,notices:[...new Set(notices)],fallback,mach};
+  return {codes:hit,regs,notices:[...new Set(notices)],fallback,mach,byShape};
 }
 /* 工程が読み取れないときの手がかり: 入力の言葉を、会社名・会社の説明文から探す */
 const STOP=/^(オリジナル|自社|ブランド|作りたい|つくりたい|作る|つくる|作成|製作|制作|製造|依頼|相談|お願い|したい|ほしい|欲しい|小ロット|ロット|個|本|枚|探して|探している|のOEM|OEM|ODM)$/i;
@@ -3063,6 +3071,8 @@ function costPeek(A){const codes=[...new Set(A.codes||[])];if(!D.est||!codes.len
     const out=known.filter(c=>!o.rows.some(x=>x.code===c)).length,below=o.rows.some(x=>x.below);
     return `<div class="c2r"><small><span>${lab}</span> <span>${fmt(q)}個</span></small>${o.rows.length?`<b>${rng(o.lo,o.hi,'yen')}</b>${q>1?`<span class="pu"><span>1個あたり</span> ${rng(Math.round(o.lo/q),Math.round(o.hi/q),'yen')}</span>`:''}${below?'<span class="pu">最低ロット分の金額です</span>':''}${out?`<span class="pu">この数量では、ほかに<span translate="no"> ${out} </span>工程が見積で確認</span>`:''}`:'<b>見積で確認</b>'}</div>`};
   if(!known.length)return `<div class="cost2"><h3>概算費用の目安 ${mk('ai','AIの目安')}</h3><p class="c2q">この内容の工程は、公開された相場が見つかっていません。費用は会社の見積で確かめます。</p></div>`;
+  /* 料金表の数字は手のひら〜数十cmの部品の相場。1m以上の大きなもの（スロープ・台・小屋など）に当てると桁が違うので出さない（Nori 2026-11-14 最初の依頼：約2mのスロープが「試作 3,110円〜」と出た） */
+  const fg=A.concept&&A.concept.fig;if(fg&&Math.max(+fg.w||0,+fg.l||0,+fg.h||0)>=1000)return `<div class="cost2"><h3>概算費用の目安 ${mk('ai','AIの目安')}</h3><p class="c2q">1m以上の大きなものは、公開されている料金表（小さな部品の相場）が当てはまりません。費用は会社の見積で確かめます。</p></div>`;
   return `<div class="cost2" id="mCost"><h3>概算費用の目安 ${mk('ai','AIの目安')}</h3>
     <div class="c2rows">${qs.map((q,i)=>cell(q,i)).join('')}</div>
     <p class="c2note"><span>根拠：公開されている料金表・記事の数字（工程：</span>${known.map(c=>`<span>${ecn(c)}</span>`).join("・")}<span>）。形・材料・納期で大きく変わります。正式な金額は見積で決まります。</span>${miss.length?` <span>相場がない工程は含まず、見積で確認：</span>${miss.map(c=>`<span>${ecn(c)}</span>`).join("・")}`:''}</p>

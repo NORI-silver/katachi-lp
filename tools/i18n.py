@@ -881,6 +881,7 @@ T.update({
 "1個あたり": ("per unit", "每个"),
 "見積で確認": ("Confirm by quote", "以报价确认"),
 "この内容の工程は、公開された相場が見つかっていません。費用は会社の見積で確かめます。": ("We have no published price data for these steps yet. The cost will be confirmed by company quotes.", "这些工序还没有找到公开行情。费用将通过公司报价确认。"),
+"1m以上の大きなものは、公開されている料金表（小さな部品の相場）が当てはまりません。費用は会社の見積で確かめます。": ("Published price lists cover small parts, so they do not apply to items 1 m or larger. The cost will be confirmed by company quotes.", "公开的价格表是小零件的行情，不适用于1米以上的大件。费用将通过公司报价确认。"),
 "根拠：公開されている料金表・記事の数字（工程：": ("Basis: figures from published price lists and articles (steps: ", "依据：公开价格表・文章中的数字（工序："),
 "）。形・材料・納期で大きく変わります。正式な金額は見積で決まります。": ("). Shape, material and lead time change it a lot. The final price is set by the quote.", "）。会因形状・材料・交期大幅变化。正式金额以报价为准。"),
 "相場がない工程は含まず、見積で確認：": ("Not included (no market data, confirm by quote): ", "未计入（无行情，以报价确认）："),

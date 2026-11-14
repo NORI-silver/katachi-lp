@@ -11,15 +11,16 @@
 # 寸法・重さの部品（画面で「幅」「約」「60cm」のように小さな部品を並べ、部品ごとに翻訳する）
 WORDS = [
     ("幅", "W", "宽"), ("長さ", "L", "长"), ("高さ", "H", "高"), ("奥行", "D", "深"), ("約", "approx. ", "约"),
-    ("乗る重さ", "Load", "承重"), ("設計の目安", "Design load", "设计参考"), ("（安全率2倍）", "(2× safety factor)", "（安全系数2倍）"),
+    ("乗る重さ", "Load", "承重"), ("設計の目安", "Design load", "设计参考"), ("同時に乗る合計", "total of all riding at once", "同时乘坐的合计"), ("（安全率2倍）", "(2× safety factor)", "（安全系数2倍）"),
     ("傾き", "Incline", "坡度"), ("本体の重さ", "Weight", "本体重量"),
     ("あなたの文章から読み取った条件", "Conditions read from your text", "从您的描述中读取的条件"),
     ("文章から組み立てた案", "Built from your text", "根据描述组合的方案"),
     ("高さは、お使いのものに合わせて測ってください（図は例）。", "Measure the height on your own item (the drawing is an example).", "高度请按您实际使用的物品测量（图为示例）。"),
 ]
 
+# caps: 工程の言葉が文章に無いとき（「スロープを作りたい」だけ等）に、この形から読む工程（会社を探す工程）。
 SHAPES = [
-  dict(id='slope', kw=r'スロープ|坂道|傾斜板|渡り板|ramp|slope',
+  dict(id='slope', caps=['mechanical.enclosure_design', 'manufacturing.sheet_metal', 'crafts.metal_goods'], kw=r'スロープ|坂道|傾斜板|渡り板|ramp|slope',
     fig='slope', dims=(500, 1900, 760), scale='load',
     name=("スロープ（傾斜のある通り道）", "Ramp (sloped walkway)", "坡道（带坡度的通道）"),
     lead=("段差の上と下を、ゆるい坂でつなぐ通り道です。乗る重さ・高さ・傾きから、幅と長さ、骨組みの太さが決まります。",
@@ -39,7 +40,7 @@ SHAPES = [
     proto=("アルミの角パイプと板を切って組み、1台作って実際に乗せて確かめる", "Cut and assemble aluminium tube and board into one unit, then test it with the real load", "用铝方管和板材切割组装做1台，实际承重测试"),
     mass=("アルミの押出し材と曲げ・溶接、踏み面は樹脂板の切削や成形。数十台から", "Aluminium extrusions with bending and welding; deck by machining or moulding plastic board. From a few dozen units", "铝型材加折弯・焊接，踏面用树脂板切削或成型。几十台起")),
 
-  dict(id='step', kw=r'ステップ|踏み台|ふみ台|階段|はしご|梯子|脚立|step|stairs|ladder',
+  dict(id='step', caps=['mechanical.enclosure_design', 'manufacturing.sheet_metal', 'crafts.metal_goods'], kw=r'ステップ|踏み台|ふみ台|階段|はしご|梯子|脚立|step|stairs|ladder',
     fig='step', dims=(450, 600, 450), scale='load',
     name=("ステップ（踏み台・階段）", "Step / small stairs", "踏台・台阶"),
     lead=("段差を2〜4段に分けて上り下りしやすくする台です。1段の高さと奥行、乗る重さで、形と骨組みが決まります。",
@@ -57,7 +58,7 @@ SHAPES = [
     proto=("板金または木で1台作り、実際に上り下りして確かめる", "Make one in sheet metal or wood and test going up and down", "用钣金或木材做1台，实际上下测试"),
     mass=("板金の曲げ・溶接、または樹脂の成形。数十台から", "Sheet-metal bending and welding, or plastic moulding. From a few dozen units", "钣金折弯・焊接，或树脂成型。几十台起")),
 
-  dict(id='house', kw=r'ハウス|小屋|ケージ|キャリー|ケンネル|サークル|クレート|巣箱|kennel|cage|crate|carrier',
+  dict(id='house', caps=['mechanical.enclosure_design', 'manufacturing.sheet_metal', 'crafts.wood_furniture'], kw=r'ハウス|小屋|ケージ|キャリー|ケンネル|サークル|クレート|巣箱|kennel|cage|crate|carrier',
     fig='house', dims=(600, 800, 650), scale='pet',
     name=("ハウス・ケージ（中に入るもの）", "House / cage / crate", "小屋・笼子"),
     lead=("動物や物が中に入る囲いです。中で立って向きを変えられる大きさと、出入り口・換気・掃除のしやすさが決め手になります。",
@@ -75,7 +76,7 @@ SHAPES = [
     proto=("木や板金で1台作り、実際に入ってもらって確かめる", "Make one from wood or sheet metal and test it with the real occupant", "用木材或钣金做1台，实际让动物进去测试"),
     mass=("板金・線材の溶接、または樹脂の成形。数十〜数百台から", "Welded sheet metal and wire, or plastic moulding. From tens to hundreds of units", "钣金・线材焊接，或树脂成型。几十到几百台起")),
 
-  dict(id='fence', kw=r'柵|フェンス|ゲート|仕切り|パーテーション|パーティション|囲い|fence|gate|partition',
+  dict(id='fence', caps=['manufacturing.sheet_metal', 'crafts.metal_goods', 'crafts.wood_furniture'], kw=r'柵|フェンス|ゲート|仕切り|パーテーション|パーティション|囲い|fence|gate|partition',
     fig='fence', dims=(1200, 50, 900), scale=None,
     name=("柵・ゲート・仕切り", "Fence / gate / partition", "围栏・门・隔断"),
     lead=("場所を区切ったり、出入りを止めたりするパネルです。高さ・すき間の幅・倒れにくさ・開け閉めのしやすさを決めます。",
@@ -91,7 +92,7 @@ SHAPES = [
     proto=("1枚分を作り、押す・飛びつく力で確かめる", "Make one panel and test it with pushing and jumping loads", "做1片，用推力和扑力测试"),
     mass=("パイプの曲げ・溶接と塗装。数十枚から", "Tube bending, welding and painting. From a few dozen panels", "管材折弯・焊接和涂装。几十片起")),
 
-  dict(id='bed', kw=r'ベッド|クッション|マットレス|座布団|寝床|ソファ|bed|cushion',
+  dict(id='bed', caps=['manufacturing.textile'], kw=r'ベッド|クッション|マットレス|座布団|寝床|ソファ|bed|cushion',
     fig='bed', dims=(900, 700, 200), scale='pet',
     name=("ベッド・クッション", "Bed / cushion", "床・垫子"),
     lead=("体を預けて休む、やわらかい台です。大きさ・クッションの硬さ・カバーの洗いやすさが決め手になります。",
@@ -106,7 +107,7 @@ SHAPES = [
     proto=("見本を1〜3個縫い、実際に使って確かめる", "Sew 1–3 samples and test them in use", "缝制1–3个样品，实际使用测试"),
     mass=("縫製工場で数十〜数百個から", "Sewing factory from tens to hundreds of units", "在缝制工厂几十到几百个起")),
 
-  dict(id='mat', kw=r'マット|シート|敷物|ラグ|カーペット|滑り止め|mat|rug',
+  dict(id='mat', caps=['manufacturing.textile', 'manufacturing.silicone_molding'], kw=r'マット|シート|敷物|ラグ|カーペット|滑り止め|mat|rug',
     fig='mat', dims=(900, 600, 10), scale=None,
     name=("マット・シート", "Mat / sheet", "垫子・片材"),
     lead=("床や地面に敷く板状のものです。大きさ・厚さ・表面の滑りにくさ・水や汚れへの強さを決めます。",
@@ -121,7 +122,7 @@ SHAPES = [
     proto=("既製の素材を切って1〜数枚", "Cut 1–a few pieces from stock material", "用现成材料裁剪1到几片"),
     mass=("型抜き・成形で数百枚から", "Die-cutting or moulding from a few hundred", "冲裁或成型，几百片起")),
 
-  dict(id='cover', kw=r'カバー|覆い|屋根|日よけ|日除け|シェード|テント|タープ|傘|cover|shade|tent|canopy',
+  dict(id='cover', caps=['manufacturing.textile', 'manufacturing.sheet_metal'], kw=r'カバー|覆い|屋根|日よけ|日除け|シェード|テント|タープ|傘|cover|shade|tent|canopy',
     fig='cover', dims=(1200, 800, 1000), scale=None,
     name=("カバー・屋根・日よけ", "Cover / roof / shade", "罩子・顶棚・遮阳"),
     lead=("物や場所を雨・日差し・ほこりから守る覆いです。覆う大きさ・生地や板の素材・風での飛ばされにくさを決めます。",
@@ -136,7 +137,7 @@ SHAPES = [
     proto=("生地と市販のパイプで1つ作り、屋外で確かめる", "Make one with fabric and stock tubes and test it outdoors", "用面料和市售管材做1个，在室外测试"),
     mass=("縫製・パイプ加工の会社で数十〜数百から", "Sewing and tube-working companies, from tens to hundreds", "缝制和管材加工公司，几十到几百起")),
 
-  dict(id='platform', kw=r'(?<![台])台(?![車所風湾湾帳本詞紙数])|デッキ|ステージ|置き台|作業台|platform|deck',
+  dict(id='platform', caps=['mechanical.enclosure_design', 'manufacturing.sheet_metal', 'crafts.metal_goods'], kw=r'(?<![台])台(?![車所風湾湾帳本詞紙数])|デッキ|ステージ|置き台|作業台|platform|deck',
     fig='platform', dims=(900, 600, 400), scale='load',
     name=("台・デッキ（上に乗せる・乗るもの）", "Platform / deck", "平台・台面"),
     lead=("上に物や人・動物を乗せる平らな台です。天板の大きさ・高さ・乗る重さで、脚の数と骨組みの太さが決まります。",
@@ -151,7 +152,7 @@ SHAPES = [
     proto=("角パイプと板で1台作り、実際に乗せて確かめる", "Make one from square tube and board and test it with the real load", "用方管和板材做1台，实际承重测试"),
     mass=("パイプの切断・溶接と塗装、天板の切削。数十台から", "Tube cutting, welding and painting, top machining. From a few dozen", "管材切割・焊接和涂装，台面切削。几十台起")),
 
-  dict(id='box', kw=r'箱|ボックス|収納|容器|コンテナ|トレー|トレイ|入れ物|ケース|box|container|tray',
+  dict(id='box', caps=['mechanical.enclosure_design', 'manufacturing.rapid_proto', 'manufacturing.injection_molding'], kw=r'箱|ボックス|収納|容器|コンテナ|トレー|トレイ|入れ物|ケース|box|container|tray',
     fig='box', dims=(400, 300, 250), scale=None,
     name=("箱・収納・容器", "Box / storage / container", "箱子・收纳・容器"),
     lead=("物を入れて運ぶ・しまうための箱です。中に入れる物の大きさと重さ、ふたの有無、重ねられるかを決めます。",
@@ -166,7 +167,7 @@ SHAPES = [
     proto=("3Dプリントや板材で1〜数個", "1–a few units by 3D printing or from sheet material", "用3D打印或板材做1到几个"),
     mass=("樹脂の成形・板金・紙器の会社で数百個から", "Plastic moulding, sheet metal or carton makers, from a few hundred", "在树脂成型・钣金・纸盒公司几百个起")),
 
-  dict(id='holder', kw=r'フック|ハンガー|掛け|取付|取り付け|ブラケット|マウント|固定具|クリップ|hook|hanger|mount|bracket|clip',
+  dict(id='holder', caps=['mechanical.enclosure_design', 'manufacturing.sheet_metal', 'manufacturing.rapid_proto'], kw=r'フック|ハンガー|掛け|取付|取り付け|ブラケット|マウント|固定具|クリップ|hook|hanger|mount|bracket|clip',
     fig='holder', dims=(60, 80, 100), scale=None,
     name=("取付金具・フック・ホルダー", "Mount / hook / holder", "安装件・挂钩・支架"),
     lead=("何かを壁・机・機械などに留めたり、掛けたりする小さな部品です。留める相手の形と、掛ける重さで形と材料が決まります。",
@@ -181,7 +182,7 @@ SHAPES = [
     proto=("3Dプリントか切削で数個", "A few units by 3D printing or machining", "用3D打印或切削做几个"),
     mass=("板金のプレス、または射出成形で数百個から", "Sheet-metal pressing or injection moulding from a few hundred", "钣金冲压或注塑，几百个起")),
 
-  dict(id='bowl', kw=r'食器|皿|ボウル|カップ|コップ|マグ|給水|給餌|水入れ|bowl|cup|plate',
+  dict(id='bowl', caps=['crafts.ceramics_glass', 'manufacturing.injection_molding'], kw=r'食器|皿|ボウル|カップ|コップ|マグ|給水|給餌|水入れ|bowl|cup|plate',
     fig='bowl', dims=(180, 180, 70), scale=None,
     name=("食器・ボウル・給水器", "Bowl / dish / water feeder", "餐具・碗・饮水器"),
     lead=("食べ物や水を入れる器です。容量・ひっくり返りにくさ・洗いやすさと、口に触れても安全な素材が決め手です。",
@@ -196,7 +197,7 @@ SHAPES = [
     proto=("3Dプリントの形見本と、既製品の加工で数個", "A few units from 3D-printed shape models and modified stock items", "用3D打印形状样品和现成品加工做几个"),
     mass=("プレス（ステンレス）・成形（樹脂・シリコーン）・焼き物の会社で数百個から", "Pressing (stainless), moulding (plastic, silicone) or ceramics makers, from a few hundred", "在冲压（不锈钢）・成型（树脂・硅胶）・陶瓷公司几百个起")),
 
-  dict(id='toy', kw=r'おもちゃ|玩具|知育|パズル|ゲーム|フィギュア|模型|toy|puzzle|figure',
+  dict(id='toy', caps=['manufacturing.rapid_proto', 'manufacturing.injection_molding', 'manufacturing.silicone_molding'], kw=r'おもちゃ|玩具|知育|パズル|ゲーム|フィギュア|模型|toy|puzzle|figure',
     fig='toy', dims=(150, 150, 150), scale=None,
     name=("おもちゃ・知育グッズ", "Toy / educational item", "玩具・益智用品"),
     lead=("遊ぶ・学ぶための製品です。対象の年齢、壊れにくさ、口に入れても危なくないかで、形と素材が決まります。",
@@ -211,7 +212,7 @@ SHAPES = [
     proto=("3Dプリントで形を作り、数個で遊んで確かめる", "3D-print the shape and test a few units in play", "用3D打印做出形状，做几个实际玩测试"),
     mass=("樹脂の成形・木工・縫製の会社で数百個から", "Plastic moulding, woodwork or sewing companies, from a few hundred", "在树脂成型・木工・缝制公司几百个起")),
 
-  dict(id='tool', kw=r'工具|道具|ツール|治具|器具|トング|ハサミ|はさみ|tool|jig',
+  dict(id='tool', caps=['mechanical.enclosure_design', 'manufacturing.cnc', 'manufacturing.sheet_metal'], kw=r'工具|道具|ツール|治具|器具|トング|ハサミ|はさみ|tool|jig',
     fig='tool', dims=(40, 250, 30), scale=None,
     name=("道具・工具・治具", "Tool / jig", "工具・治具"),
     lead=("手で使う道具や、作業を正確にするための治具です。持ちやすさ・力のかかる部分の強さ・使う回数で、素材と作り方が決まります。",
@@ -302,7 +303,7 @@ def data():
     return {
         'shapes': [{'id': s['id'], 'kw': s['kw'], 'fig': s['fig'], 'dims': s['dims'], 'scale': s['scale'], 'name': j(s['name']), 'lead': j(s['lead']),
                     'mat': j(s['mat']), 'matw': j(s['matw']), 'feats': [j(x) for x in s['feats']], 'check': [j(x) for x in s['check']],
-                    'vars': [[j(a), j(b)] for a, b in s['vars']], 'proto': j(s['proto']), 'mass': j(s['mass'])} for s in SHAPES],
+                    'vars': [[j(a), j(b)] for a, b in s['vars']], 'proto': j(s['proto']), 'mass': j(s['mass']), 'caps': s.get('caps', [])} for s in SHAPES],
         'conds': [{'id': c['id'], 'kw': c['kw'], 'water': c.get('water', False), 'chip': j(c['chip']),
                    'feats': [j(x) for x in c['feats']], 'check': [j(x) for x in c['check']]} for c in CONDS],
     }
