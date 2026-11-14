@@ -93,6 +93,11 @@
 | fspec_jplatpat | 既製品をもとにした依頼で「J-PlatPatで調べる」を押した | なし | |
 | fspec_giteki | 工場向け仕様書で技適を調べた | via（api/site）, result（hit/none/error） | 型式は送らない |
 | fspec_parts | 工場向け仕様書で部品の参考価格（DigiKey）を調べた | result（hit/none/エラーの種類） | 部品名は送らない |
+| shape_edit | イメージ図を直した（指示の文・数値・切り替え・仕様書から） | how、ok | 指示の文は送らない |
+| shape_request | 図に描けない要望を仕様書に入れた | n（件数） | 要望の文は送らない |
+| attach_draft | 見積の依頼に3D・寸法図・仕様書を添付するかを切り替えた | on | |
+| ai_shape_go | 「ChatGPT／Claude／Geminiで直す」を押した | ai | 質問文は送らない |
+| ai_shape_back | AIの「KATACHIで開く」リンクか貼り付けで戻った | ok、via（link/paste）、skip、reason | 中身は送らない |
 
 ## 送らないもの
 入力文・会社名・ファイル名などの中身は送らない（個人情報や未公開アイデアを含みうるため）。種類・件数・文字数だけを送る。

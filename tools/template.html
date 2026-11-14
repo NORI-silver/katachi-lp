@@ -333,6 +333,7 @@ table.cmp{border-collapse:separate;border-spacing:0;width:100%;min-width:760px;f
 #cEdMsg:empty{display:none}#cEdMsg p{margin:0;font-size:13px}.cedok{color:var(--ink);font-weight:600}.cedq{display:grid;gap:6px;font-size:13px}
 .cedp,.fssz{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;font-size:13px}.cedp label,.fssz label{display:inline-flex!important;flex-direction:row!important;align-items:center;gap:4px}
 .cedp input[type=number],.fssz input[type=number]{width:72px;font:inherit;font-size:14px;padding:5px 6px;border:1px solid var(--line2);border-radius:6px;background:#fff}
+.kzai{display:grid;gap:6px;border-top:1px dashed var(--line2);padding-top:10px;font-size:13px}.kzai .muted{font-size:12px}.kzai .aicb{display:flex;flex-wrap:wrap;gap:6px}.kzpaste{font-size:12.5px}.kzpaste textarea{width:100%;font:inherit;font-size:13px;margin:6px 0;border:1px solid var(--line2);border-radius:8px;padding:6px 8px}
 .cedang{color:var(--mute)}.cedp select,.fssz select{font:inherit;font-size:13.5px;padding:4px 6px;border:1px solid var(--line2);border-radius:6px;background:#fff}.cedang b{color:var(--ink)}.cedlog{display:grid;gap:4px;font-size:12.5px}.cedlog ol{margin:0;padding-left:18px}.cedlog .glink{justify-self:start;font-size:12px}
 @media(max-width:720px){.cgrid .cleft{display:block;position:sticky;top:var(--stk,60px);z-index:3;background:#fff;padding:4px 0 6px;margin:0 -4px}.cgrid .cleft .v3box{aspect-ratio:360/190}}@media(max-width:720px){.cshin{grid-template-columns:minmax(0,1fr) auto}.cshin select{grid-column:1/-1}}
 .mdraft{display:flex!important;flex-direction:row!important;gap:10px;align-items:flex-start;border:1px solid var(--line2);border-radius:10px;padding:10px 12px;margin-bottom:10px;background:color-mix(in srgb,var(--ice) 4%,#fff);cursor:pointer}.mdraft input{margin-top:4px}.mdraft span{display:grid;gap:2px;font-size:13.5px}.mdraft small{color:var(--mute);font-size:12px}.fsqi{border:0;padding:0;margin:0;display:grid;gap:6px}.fsqi legend{font-size:14px;font-weight:600;padding:0;margin-bottom:6px}
@@ -1584,7 +1585,9 @@ function v3build(T,f,mt){const has=r=>r.test(mt);const M=(c,o)=>new T.MeshStanda
    machine(){RB(W,H*.86,L,30,0,H*.47,0,m.main);B(W*.4,H*.3,6,-W*.18,H*.62,L/2+3,m.dark);Cy(W*.1,W*.1,8,W*.24,H*.66,L/2+4,m.acc,Math.PI/2,0);Sp(10,W*.24,H*.82,L/2+6,m.led);
      B(W*.5,H*.06,L*.3,0,H*.24,L/2+L*.12,m.metal);for(const[a,b]of[[-1,-1],[1,-1],[-1,1],[1,1]])Cy(H*.04,H*.04,H*.05,a*W*.4,H*.025,b*L*.4,m.rubber,0,Math.PI/2)},
    device(){RB(W,H,L,mn*.25,0,H/2,0,m.main);RB(W*.55,2,L*.6,4,-W*.12,H+1,0,m.dark);for(const z of[-.15,.15])Cy(L*.07,L*.07,4,W*.3,H+1,L*z,m.acc);Sp(2.5,W*.38,H,L*.36,m.led)}};
-  (K[f.k]||K.product)();return g}
+  (K[f.k]||K.product)();
+  for(const p of (f.parts||[]).slice(0,20)){if(p.t==='cyl')Cy(p.r,p.r,p.h,p.x,p.y,p.z,m.frame);else B(p.w,p.h,p.d,p.x,p.y,p.z,m.frame)}
+  return g}
 const frg=v=>Array.isArray(v)?v.map(x=>/^\s*$/.test(x)?x:`<span>${esc(x)}</span>`).join(''):esc(v);
 const cvarOf=c=>S.cvar&&S.cvar.id===c.id?S.cvar.i:-1;
 function conceptCard(c){const v=cvarOf(c);
@@ -1650,12 +1653,12 @@ function figOf(c){const f=c.fig||{},E=edOf();const w=E.w||+f.w||0,h=E.h||+f.h||0
   const on=Math.max(2,Math.round(h/rise));if(ost)l=on*tread;
   const inpool=!!f.pool&&slope&&(E.inpool!=null?!!E.inpool:ist||shList().some(x=>SH_POOL.test(x.t)));const drop=h*.85,inn=Math.max(2,Math.round(drop/rise));
   return {k:f.k,w,l,h,ang:slope?degOf(h,l)+'°':f.ang,pool:!!f.pool,pet:!!f.pet,p:f.p||'',inpool,rail:slope&&!!E.rail,ost,ist:inpool&&ist,rise,tread,on,inn,
-    irun:inpool?(ist?inn*tread:Math.round(drop*l/Math.max(h,1))):0}}
+    irun:inpool?(ist?inn*tread:Math.round(drop*l/Math.max(h,1))):0,parts:(E.parts||[]).slice(0,20)}}
 const cmS=mm=>(Math.round(mm/10*10)/10)+'cm';
 function stairTxt(n,f){return n+'段（1段 '+cmS(f.rise)+'・踏み面 '+cmS(f.tread)+'）'}
 function sizeLine(c){const f=figOf(c);return `<span>幅</span> ${cmS(f.w)}${f.l>60?` × <span>長さ</span> ${cmS(f.l)}`:''} × <span>高さ</span> ${cmS(f.h)}${f.k==='slope'?(f.ost?` / <span>階段</span> <span translate="no">${stairTxt(f.on,f)}</span>`:` / <span>傾き</span> ${f.ang}`)+(f.inpool?` / <span>プールの中</span> <span translate="no">${f.ist?stairTxt(f.inn,f):'スロープ'}</span>`:''):''}`}
 function shapeTxt(f){return ['幅 '+cmS(f.w)+(f.l>60?' × 長さ '+cmS(f.l):'')+' × 高さ '+cmS(f.h)+(f.k==='slope'?(f.ost?'（外側は階段 '+stairTxt(f.on,f)+'）':'（傾き '+f.ang+'）'):''),
-  f.inpool?'プールの中まで続ける（'+(f.ist?'階段 '+stairTxt(f.inn,f):'スロープ')+'）':'',f.rail?'手すりを付ける':''].filter(Boolean).join('、')}
+  f.inpool?'プールの中まで続ける（'+(f.ist?'階段 '+stairTxt(f.inn,f):'スロープ')+'）':'',f.rail?'手すりを付ける':'',(f.parts||[]).length?'追加した部品 '+f.parts.length+'個（'+f.parts.map(p=>p.t==='cyl'?`円柱 中心(${p.x},${p.y},${p.z}) 半径${p.r} 高さ${p.h}mm`:`箱 中心(${p.x},${p.y},${p.z}) ${p.w}×${p.h}×${p.d}mm`).join('、')+'）':''].filter(Boolean).join('、')}
 // 指示の文 → 変える値。何も読めなければ空のオブジェクト
 function edParse(raw,c){const t=String(raw||'').normalize('NFKC').replace(/\s+/g,'').replace(/１/g,'1'),f=figOf(c),set={};const slope=f.k==='slope';
   const unit=(n,u)=>{n=+n;u=u||'';if(/^(mm|ミリ)/.test(u))return n;if(/^(m|メートル)/.test(u))return n*1000;return n*10};
@@ -1704,11 +1707,84 @@ function edApply(c,set,src){const E=edOf(),f0=figOf(c),log=[];const nm={w:'幅',
   if(log.length){(E.log||(E.log=[])).push({t:log.join('、'),src:src||'',prev});E.log=E.log.slice(-20);edSave()}
   return log}
 function edEx(c){const f=c.fig||{};return f.k==='slope'?[...(f.pool?['プールの中は階段に','プールの中にも続けて']:[]),'幅を80cmに','もっとゆるやかに','外側も階段に','手すりを付けて']:['幅を30cmに','高さを少し低く','全体を2割大きく']}
+/* AI（ChatGPT・Claude・Gemini）と図を直す往復（Nori 2026-11-14）。KATACHIのサーバーやAPIにはお金をかけない。
+   行き：いまの数値・部品・要望と座標の決まりを質問文にして、お使いのAIで開く（ChatGPT・Claudeは文入りURL、Geminiは文をコピーして開く）。
+   帰り：AIが最後に出す「KATACHIで開く」リンク（?kz=v1;s=…;w=…）を押すと、この端末に残した続き（書いた文章・答え・写真）を開いて、図と仕様書に入れる。
+   リンクの中身は数値と短い要望だけ。範囲外・壊れた値は入れずに理由を出す。 */
+const KZ_HOST='https://katachi.shiokonbu.com/';
+const kzSid=()=>S.sid||(S.sid=Math.random().toString(36).slice(2,10));
+function kzIdb(){return new Promise((ok,ng)=>{try{const r=indexedDB.open('katachi',1);r.onupgradeneeded=()=>r.result.createObjectStore('files');r.onsuccess=()=>ok(r.result);r.onerror=()=>ng(r.error)}catch(e){ng(e)}})}
+async function kzKeep(){const sid=kzSid();saveFlow();try{localStorage.setItem('katachi-ks-'+sid,sessionStorage.getItem(SAVEK)||'')}catch(e){}
+  try{const db=await kzIdb();const fs=(S.files||[]).map(f=>({name:f.name,k:f.k,m:f.m,role:f.role,dim:f.dim,memo:f.memo,url:f.url,thumb:f.thumb&&!/^blob:/.test(f.thumb)?f.thumb:'',text:f.text,file:f.file||null,size:f.size}));
+    await new Promise(r=>{const tx=db.transaction('files','readwrite');tx.objectStore('files').put({t:Date.now(),fs},sid);tx.oncomplete=r;tx.onerror=r})}catch(e){}
+  return sid}
+async function kzRestore(sid){let ok=false;try{const v=localStorage.getItem('katachi-ks-'+sid);if(v){sessionStorage.setItem(SAVEK,v);ok=loadFlow()}}catch(e){}
+  if(ok){S.sid=sid;S.lostFiles=0;try{const db=await kzIdb();const x=await new Promise(r=>{const q=db.transaction('files').objectStore('files').get(sid);q.onsuccess=()=>r(q.result);q.onerror=()=>r(null)});
+    if(x&&x.fs){S.files=x.fs.map(f=>Object.assign({},f,f.file?{thumb:/^image\//.test(f.file.type||'')?URL.createObjectURL(f.file):f.thumb}:{}));S.files.forEach(f=>{if(f.file&&typeof mediaPrep==='function'&&/^video\//.test(f.file.type||''))try{mediaPrep(f)}catch(e){}})}}catch(e){}}
+  return ok}
+// 座標の決まり（v3build と同じ。単位mm、x=左右（中心0）、y=上（地面0）、z=長さの向き）
+function kzFrame(f){if(f.k!=='slope')return `x=左右（中心が0）、y=上（地面が0）、z=奥行き・長さの向き（中心が0、${-Math.round(f.l/2)}〜${Math.round(f.l/2)}）`;
+  const t=Math.max(22,f.h*.04),pz=Math.round(f.l/2+t*2.6+35);
+  return `x=左右（中心が0、幅は${-Math.round(f.w/2)}〜${Math.round(f.w/2)}）、y=上（地面が0、上の端は${f.h}）、z=長さの向き（上り口が${-Math.round(f.l/2)}、上の端が${Math.round(f.l/2)}`+(f.pool?`、プールの壁が${pz}、プールの中は${pz+35}より先`:'')+'）'}
+function kzLine(f){const E=edOf();return ['v1','s='+kzSid(),'w='+f.w,'l='+f.l,'h='+f.h,...(f.k==='slope'?['o='+(f.ost?'t':'s'),'i='+(f.inpool?(f.ist?'t':'s'):'0'),'r='+f.rise,'tr='+f.tread,'rail='+(f.rail?1:0)]:[]),
+  ...(E.parts||[]).map(p=>p.t==='cyl'?`cyl=${p.x},${p.y},${p.z},${p.r},${p.h}`:`box=${p.x},${p.y},${p.z},${p.w},${p.h},${p.d}`)].join(';')}
+function kzPrompt(c,ask){const f=figOf(c),L=shList(),E=edOf();const ex=KZ_HOST+'?kz='+kzLine(f);
+  return [`KATACHI（製品づくりのサイト）で作った「${c.name}」の参考図（たたき台）を、私と相談しながら直してください。`,'',
+  '【いまの形（単位mm）】','- '+shapeTxt(f).replace(/cm/g,'cm'),`- 数値：幅 ${f.w} / 長さ ${f.l} / 高さ ${f.h}`+(f.k==='slope'?` / 外側 ${f.ost?'階段':'スロープ'} / プールの中 ${f.inpool?(f.ist?'階段':'スロープ'):'なし'} / 1段の高さ ${f.rise} / 踏み面 ${f.tread} / 手すり ${f.rail?'あり':'なし'}`:''),
+  ...((E.parts||[]).length?['- 追加した部品：'+E.parts.map(p=>p.t==='cyl'?`円柱(中心 ${p.x},${p.y},${p.z} 半径 ${p.r} 高さ ${p.h})`:`箱(中心 ${p.x},${p.y},${p.z} 幅 ${p.w} 高さ ${p.h} 奥行 ${p.d})`).join('、')]:[]),
+  ...(L.length?['- 図に出ていない要望：'+L.map(x=>x.t).join('、')]:[]),
+  '- 座標：'+kzFrame(f),'',`【私の要望】`,ask||'（これから話します。何を直したいか聞いてください）','',
+  '【お願い】','1. 形・寸法・安全の点で気になることがあれば、短く質問・提案してください。',
+  '2. 決まったら、最後に必ず次の形のリンクを1つだけ出してください（Markdownのリンク、URLに空白を入れない）。',
+  `[KATACHIで開く](${ex})`,
+  '書き方：v1;s=…（そのまま）;w=幅;l=長さ;h=高さ'+(f.k==='slope'?';o=外側（s=スロープ,t=階段）;i=プールの中（0=なし,s=スロープ,t=階段）;r=1段の高さ;tr=踏み面;rail=手すり（0か1）':'')+
+  '。数値はmmの整数。変えない項目もすべて書く。上の数値で表せない形は、部品を足す：box=中心x,中心y,中心z,幅,高さ,奥行（直方体）、cyl=中心x,中心y,中心z,半径,高さ（縦の円柱）。部品は全部で20個まで、いまある部品も残すなら書く。図にできない要望は req=短い文（「;」と空白は使わない）。',
+  '3. リンクの前に、変えた点を3行以内でまとめてください。'].join('\n')}
+function kzParse(raw){const m=String(raw||'').normalize('NFKC').match(/kz=([^\s)\]>"'`]+)/);if(!m)return {err:'KATACHIのリンク（kz=…）が見つかりませんでした。'};
+  let s=m[1];try{s=decodeURIComponent(s)}catch(e){}const out={set:{},parts:null,reqs:[],skip:[]};const n=x=>/^-?\d+(\.\d+)?$/.test(x)?Math.round(+x):NaN;
+  for(const tok of s.split(';').map(x=>x.trim()).filter(Boolean)){const [k,...vv]=tok.split('=');const v=vv.join('=');if(k==='v1'||k==='s')continue;
+    const sz=(key,lo,hi)=>{const x=n(v);if(x>=lo&&x<=hi)out.set[key]=x;else out.skip.push(tok)};
+    if(k==='w')sz('w',30,6000);else if(k==='l')sz('l',30,12000);else if(k==='h')sz('h',10,4000);else if(k==='r')sz('rise',30,400);else if(k==='tr')sz('tread',100,800);
+    else if(k==='o'){if(v==='s'||v==='t')out.set.ost=v==='t'?'stairs':'slope';else out.skip.push(tok)}
+    else if(k==='i'){if(v==='0')out.set.inpool=false;else if(v==='s'||v==='t'){out.set.inpool=true;out.set.ist=v==='t'?'stairs':'slope'}else out.skip.push(tok)}
+    else if(k==='rail'){if(v==='0'||v==='1')out.set.rail=v==='1';else out.skip.push(tok)}
+    else if(k==='box'||k==='cyl'){const a=v.split(',').map(n);const need=k==='box'?6:5;if(a.length!==need||a.some(x=>isNaN(x))||a.slice(0,3).some(x=>Math.abs(x)>15000)||a.slice(3).some(x=>x<=0||x>8000)){out.skip.push(tok);continue}
+      out.parts=out.parts||[];if(out.parts.length<20)out.parts.push(k==='box'?{t:'box',x:a[0],y:a[1],z:a[2],w:a[3],h:a[4],d:a[5]}:{t:'cyl',x:a[0],y:a[1],z:a[2],r:a[3],h:a[4]})}
+    else if(k==='req'){const t=v.replace(/[_+]/g,' ').trim().slice(0,120);if(t)out.reqs.push(t)}
+    else out.skip.push(tok)}
+  const sid=(s.match(/(?:^|;)s=([a-z0-9]{4,16})/)||[])[1]||'';out.sid=sid;
+  if(!Object.keys(out.set).length&&!out.parts&&!out.reqs.length)out.err='リンクの中に、読み取れる数値がありませんでした。';return out}
+// 読んだ中身を図に入れる。図・仕様書は「ひとつ戻す」で戻せる
+function kzApply(c,K,from){const E=edOf();const prev=JSON.stringify(E.parts||[]);const log=edApply(c,K.set,from||'AI');
+  if(K.parts){const now=JSON.stringify(K.parts);if(now!==prev){if(!log.length){(E.log||(E.log=[])).push({t:'',src:from,prev:{}})}const last=E.log[E.log.length-1];last.prev.parts=JSON.parse(prev);E.parts=K.parts;const t='部品 '+K.parts.length+'個'+(K.parts.length?'（3Dに表示）':'');last.t=last.t?last.t+'、'+t:t;log.push(t);edSave()}}
+  for(const r of K.reqs)if(!shList().some(x=>x.t===r)){shList().push({p:'全体',t:r});log.push('要望：'+r)}shSave();return log}
+function kzBox(c){return `<div class="kzai"><b>AIと相談して直す</b><span class="muted">上の欄の要望といまの図を、お使いのAIに渡して開きます。AIの答えの最後にある「KATACHIで開く」を押すと、ここに戻って図と仕様書が変わります（無料）。</span>
+    <div class="aicb">${['ChatGPT','Claude','Gemini'].map(n=>`<button type="button" class="btn sm" data-kzgo="${n}">${AI_ICON}<span>${n}で直す</span></button>`).join('')}</div>
+    <details class="kzpaste"><summary>AIの答えを貼る（リンクが開けなかったとき）</summary><textarea id="kzIn" rows="3" placeholder="AIの答え（KATACHIで開くリンクを含む）を貼り付け"></textarea><button type="button" class="btn sm" id="kzGo">図に入れる</button></details></div>`}
+function wireKz(A){const c=A.concept,box=$('#cEd');if(!c||!box)return;
+  box.querySelectorAll('[data-kzgo]').forEach(b=>b.onclick=async()=>{const n=b.dataset.kzgo,ask=($('#cEdT').value||'').trim();const w=window.open('about:blank','_blank');
+    await kzKeep();const q=kzPrompt(c,ask);aiCopy(q);track('ai_shape_go',{ai:n});
+    const url=n==='Gemini'?AI_HOME.Gemini:(n==='ChatGPT'?'https://chatgpt.com/?q=':'https://claude.ai/new?q=')+encodeURIComponent(q);
+    if(w){w.opener=null;w.location.href=url}else location.href=url;
+    S.edMsg=`<p class="cedok"><span>${esc(n)}を開きました。</span>${n==='Gemini'?'<span>質問文をコピーしたので、貼り付けて送ってください。</span>':'<span>質問文が入っていないときは、貼り付けて送ってください（コピー済み）。</span>'}<span>AIの答えの最後にある「KATACHIで開く」を押すと、ここに戻ります。</span></p>`;$('#cEdMsg').innerHTML=S.edMsg});
+  $('#kzGo')&&($('#kzGo').onclick=()=>{const K=kzParse($('#kzIn').value);if(K.err){$('#cEdMsg').innerHTML=`<p class="cedq"><b>${esc(K.err)}</b><span>AIに「KATACHIで開くリンクを、決まった形でもう一度出して」と頼んでください。</span></p>`;track('ai_shape_back',{ok:0,via:'paste'});return}
+    const log=kzApply(c,K,'AI');track('ai_shape_back',{ok:1,via:'paste',skip:K.skip.length});S.edMsg=kzMsg(log,K);edRedraw(A,'#cEdT')})}
+function kzMsg(log,K){return `<p class="cedok">✓ <span>AIの答えから</span> <span translate="no">${esc(log.join('、')||'変更なし')}</span></p>${K.skip.length?`<p class="muted"><span>読めなかった・範囲外のため入れなかった値：</span><span translate="no">${esc(K.skip.join(' ／ ').slice(0,200))}</span></p>`:''}`}
+// 帰りのリンク（?kz=…）。続きを開いてから、図に入れる
+async function kzFromUrl(){let q;try{q=new URLSearchParams(location.search)}catch(e){return false}const raw=q.get('kz');if(!raw)return false;
+  try{history.replaceState(null,'',location.pathname)}catch(e){}const K=kzParse('kz='+raw);
+  const ok=K.sid&&await kzRestore(K.sid);
+  if(!ok){track('ai_shape_back',{ok:0,via:'link',reason:'nosession'});if(!K.err)S.pendKz=K;S.mode='free';location.hash='';renderHome();
+    const ta=$('#idea');if(ta){const n=document.createElement('div');n.className='updn';n.style.marginTop='12px';n.innerHTML='<b>AIからの図の変更を受け取りました。</b><span>ただ、この端末・ブラウザには元の相談が残っていませんでした。AIへ行く前と同じブラウザで開くか、作りたいものを書き直して進んでください。AIの変更は、次の画面の図に入れます。</span>';ta.closest('form')?.before(n)}return true}
+  S.pendKz=K;location.hash='match';route();return true}
+function kzPending(A){const K=S.pendKz;if(!K||!A.concept||!A.concept.fig)return;S.pendKz=null;if(K.err){S.edMsg=`<p class="cedq"><b>${esc(K.err)}</b><span>AIに「KATACHIで開くリンクを、決まった形でもう一度出して」と頼んでください。</span></p>`;track('ai_shape_back',{ok:0,via:'link'});return}
+  const log=kzApply(A.concept,K,'AI');track('ai_shape_back',{ok:1,via:'link',skip:K.skip.length});S.edMsg=kzMsg(log,K)}
 const fsel=(attr,k,v,lb)=>`<label class="cedck"><span>${lb}</span><select data-${attr}="${k}"><option value="slope"${v?'':' selected'}>スロープ</option><option value="stairs"${v?' selected':''}>階段</option></select></label>`;
 function edBox(c){const f=figOf(c),E=edOf(),L=shList(),slope=f.k==='slope';const num=(k,lb)=>`<label><span>${lb}</span><input type="number" inputmode="decimal" min="1" step="1" data-edn="${k}" value="${Math.round(f[k]/10)}"><span>cm</span></label>`;
   return `<div class="ced" id="cEd"><h4>図を見ながら直す</h4>
     <div class="cedin"><input id="cEdT" type="text" placeholder="例：幅を80cmに／もっとゆるやかに／プールの中にも続けて" aria-label="図を直す指示"><button type="button" class="btn pri sm" id="cEdGo">図に反映</button></div>
     <div class="fsch">${edEx(c).map(e=>`<button type="button" class="fsb" data-edex="${esc(e)}">${esc(e)}</button>`).join('')}</div>
+    ${kzBox(c)}
     <div id="cEdMsg" role="status" aria-live="polite">${S.edMsg||''}</div>
     <div class="cedp">${num('w','幅')}${f.l>60||slope?num('l','長さ'):''}${num('h','高さ')}${slope?(f.ost?`<span class="cedang"><span translate="no">${stairTxt(f.on,f)}</span></span>`:`<span class="cedang"><span>傾き</span> <b class="mono">${f.ang}</b></span>`):''}
       ${slope?fsel('eds','ost',f.ost,'外側'):''}${slope&&f.pool?`<label class="cedck"><input type="checkbox" data-edc="inpool"${f.inpool?' checked':''}><span>プールの中まで続ける</span></label>${f.inpool?fsel('eds','ist',f.ist,'プールの中'):''}`:''}
@@ -1726,7 +1802,7 @@ function edRedraw0(A,keep){const c=A.concept;const k0=keep&&document.querySelect
   const bx=$('#cEd');if(bx)bx.outerHTML=edBox(c);
   const fs=$('#mFspec');if(fs){fs.outerHTML=fspecCard(A);wireFspec(A)}
   wireShape(A);const k1=keep&&document.querySelector(keep);if(k1)window.scrollBy(0,k1.getBoundingClientRect().top-top)}
-function wireShape(A){const c=A.concept,box=$('#cEd');if(!c||!box)return;
+function wireShape(A){const c=A.concept,box=$('#cEd');if(!c||!box)return;wireKz(A);
   const go=(txt,src)=>{const t=String(txt||'').trim().slice(0,200);if(!t){$('#cEdT').focus();return}
     const set=edParse(t,c);const log=Object.keys(set).length?edApply(c,set,t):[];
     track('shape_edit',{how:src||'text',ok:log.length?1:0});
@@ -1809,7 +1885,7 @@ function fsText(F){if(!F)return '';const L=['※ この仕様書と参考図（3
   if(F.cats.length)L.push('品目：'+F.cats.map(k=>k.t).join('、'));
   for(const i of F.items){const v=F.V[i.k];L.push('・'+i.t+'：'+(v&&v.v?v.v:'要確認')+'［'+(v?v.lv:'要確認')+']'+(v&&v.src?'（'+v.src+'）':''))}
   {const lw=fsLaws((F.V.reg||{}).v);if(lw.length)L.push('  条文（e-Gov法令検索）：'+lw.map(l=>l.n+' '+l.url).join('　'))}
-  {const c=F.c;if(c&&c.fig){const f=figOf(c),E=edOf();if(f.inpool||f.rail||f.ost||(E.log||[]).length)L.push('','■ 参考図（3D・寸法図）で決めた形：'+shapeTxt(f))}}
+  {const c=F.c;if(c&&c.fig){const f=figOf(c),E=edOf();if(f.inpool||f.rail||f.ost||(f.parts||[]).length||(E.log||[]).length)L.push('','■ 参考図（3D・寸法図）で決めた形：'+shapeTxt(f))}}
   {const sh=shList();if(sh.length){L.push('','■ 形の要望（依頼者が追加。図に反映されていないものは、工場・設計者が図に起こしてください）');sh.forEach(x=>L.push('・'+x.p+'：'+x.t))}}
   L.push('','■ 工場に聞くこと');F.fq.forEach((q,n)=>L.push((n+1)+'. '+q));L.push('','工場に出せる度：'+F.score+'%（'+{quote:'見積に出せます',design:'設計の見積から始めます',more:'あと少しで見積に出せます'}[F.mode]+'）');return L.join('\n')}
 function fspecCard(A){const F=fsBuild(A);if(!F)return '';S.fs=F;const fa=fsAns();
@@ -2310,6 +2386,7 @@ async function renderMatch(){
   const readout=A.fallback?`<div class="empty"><b>文章から工程を特定できませんでした</b>どんな製品でも最初に必要になる「設計・試作・組立」を受ける会社を出しています。下の「AIで相談」で仕様を詰めて読み直すか、そのまま見積を依頼すれば担当者が工程と会社を探します。型が決まっているもの（部品・ノベルティ・袋物など）なら「選んで探す」が早いです。<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn" id="mGuided">選んで探す</button></div></div>`:A.codes.length?`<div class="empty"><b>書いた内容から、必要な工程をキーワードで読み取りました</b>工程が足りない・違うと思ったら、下の「AIで相談」で仕様を詰めるか、そのまま見積を依頼してください。担当者があなたの文章を読んで、工程と会社を組み直してお届けします。</div>`:'';
   let body;
   if(st===2){
+    if(S.pendKz)kzPending(A);
     const upd=S.upd==='ai'?'AIの回答をもとに、案と候補の会社を更新しました。':S.upd==='lai'?'内蔵AIとの会話をもとに、案と候補の会社を更新しました。':S.upd==='chat'?'答えをもとに、案と候補の会社を更新しました。':'';S.upd='';
     body=`${stepBar(2)}${head}
     ${upd?`<div class="updn" id="mUpd"><b>✓ 更新しました</b><span>${upd}よければ、このまま会社選びへ進めます。</span></div>`:''}
@@ -3155,7 +3232,7 @@ $$('[data-lang]').forEach(b=>b.onclick=()=>{track('lang_change',{to:b.dataset.la
 (async()=>{try{sampleFn=window.claude?await window.claude.use('sample'):null}catch(e){sampleFn=null}scheduleMT()})();
 window.KATACHI_LANG=()=>LANG;
 
-if(!ideaFromUrl()){if(/^#(match|co)$/.test(location.hash)&&!S.idea)loadFlow();route()}
+if(/[?&]kz=/.test(location.search))kzFromUrl();else if(!ideaFromUrl()){if(/^#(match|co)$/.test(location.hash)&&!S.idea)loadFlow();route()}
 setLang(LANG,false);laiCheck();
 })();
 </script>
