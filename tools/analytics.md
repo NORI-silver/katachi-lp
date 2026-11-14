@@ -14,7 +14,7 @@
 |---|---|---|---|
 | page_view | トップ・結果の表示 | page_path, page_title | |
 | form_input_start | 入力欄に最初に文字を入れた | form | |
-| form_cta | 「チームを組む」を押した | quantity, files, chars | ○ |
+| form_cta | 「チームを組む」を押した | form（idea＝はじめる／design＝設計の相談先を見る）, quantity, files, chars | ○ |
 | form_error | 空のまま送信しようとした | reason | |
 | example_click | 例のボタン | example | |
 | idea_jump | 「思いつかないときは、業種から選ぶ」 | | |
