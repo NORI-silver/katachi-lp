@@ -227,6 +227,20 @@ UI = [
     ('工場向け仕様書（KATACHIが整理）', 'Spec sheet for factories (organised by KATACHI)', '面向工厂的规格书（KATACHI整理）'),
     ('答えた項目', 'answered', '已回答项目'),
     ('の項目', ' items', '的项目'),
+    # 既製品をもとに作る（参考品の値・変えるところ・採寸／スキャン・権利の確認）
+    ('参考品', 'Reference product', '参考品'),
+    ('参考にした既製品', 'Reference product', '参考的现有产品'),
+    ('変えるところ', 'What to change', '要修改的地方'),
+    ('権利の確認（特許・意匠・商標）', 'Rights check (patents, designs, trademarks)', '权利确认（专利、外观设计、商标）'),
+    ('既製品をもとに作る手順', 'Making it from an existing product', '以现有产品为基础制作的步骤'),
+    ('参考品の値を読み取る：大きさ・素材は「参考品」として表に入れました。あなたの製品の値ではないので、工場と決め直します。', 'Read the reference values: size and material are in the table as "Reference product". They are not your product\'s values and will be settled with the factory.', '读取参考品的数值：尺寸、材质已作为「参考品」填入表中。这不是你的产品的数值，将与工厂重新确定。'),
+    ('変えるところを決める：変える点が少ないと、作れない・売れないことがあります。', 'Decide what to change: with too few changes, it may not be possible to make or sell.', '确定要修改的地方：修改太少的话，可能无法制作或销售。'),
+    ('現物の採寸・3Dスキャン：図面がないときは、現物を測る・スキャンして図面や3Dデータにします（費用は別にかかります）。', 'Measure or 3D-scan the physical item: without drawings, the item is measured or scanned to make drawings or 3D data (charged separately).', '实物测量・3D扫描：没有图纸时，测量或扫描实物，制作图纸或3D数据（费用另计）。'),
+    ('権利の確認：J-PlatPat（特許情報プラットフォーム、無料）で特許・意匠・商標を調べ、心配なら弁理士に相談します。KATACHIは「侵害しない」とは判断しません。', 'Check rights: search patents, designs and trademarks on J-PlatPat (free), and consult a patent attorney if unsure. KATACHI does not judge that something is non-infringing.', '确认权利：在J-PlatPat（日本专利信息平台，免费）查询专利、外观设计、商标，如有担心请咨询专利代理人。KATACHI不判断「不侵权」。'),
+    ('J-PlatPatで調べる', 'Search J-PlatPat', '在J-PlatPat查询'),
+    ('参考品をもとに、変えるところを入れたオリジナルとして作れますか。', 'Can you make this as an original product based on the reference, with the changes listed?', '能否以参考品为基础，加入修改点，作为原创产品制作？'),
+    ('現物を採寸・3Dスキャンして、図面や3Dデータにできますか。費用と期間を教えてください（できない場合は、できる会社の紹介も歓迎です）。', 'Can you measure or 3D-scan the item and turn it into drawings or 3D data? Please give the cost and time (if not, a referral is welcome).', '能否测量・3D扫描实物，制作成图纸或3D数据？请告诉我们费用和周期（如无法承接，也欢迎介绍可以做的公司）。'),
+    ('参考品の特許・意匠・商標にかからない形にするため、気をつける点があれば教えてください（権利の最終確認は依頼者が行います）。', 'If there is anything to watch for so the product avoids the reference\'s patents, designs or trademarks, please tell us (the requester makes the final rights check).', '为避免涉及参考品的专利、外观设计、商标，如有需要注意的地方请告诉我们（权利的最终确认由委托方进行）。'),
 ]
 
 
@@ -247,7 +261,7 @@ def _ja(o):
 def data():
     """日本語だけの形（画面・MCP・貼り戻しで共有）"""
     return {'version': 1, 'unk': UNK[0], 'common': _ja(COMMON), 'cats': _ja(CATS),
-            'levels': {'原文': 1, '回答': 1, '製品DB': 1, '仮': 0.5, '要確認': 0}}
+            'levels': {'原文': 1, '回答': 1, '製品DB': 1, '参考品': 0.5, '仮': 0.5, '要確認': 0}}
 
 
 def js():
