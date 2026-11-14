@@ -391,3 +391,12 @@ T_GENERIC.update({ja: (en, zh) for ja, en, zh in [
     ("3Dを読み込めませんでした。「寸法図」をご覧ください。", "Could not load 3D. Please see \"Dimensions\".", "无法加载 3D。请查看“尺寸图”。"),
     ("拡大", "Zoom in", "放大"), ("縮小", "Zoom out", "缩小"), ("向きを戻す", "Reset view", "复原视角"),
 ]})
+
+# AIの回答で製品の種類が変わりそうなときの確認
+T_GENERIC.update({ja: (en, zh) for ja, en, zh in [
+    ("AIの回答からは、別の種類の製品とも読めます。", "The AI's answer could also describe a different kind of product:", "从 AI 的回答来看，也可能是另一种产品："),
+    ("製品の種類は変えずに、寸法・素材・条件だけを反映しました。", "We kept the product kind and only applied the dimensions, materials and conditions.", "产品种类保持不变，只反映了尺寸、材料和条件。"),
+    ("この種類に切り替える", "Switch to this kind", "切换为这种产品"),
+    ("AIの回答に合わせて、製品の種類を切り替えています。元の案：", "The product kind has been switched to match the AI's answer. Original concept:", "已按 AI 的回答切换产品种类。原来的构想："),
+    ("元の種類に戻す", "Switch back", "恢复原来的种类"),
+]})
