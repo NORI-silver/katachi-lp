@@ -1590,6 +1590,8 @@ const fsLaws=t=>LAWS.filter(([re])=>re.test(t||'')).map(([,n,id])=>({n,url:'http
 /* 技適の検索：受付（backend/forms.gs の type:giteki、バージョン9で反映済み）から総務省の Web-API を呼ぶと 403 で断られる（2026-11-14 確認。Googleのサーバーからの接続を受け付けない）。
    ブラウザから直接はCORSが無く呼べないので false のまま、総務省の検索ページへのリンクだけ出す。true にするなら、プライバシーポリシー「5. 外部送信」に総務省を足す */
 const GITEKI=false;
+/* 部品の参考価格・在庫：部品名・型番を受付（backend/forms.gs の type:parts）に送り、受付が DigiKey の API で調べる。受付を新しいバージョンにしてから true */
+const PARTS=false;
 /* 体や置く場所に合わせて採寸・試着・調整が要る物（一社に頼むのが向く）。調べた根拠は「一社か複数社か」の検証（2026-11-14） */
 const FIT_Y=/採寸|体に合わせ|体型に合わせ|体格に合わせ|オーダーメ[イー]ド|車[椅い]す|歩行器|歩行補助|補助輪|装具|サポーター|コルセット|(犬|猫|ペット)[^。\n]{0,10}ハーネス|サイズ(を|に)?合わせ|部屋に合わせ|寸法に合わせ|現場に合わせ|造作|試着|オーダー家具|オーダーの家具/;
 const FIT_N=/既製(品)?の?(まま|サイズ)|決まった(形|サイズ)|規格(品|サイズ)|同じ(形|物)を(\d|量産|たくさん)/;
@@ -1677,6 +1679,7 @@ function fspecCard(A){const F=fsBuild(A);if(!F)return '';S.fs=F;const fa=fsAns()
     ${qhtml}
     ${fold('fstab','仕様書',`<table class="fstb"><thead><tr><th>項目</th><th>内容</th><th>確かさ</th></tr></thead><tbody>${F.items.map(row).join('')}</tbody></table><p class="muted" style="font-size:12px;margin:6px 0 0">仮の値は、似た製品の目安です。工場との打ち合わせで決まります。</p>`,F.items.filter(i=>F.V[i.k]&&F.V[i.k].v).length+' / '+F.items.length)}
     ${fold('fsfq','工場に聞くこと（自動で依頼書に付きます）',`<ol class="cl">${F.fq.map(q=>`<li>${esc(q)}</li>`).join('')}</ol>`,String(F.fq.length))}
+    ${PARTS&&F.cats.some(k=>k.id==='elec')?`<div class="fsref" id="fsPt"><h4>部品の参考価格を調べる（DigiKey）</h4><p class="muted" style="font-size:12.5px;margin:0 0 6px">部品名か型番を入れると、電子部品の通販 DigiKey の単価（1個）と在庫を出します。量産の価格は工場の仕入れで変わるので、目安として使ってください。</p>${(()=>{const pp=String((F.V.parts||{}).v||'').split(/[、,／\/]/).map(x=>x.trim()).filter(x=>x&&x.length<=20).slice(0,6);return pp.length?`<div class="fsch" style="margin-bottom:6px">${pp.map(x=>`<button type="button" class="fsb" data-pq="${esc(x)}">${esc(x)}</button>`).join('')}</div>`:''})()}<div class="fsgk"><input id="fsPtIn" type="text" autocapitalize="off" spellcheck="false" placeholder="例：リチウムイオン電池 3.7V、ESP32-C3、加速度センサー" aria-label="部品名・型番"><button type="button" class="btn sm" id="fsPtGo">調べる</button></div><div id="fsPtOut" aria-live="polite"></div></div>`:''}
     ${F.cats.some(k=>k.id==='elec')?`<div class="fsref" id="fsGk"><h4>技適（電波法）を調べる</h4><p class="muted" style="font-size:12.5px;margin:0 0 6px">無線（Bluetooth・Wi-Fi・LTEなど）を使うなら、技適を取った無線モジュールを使うと、製品ごとの認証が要らないことがあります。使う予定のモジュールの型式を入れると、総務省の登録を調べます。</p>${GITEKI?`<div class="fsgk"><input id="fsGkIn" type="text" autocapitalize="off" spellcheck="false" placeholder="例：ESP32-WROOM-32E" aria-label="無線モジュールの型式"><button type="button" class="btn sm" id="fsGkGo">調べる</button></div><div id="fsGkOut" aria-live="polite"></div>`:''}<a class="btn sm" href="https://www.tele.soumu.go.jp/giteki/SearchServlet?pageID=js01" target="_blank" rel="noopener" id="fsGkSite">総務省の技適検索で調べる</a></div>`:''}
     ${F.ref?`<div class="fsref"><h4>既製品をもとに作る手順</h4><ol class="cl"><li>参考品の値を読み取る：大きさ・素材は「参考品」として表に入れました。あなたの製品の値ではないので、工場と決め直します。</li><li>変えるところを決める：変える点が少ないと、作れない・売れないことがあります。</li><li>現物の採寸・3Dスキャン：図面がないときは、現物を測る・スキャンして図面や3Dデータにします（費用は別にかかります）。</li><li>権利の確認：J-PlatPat（特許情報プラットフォーム、無料）で特許・意匠・商標を調べ、心配なら弁理士に相談します。KATACHIは「侵害しない」とは判断しません。</li></ol><a class="btn sm" href="https://www.j-platpat.inpit.go.jp/" target="_blank" rel="noopener" id="fsJpp">J-PlatPatで調べる</a></div>`:''}
     ${draft}
@@ -1687,6 +1690,14 @@ function wireFspec(A){const el=$('#mFspec');if(!el)return;const fa=fsAns();
     fs.querySelectorAll('.fsb').forEach(x=>{const on=x.dataset.fv===FSPEC.unk?!!(fa[k]&&fa[k].unk):!!(fa[k]&&(Array.isArray(fa[k].v)?fa[k].v.includes(x.dataset.fv):fa[k].v===x.dataset.fv));x.classList.toggle('on',on);x.setAttribute('aria-pressed',on)});fsSave()}));
   const redraw=()=>{el.outerHTML=fspecCard(A);wireFspec(A);const n=$('#mFspec');n&&n.scrollIntoView({block:'start',behavior:'smooth'})};
   $('#fsJpp')&&($('#fsJpp').onclick=()=>track('fspec_jplatpat',{}));
+  document.querySelectorAll('[data-pq]').forEach(b=>b.onclick=()=>{$('#fsPtIn').value=b.dataset.pq;$('#fsPtGo').click()});
+  $('#fsPtGo')&&($('#fsPtGo').onclick=async()=>{const q=($('#fsPtIn').value||'').trim(),o=$('#fsPtOut');if(q.length<2){o.textContent='部品名か型番を2文字以上入れてください';return}
+    o.textContent='調べています…';let j=null;try{const r=await fetch(FORM_URL,{method:'POST',body:JSON.stringify({type:'parts',q})});j=await r.json()}catch(e){}
+    track('fspec_parts',{result:j&&j.ok?(j.rows.length?'hit':'none'):String((j&&j.error)||'error').slice(0,12)});
+    if(!j||!j.ok){o.innerHTML='<p class="muted" style="font-size:12.5px">いまは調べられませんでした。少し時間をおいてお試しください。</p>';return}
+    if(!j.rows.length){o.innerHTML='<p class="muted" style="font-size:12.5px">見つかりませんでした。英語の部品名や型番でお試しください。</p>';return}
+    const yen=n=>n?'¥'+(n>=100?Math.round(n).toLocaleString():n.toFixed(1)):'—';
+    o.innerHTML=`<table class="fstb"><thead><tr><th>型番・メーカー</th><th>説明</th><th>単価（1個）・在庫</th></tr></thead><tbody>${j.rows.map(r=>`<tr><td translate="no">${r.url?`<a href="${esc(r.url)}" target="_blank" rel="noopener">${esc(r.mpn)}</a>`:esc(r.mpn)}<small>${esc(r.maker)}</small></td><td translate="no">${esc(r.desc)}</td><td translate="no">${yen(r.price)}<small>${r.stock.toLocaleString()}</small></td></tr>`).join('')}</tbody></table><p class="muted" style="font-size:12px;margin:4px 0 0">出典：DigiKey（${esc(j.at)}時点、税・送料は含まない場合があります）。量産の価格は数量と仕入れ先で変わります。</p>`});
   $('#fsGkSite')&&($('#fsGkSite').onclick=()=>track('fspec_giteki',{via:'site'}));
   $('#fsGkGo')&&($('#fsGkGo').onclick=async()=>{const tn=($('#fsGkIn').value||'').trim(),o=$('#fsGkOut');if(tn.length<3){o.textContent='型式を3文字以上入れてください';return}
     o.textContent='調べています…';let j=null;try{const r=await fetch(FORM_URL,{method:'POST',body:JSON.stringify({type:'giteki',tn})});j=await r.json()}catch(e){}

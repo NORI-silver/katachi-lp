@@ -257,6 +257,13 @@ UI = [
     ('この型式では見つかりませんでした。型式の書き方（ハイフン・末尾の英字）を変えるか、モジュールの販売元に技適番号を聞いてください。', 'Nothing found for this model. Try another spelling (hyphens, trailing letters) or ask the module seller for the certification number.', '未找到该型号。请尝试改变型号写法（连字符、末尾字母），或向模块销售商询问技适编号。'),
     ('型式・名称', 'Model / name', '型号・名称'), ('番号・日付', 'Number / date', '编号・日期'), ('取得した会社', 'Holder', '取得公司'),
     ('技適の有無の最終確認は、モジュールの販売元・工場と行ってください。製品の作り方（アンテナの変更など）によっては、追加の手続きが要ります。', 'Confirm the certification with the module seller and factory. Some design changes (such as a different antenna) need extra procedures.', '技适的最终确认请与模块销售商、工厂进行。根据产品的做法（如更换天线），可能需要额外手续。'),
+    # 部品の参考価格（DigiKey）
+    ('部品の参考価格を調べる（DigiKey）', 'Check reference part prices (DigiKey)', '查询零件参考价格（DigiKey）'),
+    ('部品名か型番を入れると、電子部品の通販 DigiKey の単価（1個）と在庫を出します。量産の価格は工場の仕入れで変わるので、目安として使ってください。', 'Enter a part name or number to see the unit price (qty 1) and stock at the electronics distributor DigiKey. Mass-production prices depend on the factory\'s sourcing, so treat these as a guide.', '输入零件名称或型号，即可显示电子元件商城 DigiKey 的单价（1个）和库存。量产价格会因工厂采购而变化，请作为参考。'),
+    ('部品名か型番を2文字以上入れてください', 'Enter at least 2 characters', '请输入至少2个字符的零件名称或型号'),
+    ('いまは調べられませんでした。少し時間をおいてお試しください。', 'Could not check right now. Please try again later.', '暂时无法查询。请稍后再试。'),
+    ('見つかりませんでした。英語の部品名や型番でお試しください。', 'Nothing found. Try an English part name or a part number.', '未找到。请尝试英文零件名称或型号。'),
+    ('型番・メーカー', 'Part no. / maker', '型号・厂商'), ('説明', 'Description', '说明'), ('単価（1個）・在庫', 'Unit price (qty 1) / stock', '单价（1个）・库存'),
 ]
 
 def _j(x):
