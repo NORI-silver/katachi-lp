@@ -1205,11 +1205,38 @@ function conceptKind(t,A,R,strong){let c=CONCEPTS.find(c=>rx(c.kw,t));
   if(A.mach)return CONCEPTS.find(c=>c.id==='machine');
   if(!A.fallback&&A.codes.some(c=>/^(sensing|electronics)/.test(c)))return CONCEPTS.find(c=>c.id==='device');
   return null}
+/* 長い仕様文：【製品名】・目的・構成・外観を読む。文中のあちこちの単語（センサー・防水など）で製品の種類を決めない */
+function specRead(s){s=String(s||'');const P={sec:{}};const hm=[...s.matchAll(/【([^】\n]{1,30})】/g)];
+  hm.forEach((m,i)=>{const k=m[1].replace(/^[\d０-９]+\s*[.．、)）]?\s*/,'').trim();if(!(k in P.sec))P.sec[k]=s.slice(m.index+m[0].length,i+1<hm.length?hm[i+1].index:s.length).trim()});
+  const sec=re=>{for(const k in P.sec)if(re.test(k))return P.sec[k];return ''};
+  const items=b=>String(b||'').split('\n').map(x=>x.trim()).filter(x=>/^([・\-•*●○◆■]|[①-⑳]|\d+[.)．）])/.test(x)).map(x=>x.replace(/^([・\-•*●○◆■]|[①-⑳]|\d+[.)．）])\s*/,'').replace(/[*`#]/g,'').trim()).filter(x=>x&&x.length<=80);
+  const one=x=>String(x||'').replace(/[*`#]/g,'').trim();
+  P.name=one(sec(/^(製品名|商品名|品名|名称|製品)$/).split('\n')[0]||(s.match(/(?:製品名|商品名)\s*[：:]\s*([^\n]{2,60})/)||[])[1]).slice(0,60);
+  const pu=one(sec(/目的|概要|コンセプト|ねらい/).replace(/\n+/g,''));P.purpose=pu?(pu.match(/^[^。]{4,160}。?/)||[pu.slice(0,160)])[0]:'';
+  P.parts=items(sec(/構成/));P.open=items(sec(/未確定|未決|要確認|課題/));
+  const look=sec(/外観|形状|構造|寸法|材質|素材/);P.look=look;
+  P.mat=items(look).filter(x=>/(フレーム|本体|筐体|担架|ケース|外装|天板|素材|材質|生地)\s*[：:]/.test(x)).slice(0,3);
+  P.power=items(sec(/電源|動力/))[0]||'';
+  P.long=s.length>600||Object.keys(P.sec).length>=3;
+  P.head=(s.split('\n').map(x=>x.trim()).find(x=>x&&!/^【/.test(x))||'').slice(0,80);return P}
+function specConcept(P,R,name){const base=CGEN.shapes.find(x=>x.id==='product');const t=(name+' '+P.purpose+' '+P.parts.join(' ')+' '+P.look).toLowerCase();const has=re=>re.test(t);
+  const p=[has(/担架|ストレッチャー|荷台|天板|台座|プラットフォーム|ベッド|座面|stretcher|platform|deck/)&&'deck',has(/車輪|キャスター|タイヤ|ホイール|wheel|caster/)&&'wheel',has(/脚|スタンド|leg/)&&'leg',
+    has(/昇降|リフト|アクチュエータ|lift|actuator/)&&'lift',has(/バッテリー|電池|制御|コントローラ|モーター|battery|motor|controller/)&&'box',has(/ハンドル|取っ手|持ち手|handle/)&&'handle'].filter(Boolean);
+  const deck=p.includes('deck');let L=deck?(R.pet==='L'||R.kg>=30?1200:R.pet==='S'?600:900):300,W=deck?Math.round(L*.5/10)*10:200,H=deck?(p.includes('lift')?900:500):150;
+  if(R.w)W=R.w;if(R.l||R.d)L=R.l||R.d;if(R.h)H=R.h;
+  const size=['幅',' ','約',cm(W),' × ','長さ',' ','約',cm(L),' × ','高さ',' ','約',cm(H)];if(!(R.w||R.l||R.d||R.h))size.push(' ','（仕様文に寸法がないため、構成から置いた仮の値）');
+  const rows=[['サイズ（目安）',size],['主な素材',P.mat.length?P.mat.join('／'):base.mat]];if(P.power)rows.push(['動力・電源',P.power]);
+  if(R.kgx)rows.push(['想定スペック',['乗る重さ',' '+R.kg+'kg',' / ','設計の目安',' '+R.kg*2+'kg','（安全率2倍）']]);
+  return {id:'spec',name:name||base.name,lead:P.purpose||base.lead,rows,fig:{k:'parts',p:p.join(' '),w:String(W),l:String(L),h:String(H),pet:!!R.pet&&deck},
+    feats:P.parts.length?P.parts.slice(0,8):base.feats.slice(),check:P.open.length?P.open.slice(0,8):base.check.slice(),vars:base.vars,proto:base.proto,mass:base.mass}}
 const flowText=()=>S.idea+(S.files&&S.files.length?'\n\n【ファイル】 '+S.files.map(f=>f.name).join(' '):'');
 function pickConcept(text,A){if(!A||(A.notices.length&&!A.codes.length))return null;const t=String(text||'').toLowerCase();const R=readConds(t);
   const[bo,memo]=splitAi(text),bt=bo.toLowerCase(),mt=memo.toLowerCase();
-  let c=conceptKind(bt,bt===t?A:analyzeText(bt),R),alt=mt?conceptKind(mt,null,R,true):null,back=null;
+  const P=specRead(bo),nm=P.name||(P.long&&P.head.length<=40?P.head:'');
+  let c=P.name||P.long?conceptKind((P.name||P.head).toLowerCase(),null,R,true)||specConcept(P,R,nm):conceptKind(bt,bt===t?A:analyzeText(bt),R),alt=mt?conceptKind(mt,null,R,true):null,back=null;
   if(!c)c=shapeConcept(CGEN.shapes.find(s=>s.id==='product'),R);
+  // 仕様文に【製品名】があれば、その名前と目的をそのまま見せる（形と典型的な機能は種類から）
+  if(P.name&&c.id!=='spec')c=Object.assign({},c,{name:P.name,lead:P.purpose||c.lead});
   if(alt&&alt.id===c.id)alt=null;
   if(alt&&S.ckind&&S.ckind.key===bt&&S.ckind.id===alt.id){back=c;c=alt;alt=null}
   // 文章から読めた条件は、どの案にも足す（同じ項目は足さない）
@@ -1292,6 +1319,12 @@ const CFIG={
  acrylic:f=>`<path class="o af" d="M150 186V70Q150 28 180 28Q212 28 212 70V186Z" style="fill-opacity:.55"/><circle class="o" cx="181" cy="66" r="18"/><path class="o" d="M156 182Q160 102 181 96Q204 102 206 182Z"/><rect class="o" x="130" y="182" width="102" height="16" rx="4"/>${CDH(130,232,214,'W '+f.w)}${CDV(256,28,198,'H '+f.h)}`,
  furniture:f=>`<path class="d" d="M20 200H340"/><rect class="o af" x="60" y="78" width="240" height="14" rx="2"/><rect class="o" x="76" y="92" width="10" height="108"/><rect class="o" x="274" y="92" width="10" height="108"/><path class="o n" d="M86 110H274"/>${CDH(60,300,60,'W '+f.w)}${CDV(322,78,200,'H '+f.h)}`,
  machine:f=>`<path class="d" d="M20 196H340"/><rect class="o n" x="100" y="48" width="160" height="128"/><path class="o n" d="M100 112H260M140 48V176"/><rect class="o af" x="150" y="122" width="56" height="40" rx="6"/><circle class="o" cx="230" cy="80" r="16"/><circle class="o" cx="230" cy="80" r="5"/><rect class="o" x="108" y="58" width="26" height="40" rx="3"/><circle class="a2f" cx="121" cy="68" r="4"/>${[112,248].map(x=>`<circle class="o" cx="${x}" cy="186" r="9"/>`).join('')}${CDH(100,260,214,'W '+f.w)}${CDV(286,48,196,'H '+f.h)}`,
+ parts:f=>{const p=f.p||'',dk=/deck/.test(p),wh=/wheel/.test(p),lg=/leg|lift/.test(p)||wh;if(!dk&&!lg)return CFIG.product(f);const y=dk?112:60;
+  return `<path class="d" d="M8 200H352"/>${[84,276].map(x=>`<path class="o" d="M${x} ${y+12}V${wh?178:200}" style="stroke-width:6"/>${wh?`<circle class="o" cx="${x}" cy="189" r="11"/>`:''}`).join('')}
+  ${/lift/.test(p)?`<path class="o n" d="M104 ${y+14}L256 176M104 176L256 ${y+14}"/>`:''}${/box/.test(p)?`<rect class="o" x="150" y="${y+16}" width="60" height="20" rx="3"/>`:''}
+  ${dk?`<rect class="o af" x="60" y="${y}" width="240" height="12" rx="4"/><path class="o n" d="M64 ${y}v-16M296 ${y}v-16"/>`:''}
+  ${dk&&f.pet?`<ellipse class="o" cx="168" cy="${y-17}" rx="72" ry="16"/><circle class="o" cx="250" cy="${y-24}" r="14"/><path class="o n" d="M120 ${y-6}l-12 -2M150 ${y-4}l-8 4"/>`:''}
+  ${/handle/.test(p)?`<path class="o" d="M60 ${y}l-26 -40h-10"/>`:''}${CDH(60,300,206,'L '+f.l)}${CDV(326,y-34,200,'H '+f.h)}`},
  device:f=>`<path class="o" d="M110 82l20-14h140l-20 14z"/><path class="o" d="M250 82l20-14v86l-20 14z"/><rect class="o af" x="110" y="82" width="140" height="86" rx="6"/><rect class="o" x="124" y="94" width="72" height="44" rx="4"/><circle class="o" cx="222" cy="104" r="8"/><circle class="o" cx="222" cy="128" r="8"/><circle class="a2f" cx="236" cy="156" r="3.5"/>${CDH(110,250,196,'W '+f.w)}${CDV(292,68,168,'L '+f.l)}`};
 function cfig(f){const dims=[f.w&&'W '+f.w,f.l&&f.l!=='0'&&(f.k==='bag'?'D ':'L ')+f.l,f.h&&'H '+f.h].filter(Boolean).join(' × ');
   return `<svg viewBox="0 0 360 224" role="img" aria-label="製品イメージ案">${(CFIG[f.k]||CFIG.device)(f)}<text x="8" y="16" class="cap">${dims} mm</text></svg>`}
@@ -1302,7 +1335,7 @@ let V3P=null,V3N=0;const V3L=[],V3T={};
 const loadThree=()=>V3P||(V3P=new Promise((ok,ng)=>{if(window.THREE)return ok(window.THREE);const s=document.createElement('script');s.src='/vendor/three-0.149.0.min.js';s.onload=()=>ok(window.THREE);s.onerror=()=>{V3P=null;ng()};document.head.appendChild(s)}));
 const v3mat=c=>laiFlat((c.rows.find(r=>r[0]==='主な素材')||[,''])[1]);
 function cview(c,cls){const f=c.fig||{};const dims=[+f.w&&'W '+f.w,+f.l&&(f.k==='bag'?'D ':'L ')+f.l,+f.h&&'H '+f.h].filter(Boolean).join(' × ');const v=V3OK&&S.v3!=='fig';
-  return `<figure class="cfig cview${cls?' '+cls:''}" data-v3f="${esc(JSON.stringify({k:f.k,w:+f.w||0,l:+f.l||0,h:+f.h||0,pool:!!f.pool,pet:!!f.pet}))}" data-v3m="${esc(v3mat(c))}">
+  return `<figure class="cfig cview${cls?' '+cls:''}" data-v3f="${esc(JSON.stringify({k:f.k,w:+f.w||0,l:+f.l||0,h:+f.h||0,pool:!!f.pool,pet:!!f.pet,p:f.p||''}))}" data-v3m="${esc(v3mat(c))}">
     ${V3OK?`<div class="v3tabs" role="group" aria-label="表示"><button type="button" data-v3t="3d" aria-pressed="${v}">3D</button><button type="button" data-v3t="fig" aria-pressed="${!v}">寸法図</button></div>`:''}
     ${V3OK?`<div class="v3box"${v?'':' hidden'}><canvas aria-label="製品イメージ案の3D表示"></canvas><span class="v3cap mono">${dims} mm</span><span class="v3hint">ドラッグで回せます</span><span class="v3load">3Dを準備しています…</span>
       <div class="v3btn"><button type="button" data-v3z="-1" aria-label="拡大">＋</button><button type="button" data-v3z="1" aria-label="縮小">－</button><button type="button" data-v3z="0" aria-label="向きを戻す">↺</button></div></div>`:''}
@@ -1404,6 +1437,18 @@ function v3build(T,f,mt){const has=r=>r.test(mt);const M=(c,o)=>new T.MeshStanda
      Sp(c*.18,0,H*.4,c*.62,m.dark);for(const s of[-1,1])B(H*.04,H*.35,c*1.2,s*c*.5,H*.18,0,m.dark)},
    collar(){const R=110,tb=12;const o=add(new T.TorusGeometry(R,tb,14,64),m.fabric,0,R+tb,0);o.scale.set(1,1,1.6);RB(W,f.l||30,H||16,6,0,tb*.2,R*.04,m.main).rotation.x=Math.PI/2;B(26,30,14,-R,R+tb,0,m.metal)},
    band(){const R=34;const o=add(new T.TorusGeometry(R,5,10,48),m.rubber,0,R+6,0);o.scale.set(1,1.15,3);RB(W,H||12,f.l||W,8,0,R*2.3+6,0,m.main);RB(W*.78,2,(f.l||W)*.78,4,0,R*2.3+6+(H||12)/2,0,m.dark)},
+   parts(){const p=f.p||'',dk=/deck/.test(p),wh=/wheel/.test(p),lift=/lift/.test(p),lg=/leg/.test(p)||lift||wh;
+     if(!dk&&!lg){K.product();return}
+     const t=Math.max(24,H*.035),wr=wh?Math.max(35,Math.min(H*.08,80)):0,dh=dk?H*(f.pet?.62:.9):H,lx=W/2-W*.08,lz=L/2-L*.1,rl=Math.max(10,W*.025);
+     if(lg)for(const[a,b]of[[-1,-1],[1,-1],[-1,1],[1,1]]){const x=a*lx,z=b*lz,bot=wr*2+(wh?8:0),top=dh-t/2,k=(top-bot)*.55;
+       Cy(rl,rl,k,x,bot+k/2,z,m.frame);Cy(rl*.72,rl*.72,top-bot-k+4,x,bot+k+(top-bot-k)/2,z,m.metal);
+       if(wh){B(rl*2.4,wr*.5,wr*1.2,x,wr*2+2,z,m.dark);Cy(wr,wr,rl*2,x,wr,z,m.rubber,0,Math.PI/2);Cy(wr*.4,wr*.4,rl*2.2,x,wr,z,m.metal,0,Math.PI/2)}}
+     if(lift){const len=Math.hypot(lz*1.6,dh-wr*2);for(const s of[-1,1]){const o=Cy(rl*.8,rl*.8,len,s*lx*.55,(dh+wr*2)/2,0,m.dark);o.rotation.x=s*Math.atan2(lz*1.6,dh-wr*2)}}
+     if(/box/.test(p))RB(W*.42,Math.max(40,H*.08),L*.22,10,0,dh-t-Math.max(20,H*.04)-4,-L*.22,m.dark);
+     if(dk){RB(W,t,L,t*.4,0,dh,0,m.frame);RB(W*.9,t*.9,L*.94,t*.4,0,dh+t*.85,0,m.fabric);for(const s of[-1,1])B(t*.45,H*.08,L*.78,s*(W/2-t*.25),dh+t+H*.04,0,m.main)}
+     else B(W,t,L,0,dh,0,m.frame);
+     if(/handle/.test(p))for(const s of[-1,1])Cy(rl*.7,rl*.7,H*.28,s*W*.38,dh+H*.12,-L/2-H*.04,m.metal,-.35,0);
+     if(dk&&f.pet){const len=L*.58,r=len*.17,lg2=len*.36,d=dog(g,len,0,0,0);d.rotation.z=-Math.PI/2;d.position.set(-W*.42,dh+t*1.4+r,L*.02)}},
    sensor(){RB(W,H,L,mn*.3,0,H/2,0,m.main);Cy(W*.18,W*.18,2,0,H+1,0,m.dark);Sp(3,W*.32,H,L*.32,m.led)},
    light(){const r=(H||W)/2;Cy(r,r,L,0,r,0,m.main,Math.PI/2,0);Cy(r*.9,r*.9,3,0,r,L/2+1,m.led,Math.PI/2,0);Cy(r*1.06,r*1.06,L*.12,0,r,L*.4,m.acc,Math.PI/2,0);B(r*.8,r*.5,L*.4,0,r*.2,-L*.1,m.dark)},
    case(){const t=H||12;RB(W,L,t,W*.14,0,L/2,0,m.main);RB(W*.42,W*.42,4,W*.1,-W*.22,L*.84,-t/2-2,m.sub);for(const[a,b]of[[-.32,.88],[-.12,.8]])Cy(W*.07,W*.07,4,W*a,L*b,-t/2-4,m.dark,Math.PI/2,0)},
@@ -1434,7 +1479,7 @@ function conceptCard(c){const v=cvarOf(c);
     ${fold('cvar','方向性と、作り方の目安',`<div><h4>方向性を選ぶ</h4><div class="cvars">${c.vars.map(([n,d],i)=>`<button type="button" class="cvar${v===i?' on':''}" data-cvar="${i}" aria-pressed="${v===i}"><b>${esc(n)}</b><span>${esc(d)}</span></button>`).join('')}</div>
       <p class="muted" style="margin:6px 0 0;font-size:12px">選んだ方向性は、AI相談の質問文にも入ります。</p></div>
     <div><h4>作り方の目安</h4><dl class="cspec"><dt>試作</dt><dd>${esc(c.proto)}</dd><dt>量産</dt><dd>${esc(c.mass)}</dd></dl></div>`)}
-    <div class="cfoot"><p class="muted">${c.lai?'このパソコンのChromeに入っているAIとの会話をもとにした案です（AIの推定）。':'製品の種類ごとの典型例から、KATACHIが組み立てた案です（AIの推定）。'}寸法・素材・性能は、工場・専門家との打ち合わせと試作で決まります。図は大きさと形の目安で、設計図ではありません。</p></div></section>`}
+    <div class="cfoot"><p class="muted">${c.lai?'このパソコンのChromeに入っているAIとの会話をもとにした案です（AIの推定）。':c.id==='spec'?'仕様文から読み取った製品名・構成をもとに、KATACHIが組み立てた案です（AIの推定）。':'製品の種類ごとの典型例から、KATACHIが組み立てた案です（AIの推定）。'}寸法・素材・性能は、工場・専門家との打ち合わせと試作で決まります。図は大きさと形の目安で、設計図ではありません。</p></div></section>`}
 function wireConcept(A){const c=A.concept;if(!c||!$('#mConcept'))return;wireChat(c);wireV3($('#mConcept'));
   $$('#mConcept [data-calt]').forEach(b=>b.onclick=()=>{const id=b.dataset.calt;S.ckind=id?{key:splitAi(flowText())[0].toLowerCase(),id}:null;S.cvar=null;
     track('concept_kind',{concept:id||c.id,switched:!!id});renderMatch().then(()=>{const el=$('#mConcept');if(el)el.scrollIntoView({behavior:'smooth',block:'start'})})});

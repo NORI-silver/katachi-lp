@@ -400,3 +400,11 @@ T_GENERIC.update({ja: (en, zh) for ja, en, zh in [
     ("AIの回答に合わせて、製品の種類を切り替えています。元の案：", "The product kind has been switched to match the AI's answer. Original concept:", "已按 AI 的回答切换产品种类。原来的构想："),
     ("元の種類に戻す", "Switch back", "恢复原来的种类"),
 ]})
+
+# 長い仕様文から組み立てた案
+T_GENERIC.update({ja: (en, zh) for ja, en, zh in [
+    ("（仕様文に寸法がないため、構成から置いた仮の値）", "(provisional values from the listed components, as the spec gives no dimensions)", "（规格说明中没有尺寸，按构成暂定的数值）"),
+    ("仕様文から読み取った製品名・構成をもとに、KATACHIが組み立てた案です（AIの推定）。寸法・素材・性能は、工場・専門家との打ち合わせと試作で決まります。図は大きさと形の目安で、設計図ではありません。",
+     "KATACHI assembled this from the product name and components in your spec (an AI estimate). Dimensions, materials and performance are decided in discussions with factories and experts, and through prototyping. The drawing shows rough size and shape, not a design drawing.",
+     "这是 KATACHI 根据规格说明中的产品名称和构成整理的方案（AI 推测）。尺寸、材料和性能需要通过与工厂、专家的沟通和试制来决定。图示只表示大致尺寸和形状，不是设计图。"),
+]})

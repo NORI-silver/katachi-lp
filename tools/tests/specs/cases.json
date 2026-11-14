@@ -1,0 +1,8 @@
+[
+  {"file": "dog_car_lift.txt", "k": "parts", "name": "大型犬用・完全非抱き上げ式電動車載リフト", "note": "Nori 2026-11-14: 以前は「壁や家具に付ける小型のIoTセンサー」になった"},
+  {"file": "fridge_sensor.txt", "k": "sensor", "name": "冷蔵庫の扉の開け閉めを記録する小型センサー"},
+  {"file": "dog_slope.txt", "k": "slope", "note": "将来の機能にセンサー・防水があっても、製品名のスロープのまま"},
+  {"file": "camp_table.txt", "k": "furniture", "note": "【製品名】がなくても、1行目のテーブルで決める"},
+  {"text": "後ろ足が弱った犬の車椅子を作りたい", "k": "wheelchair"},
+  {"text": "壁に付ける温湿度センサーを作りたい", "k": "sensor"}
+]
