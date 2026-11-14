@@ -56,7 +56,7 @@ def article(a):
     cat, fig = V.topic(a["slug"])
     body = (f'<p class="crumb"><a href="/">KATACHI</a> › <a href="/guide/">ガイド</a></p><h1>{a["h1"]}</h1>'
             f'<p class="upd">更新日：{a["updated"].replace("-", "/")}</p>{V.hero(cat, fig, a["main"])}<div class="lead">{a["lead"]}</div>'
-            + V.points("この記事の要点", a["points"]) + V.restructure(f'{secs}{faq}{CTA}{src}{rel}') + factory_rel(a["slug"]))
+            + V.points("この記事の要点", a["points"]) + V.restructure(f'{secs}{faq}{CTA}{src}{rel}') + factory_rel(a["slug"]) + pillar_index(a["slug"]))
     graph = [ORG,
              {"@type": "Article", "headline": a["h1"], "description": a["desc"], "dateModified": a["updated"],
               "datePublished": a.get("published", a["updated"]), "inLanguage": "ja", "mainEntityOfPage": url,
@@ -70,6 +70,20 @@ def article(a):
             {"@type": "Question", "name": q, "acceptedAnswer": {"@type": "Answer", "text": ans}} for q, ans in a["faq"]]})
     head = CSS + V.CSS + og(a["title"], a["desc"], url, "article", f"/og/guide-{a['slug']}.png") + ld({"@context": "https://schema.org", "@graph": graph})
     page(OUT, f"/guide/{a['slug']}/", a["title"], a["desc"], body, head=head, full_title=True)
+
+
+def pillar_index(slug):
+    """柱の記事（個人でも自分の商品は作れる）から、品目・個人向けの記事すべてへリンクする（新しい記事を早く見つけてもらう）"""
+    if slug != "individual-product-making":
+        return ""
+    names = {"cosmetics": "化粧品", "food": "食品・お菓子", "supplement": "サプリ", "apparel": "服・バッグ", "goods": "グッズ・雑貨", "parts": "試作・3Dプリント"}
+    keep = {"parts": ("individual-prototype", "3d-print-request", "3d-print-cost", "prototype-cost", "resin-prototype")}
+    out = '<h2 class="sub">品目ごとの記事</h2>'
+    for cat, nm in names.items():
+        arts = [x for x in ARTICLES if V.topic(x["slug"])[0] == cat and x["slug"] != slug and (cat not in keep or x["slug"] in keep[cat])]
+        if arts:
+            out += f"<h3>{nm}</h3><ul>" + "".join(f'<li><a href="/guide/{x["slug"]}/">{x["h1"].split("：")[0]}</a></li>' for x in arts) + "</ul>"
+    return out
 
 
 def factory_rel(slug):
