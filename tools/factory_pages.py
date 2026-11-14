@@ -3,7 +3,7 @@ seo_pages.py から呼ぶ（手で直さない）。
 
 - 国の登録情報（gBizINFO）だけの会社は、社名か事業内容に工程の言葉（companies.json の kw）がある会社だけ載せる。
 - 出すのは国内（JP）の会社だけ。国内の会社は利用者が注文できる（AGENTS.md の canOrder と同じ考え）。
-- ページは「工程（PROC）× 都道府県」で、会社が MIN_PAGE 社以上あるときだけ作る（薄いページを作らない）。
+- ページは「工程（PROC）× 都道府県」で、会社が MIN_PAGE 社以上あり、そのうち試作対応・図面なし相談・最小ロットの記載がある会社が MIN_INFO 社以上あるときだけ作る（薄いページを作らない。Nori 2026-11-14「そもそも薄い記事作らないで」）。
   足りない都道府県は工程のページ（/factory/<工程>/）の表にだけ出す。
 - 会社の情報は掲載どおり（試作対応・図面なし相談・最小ロットは掲載があるものだけ）。点数・口コミ・評価は出さない。
 - 情報の確かさ（公開情報で確認／集約サイトに掲載・未確認／国の登録情報）を会社ごとに出す。
@@ -17,6 +17,7 @@ import visuals as V
 
 SITE = "https://katachi.shiokonbu.com"
 MIN_PAGE = 10   # 都道府県×工程のページを作る最少の社数
+MIN_INFO = 3    # そのうち、頼むときに役立つ記載（試作対応・図面なし相談・最小ロット）がある会社の最少数
 SHOW = 50       # 1ページに並べる会社の数
 
 # 工程：コード → (URL, 短い名前, 分野(visuals.CAT), 絵, 関連ガイド, 頼むときに確かめること)
@@ -121,7 +122,8 @@ class DB:
         return any(k in t for k in self.kw.get(code, []))
 
     def has_page(self, code, pref):
-        return len(self.by.get((code, pref), [])) >= MIN_PAGE
+        rows = self.by.get((code, pref), [])
+        return len(rows) >= MIN_PAGE and sum(1 for r in rows if r[6] or r[7] or r[8] is not None) >= MIN_INFO
 
 
 def _key(r):
@@ -230,7 +232,7 @@ def pref_page(db, code, pref, guides_by):
         ctab = '<ul class="plist">' + ''.join(f'<li><span>{e(c)} {n}社</span></li>' for c, n in city.most_common(12)) + '</ul>'
     lvtxt = '、'.join(f'{LV[k]} {st["lv"][k]:,}社' for k in ('pub', 'unk', 'gov') if st['lv'].get(k))
     nb = '<ul class="plist">' + ''.join(
-        (f'<li><a href="/factory/{slug}/{PREF_SLUG[q]}/">{q} {n}社</a></li>' if n >= MIN_PAGE else f'<li><span>{q} {n}社</span></li>') for q, n in near) + '</ul>'
+        (f'<li><a href="/factory/{slug}/{PREF_SLUG[q]}/">{q} {n}社</a></li>' if db.has_page(code, q) else f'<li><span>{q} {n}社</span></li>') for q, n in near) + '</ul>'
     tips = '<ul>' + ''.join(f'<li>{t}</li>' for t in p[6]) + '<li>同じ条件で2〜3社に見積を取り、初期費用（型代・版代・段取り）と単価を分けて比べる</li></ul>'
     faq = [(f'{pref}で{label}を小ロットで頼めますか？', f'掲載で試作対応がわかる会社は{st["proto"]}社、最小ロットの記載がある会社は{st["lot"]}社です。ほかの会社も、数量を伝えて見積の依頼で確かめられます。'),
            ('図面がなくても頼めますか？', f'掲載で図面なし相談ができる会社は{st["nodraw"]}社です。KATACHIに文章や写真で伝えると、工程に分けて図面なしで相談できる会社を探します。'),
@@ -269,8 +271,8 @@ def proc_page(db, code, guides_by):
         items = [x for x in items if x[2]]
         if items:
             reg += f'<h3>{rg}</h3><ul class="plist">' + ''.join(
-                (f'<li><a href="/factory/{slug}/{s}/">{q} {n}社</a></li>' if n >= MIN_PAGE else f'<li><span>{q} {n}社</span></li>') for q, s, n in items) + '</ul>'
-    reg += f'<p class="src">リンクがある都道府県は、会社の一覧のページがあります（{MIN_PAGE}社以上）。</p>'
+                (f'<li><a href="/factory/{slug}/{s}/">{q} {n}社</a></li>' if db.has_page(code, q) else f'<li><span>{q} {n}社</span></li>') for q, s, n in items) + '</ul>'
+    reg += f'<p class="src">リンクがある都道府県は、会社の一覧のページがあります（{MIN_PAGE}社以上で、試作対応・図面なし相談・最小ロットの記載がある会社が{MIN_INFO}社以上）。</p>'
     big = sorted(((q, s, stats(db.by.get((code, q), []))) for q, s in PREFS), key=lambda x: -x[2]['n'])[:10]
     tbl = ('<div class="tbl"><table><tr><th>都道府県</th><th>会社数</th><th>試作対応の掲載</th><th>図面なし相談の掲載</th></tr>'
            + ''.join(f'<tr><td>{q}</td><td>{ss["n"]}社</td><td>{ss["proto"]}社</td><td>{ss["nodraw"]}社</td></tr>' for q, s, ss in big if ss['n'])

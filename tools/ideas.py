@@ -474,6 +474,13 @@ I('hw_light', 'hw', ('防水の自転車ライト', 'Waterproof bike light', '�
 
 IDEAS = I_
 
+
+def is_deep(x):
+    """検索に出してよい作例か（Nori 2026-11-14「薄い記事は濃くしてから公開」「そもそも薄い記事作らないで」）。
+    共通の型（P）だけの作例は薄いので、作例ごとの中身（材料・作り方の選び方、よくある失敗）があるときだけ True。"""
+    m = x.get('more') or {}
+    return len(m.get('opts', [])) >= 2 and len(m.get('fail', [])) >= 3
+
 # ---- 図（カードと詳しいページの絵。線だけのアイコン。currentColor）
 _S = 'fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"'
 FIG = {
