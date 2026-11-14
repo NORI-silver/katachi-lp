@@ -1220,7 +1220,7 @@ function pdbMatch(s){if(!PDB||!s)return null;const t=String(s).toLowerCase();let
 function kindById(id,R){if(!id)return null;if(/^(shape:|g_)/.test(id)){const s=CGEN.shapes.find(x=>x.id===id.replace(/^(shape:|g_)/,''));return s&&s.id!=='product'?shapeConcept(s,R):null}return CONCEPTS.find(c=>c.id===id)||null}
 /* 長い仕様文を項目に整理した結果（利用者が自分のAIで作り、貼り戻したJSON）。AIのAPIは使わない（費用ゼロ）。
    根拠の原文（quote）があなたの文章に見つからない値は「要確認」にする。同じ文章は、この端末と受付（type:'spec'）に保存した結果を返す */
-const SPECDB=false;  // 受付（backend/forms.gs）に type:'spec' / 'specsave' を入れて新しいバージョンをデプロイしたら true にする
+const SPECDB=true;  // 受付（backend/forms.gs）の type:'spec' / 'specsave'（2026-11-14 バージョン8で本番反映）
 const SXF=['product_name','purpose','shape','width','length','height','weight','load','power','quantity_proto','quantity_mass'],SXL=['components','processes','regulations','environment','open_items'];
 const sxHash=t=>{t=String(t||'').replace(/\s+/g,' ').trim();let h=5381;for(let i=0;i<t.length;i++)h=((h<<5)+h+t.charCodeAt(i))|0;return 'sx'+(h>>>0).toString(36)+t.length};
 function sxCheck(o,text){const sq=x=>String(x||'').replace(/[\s　]+/g,''),T=sq(text);
