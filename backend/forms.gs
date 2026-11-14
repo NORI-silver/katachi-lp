@@ -33,6 +33,7 @@ var CONFIG = {
   REVIEW_MONTHLY_LIMIT: 900,        // 1か月に口コミを取り寄せる回数（無料の範囲 1,000回に収める。超えたら月末までリンクだけ）
   REVIEW_SEARCH_MONTHLY_LIMIT: 900, // 1か月に場所を探す回数（場所IDは覚えるので、同じ会社は2回目から探さない）
   PEEK_DAILY_LIMIT: 500,            // 参考品ページの読み取り：1日の上限
+  GITEKI_DAILY_LIMIT: 500,          // 技適の検索（総務省 Web-API）：1日の上限
   SPEC_DAILY_LIMIT: 500,            // 仕様の整理結果の保存・読み出し：1日の上限（いたずら対策）
   SPEC_MAX_CHARS: 20000,            // 依頼文の文字数の上限
   REVIEW_DAILY_LIMIT: 150,          // 1日の上限（いたずら対策）
@@ -57,6 +58,7 @@ function doPost(e) {
     if (p.type === 'partner') return json_(partner_(p));
     if (p.type === 'reviews') return json_(reviews_(p));
     if (p.type === 'peek') return json_(peek_(p));
+    if (p.type === 'giteki') return json_(giteki_(p));
     if (p.type === 'spec') return json_(spec_(p));
     if (p.type === 'specsave') return json_(specSave_(p));
     if (!limit_()) return json_({ok: false, error: 'busy'});
@@ -569,6 +571,36 @@ function reviews_(p) {
 function placeNorm_(x) {
   return String(x).normalize('NFKC').replace(/\s/g, '').toLowerCase()
     .replace(/株式会社|有限会社|合同会社|合資会社|合名会社|\(株\)|\(有\)|co\.,?ltd\.?|inc\.?|corp(oration)?\.?|limited|ltd\.?|,/g, '');
+}
+
+
+// ---------- 技適の検索（総務省「技術基準適合証明等を受けた機器の検索」Web-API、無料・登録不要） ----------
+// 利用者が入れた無線モジュール・機器の型式（例：ESP32-WROOM-32E）だけを総務省に送り、件数と上位5件の
+// 型式・名称・番号・日付・種類を返す。保存はしない（同じ型式は6時間だけ覚えておく）。
+function giteki_(p) {
+  var tn = String(p.tn || '').normalize('NFKC').replace(/[\s　]+/g, ' ').trim().slice(0, 80);
+  if (tn.length < 3) return {ok: false, error: 'short'};
+  var cache = CacheService.getScriptCache(), ck = 'gk_' + Utilities.base64EncodeWebSafe(Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, tn, Utilities.Charset.UTF_8)).slice(0, 22);
+  var hit = cache.get(ck);
+  if (hit) return JSON.parse(hit);
+  if (!limit_('gk', CONFIG.GITEKI_DAILY_LIMIT)) return {ok: false, error: 'busy'};
+  var res;
+  try {
+    res = UrlFetchApp.fetch('https://www.tele.soumu.go.jp/giteki/list?SC=1&DC=1&OF=2&TN=' + encodeURIComponent(tn), {muteHttpExceptions: true});
+  } catch (err) { return {ok: false, error: 'fetch'}; }
+  if (res.getResponseCode() !== 200) return {ok: false, error: 'http' + res.getResponseCode()};
+  var o;
+  try { o = JSON.parse(res.getContentText('UTF-8')); } catch (e) { return {ok: false, error: 'parse'}; }
+  var head = o.gitekiInformation || {}, list = o.giteki || [];
+  if (!Array.isArray(list)) list = [list];
+  var rows = list.map(function (x) { return x.gitekiInfo || x; }).slice(0, 5).map(function (g) {
+    return {type: String(g.typeName || '').slice(0, 120), name: String(g.name || '').replace(/\s*法人番号\d{13}$/, '').slice(0, 80),
+      number: String(g.number || '').slice(0, 40), date: String(g.date || '').slice(0, 10), tech: String(g.techCode || '').slice(0, 60),
+      equip: String(g.radioEquipmentCode || '').slice(0, 80)};
+  });
+  var out = {ok: true, total: Number(head.totalCount) || rows.length, updated: String(head.lastUpdateDate || ''), rows: rows};
+  try { cache.put(ck, JSON.stringify(out), 21600); } catch (e) {}
+  return out;
 }
 
 

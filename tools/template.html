@@ -328,6 +328,7 @@ table.cmp{border-collapse:separate;border-spacing:0;width:100%;min-width:760px;f
 .fsqa,.fsbtns{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
 .fstb{width:100%;border-collapse:collapse;font-size:13px}.fstb th,.fstb td{text-align:left;vertical-align:top;padding:7px 6px;border-bottom:1px solid var(--line2)}.fstb thead th{font-size:12px;color:var(--mute);font-weight:500}
 .fstb tbody th{font-weight:600;width:28%}.fstb td small{display:block;color:var(--mute);font-size:11.5px;margin-top:2px;overflow-wrap:anywhere}.fstb .fsreq{color:var(--amber);margin-left:3px}
+.fsgk{display:flex;gap:6px;margin:0 0 6px}.fsgk input{flex:1;min-width:0;font:inherit;font-size:13px;padding:6px 10px;border:1px solid var(--line);border-radius:8px}
 .fsref{border:1px solid var(--line2);border-radius:12px;padding:12px 14px;margin-top:10px}.fsref h4{margin:0 0 4px}.fsref ol{margin:0 0 8px;font-size:13px}
 .fsdraft{border:1px dashed color-mix(in srgb,var(--amber) 55%,transparent);border-radius:12px;padding:12px 14px;margin-top:10px}.fsdraft h4{margin:0}.fsdraft p{margin:4px 0 0;font-size:12.5px}
 @media (max-width:640px){.fspec .fshd{grid-template-columns:1fr}.fstb tbody th{width:auto}}
@@ -1568,6 +1569,13 @@ function conceptCard(c){const v=cvarOf(c);
    1) 製品DBで種類を当てる 2) 文章・貼り戻したJSON・製品イメージ案から埋める 3) 見積に要る項目で埋まらないものは、選択式で最大5問ずつ聞く。
    「わからない」は似た製品の目安を「仮」で置き、工場への質問に回す。図面・3Dがなければ「設計の見積から」にする。 */
 const FSPEC=__FSPEC__;
+/* 法令の条文へのリンク（e-Gov法令検索）。法令IDは e-Gov 法令API v2 で確かめた（2026-11-14）。仕様書の「規格・法規制」に出た法律だけ付ける */
+const LAWS=[[/電波法/,'電波法','325AC0000000131'],[/電気用品安全法|PSE/,'電気用品安全法','336AC0000000234'],[/家庭用品品質表示法/,'家庭用品品質表示法','337AC0000000104'],[/消費生活用製品安全法|PSC/,'消費生活用製品安全法','348AC0000000031'],
+  [/ペットフード安全法|愛がん動物用飼料/,'ペットフード安全法','420AC0000000083'],[/電気通信事業法/,'電気通信事業法','359AC0000000086'],[/製造物責任|PL法/,'製造物責任法','406AC0000000085'],[/景品表示法|不当表示/,'景品表示法','337AC0000000134'],
+  [/液化石油ガス法|液化石油ガスの保安/,'液化石油ガス法','342AC0000000149'],[/食品衛生法|営業許可/,'食品衛生法','322AC0000000233'],[/食品表示法|食品の表示/,'食品表示法','425AC0000000070']];
+const fsLaws=t=>LAWS.filter(([re])=>re.test(t||'')).map(([,n,id])=>({n,url:'https://laws.e-gov.go.jp/law/'+id}));
+/* 技適の検索：型式を受付（backend/forms.gs の type:giteki）に送り、受付が総務省の Web-API で調べる。受付を新しいバージョンにしてから true */
+const GITEKI=false;
 const FS_LV={'原文':'ok','回答':'ok','製品DB':'pub','参考品':'pub','仮':'ai','要確認':'unk'};
 /* 既製品をもとに作る：refText が足した行（参考品・大きさ・素材・変えたいところ）と、受付が読んだ参考品のページから取り出す */
 function fsRef(t){const m=String(t||'').match(/【参考にした既製品】([^\n]*)/);if(!m)return null;const g=re=>{const x=t.match(re);return x?x[1].trim():''};
@@ -1636,6 +1644,7 @@ function fsBuild(A){const c=A&&A.concept;if(!c)return null;const base=splitAi(S.
 function fsText(F){if(!F)return '';const L=['■ 工場向け仕様書（KATACHIが整理。確かさ：原文=依頼者の文章／回答=選択式の回答／製品DB=公的機関の出典／仮=似た製品の目安／要確認）'];
   if(F.cats.length)L.push('品目：'+F.cats.map(k=>k.t).join('、'));
   for(const i of F.items){const v=F.V[i.k];L.push('・'+i.t+'：'+(v&&v.v?v.v:'要確認')+'［'+(v?v.lv:'要確認')+']'+(v&&v.src?'（'+v.src+'）':''))}
+  {const lw=fsLaws((F.V.reg||{}).v);if(lw.length)L.push('  条文（e-Gov法令検索）：'+lw.map(l=>l.n+' '+l.url).join('　'))}
   L.push('','■ 工場に聞くこと');F.fq.forEach((q,n)=>L.push((n+1)+'. '+q));L.push('','工場に出せる度：'+F.score+'%（'+{quote:'見積に出せます',design:'設計の見積から始めます',more:'あと少しで見積に出せます'}[F.mode]+'）');return L.join('\n')}
 function fspecCard(A){const F=fsBuild(A);if(!F)return '';S.fs=F;const fa=fsAns();const page=S.fsPage||0;const qs=F.ask.slice(page*5,page*5+5);
   const head={quote:'見積に出せます',design:'設計の見積から始めます',more:'あと少しで見積に出せます'}[F.mode];
@@ -1643,13 +1652,14 @@ function fspecCard(A){const F=fsBuild(A);if(!F)return '';S.fs=F;const fa=fsAns()
   const qhtml=qs.length?`<div class="fsq" id="fsQ">${qs.map(i=>`<fieldset class="fsqi" data-fk="${esc(i.k)}"${i.multi?' data-multi="1"':''}><legend><span>${esc(i.q)}</span>${i.cat?` <span class="chip">${esc((FSPEC.cats.find(k=>k.id===i.cat)||{}).t||'')}</span>`:''}</legend><div class="fsch">
       ${[...i.ch,FSPEC.unk].map(ch=>{const a=fa[i.k],on=a&&(ch===FSPEC.unk?a.unk:(Array.isArray(a.v)?a.v.includes(ch):a.v===ch));return `<button type="button" class="fsb${on?' on':''}" data-fv="${esc(ch)}" aria-pressed="${!!on}">${esc(ch)}</button>`}).join('')}</div></fieldset>`).join('')}
     <div class="fsqa"><button type="button" class="btn pri" id="fsApply">答えを反映する</button>${F.ask.length>(page+1)*5?'<button type="button" class="btn" id="fsNext">次の質問へ</button>':''}</div></div>`:'';
-  const row=i=>{const v=F.V[i.k];const lv=v?v.lv:'要確認';return `<tr><th>${esc(i.t)}${i.req?'<span class="fsreq">*</span>':''}</th><td>${v&&v.v?(lv==='仮'?'<span>仮：</span>':'')+`<span translate="no">${esc(v.v)}</span>`:'<span>要確認</span>'}</td><td>${mk(FS_LV[lv]||'unk',lv)}${v&&v.src?`<small translate="no">${esc(v.src)}</small>`:''}</td></tr>`};
+  const row=i=>{const v=F.V[i.k];const lv=v?v.lv:'要確認';const lw=i.k==='reg'&&v?fsLaws(v.v):[];return `<tr><th>${esc(i.t)}${i.req?'<span class="fsreq">*</span>':''}</th><td>${v&&v.v?(lv==='仮'?'<span>仮：</span>':'')+`<span translate="no">${esc(v.v)}</span>`:'<span>要確認</span>'}</td><td>${mk(FS_LV[lv]||'unk',lv)}${v&&v.src?`<small translate="no">${esc(v.src)}</small>`:''}${lw.length?`<small>条文（e-Gov法令検索）：${lw.map(l=>`<a href="${l.url}" target="_blank" rel="noopener" translate="no">${esc(l.n)}</a>`).join('、')}</small>`:''}</td></tr>`};
   const draft=F.mode==='design'&&F.c&&F.c.fig?`<div class="fsdraft"><h4>設計の下書き</h4><p class="muted">KATACHIが作る下書きです。単純な形なら3Dプリントの試作に出せます。回路・基板・強度・防水・金型は、設計者が仕上げる前提です。</p><div class="fsbtns"><button type="button" class="btn sm" id="fsStl">製品イメージ案の3Dデータ（STL）を保存</button><button type="button" class="btn sm" id="fsSvg">寸法図（SVG）を保存</button></div></div>`:'';
   return `<section class="ccard fspec" id="mFspec"><div class="chd"><h2>工場向け仕様書</h2>${F.cats.map(k=>`<span class="chip">${esc(k.t)}</span>`).join('')}</div>
     <div class="fshd fs-${F.mode}"><div class="fsm"><span>工場に出せる度</span><b class="mono">${F.score}%</b><div class="bar"><i style="width:${F.score}%"></i></div></div><div><b>${head}</b><p>${lead}</p></div></div>
     ${qhtml}
     ${fold('fstab','仕様書',`<table class="fstb"><thead><tr><th>項目</th><th>内容</th><th>確かさ</th></tr></thead><tbody>${F.items.map(row).join('')}</tbody></table><p class="muted" style="font-size:12px;margin:6px 0 0">仮の値は、似た製品の目安です。工場との打ち合わせで決まります。</p>`,F.items.filter(i=>F.V[i.k]&&F.V[i.k].v).length+' / '+F.items.length)}
     ${fold('fsfq','工場に聞くこと（自動で依頼書に付きます）',`<ol class="cl">${F.fq.map(q=>`<li>${esc(q)}</li>`).join('')}</ol>`,String(F.fq.length))}
+    ${F.cats.some(k=>k.id==='elec')?`<div class="fsref" id="fsGk"><h4>技適（電波法）を調べる</h4><p class="muted" style="font-size:12.5px;margin:0 0 6px">無線（Bluetooth・Wi-Fi・LTEなど）を使うなら、技適を取った無線モジュールを使うと、製品ごとの認証が要らないことがあります。使う予定のモジュールの型式を入れると、総務省の登録を調べます。</p>${GITEKI?`<div class="fsgk"><input id="fsGkIn" type="text" autocapitalize="off" spellcheck="false" placeholder="例：ESP32-WROOM-32E" aria-label="無線モジュールの型式"><button type="button" class="btn sm" id="fsGkGo">調べる</button></div><div id="fsGkOut" aria-live="polite"></div>`:''}<a class="btn sm" href="https://www.tele.soumu.go.jp/giteki/SearchServlet?pageID=js01" target="_blank" rel="noopener" id="fsGkSite">総務省の技適検索で調べる</a></div>`:''}
     ${F.ref?`<div class="fsref"><h4>既製品をもとに作る手順</h4><ol class="cl"><li>参考品の値を読み取る：大きさ・素材は「参考品」として表に入れました。あなたの製品の値ではないので、工場と決め直します。</li><li>変えるところを決める：変える点が少ないと、作れない・売れないことがあります。</li><li>現物の採寸・3Dスキャン：図面がないときは、現物を測る・スキャンして図面や3Dデータにします（費用は別にかかります）。</li><li>権利の確認：J-PlatPat（特許情報プラットフォーム、無料）で特許・意匠・商標を調べ、心配なら弁理士に相談します。KATACHIは「侵害しない」とは判断しません。</li></ol><a class="btn sm" href="https://www.j-platpat.inpit.go.jp/" target="_blank" rel="noopener" id="fsJpp">J-PlatPatで調べる</a></div>`:''}
     ${draft}
     <div class="fsbtns"><button type="button" class="btn sm" id="fsPrint">印刷・PDFで保存</button><button type="button" class="btn sm" id="fsCopy">テキストをコピー</button></div></section>`}
@@ -1659,6 +1669,13 @@ function wireFspec(A){const el=$('#mFspec');if(!el)return;const fa=fsAns();
     fs.querySelectorAll('.fsb').forEach(x=>{const on=x.dataset.fv===FSPEC.unk?!!(fa[k]&&fa[k].unk):!!(fa[k]&&(Array.isArray(fa[k].v)?fa[k].v.includes(x.dataset.fv):fa[k].v===x.dataset.fv));x.classList.toggle('on',on);x.setAttribute('aria-pressed',on)});fsSave()}));
   const redraw=()=>{el.outerHTML=fspecCard(A);wireFspec(A);const n=$('#mFspec');n&&n.scrollIntoView({block:'start',behavior:'smooth'})};
   $('#fsJpp')&&($('#fsJpp').onclick=()=>track('fspec_jplatpat',{}));
+  $('#fsGkSite')&&($('#fsGkSite').onclick=()=>track('fspec_giteki',{via:'site'}));
+  $('#fsGkGo')&&($('#fsGkGo').onclick=async()=>{const tn=($('#fsGkIn').value||'').trim(),o=$('#fsGkOut');if(tn.length<3){o.textContent='型式を3文字以上入れてください';return}
+    o.textContent='調べています…';let j=null;try{const r=await fetch(FORM_URL,{method:'POST',body:JSON.stringify({type:'giteki',tn})});j=await r.json()}catch(e){}
+    track('fspec_giteki',{via:'api',result:j&&j.ok?(j.total?'hit':'none'):'error'});
+    if(!j||!j.ok){o.innerHTML='<p class="muted" style="font-size:12.5px">いまは調べられませんでした。下の「総務省の技適検索」で調べてください。</p>';return}
+    if(!j.total){o.innerHTML='<p class="muted" style="font-size:12.5px">この型式では見つかりませんでした。型式の書き方（ハイフン・末尾の英字）を変えるか、モジュールの販売元に技適番号を聞いてください。</p>';return}
+    o.innerHTML=`<p style="font-size:12.5px;margin:6px 0 4px">${j.total}件（総務省「技術基準適合証明等を受けた機器の検索」${j.updated?'・データ更新 '+esc(j.updated):''}）</p><table class="fstb"><thead><tr><th>型式・名称</th><th>番号・日付</th><th>取得した会社</th></tr></thead><tbody>${j.rows.map(r=>`<tr><td translate="no">${esc(r.type)}</td><td translate="no">${esc(r.number)}<small>${esc(r.date)}</small></td><td translate="no">${esc(r.name)}</td></tr>`).join('')}</tbody></table><p class="muted" style="font-size:12px;margin:4px 0 0">技適の有無の最終確認は、モジュールの販売元・工場と行ってください。製品の作り方（アンテナの変更など）によっては、追加の手続きが要ります。</p>`});
   $('#fsApply')&&($('#fsApply').onclick=()=>{track('fspec_answer',{answered:Object.keys(fa).length});S.fsPage=0;redraw()});
   $('#fsNext')&&($('#fsNext').onclick=()=>{S.fsPage=(S.fsPage||0)+1;redraw()});
   $('#fsCopy')&&($('#fsCopy').onclick=async()=>{let ok=false;try{await navigator.clipboard.writeText(fsText(S.fs));ok=true}catch(e){}track('fspec_copy',{ok});const b=$('#fsCopy');b.textContent=ok?'コピーしました':'テキストをコピー';setTimeout(()=>{b.textContent='テキストをコピー'},2500)});

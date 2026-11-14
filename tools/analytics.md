@@ -90,6 +90,7 @@
 | fspec_print | 工場向け仕様書を「印刷・PDFで保存」した | なし | |
 | fspec_draft | 設計の下書き（STL・寸法図SVG）を保存した | kind（stl/svg） | |
 | fspec_jplatpat | 既製品をもとにした依頼で「J-PlatPatで調べる」を押した | なし | |
+| fspec_giteki | 工場向け仕様書で技適を調べた | via（api/site）, result（hit/none/error） | 型式は送らない |
 
 ## 送らないもの
 入力文・会社名・ファイル名などの中身は送らない（個人情報や未公開アイデアを含みうるため）。種類・件数・文字数だけを送る。
