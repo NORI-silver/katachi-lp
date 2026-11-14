@@ -335,6 +335,16 @@ UI = [
     ('仕様書から', 'From the spec:', '来自规格书：'),
     ('仮：似た製品の目安。数字を直すと図も変わります', 'Provisional: typical for similar products. Changing the numbers updates the drawing.', '暂定：类似产品的参考值。修改数字图也会改变'),
     ('答えは下の仕様書の表と見積の依頼に入ります。直すときは表の「直す」から。', 'Your answers go into the spec table below and the quote request. To change one, use "Edit" in the table.', '回答会写入下方的规格书表格和报价委托。要修改时，请点表格中的「修改」。'),
+    ('✓ 図には描けない内容なので、要望として仕様書に入れました。工場・設計者が図に起こします。', '✓ This cannot be drawn, so it was added to the spec as a request. The factory or designer will draw it.', '✓ 此内容无法画进图中，已作为需求写入规格书。由工厂或设计师画成图。'),
+    ('プールの中は階段に', 'Stairs inside the pool', '泳池内做成台阶'),
+    ('外側も階段に', 'Stairs outside too', '外侧也做成台阶'),
+    ('外側', 'Outside', '外侧'),
+    ('プールの中', 'Inside the pool', '泳池内'),
+    ('スロープ', 'Ramp', '坡道'),
+    ('階段', 'Stairs', '台阶'),
+    ('1段の高さ', 'Step height', '每级高度'),
+    ('踏み面', 'Tread', '踏面'),
+    ('段', 'steps', '级'),
 ]
 
 def _j(x):
