@@ -138,7 +138,8 @@ def idea_pages():
             if g.get("@type") == "Article":
                 g["image"] = SITE + img
         head = IDEAS_MOD.CSS + V.CSS + og(title, desc, url, "article", img) + ld({"@context": "https://schema.org", "@graph": graph})
-        page(OUT, f"/idea/{x['k']}/", title, desc, body, head=head, full_title=True)
+        # 濃くしてから公開（Nori 2026-11-14）：中身が足りない作例は検索に出さない（ideas.is_deep）
+        page(OUT, f"/idea/{x['k']}/", title, desc, body, head=head, full_title=True, noindex=not IDEAS_MOD.is_deep(x))
     title, desc, body, graph = IDEAS_MOD.index_html()
     page(OUT, "/idea/", title, desc, body, head=IDEAS_MOD.CSS + og(title + "｜KATACHI", desc, SITE + "/idea/", "website") + ld({"@context": "https://schema.org", "@graph": [ORG] + graph}))
 
@@ -154,7 +155,7 @@ def idea_factory(x):
 
 def sitemap(fpages=()):
     rows = list(STATIC) + [("/guide/", max(a["updated"] for a in ARTICLES))] + [(f"/guide/{a['slug']}/", a["updated"]) for a in ARTICLES]
-    rows += [("/idea/", IDEAS_MOD.UPDATED)] + [(f"/idea/{x['k']}/", IDEAS_MOD.UPDATED) for x in IDEAS_MOD.IDEAS]
+    rows += [("/idea/", IDEAS_MOD.UPDATED)] + [(f"/idea/{x['k']}/", IDEAS_MOD.UPDATED) for x in IDEAS_MOD.IDEAS if IDEAS_MOD.is_deep(x)]
     rows += [(p[0], p[6]) for p in fpages]
     x = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
     x += "".join(f"  <url><loc>{SITE}{p}</loc><lastmod>{d}</lastmod></url>\n" for p, d in rows)
@@ -168,7 +169,7 @@ def llms(fpages=()):
     s += f"- [利用規約]({SITE}/terms/)\n- [プライバシーポリシー・運営者情報]({SITE}/privacy/)\n"
     s += "\n## ガイド\n" + "".join(f"- [{a['h1']}]({SITE}/guide/{a['slug']}/): {a['summary']}\n" for a in ARTICLES)
     s += f"\n## 作例（業種別に、小ロットから作りやすいもの）\n- [作例の一覧]({SITE}/idea/)\n"
-    s += "".join(f"- [{x['t'][0]}]({SITE}/idea/{x['k']}/): {x['d'][0]}（{x['lot'][0]}から）\n" for x in IDEAS_MOD.IDEAS)
+    s += "".join(f"- [{x['t'][0]}]({SITE}/idea/{x['k']}/): {x['d'][0]}（{x['lot'][0]}から）\n" for x in IDEAS_MOD.IDEAS if IDEAS_MOD.is_deep(x))
     s += f"\n## 工場をさがす（工程×都道府県の会社一覧。KATACHIの企業DB・公開情報から）\n- [工程の一覧]({SITE}/factory/)\n"
     s += "".join(f"- [{t}]({SITE}{p})\n" for p, t, *_ in fpages if p.count("/") == 3)
     s += "".join(f"- [{t}]({SITE}{p})\n" for p, t, *_ in fpages if p.count("/") == 4)

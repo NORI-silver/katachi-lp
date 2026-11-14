@@ -8,6 +8,10 @@ from html.parser import HTMLParser
 ROOT = sys.argv[1] if len(sys.argv) > 1 else "."
 SITE = "https://katachi.shiokonbu.com"
 # 本文に出してはいけない言葉（AGENTS.md）。取り扱わない分野を売り込むような言葉を止める。
+# 薄いページを出さない（Nori 2026-11-14「薄い記事は濃くしてから公開」「そもそも薄い記事作らないで」）。
+# 記事・作例・工場のページは <main> の本文（タグ・図を除く）がこの字数より少ないと NG。足りないなら濃くするか noindex にする。
+MIN_CHARS = 1800
+DEEP_DIRS = ("guide/", "idea/", "factory/")
 BAN = ["酒類OEM", "お酒のOEM", "医薬品OEM", "医療機器の製造を", "口コミ評価", "★5"]
 
 class P(HTMLParser):
@@ -33,6 +37,12 @@ class P(HTMLParser):
         elif s._ld: s.ld[-1] += d
         elif not s._skip: s.text.append(d)
 
+def main_chars(src):
+    m = re.search(r"<main[^>]*>(.*)</main>", src, re.S)
+    b = re.sub(r"<script.*?</script>|<style.*?</style>|<svg.*?</svg>", "", m.group(1) if m else src, flags=re.S)
+    import html as H
+    return len(re.sub(r"\s+", "", H.unescape(re.sub(r"<[^>]+>", " ", b))))
+
 def main():
     locs = re.findall(r"<loc>([^<]+)</loc>", open(os.path.join(ROOT, "sitemap.xml"), encoding="utf-8").read())
     ng, warn, titles = [], [], collections.defaultdict(list)
@@ -56,9 +66,21 @@ def main():
         if not p.ld: warn.append(f"{u}: 構造化データがない")
         if p.og and p.og.startswith(SITE) and not os.path.exists(os.path.join(ROOT, p.og.replace(SITE, "").lstrip("/"))):
             ng.append(f"{u}: OGP画像 {p.og} がない（python3 tools/og_images.py . で作る）")
+        if rel.startswith(DEEP_DIRS) and rel.count("/") >= 2:
+            n = main_chars(open(f, encoding="utf-8").read())
+            if n < MIN_CHARS: ng.append(f"{u}: 本文が薄い（{n}字。{MIN_CHARS}字以上。濃くするか noindex にする）")
         body = "".join(p.text)
         for w in BAN:
             if w in body: ng.append(f"{u}: 使わない言葉「{w}」")
+    # sitemap に無いのに検索に出る記事・作例・工場のページ（薄いページの抜け道）を止める
+    have = {u.replace(SITE, "").lstrip("/") for u in locs}
+    for d in DEEP_DIRS:
+        for dp, _, fs in os.walk(os.path.join(ROOT, d)):
+            if "index.html" in fs:
+                rel = os.path.relpath(dp, ROOT).replace(os.sep, "/") + "/"
+                if rel not in have:
+                    q = P(); q.feed(open(os.path.join(dp, "index.html"), encoding="utf-8").read())
+                    if "noindex" not in q.robots: ng.append(f"{SITE}/{rel}: sitemap に無いのに noindex でない")
     for t, us in titles.items():
         if t and len(us) > 1: ng.append(f"title が重複「{t}」: {', '.join(us)}")
     for w in warn: print("注意:", w)
