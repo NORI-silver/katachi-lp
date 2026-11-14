@@ -18,9 +18,9 @@ const cases=[
     const text=cs.text||fs.readFileSync(path.join(__dirname,'specs',cs.file),'utf8');
     await p.fill('#idea',text);await p.evaluate(()=>document.querySelector('#idea').form.requestSubmit());
     await p.waitForSelector('#mFspec',{timeout:20000});await p.waitForTimeout(500);
-    const r=await p.evaluate(()=>{const S={fs:window.KATACHI_FS()};const V=S.fs.V;return {cats:S.fs.cats.map(k=>k.id),mode:S.fs.mode,score:S.fs.score,ask:S.fs.ask.length,fq:S.fs.fq.length,name:(V.name||{}).v,ref:!!S.fs.ref&&!!(V.diff||{}).v&&(V.mat||{}).lv==='参考品'&&S.fs.fq.some(q=>/3Dスキャン/.test(q))&&!!document.querySelector('#fsJpp')}});
-    // 質問に「わからない」と1つ答えて反映 → 仮が入るか
-    const q=await p.$('.fsqi');let after=null;if(q){await p.click('#fsUnk');await p.waitForTimeout(300);after=await p.evaluate(()=>window.KATACHI_FS().score)}
+    const r=await p.evaluate(()=>{const S={fs:window.KATACHI_FS()};const V=S.fs.V;return {cats:S.fs.cats.map(k=>k.id),mode:S.fs.mode,core:S.fs.core.map(x=>(x.ok?'✓':'×')+x.id).join(' '),score:S.fs.score,ask:S.fs.ask.length,fq:S.fs.fq.length,name:(V.name||{}).v,ref:!!S.fs.ref&&!!(V.diff||{}).v&&(V.mat||{}).lv==='参考品'&&S.fs.fq.some(q=>/3Dスキャン/.test(q))&&!!document.querySelector('#fsJpp')}});
+    // 最初の質問に答えて反映（見積に要る点はおまかせ／選ぶ、ほかはわからない）
+    const q=await p.$('.fsqi');let after=null;if(q){if(await p.$('#fsOmk'))await p.click('#fsOmk');else if(await p.$('#fsUnk'))await p.click('#fsUnk');else{await p.click('#fsQ .fsb');await p.click('#fsOk')}await p.waitForTimeout(300);after=await p.evaluate(()=>{const F=window.KATACHI_FS();return F.score+' core '+F.core.filter(x=>x.ok).length+'/'+F.core.length})}
     const ok=cs.cats.every(x=>r.cats.includes(x))&&(!cs.mode||r.mode===cs.mode)&&(!cs.ref||r.ref)&&!errs.length;if(!ok)ng++;
     console.log(ok?'OK':'NG',(cs.file||cs.text).slice(0,30),JSON.stringify(r),'after',after,errs.join(';'));
     if(shots){await p.evaluate(()=>document.querySelector('#mFspec').scrollIntoView());await p.waitForTimeout(400);await p.screenshot({path:path.join(shots,'fspec'+i+'.png'),fullPage:false})}

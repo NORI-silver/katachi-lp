@@ -305,7 +305,9 @@ table.cmp{border-collapse:separate;border-spacing:0;width:100%;min-width:760px;f
 .ready{display:grid;gap:8px;padding:14px;border-radius:12px;background:color-mix(in srgb,var(--ice) 6%,var(--panel));border:1px solid color-mix(in srgb,var(--ice) 22%,transparent)}
 .ready .rh{display:flex;justify-content:space-between;align-items:center;font-size:13.5px}.ready .rh span{color:var(--ice);font-size:13px}
 .ready .rc{display:flex;gap:6px;flex-wrap:wrap}.ready .rc span{padding:4px 12px;border-radius:99px;border:1px dashed var(--line2);font-size:12.5px;color:var(--mute)}
-.ready .rc span.on{border:1px solid var(--ice);background:var(--ice);color:#fff}
+.ready .rc span.on,.fscore span.on{border:1px solid var(--ice);background:var(--ice);color:#fff}
+.fscore{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.fscore span{padding:3px 10px;border-radius:99px;border:1px dashed var(--line2);font-size:12px;color:var(--mute)}
+.fsqok{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;margin:0;padding:10px 12px;border-radius:10px;background:var(--bg2,#f4f6f8);font-size:13px}.fsqhint{margin:6px 0 0;font-size:12.5px}.fscorechip{font-size:11px}
 .aihelp{border:1px dashed var(--line2);border-radius:10px;padding:10px 12px;font-size:13px}.aihelp summary{cursor:pointer;color:var(--fg)}
 .paste .aihelp{margin-top:8px}
 /* ---------- 4ステップの流れ（書く→イメージ→会社→依頼） ---------- */
@@ -1136,14 +1138,14 @@ function upNote(r,ups){if(!ups||(!ups.list.length&&!ups.skipped.length))return '
 
 /* 写真・動画から「見積できる仕様」にまとめる欄（見積の依頼・相談の画面） */
 // 工場は写真だけでは見積を出しにくい。形・寸法・材質・数量の4点がそろうと見積が返ってきやすい
-function readyChips(){const has=id=>{const el=$('#'+id);return !!(el&&el.value.trim())};
-  const fv=k=>{const el=$('#fs-'+k);return !!el&&(el.tagName==='SELECT'?!!el.value:!!el.querySelector('input:checked'))};
-  const cats=fsFormCats(),size=has('f-size')||S.files.some(f=>f.dim||(f.k==='3D'&&f.m));
-  /* 品目ごとに「見積に要る点」を変える（服なら生地・サイズ展開、食品なら配合・形態）。品目がわからないときは寸法・材質 */
-  const it=[['どこまで頼むか','設計から／作るだけ',fv('scope')],['手元の資料','図面・写真・現物など',fv('docs')||S.files.length>0],['数量','試作・初回・その後',fv('qs')||fv('qf')||has('f-qty')],
-    ...(cats.length?cats.flatMap(c=>c.items.filter(i=>i.key).map(i=>[i.t,c.t,fv(i.k)])):[['寸法','大きさの目安',size],['材質','材質の希望',has('f-matl')]])];
-  return `<div class="ready"><div class="rh"><b>見積に必要な点</b><span class="mono">${it.filter(x=>x[2]).length} / ${it.length}</span></div><div class="rc">${it.map(([t,s,ok])=>`<span class="${ok?'on':''}" title="${s}">${ok?'✓ ':''}${t}</span>`).join('')}</div>
-    <span class="muted" style="font-size:12.5px">工場は写真だけでは見積を出しにくく、品目ごとに決まった点がそろうと見積が返ってきやすくなります。わからない所は「わからない」を選べば、担当者が一緒に詰めます。</span></div>`}
+// 仕様書（上の質問・文章）で決まっている点は、依頼フォームで選び直さなくてもよい
+function rfqCoreOk(){const has=id=>{const el=$('#'+id);return !!(el&&(el.classList.contains('cks')?el.querySelector('input:checked'):el.value.trim()))};const F=fsNow(),K=rfqCoreKeys(),sp=id=>!!(F&&(F.core.find(x=>x.id===id)||{}).ok);
+  return {mat:sp('mat')||(K.mat&&has('fs-'+K.mat.k))||has('f-matl'),size:sp('size')||has('f-size'),fin:sp('fin')||(K.fin&&has('fs-'+K.fin.k))}}
+function readyChips(){const has=id=>{const el=$('#'+id);return !!(el&&(el.classList.contains('cks')?el.querySelector('input:checked'):el.value.trim()))};const K=rfqCoreKeys(),cok=rfqCoreOk();
+  /* 工場が見積を出すのに要る点（何を作るか・数量・材料・大きさと形・仕上げ・納期）。品目で材料・仕上げの聞き方が変わる（服なら生地・プリント、食品なら配合） */
+  const it=[['何を作るか',has('f-sum')],['数量',has('f-qty')],...(K.mat?[['材料',cok.mat]]:[]),['大きさ・形',cok.size],...(K.fin?[['仕上げ',cok.fin]]:[]),['納期',has('f-due')&&has('f-fix')]];
+  return `<div class="ready"><div class="rh"><b>工場が見積に要る点</b><span class="mono">${it.filter(x=>x[1]).length} / ${it.length}</span></div><div class="rc">${it.map(([t,ok])=>`<span class="${ok?'on':''}">${ok?'✓ ':''}${t}</span>`).join('')}</div>
+    <span class="muted" style="font-size:12.5px">この点がそろうと、工場は見積を出せます。材料・仕上げがわからなければ「おまかせ」を選ぶと、工場が提案します。</span></div>`}
 function renderReady(){const el=$('#readyBox');if(el)el.innerHTML=readyChips()}
 const AI_PROMPT={
  ja:`添付した写真・動画・スケッチをもとに、工場に見積を頼むための「仕様メモ」を日本語で作ってください。\n次の見出しで、箇条書きで書いてください。\n1. 製品名と用途（だれが・どこで使うか）\n2. 形の説明（パーツごとに。写真の何番に写っているか）\n3. 寸法（わかる所は数字、写真からの推定には「推定」と書く）\n4. 材質の候補と理由\n5. 色・仕上げ・ロゴ\n6. 動く部分・電気・防水などの機能\n7. 数量（試作・小ロット・量産）\n8. 使う環境（屋外・水回り・食品に触れる など）\n9. 工場に確認すべき点・まだ決まっていない点\n写真から読み取れないことは推測で埋めず、「不明」と書いてください。`,
@@ -1157,11 +1159,11 @@ function wireAiHelp(root){(root||document).querySelectorAll('[data-aicp]').forEa
   (root||document).querySelectorAll('[data-aiopen]').forEach(a=>a.onclick=()=>track('ai_prompt_open',{ai:a.dataset.aiopen}))}
 /* 自分の ChatGPT・Claude で相談する（KATACHIはAIのAPIを使わない＝費用ゼロ）。質問文をURLで渡し、念のためクリップボードにも入れる */
 const KSITE='https://katachi.shiokonbu.com/';
-const SX_TPL='{"product_name":{"value":"","quote":""},"purpose":{"value":"","quote":""},"shape":{"value":"","quote":""},"width":{"value":"","quote":""},"length":{"value":"","quote":""},"height":{"value":"","quote":""},"weight":{"value":"","quote":""},"load":{"value":"","quote":""},"power":{"value":"","quote":""},"quantity_proto":{"value":"","quote":""},"quantity_mass":{"value":"","quote":""},"scope":{"value":"","quote":""},"due":{"value":"","quote":""},"budget":{"value":"","quote":""},"materials":[{"part":"","value":"","quote":""}],"components":[{"value":"","quote":""}],"processes":[{"value":"","quote":""}],"regulations":[{"value":"","quote":""}],"environment":[{"value":"","quote":""}],"open_items":[{"value":"","quote":""}],"docs":[{"value":"","quote":""}],"category_items":[{"item":"","value":"","quote":""}]}';
+const SX_TPL='{"product_name":{"value":"","quote":""},"purpose":{"value":"","quote":""},"shape":{"value":"","quote":""},"width":{"value":"","quote":""},"length":{"value":"","quote":""},"height":{"value":"","quote":""},"weight":{"value":"","quote":""},"load":{"value":"","quote":""},"power":{"value":"","quote":""},"quantity_proto":{"value":"","quote":""},"quantity_mass":{"value":"","quote":""},"scope":{"value":"","quote":""},"due":{"value":"","quote":""},"due_flex":{"value":"","quote":""},"finish":{"value":"","quote":""},"budget":{"value":"","quote":""},"materials":[{"part":"","value":"","quote":""}],"components":[{"value":"","quote":""}],"processes":[{"value":"","quote":""}],"regulations":[{"value":"","quote":""}],"environment":[{"value":"","quote":""}],"open_items":[{"value":"","quote":""}],"docs":[{"value":"","quote":""}],"category_items":[{"item":"","value":"","quote":""}]}';
 const AIQ={
  ja:{head:'次の製品を作りたいと考えています。私は製品づくりの専門家ではありません。製品開発と製造にくわしい相談相手として、わかりやすく助けてください。',idea:'作りたいもの',qty:'数量の段階',steps:'製造マッチングサイト KATACHI が文章からキーワードで読み取った工程（当たり付け）',nosteps:'（KATACHIでは工程を読み取れませんでした）',blk:'KATACHIで扱っていない点',blkask:'上の点はKATACHIでは工場の紹介をしていません。その部分は、必要な免許・許可・手続きの一般的な流れと注意点だけ教えてください。容器・ラベル・パッケージ・関連グッズなど、それ以外で外注できる部分があれば、そちらを中心に答えてください。',empty:'（まだ漠然としています。何を作るかから一緒に考えてください）',regs:'関係しそうな法規制・認証（KATACHIの当たり付け）',files:'手元にある資料',concept:'KATACHIが製品の種類から作った製品イメージ案（たたき台）',dir:'選んだ方向性',cask:'まず、上の製品イメージ案を私の用途に合わせて直してください（外観・大きさ・素材・主な機能・想定スペック）。',iask:'まず、製品イメージ案（外観・大きさ・素材・主な機能・想定スペック）を2〜3通り出してください。',
   ask:'次の順に答えてください。\n1. 仕様の整理（用途・大きさ・材質・機能・使う環境）。決まっていない点は、私への質問の形で挙げてください\n2. 必要な工程。上の工程一覧に足りないもの・要らないものがあれば指摘してください\n3. 技術的に難しそうな点と、試作で確かめる方法\n4. 関係しそうな法規制・認証\n5. 試作→小ロット→量産の進め方\n6. 最後に、工場へ見積を頼むための「仕様メモ」（形・寸法・材質・数量・使う環境・決まっていない点）を箇条書きで\n\n料金・会社名・数値は推測で作らず、わからないことは「要確認」と書いてください。',
-  json:'7. 最後に、次の形のJSONを ```json のコードブロックで1つだけ出してください（KATACHIに貼り戻すと、この項目に入ります）。\n- value は値、quote は根拠として【作りたいもの】の文章から一字一句そのまま写した部分（40字以内）\n- 【作りたいもの】に書いていないこと、「要確認」「未定」と書かれたことは、value を「要確認」、quote を空にする（推測で埋めない）\n- 寸法・重さ・数量は単位を付ける（width=幅、length=長さ・奥行、height=高さ、weight=製品の重さ、load=乗せる・支える重さ、scope=どこまで頼むか（設計から／図面があり作るだけ 等）、due=希望の時期、budget=予算・目標単価、docs=手元にある資料）。配列は最大8件\n'+SX_TPL,cil:'- category_items の item は、次の項目名から選んでそのまま書く：',
+  json:'7. 最後に、次の形のJSONを ```json のコードブロックで1つだけ出してください（KATACHIに貼り戻すと、この項目に入ります）。\n- value は値、quote は根拠として【作りたいもの】の文章から一字一句そのまま写した部分（40字以内）\n- 【作りたいもの】に書いていないこと、「要確認」「未定」と書かれたことは、value を「要確認」、quote を空にする（推測で埋めない）\n- 寸法・重さ・数量は単位を付ける（width=幅、length=長さ・奥行、height=高さ、weight=製品の重さ、load=乗せる・支える重さ、scope=どこまで頼むか（設計から／図面があり作るだけ 等）、due=希望の時期、budget=予算・目標単価、docs=手元にある資料、finish=仕上げ（色・表面・ロゴ）、due_flex=時期をずらせる幅）。配列は最大8件\n'+SX_TPL,cil:'- category_items の item は、次の項目名から選んでそのまま書く：',
   back:'仕様メモができたら、KATACHI（'+KSITE+'）に戻って貼り付け、工場に見積を依頼します。',q:{proto:'試作（1〜10個）',small:'小ロット（〜500個）',mass:'量産（500個〜）'}},
  en:{head:'I want to make the product below. I am not a product development expert. Please help me clearly, as an advisor who knows product development and manufacturing.',idea:'What I want to make',qty:'Quantity stage',steps:'Manufacturing steps that the matchmaking site KATACHI picked up from my text by keywords (a rough guess)',nosteps:'(KATACHI could not pick up any steps)',blk:'What KATACHI does not handle',blkask:'KATACHI does not introduce factories for the point above. For that part, only explain the general flow of licenses, permits and procedures and what to watch out for. If other parts can be outsourced, such as containers, labels, packaging or related merchandise, focus your answer on those.',empty:'(Still vague. Please help me work out what to make, starting from scratch)',regs:'Regulations and certifications that may apply (KATACHI\'s rough guess)',files:'Materials I have',concept:'Product concept KATACHI drafted from the product type (a starting point)',dir:'Direction I chose',cask:'First, adjust the product concept above to my use (look, size, materials, main functions, target specs).',iask:'First, propose 2-3 product concepts (look, size, materials, main functions, target specs).',
   ask:'Please answer in this order.\n1. Organize the spec (use, size, material, functions, environment of use). List undecided points as questions to me\n2. The manufacturing steps needed. Point out anything missing from or unnecessary in the list above\n3. Technically difficult points and how to test them in a prototype\n4. Regulations and certifications that may apply\n5. How to move from prototype to small batch to mass production\n6. Finally, a bullet-point "spec memo" for asking factories for a quote (shape, dimensions, material, quantity, environment of use, undecided points)\n\nDo not make up prices, company names or figures. Write "to be confirmed" for anything you do not know.',
@@ -1873,6 +1875,8 @@ function fsBuild(A){const c=A&&A.concept;if(!c)return null;const base=splitAi(S.
   const q1=t.match(/試作[^\d\n]{0,6}(\d+)\s*(個|台|本|枚|着|点)/);if(q1)put('qs',q1[1]+q1[2],'原文',q1[0]);if(xs('quantity_proto'))put('qs',X.quantity_proto.value,'原文',X.quantity_proto.quote);
   if(S.qn>0)put('qf',S.qn+'個','原文');if(xs('quantity_mass'))put('qf',X.quantity_mass.value,'原文',X.quantity_mass.quote);
   const du=t.match(/(\d{4}年)?\d{1,2}月(まで|中|末|頃)|\d+\s*(か月|ヶ月|カ月|週間)(以内|後|で)|年内|来年(の春|の夏|の秋|の冬)?/);if(du)put('due',du[0],'原文',fsQuote(t,new RegExp(du[0])));if(xs('due'))put('due',X.due.value,'原文',X.due.quote);
+  {const FW=/(塗装|メッキ|めっき|アルマイト|印刷|刻印|刺繍|ロゴ入れ|焼き印|研磨|つや出し|鏡面|染め|着色|素地|無塗装|ヘアライン)/g;const fw=[...new Set(t.match(FW)||[])];if(fw.length)put('fin',fw.join('、'),'原文',fsQuote(t,new RegExp(fw[0])));if(xs('finish'))put('fin',X.finish.value,'原文',X.finish.quote)}
+  {const DF=[[/厳守|動かせない|ずらせない|必ず.{0,8}(まで|までに)|展示会|発売日|イベント(まで|に間に合)/,'この日までに必要（動かせない）'],[/いつでも|急がない|時期は問わない|時期はおまかせ|空いている時期|閑散期/,'急がない（工場の空き時期でよい）']].find(([re])=>re.test(t));if(DF)put('dueflex',DF[1],'原文',fsQuote(t,DF[0]));if(xs('due_flex'))put('dueflex',X.due_flex.value,'原文',X.due_flex.quote)}
   const bu=t.match(/(予算|単価|原価|売価|価格)[^\n。]{0,12}?(\d[\d,.]*\s*(万円|円))/);if(bu)put('budget',bu[0],'原文');if(xs('budget'))put('budget',X.budget.value,'原文',X.budget.quote);
   if(X&&X.environment&&X.environment.length)put('env',X.environment.map(f=>f.value).join('、'),'原文');if(R.conds.length)put('env',[...new Set(R.conds.map(x=>x.chip).filter(Boolean))].join('、'),'原文');
   // 3) 製品DB（公的機関の出典つき）
@@ -1894,12 +1898,25 @@ function fsBuild(A){const c=A&&A.concept;if(!c)return null;const base=splitAi(S.
   const req=items.filter(i=>i.req);const sc2=req.reduce((a,i)=>a+(FSPEC.levels[(V[i.k]||{}).lv]||0),0);const score=req.length?Math.round(sc2/req.length*100):0;
   const docs2=(V.docs||{}).v||'',shape=cats.some(k=>['elec','metal','resin','wood'].includes(k.id))||!cats.length;
   const design=/設計から/.test((V.scope||{}).v||'')||(shape&&!/図面|3Dデータ|現物/.test(docs2));
-  const mode=design?'design':score>=75?'quote':'more';
+  const core=fsCore({V,items,cats},fa),ready=core.every(x=>x.ok);
+  const mode=design?'design':ready?'quote':'more';
   const ask=items.filter(i=>i.q&&i.ch&&(!V[i.k]||V[i.k].lv==='仮'&&!(fa[i.k]&&fa[i.k].unk))&&(i.req||!V[i.k]));
   const fq=[];for(const i of items){const v=V[i.k];if(i.req&&(!v||v.lv==='仮'||v.lv==='要確認'))fq.push(i.fq||('「'+i.t+'」：'+'この項目が決まっていません。この製品での一般的な決め方と、費用への影響を教えてください。'))}
   cats.forEach(k=>k.asks.forEach(a=>fq.push(a)));if(design)fq.unshift('図面なしで、この仕様書から設計を受けられますか。設計費と期間の目安を教えてください。');if(RF){fq.unshift('参考品をもとに、変えるところを入れたオリジナルとして作れますか。');if(!/図面|3Dデータ/.test(docs2))fq.push('現物を採寸・3Dスキャンして、図面や3Dデータにできますか。費用と期間を教えてください（できない場合は、できる会社の紹介も歓迎です）。');fq.push('参考品の特許・意匠・商標にかからない形にするため、気をつける点があれば教えてください（権利の最終確認は依頼者が行います）。')}fq.push('返事では、概算の費用・似た製品の実績・日程・量産まで手伝えるかを教えてください。');
-  return {V,items,cats,score,mode,ask,fq:[...new Set(fq)],db,c,ref:RF}}
+  return {V,items,cats,score,mode,ask,fq:[...new Set(fq)],db,c,ref:RF,core,ready}}
+/* 工場が見積を出すのに最低限要る6点（何を作るか・数量・材料・大きさと形・仕上げ・納期）。FSPEC.core が品目ごとの項目を決める。
+   材料・仕上げは「おまかせ」（工場が提案）でもよい。仮（似た製品の目安）や「わからない」は、そろったことにしない */
+const CORE_OKL=['原文','回答','製品DB','参考品'],CORE_OMK=['mat','fin'];
+function coreKeys(c,catIds){if((c.skip||[]).some(x=>catIds.includes(x)))return null;for(const id of catIds)if(c.cat&&c.cat[id])return c.cat[id];return c.keys}
+function fsCore(F,fa){const ids=F.cats.map(k=>k.id),its=F.items;
+  return FSPEC.core.map(c=>{let keys=coreKeys(c,ids);if(!keys)return null;keys=keys.filter(k=>its.some(i=>i.k===k));
+    const okk=k=>{const a=fa[k],v=F.V[k];return !!(a&&!a.unk&&a.v&&[].concat(a.v).length||v&&v.v&&CORE_OKL.includes(v.lv))};
+    let ok=c.all?keys.every(okk):keys.some(okk);if(c.id==='what'&&!ok)ok=String(ideaBase()).trim().length>=4;
+    const val=keys.map(k=>F.V[k]&&F.V[k].v&&CORE_OKL.includes(F.V[k].lv)?F.V[k].v:'').filter(Boolean).join('／');
+    const need=keys.filter(k=>!okk(k)),ask=(c.all?need:ok?[]:need).map(k=>its.find(i=>i.k===k)).filter(i=>i&&i.q&&i.ch);
+    return {id:c.id,t:c.t,ok,val,keys,ask:c.all?ask:ask.slice(0,1),omk:CORE_OMK.includes(c.id)}}).filter(Boolean)}
 function fsText(F){if(!F)return '';const L=['※ この仕様書と参考図（3D・寸法図）は、KATACHIが作った簡易なたたき台で、図面ではありません。寸法・材質・構造は仮です。専門のお立場からご確認・ご提案ください。不明点はご質問ください。','','■ 工場向け仕様書（KATACHIが整理。確かさ：原文=依頼者の文章／回答=選択式の回答／製品DB=公的機関の出典／仮=似た製品の目安／要確認）'];
+  if(F.core){L.push('','■ 見積に要る点（'+F.core.filter(x=>x.ok).length+' / '+F.core.length+'）');F.core.forEach(x=>L.push('・'+x.t+'：'+(x.val||(x.ok?'記入あり':'要確認'))));L.push('')}
   if(F.cats.length)L.push('品目：'+F.cats.map(k=>k.t).join('、'));
   for(const i of F.items){const v=F.V[i.k];L.push('・'+i.t+'：'+(v&&v.v?v.v:'要確認')+'［'+(v?v.lv:'要確認')+']'+(v&&v.src?'（'+v.src+'）':''))}
   {const lw=fsLaws((F.V.reg||{}).v);if(lw.length)L.push('  条文（e-Gov法令検索）：'+lw.map(l=>l.n+' '+l.url).join('　'))}
@@ -1908,26 +1925,29 @@ function fsText(F){if(!F)return '';const L=['※ この仕様書と参考図（3
   L.push('','■ 工場に聞くこと');F.fq.forEach((q,n)=>L.push((n+1)+'. '+q));L.push('','工場に出せる度：'+F.score+'%（'+{quote:'見積に出せます',design:'設計の見積から始めます',more:'あと少しで見積に出せます'}[F.mode]+'）');return L.join('\n')}
 function fspecCard(A){const F=fsBuild(A);if(!F)return '';S.fs=F;const fa=fsAns();
   /* 質問は1問ずつ、同じ場所で答える（答えても画面が飛ばない）。どの質問も複数選べ、「その他」に自由に書ける */
-  const sk=S.fsSkip||(S.fsSkip=new Set()),fst=S.fsFirst;const AQ=[...F.items.filter(i=>i.k===fst&&i.q&&i.ch),...F.ask.filter(i=>i.k!==fst&&!sk.has(i.k)),...F.ask.filter(i=>i.k!==fst&&sk.has(i.k))];
-  const done=F.items.filter(i=>fa[i.k]&&i.k!==fst).length,cur=AQ[0];
-  const head={quote:'見積に出せます',design:'設計の見積から始めます',more:'あと少しで見積に出せます'}[F.mode];
-  const lead={quote:'必要な項目がそろいました。この仕様書を見積の依頼に付けて送れます。',design:'図面や3Dデータがないため、工場はまず設計（仕様を決める仕事）の費用を見積もります。この仕様書を設計の依頼書として送ります。',more:'下の質問に答えると、工場が見積に使える情報がそろいます。わからない所は「わからない」で大丈夫です。'}[F.mode];
+  const sk=S.fsSkip||(S.fsSkip=new Set()),fst=S.fsFirst;const CQ=[...new Map(F.core.flatMap(x=>x.ask.map(i=>[i.k,Object.assign({},i,{core:x.id,omk:x.omk})]))).values()].filter(i=>i.k!==fst);const cq=new Set(CQ.map(i=>i.k));
+  const AQ=[...F.items.filter(i=>i.k===fst&&i.q&&i.ch).map(i=>{const x=F.core.find(c=>c.keys.includes(i.k));return x?Object.assign({},i,{core:x.id,omk:x.omk}):i}),...CQ,...F.ask.filter(i=>i.k!==fst&&!cq.has(i.k)&&!sk.has(i.k)),...F.ask.filter(i=>i.k!==fst&&!cq.has(i.k)&&sk.has(i.k))];
+  const done=F.items.filter(i=>fa[i.k]&&i.k!==fst).length,cur=AQ[0],cn=F.core.filter(x=>x.ok).length,miss=F.core.filter(x=>!x.ok);
+  const head=F.ready?{quote:'見積に出せます',design:'設計の見積から始めます'}[F.mode]||'見積に出せます':'あと'+miss.length+'点で見積に出せます';
+  const lead=F.ready?(F.mode==='design'?'工場が見積に要る点はそろいました。図面や3Dデータがないため、工場はまず設計（仕様を決める仕事）の費用を見積もります。この仕様書を設計の依頼書として送ります。':'工場が見積に要る点がそろいました。この仕様書を見積の依頼に付けて送れます。ほかの質問は任意です（答えると見積が正確になります）。')
+    :'工場が見積を出すのに要る点のうち、'+miss.map(x=>'「'+x.t+'」').join('')+'がまだです。'+(miss.some(x=>x.omk)?'材料・仕上げは「おまかせ」でも大丈夫です（工場が提案します）。':'だいたいで大丈夫です。');
   const qhtml=cur?(()=>{const a=fa[cur.k]||{},sel=a.unk?[]:Array.isArray(a.v)?a.v:a.v?[a.v]:[],oth=sel.filter(x=>!cur.ch.includes(x)).join('、');
-    return `<div class="fsq" id="fsQ"><div class="fsqh"><span><span>質問</span> <b class="mono">${done+1}</b> / ${done+AQ.length}</span><span class="muted">いくつでも選べます</span></div>
+    const hint=F.V[cur.k]&&F.V[cur.k].lv==='仮'&&F.V[cur.k].v?`<p class="muted fsqhint"><span>似た製品の目安：</span><span translate="no">${esc(F.V[cur.k].v.slice(0,120))}</span></p>`:'';
+    return `<div class="fsq" id="fsQ">${F.ready&&!cur.core?`<p class="fsqok"><span>✓ 見積に要る点がそろいました。ここからは任意です。</span><button type="button" class="btn sm pri" data-gonext>この案で会社を探す →</button></p>`:''}<div class="fsqh">${cur.core?`<span><span>見積に必要な質問</span> <span>あと</span> <b class="mono">${AQ.filter(i=>i.core).length}</b></span>`:`<span><span>質問</span> <b class="mono">${done+1}</b> / ${done+AQ.length}</span><span class="muted">任意</span>`}<span class="muted">いくつでも選べます</span></div>
     <fieldset class="fsqi" data-fk="${esc(cur.k)}"><legend><span>${esc(cur.q)}</span>${cur.cat?` <span class="chip">${esc((FSPEC.cats.find(k=>k.id===cur.cat)||{}).t||'')}</span>`:''}</legend><div class="fsch">
       ${cur.ch.map(ch=>{const on=sel.includes(ch);return `<button type="button" class="fsb${on?' on':''}" data-fv="${esc(ch)}" aria-pressed="${on}">${esc(ch)}</button>`}).join('')}</div>
-      <input class="fsoth" id="fsOth" type="text" value="${esc(oth)}" placeholder="その他（自由に書く）" aria-label="その他（自由に書く）"></fieldset>
+      <input class="fsoth" id="fsOth" type="text" value="${esc(oth)}" placeholder="その他（自由に書く）" aria-label="その他（自由に書く）">${hint}</fieldset>
     <p class="fsqerr" id="fsQErr" role="alert"></p>
-    <div class="fsqa"><button type="button" class="btn pri" id="fsOk">次へ</button><button type="button" class="btn" id="fsUnk">わからない</button>${AQ.length>1?'<button type="button" class="btn ghost" id="fsLater">あとで</button>':''}</div></div>`})()
+    <div class="fsqa"><button type="button" class="btn pri" id="fsOk">次へ</button>${cur.omk?'<button type="button" class="btn" id="fsOmk">おまかせ（工場の提案で）</button>':cur.core?'':'<button type="button" class="btn" id="fsUnk">わからない</button>'}${AQ.length>1&&!cur.core?'<button type="button" class="btn ghost" id="fsLater">あとで</button>':''}</div>${cur.core&&!cur.omk?'<p class="muted fsqhint">だいたいで大丈夫です。迷ったら近いものを選んでください。</p>':''}</div>`})()
     :`<div class="fsq fsqdone" id="fsQ"><b>✓ 質問はすべて答えました</b><span class="muted">答えは下の仕様書の表と見積の依頼に入ります。直すときは表の「直す」から。</span><div class="fsqa"><button type="button" class="btn pri" data-gonext>この案で会社を探す →</button></div></div>`;
-  S.fsQh=`<div class="fsqtop"><span class="fsqstep">${cur?'答えてください':'できました'}</span><span class="muted"><span>工場に出せる度</span> <b class="mono">${F.score}%</b></span></div>`+qhtml;
+  S.fsQh=`<div class="fsqtop"><span class="fsqstep">${cur?'答えてください':'できました'}</span><span class="muted"><span>見積に要る点</span> <b class="mono">${cn} / ${F.core.length}</b></span></div>`+qhtml;
   const fg=F.c&&F.c.fig?figOf(F.c):null;
   const szEd=fg?`<div class="fssz">${[['w','幅'],...(fg.l>60||fg.k==='slope'?[['l','長さ']]:[]),['h','高さ']].map(([k,l])=>`<label><span>${l}</span><input type="number" inputmode="decimal" min="1" data-fsz="${k}" value="${Math.round(fg[k]/10)}"><span>cm</span></label>`).join('')}</div>`:'';
   const shRow=fg&&fg.k==='slope'?`<tr><th>図で決めた形</th><td><div class="fssz">${fsel('fss','ost',fg.ost,'外側')}${fg.pool?`<label class="cedck"><input type="checkbox" data-fsc="inpool"${fg.inpool?' checked':''}><span>プールの中まで続ける</span></label>${fg.inpool?fsel('fss','ist',fg.ist,'プールの中'):''}`:''}<label class="cedck"><input type="checkbox" data-fsc="rail"${fg.rail?' checked':''}><span>手すり</span></label></div>${shList().length?`<small translate="no">${esc(shList().map(x=>x.t).join(' ／ '))}</small>`:''}</td><td>${mk('ok','回答')}<small>イメージ図</small></td></tr>`:'';
   const row=i=>{const v=F.V[i.k];const lv=v?v.lv:'要確認';const lw=i.k==='reg'&&v?fsLaws(v.v):[];return `<tr><th>${esc(i.t)}${i.req?'<span class="fsreq">*</span>':''}${i.q&&i.ch&&fa[i.k]?` <button type="button" class="fsfix" data-fx="${esc(i.k)}">直す</button>`:''}</th><td>${i.k==='size'&&szEd?szEd+(lv==='仮'?'<small>仮：似た製品の目安。数字を直すと図も変わります</small>':''):v&&v.v?(lv==='仮'?'<span>仮：</span>':'')+`<span translate="no">${esc(v.v)}</span>`:'<span>要確認</span>'}</td><td>${mk(FS_LV[lv]||'unk',lv)}${v&&v.src?`<small translate="no">${esc(v.src)}</small>`:''}${lw.length?`<small>条文（e-Gov法令検索）：${lw.map(l=>`<a href="${l.url}" target="_blank" rel="noopener" translate="no">${esc(l.n)}</a>`).join('、')}</small>`:''}</td></tr>`};
   const draft=F.mode==='design'&&F.c&&F.c.fig?`<div class="fsdraft"><h4>設計の下書き</h4><p class="muted">KATACHIが作る下書きです。単純な形なら3Dプリントの試作に出せます。回路・基板・強度・防水・金型は、設計者が仕上げる前提です。</p><div class="fsbtns"><button type="button" class="btn sm" id="fsStl">製品イメージ案の3Dデータ（STL）を保存</button><button type="button" class="btn sm" id="fsSvg">寸法図（SVG）を保存</button></div></div>`:'';
   return `<section class="ccard fspec" id="mFspec"><div class="chd"><h2>工場向け仕様書</h2>${F.c&&F.c.fig?'<span class="muted" style="font-size:12.5px">上の図と、下の答えから作ります</span>':''}${F.cats.map(k=>`<span class="chip">${esc(k.t)}</span>`).join('')}</div>
-    <div class="fshd fs-${F.mode}"><div class="fsm"><span>工場に出せる度</span><b class="mono">${F.score}%</b><div class="bar"><i style="width:${F.score}%"></i></div></div><div><b>${head}</b><p>${lead}</p></div></div>
+    <div class="fshd fs-${F.mode}"><div class="fsm"><span>見積に要る点</span><b class="mono">${cn} / ${F.core.length}</b><div class="bar"><i style="width:${Math.round(cn/Math.max(1,F.core.length)*100)}%"></i></div></div><div><b>${head}</b><p>${lead}</p><div class="rc fscore">${F.core.map(x=>`<span class="${x.ok?'on':''}">${x.ok?'✓ ':''}${esc(x.t)}</span>`).join('')}</div></div></div>
     ${S.fsQh}
     ${fold('fstab','仕様書',`<table class="fstb"><thead><tr><th>項目</th><th>内容</th><th>確かさ</th></tr></thead><tbody>${F.items.map(row).join('')}${shRow}</tbody></table><p class="muted" style="font-size:12px;margin:6px 0 0">仮の値は、似た製品の目安です。工場との打ち合わせで決まります。</p>`,F.items.filter(i=>F.V[i.k]&&F.V[i.k].v).length+' / '+F.items.length)}
     ${fold('fsfq','工場に聞くこと（自動で依頼書に付きます）',`<ol class="cl">${F.fq.map(q=>`<li>${esc(q)}</li>`).join('')}</ol>`,String(F.fq.length))}
@@ -1945,6 +1965,7 @@ function wireFspec(A){const el=$('#mFspec');if(!el)return;const fa=fsAns();
   $('#fsOk')&&($('#fsOk').onclick=()=>{const k=curK();const v=[...document.querySelectorAll('#fsQ .fsb.on')].map(b=>b.dataset.fv),o=($('#fsOth').value||'').trim().slice(0,100);if(o)v.push(o);
     if(!v.length){$('#fsQErr').textContent='選ぶか、書いてから「次へ」を押してください';return}
     fa[k]={v};fsSave();S.fsSkip&&S.fsSkip.delete(k);if(S.fsFirst===k)S.fsFirst=null;track('fspec_answer',{answered:Object.keys(fa).length,other:o?1:0});redraw()});
+  $('#fsOmk')&&($('#fsOmk').onclick=()=>{const k=curK();fa[k]={v:[FSPEC.omakase]};fsSave();S.fsSkip&&S.fsSkip.delete(k);if(S.fsFirst===k)S.fsFirst=null;track('fspec_answer',{answered:Object.keys(fa).length,omakase:1});redraw()});
   $('#fsUnk')&&($('#fsUnk').onclick=()=>{const k=curK();fa[k]={unk:1};fsSave();S.fsSkip&&S.fsSkip.delete(k);if(S.fsFirst===k)S.fsFirst=null;track('fspec_answer',{answered:Object.keys(fa).length,unk:1});redraw()});
   $('#fsLater')&&($('#fsLater').onclick=()=>{const k=curK();(S.fsSkip||(S.fsSkip=new Set())).add(k);if(S.fsFirst===k)S.fsFirst=null;redraw()});
   el.querySelectorAll('[data-fx]').forEach(b=>b.onclick=()=>{S.fsFirst=b.dataset.fx;const k=b.dataset.fx,a=fa[k];if(a&&a.unk)delete fa[k];fsSave();redraw(true)});
@@ -3059,7 +3080,15 @@ function fsFormSave(el){const k=el.id.slice(3),fa=fsAns();let v=el.tagName==='SE
   if(Array.isArray(v)&&v.includes(FSPEC.unk))v=FSPEC.unk;
   if(!v||(Array.isArray(v)&&!v.length))delete fa[k];else fa[k]=v===FSPEC.unk?{unk:1}:{v};fsSave();
   const sp=$('#f-spec');if(sp&&S.anal&&S.fs&&S.fs.c===S.anal.concept){const old=fsText(S.fs);const F=fsBuild(S.anal);if(F){S.fs=F;if(sp.value===old)sp.value=fsText(F)}}}
-function RFQ(r,qty){return [
+// 見積の依頼：工場が見積に要る点を先頭にまとめ、全部そろってから送る。材料・仕上げは「おまかせ」可
+function rfqCoreKeys(){const ids=fsFormCats().map(c=>c.id),its=[...FSPEC.common,...fsFormCats().flatMap(c=>c.items)];const o={};
+  for(const id of ['mat','fin']){const c=FSPEC.core.find(x=>x.id===id),ks=coreKeys(c,ids);o[id]=ks?(ks.map(k=>its.find(i=>i.k===k)).find(i=>i&&i.ch&&i.ch.length)||null):null}return o}
+function RFQ(r,qty){const G=RFQ0(r,qty),all=G.flatMap(g=>g[1]),pick=id=>all.find(f=>f[0]===id),K=rfqCoreKeys(),F=fsNow();
+  const cf=i=>['fs-'+i.k,i.t,'cks','req',[...i.ch,FSPEC.omakase]];const sz=F&&F.V.size&&F.V.size.v?F.V.size:null;
+  const core=[pick('f-sum'),pick('f-qty'),...(K.mat?[cf(K.mat)]:[]),pick('f-matl'),['f-size','大きさ・形（だいたいで大丈夫）','txt','req',sz&&sz.lv==='仮'?'目安：'+sz.v.slice(0,60):'例：幅30×奥行20×高さ10cmくらい、手のひらサイズ'],...(K.fin?[cf(K.fin)]:[]),pick('f-due'),(f=>f&&[f[0],f[1],'sel','req',f[4]])(pick('f-fix'))].filter(Boolean);
+  const ids=new Set(core.map(f=>f[0]));const out=G.map(([t,fs])=>[t,fs.filter(f=>!ids.has(f[0]))]).filter(g=>g[1].length);
+  return [['工場が見積に要ること',core],...out]}
+function RFQ0(r,qty){return [
  ['依頼者',[['f-who','依頼者の区分','sel','req',['法人（中小企業など）','個人事業主・個人']],['f-org','会社名・屋号','txt','opt',''],['f-name','ご担当者名','txt','opt',''],['f-mail','メールアドレス','email','req','見積が届いたらお知らせします'],['f-tel','電話番号','tel','opt',''],['f-ind','業種','sel','opt',['','消費財ブランド（ペット・アウトドアなど）','店舗・施設の運営','製造業（自社製品をつくりたい）','ハードウェアのスタートアップ','その他']]]],
  ['つくりたいもの',[['f-sum','製品の概要','area','req',(S.idea&&S.matched!=='example'&&!demo())?S.idea:r.summary],...(S.src==='text'&&fsNow()?[['f-spec','工場向け仕様書（KATACHIが整理）','area','opt',fsText(fsNow())]]:[]),['f-use','用途・使う人','txt','ai','例：大型犬の飼い主が毎日の散歩で使う'],['f-env','使う場所・環境','cks','opt',['屋内','屋外・雨','水回り','高温・低温','身につける','食品に触れる','子ども・ペットが触れる']],['f-size','大きさの目安','txt','opt','例：手のひらに乗る、縦90mm以内'],['f-matl','材質の希望','txt','opt','例：ABS樹脂、ステンレス、綿100%、わからない'],['f-wt','重さの目安','txt','opt','例：50g以下'],...(fsFormCats().some(c=>c.id==='elec')?[]:[['f-pow','電源','sel','opt',['','乾電池','充電式','コンセント','電源は不要',UNK]]]),['f-look','色・質感・仕上げ','txt','opt','例：マットな黒、ロゴを入れたい'],['f-ref','参考にしている製品','txt','opt','URLや商品名']]],
  ['見積に要ること',fsFields()],
@@ -3108,7 +3137,7 @@ function rfq(names){
   const G=S.scen==='guided';
   const roles=n=>G?(S.src==='guided'?(S.g.proc&&S.g.proc!==OMAKASE?S.g.proc:gCat()?.t||''):(S.gstep[n]==='まとめて依頼'?'まとめて（'+(S.anal?.codes||[]).map(c=>CAPN[c]||c).join('、')+'）':(S.gstep[n]||''))):Object.entries(S.assign).filter(([,v])=>v===n).map(([k])=>r.per_requirement.find(p=>p.requirement.id===k)?.requirement.purpose).filter(Boolean).join('、');
   sheet(`${head('Request for quote','見積を依頼する')}${S.src==='text'?stepBar(4):''}
-    <p class="muted" style="margin:0;font-size:13px">必須は5つだけです。ほかは、わかる範囲で選ぶか空けておけば「相談したい」として届きます。</p>
+    <p class="muted" style="margin:0;font-size:13px">必須は、工場が見積を出すのに要る点と連絡先だけです。材料・仕上げは「おまかせ」でも大丈夫です（工場が提案します）。ほかは空けておけば「相談したい」として届きます。</p>
     <p class="muted" style="margin:0;font-size:13px">製品の概要と「AIが補う」の欄は、入力した内容からAIが下書きしています。直してから送れます。</p>
     <form class="form" id="rf" novalidate>
       ${RFQ(r,qty).map((g,gi)=>`<details class="grp" ${g[1].some(f=>f[3]==='req'||f[2]==='media')||g[0]==='見積に要ること'?'open':''}><summary><span>${g[0]}</span><small>${g[1].some(f=>f[3]==='req')?'必須あり':g[1].some(f=>f[2]==='media')||g[0]==='見積に要ること'?'見積の精度が上がります':'任意'}</small></summary><div class="in">${g[1].map(fld).join('')}</div></details>`).join('')}
@@ -3121,7 +3150,7 @@ function rfq(names){
       <div class="empty"><b>送る前に、KATACHIの担当者が内容を確認します</b>伝わりにくい点や技術的に無理のある点がないかを人が見てから届けます。まだKATACHIに参加していない会社には、担当者から個別に打診します。</div>
       <button class="btn pri" type="submit" style="height:48px">この内容で依頼する</button>
     </form>`);
-  renderMedia();fsFormFill();renderReady();$('#rf').addEventListener('input',renderReady);$('#rf').addEventListener('change',e=>{const el=e.target.closest('[id^="fs-"]');if(el){fsFormSave(el);track('rfq_fs_answer',{item:el.id.slice(3)})}});
+  renderMedia();fsFormFill();{const F=fsNow(),ok=v=>v&&v.v&&CORE_OKL.includes(v.lv);if(F){if(ok(F.V.size)&&!$('#f-size').value)$('#f-size').value=F.V.size.v;if(ok(F.V.due)&&!$('#f-due').value)$('#f-due').value=F.V.due.v;if(ok(F.V.mat)&&$('#f-matl')&&!$('#f-matl').value)$('#f-matl').value=F.V.mat.v;const df=fsAns().dueflex,dv=df&&df.v?[].concat(df.v)[0]:(ok(F.V.dueflex)?F.V.dueflex.v:'');if(dv&&$('#f-fix')&&FLEX.includes(dv))$('#f-fix').value=dv}}renderReady();$('#f-fix')&&$('#f-fix').addEventListener('change',e=>{const fa=fsAns();if(e.target.value)fa.dueflex={v:[e.target.value]};else delete fa.dueflex;fsSave()});$('#rf').addEventListener('input',renderReady);$('#rf').addEventListener('change',e=>{const el=e.target.closest('[id^="fs-"]');if(el){fsFormSave(el);track('rfq_fs_answer',{item:el.id.slice(3)})}});
   $('#trPrev')&&($('#trPrev').onclick=async()=>{track('translate_preview',{});
     const langs=[...new Set(names.map(n=>dlvLang(D.companies[n])))];const out=$('#trOut');
     const want=langs.filter(l=>l!==({ja:'日本語',en:'英語',zh:'中国語'})[window.KATACHI_LANG()]);
@@ -3136,7 +3165,7 @@ function rfq(names){
     }catch(e){out.innerHTML='<span class="muted" style="font-size:13px">翻訳を確認できませんでした。もう一度お試しください。</span>'}
   });
   $('#rf').onsubmit=async e=>{e.preventDefault();
-    const miss=[['f-sum','製品の概要'],['f-mail','メールアドレス'],['f-qty','段階と数量'],['f-due','希望の時期']].filter(([id])=>{const el=$('#'+id);const bad=!el.value.trim()||(id==='f-mail'&&!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(el.value.trim()));el.classList.toggle('bad',bad);return bad});
+    const K=rfqCoreKeys(),cok=rfqCoreOk();const miss=[['f-sum','製品の概要'],['f-qty','段階と数量'],...(K.mat?[['fs-'+K.mat.k,'材料',cok.mat]]:[]),['f-size','大きさ・形',cok.size],...(K.fin?[['fs-'+K.fin.k,'仕上げ',cok.fin]]:[]),['f-due','希望の時期'],['f-fix','時期の幅'],['f-mail','メールアドレス']].filter(([id,,ok])=>{const el=$('#'+id);if(!el)return false;const bad=!ok&&(el.classList.contains('cks')?!el.querySelector('input:checked'):!el.value.trim()||(id==='f-mail'&&!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(el.value.trim())));el.classList.toggle('bad',bad);return bad});
     if(!$('#f-agree').checked)miss.push(['f-agree','利用規約とプライバシーポリシーへの同意']);
     if(miss.length){miss.forEach(([id])=>{const d=$('#'+id).closest('details');if(d)d.open=true});$('#rfErr').innerHTML='<span>入力してください</span>: '+miss.map(m=>'<span>'+m[1]+'</span>').join(', ');$('#'+miss[0][0]).focus();track('form_error',{reason:'rfq_required',fields:miss.length});return}
     const all=RFQ(r,qty).flatMap(g=>g[1]).filter(f=>f[3]!=='req');

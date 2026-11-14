@@ -11,6 +11,8 @@
 import json, sys, os
 
 UNK = ('わからない', "I don't know", '不清楚')
+# 「おまかせ」も答え（工場が提案する）。見積に要る6点は、わからない・おまかせでもそろったことにする
+OMAKASE = ('おまかせ（工場の提案で）', 'Leave it to the factory', '交给工厂提议')
 
 # k: 項目キー, t: 見出し, req: 見積に要る（工場に出せる度に数える）, q: 利用者への質問, ch: 選択肢, multi: 複数選べる,
 # fq: その項目が「仮」「要確認」のときに工場へ聞く文, sx: 貼り戻しJSONのキー
@@ -31,7 +33,14 @@ COMMON = [
          fq=('この用途で現実的な大きさ（外形寸法）の目安を教えてください。', 'What overall dimensions are realistic for this use?', '请告诉我们这种用途下实际可行的外形尺寸参考。')),
     dict(k='mat', t=('素材', 'Material', '材质'), req=1, sx='materials',
          q=('素材の希望はありますか', 'Do you have a material in mind?', '对材质有要求吗？'),
+         multi=1, ch=[('金属', 'Metal', '金属'), ('樹脂（プラスチック）', 'Plastic', '树脂（塑料）'), ('木', 'Wood', '木材'), ('布・革', 'Fabric / leather', '布・皮革'),
+                      ('紙', 'Paper', '纸'), ('ガラス・陶器', 'Glass / ceramic', '玻璃・陶瓷'), ('シリコーン・ゴム', 'Silicone / rubber', '硅胶・橡胶')],
          fq=('この用途に合う素材の候補と、素材による費用の違いを教えてください。', 'Which materials suit this use, and how do they change the cost?', '请告诉我们适合该用途的材质候选，以及不同材质的费用差异。')),
+    dict(k='fin', t=('仕上げ（色・表面・ロゴ）', 'Finish (colour, surface, logo)', '表面处理（颜色・表面・标志）'), req=0, multi=1, sx='finish',
+         q=('仕上げはどうしますか（いくつでも）', 'What finish? (choose any)', '表面怎么处理？（可多选）'),
+         ch=[('そのまま（素材の色・素地）', 'As is (natural material)', '保持原样（材料本色）'), ('色を付ける（塗装・染め・着色）', 'Add colour (paint, dye)', '上色（喷涂・染色）'),
+             ('ロゴ・文字を入れる（印刷・刻印・刺繍）', 'Add a logo or text (print, engrave, embroider)', '加标志・文字（印刷・刻印・刺绣）'), ('磨く・つやを出す', 'Polish / gloss', '抛光・上光')],
+         fq=('この製品で一般的な仕上げ（色・表面・ロゴの入れ方）と、費用の違いを教えてください。', 'What finishes (colour, surface, logo) are usual for this product, and how do they change the cost?', '请告诉我们该产品常见的表面处理（颜色・表面・标志），以及费用差异。')),
     dict(k='parts', t=('構成・部品', 'Components', '构成・零部件'), req=0, sx='components',
          fq=('部品の構成（部品表）の案をいただけますか。', 'Could you propose a component list (BOM)?', '能否提供零部件构成（BOM）的方案？')),
     dict(k='scope', t=('どこまで頼むか', 'Scope of the request', '委托范围'), req=1, sx='scope',
@@ -68,6 +77,11 @@ COMMON = [
          ch=[('1か月以内', 'Within 1 month', '1个月以内'), ('3か月以内', 'Within 3 months', '3个月以内'), ('半年以内', 'Within 6 months', '半年以内'),
              ('1年以内', 'Within a year', '1年以内'), ('決まっていない', 'No fixed date', '未定')],
          fq=('試作と量産、それぞれの期間の目安を教えてください。', 'How long do the prototype and mass production usually take?', '请告诉我们试制和量产各自所需时间的参考。')),
+    dict(k='dueflex', t=('納期の幅', 'Timing flexibility', '交期弹性'), req=0, sx='due_flex',
+         q=('その時期は、どのくらいずらせますか', 'How flexible is that timing?', '这个时间可以调整多少？'),
+         ch=[('この日までに必要（動かせない）', 'Needed by this date (fixed)', '必须在此日期前（不能调整）'), ('1か月ほど前後してもよい', 'About a month either way is fine', '前后1个月左右可以'),
+             ('2〜3か月のうち、いつでもよい', 'Any time within 2–3 months', '2～3个月内任何时候都可以'), ('急がない（工場の空き時期でよい）', 'No rush (whenever the factory has capacity)', '不急（工厂空闲时即可）')],
+         fq=('工場の空いている時期に合わせられます。安く・早く作れる時期があれば教えてください。', 'The timing is flexible. Let us know if there is a period when you can make it cheaper or sooner.', '时间可以配合工厂。如有能更便宜或更快制作的时期，请告诉我们。')),
     dict(k='budget', t=('予算・目標の単価', 'Budget / target unit price', '预算・目标单价'), req=0, sx='budget',
          fq=('この内容での概算の費用（試作・初回）を教えてください。', 'What is a rough cost for this (prototype and first run)?', '请告诉我们按此内容的大致费用（试制・首批）。')),
     dict(k='sure', t=('発注の確度', 'How firm the order is', '下单确定程度'), req=0, sx='certainty',
@@ -192,6 +206,16 @@ CATS = [
 ]
 
 # 画面の文言（日英中）
+# 工場が見積を出すのに最低限要る6点（図面なしで聞く核）。keys のどれかがそろえばよい（all=1 は全部）。cat で品目ごとに置き換え、skip で外す
+CORE = [
+    dict(id='what', t=('何を作るか', 'What it is', '做什么'), keys=['name']),
+    dict(id='qty', t=('数量', 'Quantity', '数量'), keys=['qf', 'qs']),
+    dict(id='mat', t=('材料', 'Material', '材料'), keys=['mat'], cat={'food': ['recipe', 'mat'], 'cosme': ['ctype', 'mat']}),
+    dict(id='size', t=('大きさ・形', 'Size and shape', '尺寸・形状'), keys=['size'], cat={'food': ['form', 'size'], 'cosme': ['vol', 'size']}),
+    dict(id='fin', t=('仕上げ', 'Finish', '表面处理'), keys=['fin'], cat={'metal': ['fin', 'surf'], 'resin': ['fin', 'finish', 'color'], 'wood': ['fin', 'paint'], 'apparel': ['fin', 'deco'], 'goods': ['fin', 'colors'], 'cosme': ['box', 'fin']}, skip=['food']),
+    dict(id='due', t=('納期', 'Timing', '交期'), keys=['due', 'dueflex'], all=1),
+]
+
 UI = [
     ('工場向け仕様書', 'Spec sheet for factories', '面向工厂的规格书'),
     ('工場に出せる度', 'Ready for factories', '可交给工厂的程度'),
@@ -366,6 +390,36 @@ UI = [
     ('質問文が入っていないときは、貼り付けて送ってください（コピー済み）。', 'If the prompt is not filled in, paste it and send (already copied).', '如果没有自动填入提问文本，请粘贴后发送（已复制）。'),
     ('AIの答えの最後にある「KATACHIで開く」を押すと、ここに戻ります。', 'Press "Open in KATACHI" at the end of the AI\'s answer to come back here.', '点AI回答末尾的「在KATACHI中打开」即可回到这里。'),
     ('変更なし', 'No change', '无变化'),
+    ('見積に要る点', 'Needed for a quote', '报价所需项目'),
+    ('見積に必要な質問', 'Questions needed for a quote', '报价所需的问题'),
+    ('あと', 'left:', '还剩'),
+    ('任意', 'Optional', '可选'),
+    ('✓ 見積に要る点がそろいました。ここからは任意です。', '✓ Everything needed for a quote is in. The rest is optional.', '✓ 报价所需项目已齐全。以下为可选。'),
+    ('おまかせ（工場の提案で）', 'Leave it to the factory', '交给工厂提议'),
+    ('だいたいで大丈夫です。迷ったら近いものを選んでください。', 'A rough answer is fine. If unsure, pick the closest one.', '大概即可。拿不准时请选最接近的。'),
+    ('似た製品の目安：', 'Typical for similar products:', '类似产品的参考：'),
+    ('工場が見積に要る点はそろいました。図面や3Dデータがないため、工場はまず設計（仕様を決める仕事）の費用を見積もります。この仕様書を設計の依頼書として送ります。', 'Everything needed for a quote is in. Without drawings or 3D data, the factory will first quote for design work. This spec sheet goes as the design request.', '报价所需项目已齐全。由于没有图纸或3D数据，工厂会先报设计（确定规格的工作）费用。本规格书将作为设计委托书发送。'),
+    ('工場が見積に要る点がそろいました。この仕様書を見積の依頼に付けて送れます。ほかの質問は任意です（答えると見積が正確になります）。', 'Everything needed for a quote is in. You can attach this spec sheet to your request. Other questions are optional (answering makes the quote more accurate).', '报价所需项目已齐全。可将本规格书附在委托中发送。其他问题为可选（回答后报价更准确）。'),
+    ('工場が見積を出すのに要る点のうち、', 'Still missing for a factory quote: ', '工厂报价所需项目中，'),
+    ('がまだです。', ' ', '尚未填写。'),
+    ('材料・仕上げは「おまかせ」でも大丈夫です（工場が提案します）。', 'For material and finish, "Leave it to the factory" is fine (they will propose).', '材料・表面处理可以选「交给工厂提议」（工厂会提出建议）。'),
+    ('だいたいで大丈夫です。', 'A rough answer is fine.', '大概即可。'),
+    ('工場が見積に要ること', 'What the factory needs for a quote', '工厂报价所需'),
+    ('大きさ・形（だいたいで大丈夫）', 'Size and shape (rough is fine)', '尺寸・形状（大概即可）'),
+    ('例：幅30×奥行20×高さ10cmくらい、手のひらサイズ', 'e.g. about 30 × 20 × 10 cm, palm-sized', '例：宽30×深20×高10cm左右、手掌大小'),
+    ('目安：', 'Typical: ', '参考：'),
+    ('必須は、工場が見積を出すのに要る点と連絡先だけです。材料・仕上げは「おまかせ」でも大丈夫です（工場が提案します）。ほかは空けておけば「相談したい」として届きます。', 'Only what the factory needs for a quote and your contact are required. For material and finish, "Leave it to the factory" is fine. Anything left blank is sent as "want to discuss".', '必填的只有工厂报价所需项目和联系方式。材料・表面处理可以选「交给工厂提议」。其他留空则以「希望商量」发送。'),
+    ('工場が見積に要る点', 'Needed for a factory quote', '工厂报价所需项目'),
+    ('この点がそろうと、工場は見積を出せます。材料・仕上げがわからなければ「おまかせ」を選ぶと、工場が提案します。', 'With these, the factory can quote. If you are unsure of material or finish, choose "Leave it to the factory" and they will propose.', '这些齐全后工厂即可报价。不清楚材料或表面处理时，选「交给工厂提议」，工厂会提出建议。'),
+    ('材料', 'Material', '材料'),
+    ('大きさ・形', 'Size and shape', '尺寸・形状'),
+    ('仕上げ', 'Finish', '表面处理'),
+    ('納期', 'Timing', '交期'),
+    ('納期の幅', 'Timing flexibility', '交期弹性'),
+    ('何を作るか', 'What it is', '做什么'),
+    ('数量', 'Quantity', '数量'),
+    ('段階と数量', 'Stage and quantity', '阶段与数量'),
+    ('希望の時期', 'When you need it', '希望时间'),
 ]
 
 def _j(x):
@@ -384,7 +438,7 @@ def _ja(o):
 
 def data():
     """日本語だけの形（画面・MCP・貼り戻しで共有）"""
-    return {'version': 1, 'unk': UNK[0], 'common': _ja(COMMON), 'cats': _ja(CATS),
+    return {'version': 1, 'unk': UNK[0], 'omakase': OMAKASE[0], 'core': _ja(CORE), 'common': _ja(COMMON), 'cats': _ja(CATS),
             'levels': {'原文': 1, '回答': 1, '製品DB': 1, '参考品': 0.5, '仮': 0.5, '要確認': 0}}
 
 
@@ -393,7 +447,7 @@ def js():
 
 
 def _pairs():
-    out = [UNK]
+    out = [UNK, OMAKASE]
     def walk(o):
         if isinstance(o, tuple) and len(o) == 3 and all(isinstance(s, str) for s in o):
             out.append(o)
@@ -401,8 +455,8 @@ def _pairs():
             for x in o: walk(x)
         elif isinstance(o, dict):
             for k, v in o.items():
-                if k not in ('k', 'id', 'proc', 'ind', 're', 'sx'): walk(v)
-    walk(COMMON); walk(CATS); out += UI
+                if k not in ('k', 'id', 'proc', 'ind', 're', 'sx', 'keys', 'cat', 'skip'): walk(v)
+    walk(COMMON); walk(CATS); walk(CORE); out += UI
     return out
 
 
