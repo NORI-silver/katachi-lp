@@ -554,3 +554,10 @@ _load_more()
 import os as _os, importlib.util as _ilu
 _spec = _ilu.spec_from_file_location("individual", _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "individual.py"))
 _ind = _ilu.module_from_spec(_spec); _spec.loader.exec_module(_ind); _ind.apply(ARTICLES); _ind.apply_proto(ARTICLES)
+
+# 品目の記事に「法人・お店として頼むとき」を足す（tools/business.py、Nori 2026-11-14 集客は個人・売上は中小企業）
+import sys as _sys
+_sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__)))
+import visuals as _V
+_bspec = _ilu.spec_from_file_location("business", _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "business.py"))
+_biz = _ilu.module_from_spec(_bspec); _bspec.loader.exec_module(_biz); _biz.apply(ARTICLES, list(_ind.INTRO), _V.topic)
