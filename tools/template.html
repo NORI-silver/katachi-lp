@@ -328,6 +328,7 @@ table.cmp{border-collapse:separate;border-spacing:0;width:100%;min-width:760px;f
 .fsqa,.fsbtns{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
 .fstb{width:100%;border-collapse:collapse;font-size:13px}.fstb th,.fstb td{text-align:left;vertical-align:top;padding:7px 6px;border-bottom:1px solid var(--line2)}.fstb thead th{font-size:12px;color:var(--mute);font-weight:500}
 .fstb tbody th{font-weight:600;width:28%}.fstb td small{display:block;color:var(--mute);font-size:11.5px;margin-top:2px;overflow-wrap:anywhere}.fstb .fsreq{color:var(--amber);margin-left:3px}
+.fsref{border:1px solid var(--line2);border-radius:12px;padding:12px 14px;margin-top:10px}.fsref h4{margin:0 0 4px}.fsref ol{margin:0 0 8px;font-size:13px}
 .fsdraft{border:1px dashed color-mix(in srgb,var(--amber) 55%,transparent);border-radius:12px;padding:12px 14px;margin-top:10px}.fsdraft h4{margin:0}.fsdraft p{margin:4px 0 0;font-size:12.5px}
 @media (max-width:640px){.fspec .fshd{grid-template-columns:1fr}.fstb tbody th{width:auto}}
 .fold{margin-top:10px;border:1px solid var(--line2);border-radius:12px;background:#fff}
@@ -1567,7 +1568,11 @@ function conceptCard(c){const v=cvarOf(c);
    1) 製品DBで種類を当てる 2) 文章・貼り戻したJSON・製品イメージ案から埋める 3) 見積に要る項目で埋まらないものは、選択式で最大5問ずつ聞く。
    「わからない」は似た製品の目安を「仮」で置き、工場への質問に回す。図面・3Dがなければ「設計の見積から」にする。 */
 const FSPEC=__FSPEC__;
-const FS_LV={'原文':'ok','回答':'ok','製品DB':'pub','仮':'ai','要確認':'unk'};
+const FS_LV={'原文':'ok','回答':'ok','製品DB':'pub','参考品':'pub','仮':'ai','要確認':'unk'};
+/* 既製品をもとに作る：refText が足した行（参考品・大きさ・素材・変えたいところ）と、受付が読んだ参考品のページから取り出す */
+function fsRef(t){const m=String(t||'').match(/【参考にした既製品】([^\n]*)/);if(!m)return null;const g=re=>{const x=t.match(re);return x?x[1].trim():''};
+  const pk=g(/【参考品のページから読み取った内容】([^\n]*)/),pm=pk.match(/素材：([^／]+)/),url=g(/^URL：(\S+)/m),host=refHost(normUrl(url||''))||'';
+  const own=g(/参考品の素材：([^\n]*)/);return {name:m[1].trim(),url,host,size:g(/参考品の大きさ：([^\n]*)/),mat:own||(pm?pm[1].trim():''),chg:g(/【変えたいところ】([^\n]*)/),how:g(/【どう変えたいか】([^\n]*)/),page:!!pk}}
 const fsKey=()=>'katachi-fa-'+sxHash(ideaBase());
 function fsAns(){if(S.faFor!==ideaBase()){S.faFor=ideaBase();try{S.fa=JSON.parse(localStorage.getItem(fsKey())||'{}')}catch(e){S.fa={}}}return S.fa||(S.fa={})}
 window.KATACHI_FS=()=>S.fs;window.KATACHI_SX=(v,t)=>sxParse(v,t);  // 回帰テスト（tools/tests）用
@@ -1578,7 +1583,7 @@ function fsCats(A,c){const pc=c&&c.pdb?c.pdb.proc:[],ind=c&&c.pdb?c.pdb.ind:'',a
   const sc=FSPEC.cats.map(k=>[k,(on(k,pc)||(ind&&k.ind.includes(ind))?3:0)+(new RegExp(k.re,'i').test(t)?2:0)+(on(k,ac)?1:0)]).filter(x=>x[1]>0).sort((a,b)=>b[1]-a[1]);
   const top=sc.filter(x=>x[1]>=2).slice(0,2);return (top.length?top:sc.slice(0,1)).map(x=>x[0])}
 function fsQuote(t,re){const m=String(t).match(re);if(!m)return '';const i=m.index,s=String(t);const a=Math.max(s.lastIndexOf('\n',i)+1,i-16),b=Math.min(s.length,i+m[0].length+16);return s.slice(a,b).replace(/\s+/g,' ').trim()}
-function fsBuild(A){const c=A&&A.concept;if(!c)return null;const base=splitAi(S.idea||'')[0],t=base,X=c.sx||null,db=c.pdb||null,fa=fsAns(),P=specRead(base),R=readConds(base.toLowerCase());
+function fsBuild(A){const c=A&&A.concept;if(!c)return null;const base=splitAi(S.idea||'')[0],RF=fsRef(base),t=RF?base.split('【参考にした既製品】')[0].trim():base,X=c.sx||null,db=c.pdb||null,fa=fsAns(),P=specRead(t),R=readConds(t.toLowerCase());
   const V={};const put=(k,v,lv,src)=>{if(!V[k]&&v&&String(v).trim())V[k]={v:String(v).trim(),lv,src:src||''}};
   const xs=k=>X&&X[k]&&X[k].value&&X[k].value!==NA?X[k]:null;
   // 1) 回答（選択式で答えたもの）が最優先
@@ -1607,6 +1612,9 @@ function fsBuild(A){const c=A&&A.concept;if(!c)return null;const base=splitAi(S.
   // 3) 製品DB（公的機関の出典つき）
   if(db&&db.reg&&db.reg.length)put('reg',db.reg.map(r=>r.t).join('／'),'製品DB',db.reg.map(r=>r.src&&r.src.t).filter(Boolean).join('、'));
   if(X&&X.regulations&&X.regulations.length)put('reg',X.regulations.map(f=>f.value).join('、'),'原文');
+  // 既製品をもとに作る：参考品の値は「参考品」（あなたの製品の値ではない、重み0.5）
+  if(RF){put('name',RF.name.replace(/（[^）]*）$/,'')+'をもとにしたオリジナル','原文','【参考にした既製品】');const src='参考品'+(RF.host?'（'+RF.host+'）':'');put('ref',RF.name+(RF.url&&!RF.name.includes(RF.host)?'（'+RF.url+'）':''),'原文');
+    put('diff',[RF.chg,RF.how].filter(Boolean).join('／'),'原文');put('size',RF.size,'参考品',src);put('mat',RF.mat,'参考品',src)}
   // 品目別の項目：回答のほか、貼り戻したJSONの category_items（項目名が一致するものだけ）
   const cats=fsCats(A,c);if(X&&Array.isArray(X.category_items))for(const ci of X.category_items){const it=cats.flatMap(k=>k.items).find(i=>i.t===ci.item);if(it)put(it.k,ci.value,'原文',ci.quote)}
   // 4) わからない→仮（似た製品の目安）。目安がなければ要確認
@@ -1616,15 +1624,15 @@ function fsBuild(A){const c=A&&A.concept;if(!c)return null;const base=splitAi(S.
     docs:['ない',''],scope:[/図面|3Dデータ|現物/.test((V.docs||{}).v||'')?'図面・データがあり、作るだけ':'設計から（図面がない）','']};
   for(const k in kari)if(!V[k]&&kari[k]&&(fa[k]&&fa[k].unk||!['qs','qf','due','docs','scope'].includes(k)))put(k,kari[k][0],'仮',kari[k][1]);
   for(const k in fa)if(fa[k]&&fa[k].unk&&!V[k])V[k]={v:'',lv:'要確認',src:''};
-  const items=[...FSPEC.common.map(i=>Object.assign({cat:''},i)),...cats.flatMap(k=>k.items.map(i=>Object.assign({cat:k.id,req:i.key},i)))];
+  const items=[...(RF?[{k:'ref',t:'参考にした既製品',cat:''},{k:'diff',t:'変えるところ',cat:'',req:1},{k:'rights',t:'権利の確認（特許・意匠・商標）',cat:''}]:[]),...FSPEC.common.map(i=>Object.assign({cat:''},i)),...cats.flatMap(k=>k.items.map(i=>Object.assign({cat:k.id,req:i.key},i)))];
   const req=items.filter(i=>i.req);const sc2=req.reduce((a,i)=>a+(FSPEC.levels[(V[i.k]||{}).lv]||0),0);const score=req.length?Math.round(sc2/req.length*100):0;
   const docs2=(V.docs||{}).v||'',shape=cats.some(k=>['elec','metal','resin','wood'].includes(k.id))||!cats.length;
   const design=/設計から/.test((V.scope||{}).v||'')||(shape&&!/図面|3Dデータ|現物/.test(docs2));
   const mode=design?'design':score>=75?'quote':'more';
   const ask=items.filter(i=>i.q&&i.ch&&(!V[i.k]||V[i.k].lv==='仮'&&!(fa[i.k]&&fa[i.k].unk))&&(i.req||!V[i.k]));
   const fq=[];for(const i of items){const v=V[i.k];if(i.req&&(!v||v.lv==='仮'||v.lv==='要確認'))fq.push(i.fq||('「'+i.t+'」：'+'この項目が決まっていません。この製品での一般的な決め方と、費用への影響を教えてください。'))}
-  cats.forEach(k=>k.asks.forEach(a=>fq.push(a)));if(design)fq.unshift('図面なしで、この仕様書から設計を受けられますか。設計費と期間の目安を教えてください。');fq.push('返事では、概算の費用・似た製品の実績・日程・量産まで手伝えるかを教えてください。');
-  return {V,items,cats,score,mode,ask,fq:[...new Set(fq)],db,c}}
+  cats.forEach(k=>k.asks.forEach(a=>fq.push(a)));if(design)fq.unshift('図面なしで、この仕様書から設計を受けられますか。設計費と期間の目安を教えてください。');if(RF){fq.unshift('参考品をもとに、変えるところを入れたオリジナルとして作れますか。');if(!/図面|3Dデータ/.test(docs2))fq.push('現物を採寸・3Dスキャンして、図面や3Dデータにできますか。費用と期間を教えてください（できない場合は、できる会社の紹介も歓迎です）。');fq.push('参考品の特許・意匠・商標にかからない形にするため、気をつける点があれば教えてください（権利の最終確認は依頼者が行います）。')}fq.push('返事では、概算の費用・似た製品の実績・日程・量産まで手伝えるかを教えてください。');
+  return {V,items,cats,score,mode,ask,fq:[...new Set(fq)],db,c,ref:RF}}
 function fsText(F){if(!F)return '';const L=['■ 工場向け仕様書（KATACHIが整理。確かさ：原文=依頼者の文章／回答=選択式の回答／製品DB=公的機関の出典／仮=似た製品の目安／要確認）'];
   if(F.cats.length)L.push('品目：'+F.cats.map(k=>k.t).join('、'));
   for(const i of F.items){const v=F.V[i.k];L.push('・'+i.t+'：'+(v&&v.v?v.v:'要確認')+'［'+(v?v.lv:'要確認')+']'+(v&&v.src?'（'+v.src+'）':''))}
@@ -1642,6 +1650,7 @@ function fspecCard(A){const F=fsBuild(A);if(!F)return '';S.fs=F;const fa=fsAns()
     ${qhtml}
     ${fold('fstab','仕様書',`<table class="fstb"><thead><tr><th>項目</th><th>内容</th><th>確かさ</th></tr></thead><tbody>${F.items.map(row).join('')}</tbody></table><p class="muted" style="font-size:12px;margin:6px 0 0">仮の値は、似た製品の目安です。工場との打ち合わせで決まります。</p>`,F.items.filter(i=>F.V[i.k]&&F.V[i.k].v).length+' / '+F.items.length)}
     ${fold('fsfq','工場に聞くこと（自動で依頼書に付きます）',`<ol class="cl">${F.fq.map(q=>`<li>${esc(q)}</li>`).join('')}</ol>`,String(F.fq.length))}
+    ${F.ref?`<div class="fsref"><h4>既製品をもとに作る手順</h4><ol class="cl"><li>参考品の値を読み取る：大きさ・素材は「参考品」として表に入れました。あなたの製品の値ではないので、工場と決め直します。</li><li>変えるところを決める：変える点が少ないと、作れない・売れないことがあります。</li><li>現物の採寸・3Dスキャン：図面がないときは、現物を測る・スキャンして図面や3Dデータにします（費用は別にかかります）。</li><li>権利の確認：J-PlatPat（特許情報プラットフォーム、無料）で特許・意匠・商標を調べ、心配なら弁理士に相談します。KATACHIは「侵害しない」とは判断しません。</li></ol><a class="btn sm" href="https://www.j-platpat.inpit.go.jp/" target="_blank" rel="noopener" id="fsJpp">J-PlatPatで調べる</a></div>`:''}
     ${draft}
     <div class="fsbtns"><button type="button" class="btn sm" id="fsPrint">印刷・PDFで保存</button><button type="button" class="btn sm" id="fsCopy">テキストをコピー</button></div></section>`}
 function wireFspec(A){const el=$('#mFspec');if(!el)return;const fa=fsAns();
@@ -1649,6 +1658,7 @@ function wireFspec(A){const el=$('#mFspec');if(!el)return;const fa=fsAns();
     if(v===FSPEC.unk)fa[k]={unk:1};else if(multi){const cur=fa[k]&&Array.isArray(fa[k].v)?fa[k].v:[];fa[k]={v:cur.includes(v)?cur.filter(x=>x!==v):[...cur,v]};if(!fa[k].v.length)delete fa[k]}else fa[k]={v};
     fs.querySelectorAll('.fsb').forEach(x=>{const on=x.dataset.fv===FSPEC.unk?!!(fa[k]&&fa[k].unk):!!(fa[k]&&(Array.isArray(fa[k].v)?fa[k].v.includes(x.dataset.fv):fa[k].v===x.dataset.fv));x.classList.toggle('on',on);x.setAttribute('aria-pressed',on)});fsSave()}));
   const redraw=()=>{el.outerHTML=fspecCard(A);wireFspec(A);const n=$('#mFspec');n&&n.scrollIntoView({block:'start',behavior:'smooth'})};
+  $('#fsJpp')&&($('#fsJpp').onclick=()=>track('fspec_jplatpat',{}));
   $('#fsApply')&&($('#fsApply').onclick=()=>{track('fspec_answer',{answered:Object.keys(fa).length});S.fsPage=0;redraw()});
   $('#fsNext')&&($('#fsNext').onclick=()=>{S.fsPage=(S.fsPage||0)+1;redraw()});
   $('#fsCopy')&&($('#fsCopy').onclick=async()=>{let ok=false;try{await navigator.clipboard.writeText(fsText(S.fs));ok=true}catch(e){}track('fspec_copy',{ok});const b=$('#fsCopy');b.textContent=ok?'コピーしました':'テキストをコピー';setTimeout(()=>{b.textContent='テキストをコピー'},2500)});
