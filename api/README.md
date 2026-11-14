@@ -37,3 +37,9 @@ node api/build.mjs && node api/test/test.mjs    # テスト（受付とキャッ
 cd api && npx wrangler dev                        # 手元で動かす
 ```
 main に入ると GitHub Actions（`.github/workflows/api.yml`）がテストして公開する（Secrets に CLOUDFLARE_API_TOKEN と CLOUDFLARE_ACCOUNT_ID が要る）。
+
+## 公開（Cloudflare Pages、2026-11-14〜）
+影響を katachi.shiokonbu.com だけにするため（Nori 2026-11-14「katachi.shiokonbuだけを対象にしたい」）、Workers ではなく Pages に置く。shiokonbu.com のDNSは Cloudflare に移さない。
+- Pages プロジェクト `katachi-api`（GitHub の main と連携）。ビルドコマンド `cd api && npm ci && npm run pages`、出力先 `api/dist`（`_worker.js` 1ファイル）。
+- 独自ドメインは さくらのDNSに `api.katachi` CNAME `katachi-api.pages.dev` を1件足し、Pages の「カスタムドメイン」に `api.katachi.shiokonbu.com` を登録する。
+- `wrangler.toml` の `[vars]` は `pages.mjs` が既定値として埋め込む。Pages では Rate Limiting バインディングが無いので、回数制限はメモリの数え方（`memHit`）で動く。

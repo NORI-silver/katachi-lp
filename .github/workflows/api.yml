@@ -30,6 +30,8 @@ jobs:
         run: node api/build.mjs
       - name: テスト
         run: node api/test/test.mjs > /dev/null && node api/test/test.mjs | tail -1
+      - name: Pages 用の1ファイルを作れるか（本番は Cloudflare Pages が main から作る）
+        run: cd api && npm ci --no-audit --no-fund && node pages.mjs && ls -la dist
       - name: 公開（Cloudflare Workers）
         if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
         env:
