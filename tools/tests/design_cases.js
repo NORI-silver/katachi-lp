@@ -37,4 +37,15 @@ const cases=[
     const pass=r.got===exp&&(!has||r.all.includes(has));if(pass)ok++;rows.push([pass?'○':'×',name,exp,r.got,r.all.join(' '),r.co,errs.join(' | ')]);
     console.log(`${pass?'○':'×'} ${name}: 期待=${exp} 結果=${r.got} [${r.all.join(' ')}] ${r.co}${errs.length?' ERR '+errs.join(' | '):''}`);if(!pass||process.env.V)console.log('   ',JSON.stringify(r.dbg));
     await c.close()}
-  await b.close();console.log(`\n${ok}/${cases.length}`);process.exit(ok===cases.length?0:1)})();
+  /* トップの入口「設計を相談したい」から書くと、③の「まず設計」に直行する（Nori 2026-11-14「トップページにもってきて」） */
+  const top=[['入口：スロープ','家庭用プールに犬が入れるスロープを1台作りたい。大型犬2頭が乗る','fab'],['入口：クッキー（設計の箱は出さず、ひとこと）','オリジナルのクッキーを1000個つくりたい','none'],['入口：犬の車椅子（メーカーが設計から）','老犬の車椅子を1台作りたい','none']];
+  for(const [name,text,exp] of top){const c=await b.newContext({viewport:{width:390,height:844}});
+    await c.addInitScript(()=>localStorage.setItem('katachi-lang',JSON.stringify({lang:'ja'})));
+    await c.route(/script\.google\.com|googletagmanager|google-analytics/,r=>r.fulfill({status:200,contentType:'application/json',body:'{"ok":false}'}));
+    const p=await c.newPage();const errs=[];p.on('pageerror',e=>errs.push(e.message));await p.goto(base);
+    await p.click('[data-start=design]');await p.fill('#idea',text);await p.click('#cmp button[type=submit]');
+    await p.waitForSelector('#mDesign,.dsnone',{timeout:30000}).catch(()=>{});await p.waitForTimeout(400);
+    const r=await p.evaluate(()=>{const on=document.querySelector('#mDesign [data-dst][aria-pressed=true]');return {hash:location.hash,got:on?on.dataset.dst:document.querySelector('.dsnone')?'none':null}});
+    const pass=r.hash==='#co'&&r.got===exp&&!errs.length;if(pass)ok++;
+    console.log(`${pass?'○':'×'} ${name}: 期待=${exp} 結果=${r.got} ${r.hash}${errs.length?' ERR '+errs.join(' | '):''}`);await c.close()}
+  await b.close();const all=cases.length+top.length;console.log(`\n${ok}/${all}`);process.exit(ok===all?0:1)})();
