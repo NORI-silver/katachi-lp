@@ -110,7 +110,7 @@ C('pet', 'petslope', 'ペット用スロープ・ステップ', r'(犬|猫|ペ�
 C('pet', 'petcart', 'ペットカート', r'(ペット|犬|猫).{0,4}カート', 'cart', 'manufacturing.sheet_metal manufacturing.textile', 'pl', 'フレーム・車輪・布のかご', 'アルミ・ポリエステル')
 C('pet', 'petwheel', '犬・猫用の車椅子', r'(犬|猫|ペット).{0,15}(車椅子|車いす|歩行器)', 'pet_wheelchair', 'manufacturing.cnc manufacturing.textile mechanical.wearable_fit', 'pl petdrug', 'フレーム・車輪・ハーネス', 'アルミのパイプ・ウレタンタイヤ・ナイロン')
 C('pet', 'petlift', 'ペット用リフト・移乗の補助具', r'(犬|猫|ペット).{0,20}(リフト|移乗|担架|ストレッチャー)', '', 'mechanical.enclosure_design manufacturing.sheet_metal manufacturing.assembly testing.battery_safety', 'pl pse petdrug', '担架・昇降機構・脚・電源と操作部', 'アルミ合金・鋼材・パッド')
-C('pet', 'smartcollar', 'スマート首輪（見守り・健康管理）', r'(スマート|gps|見守り).{0,6}首輪|首輪.{0,10}(センサ|gps|見守)', 'collar', 'electronics.pcba electronics.wireless sensing.motion mechanical.waterproof testing.radio_cert', 'giteki battery petdrug', '基板・電池・センサー・防水ケース・ベルト', '樹脂ケース・シリコーン')
+C('pet', 'smartcollar', 'スマート首輪（見守り・健康管理）', r'(スマート|gps|見守り).{0,6}首輪|首輪.{0,10}(センサ|gps|見守)|スマート\s?カラー|首輪型.{0,6}(デバイス|ウェアラブル)', 'collar', 'electronics.pcba electronics.wireless sensing.motion mechanical.waterproof testing.radio_cert', 'giteki battery petdrug', '基板・電池・センサー・防水ケース・ベルト', '樹脂ケース・シリコーン')
 C('pet', 'petfeeder', '自動給餌器', r'自動給餌|自動えさ|オートフィーダー', 'device', 'electronics.pcba manufacturing.injection_molding manufacturing.assembly', 'pse giteki food_pack', 'タンク・送り出し機構・モーター・基板', '樹脂（食品に触れる部分）')
 C('pet', 'pettoilet', 'ペット用トイレ', r'(犬|猫|ペット).{0,6}トイレ', 'shape:box', 'manufacturing.injection_molding', 'zakka', '本体・すのこ・トレー', 'PP樹脂')
 # 食品・お菓子
