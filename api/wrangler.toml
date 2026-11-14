@@ -1,0 +1,23 @@
+name = "katachi-api"
+main = "src/index.js"
+compatibility_date = "2026-10-01"
+workers_dev = true
+preview_urls = false
+
+[vars]
+# 受付（Apps Script）。サイトの index.html にも入っている公開URL
+GAS_URL = "https://script.google.com/macros/s/AKfycbz-tcsKOOAI7HKegzVCGPtMG5nLjfdh-ttPPd5wRFFdBGl8N_q8-M4ME5fg31-YIO5wIQ/exec"
+
+# IPごとの回数制限（Workers Rate Limiting、無料プランで使える）
+[[ratelimits]]
+name = "RL_READ"
+namespace_id = "41001"
+simple = { limit = 30, period = 60 }
+
+[[ratelimits]]
+name = "RL_HEAVY"
+namespace_id = "41002"
+simple = { limit = 10, period = 60 }
+
+[observability]
+enabled = true
