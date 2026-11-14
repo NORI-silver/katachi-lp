@@ -495,6 +495,7 @@ table.cmp{border-collapse:separate;border-spacing:0;width:100%;min-width:760px;f
 .scb i:first-child{border-radius:99px 0 0 99px}.scb i:last-child{border-radius:0 99px 99px 0}.scb i.on{background:#e7f5ec;color:#2b8a3e;border-color:#b2dfc0;font-weight:700}
 .scb.adv{padding:4px 9px;border-radius:99px;background:#fff4e6;color:#d9480f;border:1px solid #ffd8a8;font-weight:700}
 .dsg .dst button{display:inline-grid;justify-items:start;gap:1px;text-align:left}.dsg .dst .dsr{font-size:10.5px;opacity:.8;font-weight:400}
+.dsnone{margin:0 0 4px;display:grid;gap:4px;padding:12px 14px;border-radius:12px;background:var(--hover);font-size:13px}.dsnone b{font-size:14.5px}
 .dsnext{text-align:center;margin:-4px 0;color:var(--dim);font-size:18px;line-height:1}
 .rec .rsel{font-size:12.5px;color:var(--ice);font-weight:600}
 .trust3{margin-top:10px;border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:12.5px;color:var(--mute);display:grid;gap:6px;background:var(--bg2)}
@@ -769,7 +770,7 @@ body.m2 .gh1{font-size:18px;line-height:1.5}
 .wzatl{margin:0;padding-left:1.2em;font-size:13.5px;display:grid;gap:4px}
 .cmat{display:grid;gap:6px;border:1px solid var(--line);border-radius:12px;padding:12px;background:var(--bg2)}.cmat h4{margin:0;font-size:14px}.cmatt{margin:0;font-size:13px}.cmat ul{margin:0;padding:0;list-style:none;display:grid;gap:6px}.cmat li{display:grid;gap:2px;font-size:12.5px}.cmat .mg{color:#1a7f37}.cmat .mb{color:#9a6700}.cmat summary{font-size:12.5px;color:var(--ice);cursor:pointer}.cmat details ul{margin-top:6px}.cmat small{font-size:12px;color:var(--mute)}
 /* はじめ方を2つに（Nori 2026-11-14「設計書などがある方とフリーで考え始める方に最初に分岐」） */
-.start2{display:grid;grid-template-columns:1fr 1fr;gap:10px;max-width:760px;margin:0 0 12px}
+.start2{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:860px;margin:0 0 12px}
 .start2 button{display:grid;gap:4px;text-align:left;padding:14px 16px;border:1.5px solid var(--line2);border-radius:16px;background:color-mix(in srgb,var(--panel) 94%,transparent);color:var(--fg)}
 .start2 button b{font-size:16px}.start2 button small{font-size:12.5px;color:var(--mute);line-height:1.5}
 .start2 button[aria-pressed="true"]{border-color:var(--ice);background:var(--hover);box-shadow:inset 0 0 0 1px var(--ice)}
@@ -779,7 +780,7 @@ body.m2 .gh1{font-size:18px;line-height:1.5}
 .composer.drawm .dpick.need{animation:gfl 1s ease-in-out 2;outline:3px solid var(--ice)}
 .composer.drawm textarea#idea{min-height:56px;font-size:15px}
 .composer.drawm #pasteBtn,.composer.drawm #refBtn,.composer.drawm .pillset,.composer.drawm .cam,.composer.drawm #pick,.composer.drawm .paste,.composer.drawm .refp{display:none!important}
-@media (max-width:520px){.start2 button{padding:12px}.start2 button b{font-size:15px}}
+@media (max-width:620px){.start2{grid-template-columns:1fr;gap:8px}.start2 button{padding:11px 14px}.start2 button b{font-size:15px}.start2 button small{font-size:12px}}
 </style>
 
 <nav class="nav gut"><div class="wrap">
@@ -894,9 +895,9 @@ function bindStepBar(root){(root||document).querySelectorAll('[data-stepgo]').fo
   if(k===1){S.mode='free';location.hash=''}else if(k===2)location.hash='match';else if(k===3)location.hash='co'})}
 /* 相談の続き: 外部のAIへ行って戻っても、書いた内容・答え・貼りかけの回答が消えないよう、この端末の sessionStorage に置く（どこにも送らない） */
 const SAVEK='katachi-flow';
-function saveFlow(){try{sessionStorage.setItem(SAVEK,JSON.stringify({idea:S.idea,qty:S.qty,chat:S.chat,cvar:S.cvar,folds:S.folds,tune:S.tune,aiAway:S.aiAway,aiDraft:S.aiDraft,ckind:S.ckind||null,sx:S.sx||null,lai:S.lai?{base:S.lai.base,log:S.lai.log.slice(-12),concept:S.lai.concept}:null,nfiles:(S.files||[]).length,t:Date.now()}))}catch(e){}try{mineSave()}catch(e){}}
+function saveFlow(){try{sessionStorage.setItem(SAVEK,JSON.stringify({idea:S.idea,qty:S.qty,chat:S.chat,cvar:S.cvar,folds:S.folds,tune:S.tune,aiAway:S.aiAway,aiDraft:S.aiDraft,ckind:S.ckind||null,sx:S.sx||null,dsFirst:!!S.dsFirst,lai:S.lai?{base:S.lai.base,log:S.lai.log.slice(-12),concept:S.lai.concept}:null,nfiles:(S.files||[]).length,t:Date.now()}))}catch(e){}try{mineSave()}catch(e){}}
 function loadFlow(){try{const o=JSON.parse(sessionStorage.getItem(SAVEK)||'null');if(!o||!o.idea||Date.now()-o.t>864e5)return false;
-  Object.assign(S,{idea:o.idea,qty:o.qty||S.qty,chat:o.chat,cvar:o.cvar,folds:o.folds||{},tune:o.tune,lai:o.lai||null,aiAway:o.aiAway,aiDraft:o.aiDraft||'',ckind:o.ckind||null,sx:o.sx||null,src:'text',matched:'text',gsel:[],gstep:{},gmore:{},planPick:'',gf:{area:'',proto:false}});
+  Object.assign(S,{dsFirst:!!o.dsFirst,idea:o.idea,qty:o.qty||S.qty,chat:o.chat,cvar:o.cvar,folds:o.folds||{},tune:o.tune,lai:o.lai||null,aiAway:o.aiAway,aiDraft:o.aiDraft||'',ckind:o.ckind||null,sx:o.sx||null,src:'text',matched:'text',gsel:[],gstep:{},gmore:{},planPick:'',gf:{area:'',proto:false}});
   if(o.nfiles&&!(S.files||[]).length)S.lostFiles=o.nfiles;return true}catch(e){return false}}
 /* ---------- 自分の依頼（Nori 2026-11-14「過去の依頼のドラフトとか依頼したやつとか保存できるようにしたい」） ----------
    書きかけは自動で、送った依頼は送ったときに、この端末（localStorage・IndexedDB）にだけ残す。ログインなし、どこにも送らない。
@@ -965,14 +966,14 @@ function renderHome(){
   <section class="hero gut"><canvas id="field" aria-hidden="true"></canvas><div class="wrap">
     <div class="eyebrow" style="margin-bottom:18px">AI × 町工場 × あなた</div>
     <h1>アイデアを、<br>製品のかたちに。</h1>
-    <p class="sub">${S.start==='draw'&&S.mode!=='guided'?'図面・3Dデータ・仕様書を入れて、数と時期を答えるだけ。作れる工場は担当者が図面を見て探し、見積を集めます。':S.mode==='guided'?'設計部門がなくても大丈夫。つくりたいものを書くだけで、AIが作り方を工程に分け、全国と海外の工場から、それぞれを得意とする会社でチームを組みます。比べて、選ぶのはあなたです。':'何を作りたいか、ひとことで書いてください。写真だけでも始められます。設計部門や図面がなくても大丈夫です。'}</p>
+    <p class="sub">${S.start==='design'&&S.mode!=='guided'?'作りたいものを書くだけ。図面を作ってくれる相談先（設計込みの工場・設計事務所・工事もする会社・無料の公的窓口など）を、内容に合わせて★でおすすめします。':S.start==='draw'&&S.mode!=='guided'?'図面・3Dデータ・仕様書を入れて、数と時期を答えるだけ。作れる工場は担当者が図面を見て探し、見積を集めます。':S.mode==='guided'?'設計部門がなくても大丈夫。つくりたいものを書くだけで、AIが作り方を工程に分け、全国と海外の工場から、それぞれを得意とする会社でチームを組みます。比べて、選ぶのはあなたです。':'何を作りたいか、ひとことで書いてください。写真だけでも始められます。設計部門や図面がなくても大丈夫です。'}</p>
     ${S.mode==='guided'?modeTabs():''}
     <div class="composer gw" id="gw" ${S.mode==='guided'?'':'hidden'}></div>
-    ${S.mode==='guided'?'':`<div class="start2" role="group" aria-label="はじめ方"><button type="button" data-start="idea" aria-pressed="${S.start!=='draw'}"><b>アイデアから</b><small>図面がなくても大丈夫。書くだけで、形と作り方を一緒に考えます</small></button><button type="button" data-start="draw" aria-pressed="${S.start==='draw'}"><b>図面・データがある</b><small>ファイルを入れて、数と時期を答えるだけ</small></button></div>`}
+    ${S.mode==='guided'?'':`<div class="start2" role="group" aria-label="はじめ方"><button type="button" data-start="idea" aria-pressed="${S.start!=='draw'&&S.start!=='design'}"><b>アイデアから</b><small>図面がなくても大丈夫。書くだけで、形と作り方を一緒に考えます</small></button><button type="button" data-start="design" aria-pressed="${S.start==='design'}"><b>設計を相談したい</b><small>図面を作ってくれる相談先を、内容に合わせておすすめ</small></button><button type="button" data-start="draw" aria-pressed="${S.start==='draw'}"><b>図面・データがある</b><small>ファイルを入れて、数と時期を答えるだけ</small></button></div>`}
     <form class="composer${S.start==='draw'?' drawm':''}" id="cmp" autocomplete="off" ${S.mode==='guided'?'hidden':''}>
       <button type="button" class="dpick" id="dPick">＋ 図面・3D・仕様書を入れる<small>PDF・DXF・STEP・STL・写真など。いくつでも</small></button>
       <label for="idea" class="eyebrow" style="position:absolute;left:-9999px">つくりたいもの</label>
-      <textarea id="idea" rows="3" placeholder="${S.start==='draw'?'何の部品・製品ですか？（なくても大丈夫。例：アルミのブラケット）':'例：散歩中の犬の心拍を測れる首輪を、まず5個だけ試作したい'}">${esc(S.start==='draw'?'':S.idea)}</textarea>
+      <textarea id="idea" rows="3" placeholder="${S.start==='design'?'何を作りたいですか？（例：家庭用プールに犬が入れるスロープ。大型犬2頭が乗る）':S.start==='draw'?'何の部品・製品ですか？（なくても大丈夫。例：アルミのブラケット）':'例：散歩中の犬の心拍を測れる首輪を、まず5個だけ試作したい'}">${esc(S.start==='draw'?'':S.idea)}</textarea>
       <div class="files" id="files"></div>
       <div class="paste" id="paste"><textarea id="pasteT" placeholder="ChatGPT・Gemini・Claude の共有リンクや会話の本文、YouTube・Instagram・TikTok などの動画のリンクを貼り付け"></textarea><div><button type="button" class="btn sm" id="pasteGo">取り込む</button></div>${aiHelp()}</div>
       ${refPanel()}
@@ -983,7 +984,7 @@ function renderHome(){
         <button type="button" class="clip ref" id="refBtn" aria-expanded="${!!(S.ref&&S.ref.on)}">既製品をもとに作る</button>
         <span class="sp"></span>
         <div class="pillset" role="group" aria-label="数量">${[['proto','試作'],['small','小ロット'],['mass','量産']].map(([v,t])=>`<button type="button" data-qty="${v}" aria-pressed="${S.qty===v}">${t}</button>`).join('')}</div>
-        <button class="btn pri" type="submit">${S.start==='draw'?'見積を頼む':'はじめる'}<svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <button class="btn pri" type="submit">${S.start==='draw'?'見積を頼む':S.start==='design'?'相談先を探す':'はじめる'}<svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
       </div>
       <input type="file" id="fileIn" multiple hidden>
     </form>
@@ -2601,7 +2602,7 @@ function bindPlans(re){$$('[data-plan-pick]').forEach(b=>b.onclick=()=>{const k=
 async function renderMatch(){
   $('#dock').innerHTML='';
   if(!S.idea){location.hash='';return}
-  S.gf=S.gf||{area:'',proto:false};Object.assign(S.gf,{area:'',proto:false,lot:false,near:false,sort:''});S.gsel=S.gsel||[];S.gstep=S.gstep||{};S.gmore=S.gmore||{};
+  S.folds=S.folds||{};S.gf=S.gf||{area:'',proto:false};Object.assign(S.gf,{area:'',proto:false,lot:false,near:false,sort:''});S.gsel=S.gsel||[];S.gstep=S.gstep||{};S.gmore=S.gmore||{};
   $('#app').innerHTML=`<section class="gut build"><div><div class="eyebrow">Building your team</div><h2 style="margin-top:10px">工程を読み取っています</h2></div></section>`;
   const db=await loadGDB();
   if(!db){$('#app').innerHTML=`<section class="gut"><div class="wrap" style="padding:60px 0"><h2>会社の一覧を読み込めませんでした</h2><p class="muted">通信の状態を確かめて、もう一度お試しください。</p><button class="btn" onclick="location.reload()">再読み込み</button></div></section>`;return}
@@ -2671,7 +2672,7 @@ async function renderMatch(){
     const recH=A.codes.length?(MKv?makerBox(MK):recBox(R3,secsP,qmax)+(multi&&R3&&R3.P?planCmp(R3):'')+(MK?`<p class="mkback"><button type="button" class="glink" data-mkon>完成品のメーカーに1社で頼む案に戻る</button></p>`:'')):'';
     const dsH=DS?dsBox(DS):'';
     body=`${stepBar(3)}${head}
-    ${A.codes.length?`<h2 class="stepnow">${!DS&&!MKv&&multi&&R3&&R3.kind!=='one'?'この組み合わせで完成します':'おすすめの頼み方'}</h2>
+    ${A.codes.length?`${S.dsFirst&&!DS?(MKv?'<p class="dsnone"><b>この品は、専門のメーカーが設計から作ります</b><span>図面だけを先に頼む必要はありません。下のメーカーに、そのまま相談してください。</span></p>':'<p class="dsnone"><b>この品は、作る会社が配合・処方から考えます</b><span>図面だけを先に頼む必要はありません。下のおすすめの会社に、そのまま相談してください。</span></p>'):''}<h2 class="stepnow">${S.dsFirst&&DS?'設計の相談先':!DS&&!MKv&&multi&&R3&&R3.kind!=='one'?'この組み合わせで完成します':'おすすめの頼み方'}</h2>
       ${dsH}${recH}
       ${qBar()}`
     :`<div class="empty" style="margin-top:16px"><b>文章から工程を読み取れませんでした</b>このまま見積を依頼すれば、担当者が内容を読んで工程と会社を探します。型が決まっているもの（部品・ノベルティ・袋物など）なら「選んで探す」が早いです。<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn" id="mGuided">選んで探す</button></div></div>${(()=>{const ts=textSearch(S.idea);return ts.length?`<section class="mstep" data-step="文章に近い会社"><div class="mhead"><span class="mono mno">?</span><h2>文章の言葉が会社の説明に出てくる会社</h2><span class="muted">${fmt(ts.length)}社</span></div><p class="muted" style="margin:0 0 12px;font-size:13px">工程は読み取れませんでしたが、書いた言葉が社名や説明に含まれる会社です。参考にしてください。</p><ol class="glist">${ts.slice(0,10).map(r=>coCard(r,[])).join('')}</ol></section>`:''})()}`}`;
@@ -3111,7 +3112,8 @@ function wireLai(c){const b=$('#mLai');if(!b)return;const inp=$('#mLaiIn');const
 function pick(text){for(const [k,re] of [['collar',/犬|猫|ペット|首輪|動物|心拍/],['mimamori',/見守|高齢|ドア|開閉|室温|部屋/],['bike',/自転車|ライト|ハンドル|バイク/]])if(re.test(text))return[k,'near'];return['collar','fallback']}
 function go(ex){
   S.idea=$('#idea').value.trim()||S.files.map(f=>f.name).join('、');
-  if(!ex){const pv=mineGet(S.sid),hd=t=>mineLine(t).slice(0,10);if(!pv||pv.st==='sent'||hd(pv.idea)!==hd(S.idea))S.sid=null;S.aiAway=null;S.aiDraft='';S.autoPick=true;S.src='text';S.matched='text';S.gsel=[];S.gstep={};S.gmore={};S.planPick='';S.gf={area:'',proto:false,to:(S.gf||{}).to||''};loadGDB();location.hash='match';if(location.hash==='#match')renderMatch();return}
+  S.dsFirst=!ex&&S.start==='design';
+  if(!ex){const pv=mineGet(S.sid),hd=t=>mineLine(t).slice(0,10);if(!pv||pv.st==='sent'||hd(pv.idea)!==hd(S.idea))S.sid=null;S.aiAway=null;S.aiDraft='';S.autoPick=true;S.src='text';S.matched='text';S.gsel=[];S.gstep={};S.gmore={};S.planPick='';S.gf={area:'',proto:false,to:(S.gf||{}).to||''};loadGDB();const h=S.dsFirst?'co':'match';location.hash=h;if(location.hash==='#'+h)renderMatch();return}
   S.scen=ex;S.matched='example';S.src='example'
   S.lastReal=S.scen;S.plan=0;S.custom=false;S.tab='team';setPlan(0);S.viewSent=false;
   const R=D.scen[S.scen];const steps=['要件を読み取る',`${R.per_requirement.length}の工程に分ける`,`${fmt(D.realCount)}社から候補を探す`,'チームを組む'];
