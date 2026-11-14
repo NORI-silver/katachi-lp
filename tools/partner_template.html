@@ -68,7 +68,7 @@ legend{display:contents}
 .req{font-family:var(--f-mono);font-size:10px;letter-spacing:.08em;color:var(--ice-ink);background:var(--ice);border-radius:4px;padding:1px 5px}
 .opt{font-family:var(--f-mono);font-size:10px;color:var(--dim)}
 .hint{font-size:12px;color:var(--dim)}
-input[type=text],input[type=email],input[type=tel],input[type=url],input[type=number],select,textarea{
+input[type=text],input[type=email],input[type=tel],input[type=url],input[type=number],input[type=month],select,textarea{
   width:100%;background:var(--panel);border:1px solid var(--line2);border-radius:10px;padding:10px 12px;min-height:44px;outline:none;transition:border-color .15s,background .15s}
 textarea{min-height:92px;resize:vertical}
 input::placeholder,textarea::placeholder{color:var(--dim)}
@@ -139,6 +139,11 @@ details.grp > summary .why{font-weight:400;font-size:12px;color:var(--dim)}
 @media (max-width:620px){details.grp > summary .why{display:none}}
 .gb{display:grid;gap:16px;padding:4px 16px 18px;min-width:0}
 .size3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.slotrow{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1.4fr) minmax(0,.8fr) minmax(0,.8fr);gap:8px 10px;align-items:end;padding:12px;border:1px solid var(--line2);border-radius:10px}
+.slotrow>label{display:grid;gap:3px;font-size:12px;color:var(--dim);min-width:0}
+.slotrow input,.slotrow select{width:100%;min-width:0;box-sizing:border-box}
+.slotrow .rm{justify-self:end;align-self:center}
+@media (max-width:720px){.slotrow{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.slotrow .rm{justify-self:start}}
 .eqrow{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1.4fr) 70px minmax(0,1.4fr) auto;gap:8px;align-items:center}
 .eqhead{font-size:11.5px;color:var(--dim)}
 @media (max-width:720px){.eqrow{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.eqhead{display:none}.eqrow .rm{justify-self:start}}
@@ -300,6 +305,10 @@ pre{margin:0;background:var(--panel);border:1px solid var(--line);border-radius:
           <div class="f"><label for="monthly">月に作れる量の目安</label><input id="monthly" type="text" placeholder="成形品 月3万個 など"></div>
           <div class="f"><label for="maxlot">最大ロット <span class="opt">個</span></label><input id="maxlot" type="number" min="1" placeholder="50000"></div>
         </div>
+        <div class="f"><div class="lb">空いている時期（空き枠）</div><span class="hint">設備や人の手が空く時期を入れてください。時期に幅のある依頼や、同じ材料の小口の依頼を、その時期に合わせてご案内します。値引きは入れた場合だけ依頼者に「空き時期の値引きあり」と伝えます（金額は見積で決めてください）。</span>
+          <div id="slotRows" style="display:grid;gap:8px"></div>
+          <div><button type="button" class="btn sm" id="addSlot">＋ 空き枠を追加</button></div></div>
+        <label class="chk"><input type="checkbox" id="bundleOk"><span>同じ材料・作り方の小口の依頼を、まとめて一度の段取りで受けられる</span></label>
         <div class="f"><div class="lb">金型・治具の製作</div><div data-pick="tooling"></div></div>
         <div class="f"><div class="lb">金型の所有</div><div data-pick="moldown"></div></div>
       </div></details>
@@ -515,6 +524,20 @@ function addEq(v={}){if(eqN>=10)return;eqN++;
 $("#eqRows").addEventListener("click",e=>{if(e.target.closest(".rm")){e.target.closest(".eqrow").remove();eqN--;$("#addEq").hidden=false;update();}});
 $("#addEq").onclick=()=>addEq();
 addEq();
+// 空き枠（工程・材料・個数の幅・空く月・空き時期の値引き）。受付の「空き枠」タブに1行ずつ入り、時期に幅のある依頼と照らし合わせる
+let slN=0;
+const DISC=[["","入れない"],["none","値引きなし"],["ask","値引きは相談可"],["5","目安 5%"],["10","目安 10%"],["15","目安 15%以上"]];
+function slotCodes(){const on=[...document.querySelectorAll('.chip:not([data-s="0"])')].map(b=>b.dataset.code);return on.length?on:Object.keys(NAME)}
+function slotOpts(sel){return `<option value="">工程を選ぶ</option>`+slotCodes().map(c=>`<option value="${c}"${c===sel?" selected":""}>${NAME[c]||c}</option>`).join("")}
+function addSlot(v={}){if(slN>=8)return;slN++;
+  $("#slotRows").insertAdjacentHTML("beforeend",`<div class="slotrow"><label>空く工程<select class="sl-c">${slotOpts(v.code)}</select></label><label>材料<input type="text" class="sl-m" placeholder="ABS、SUS304 など" value="${v.material||""}"></label><label>個数（から）<input type="number" class="sl-q1" min="1" placeholder="1" value="${v.qty_min||""}"></label><label>個数（まで）<input type="number" class="sl-q2" min="1" placeholder="500" value="${v.qty_max||""}"></label><label>空く月（から）<input type="month" class="sl-f" value="${v.from||""}"></label><label>空く月（まで）<input type="month" class="sl-t" value="${v.to||""}"></label><label>空き時期の値引き<select class="sl-d">${DISC.map(([k,l])=>`<option value="${k}">${l}</option>`).join("")}</select></label><button type="button" class="link rm">削除</button></div>`);
+  $("#addSlot").hidden=slN>=8;translateTree($("#slotRows"));}
+$("#slotRows").addEventListener("click",e=>{if(e.target.closest(".rm")){e.target.closest(".slotrow").remove();slN--;$("#addSlot").hidden=false;update();}});
+$("#slotRows").addEventListener("focusin",e=>{const c=e.target.closest(".sl-c");if(c){const v=c.value;c.innerHTML=slotOpts(v);translateTree(c)}});
+$("#addSlot").onclick=()=>addSlot();
+addSlot();
+const slots=()=>[...document.querySelectorAll(".slotrow")].map(r=>{const q=k=>r.querySelector(k).value.trim();const n=k=>q(k)?+q(k):null;
+  return {code:q(".sl-c")||null,material:q(".sl-m")||null,qty_min:n(".sl-q1"),qty_max:n(".sl-q2"),from:q(".sl-f")||null,to:q(".sl-t")||null,discount:q(".sl-d")||null}}).filter(x=>x.code&&(x.from||x.to));
 const equipment=()=>[...document.querySelectorAll(".eqrow:not(.eqhead)")].map(r=>({type:r.querySelector(".eq-k").value.trim(),model:r.querySelector(".eq-m").value.trim()||null,count:r.querySelector(".eq-n").value?+r.querySelector(".eq-n").value:null,range:r.querySelector(".eq-r").value.trim()||null})).filter(x=>x.type);
 
 // ファイル（試作版は名前だけ）
@@ -526,7 +549,7 @@ const GROUPS={
  mat:[()=>rvs("materials").length,()=>$("#maxW").value||$("#maxD").value||$("#maxH").value,()=>$("#minSize").value.trim(),()=>rv("tol"),()=>rvs("finish").length,()=>rvs("formats").length],
  eq:[()=>equipment().length,()=>$("#inspEq").value.trim()],
  q:[()=>rvs("certs").length||$("#certOther").value.trim(),()=>$("#certFile").files.length,()=>rv("inspReport")],
- cap:[()=>rv("avail"),()=>$("#monthly").value.trim(),()=>$("#maxlot").value,()=>rv("tooling"),()=>rv("moldown")],
+ cap:[()=>slots().length,()=>rv("avail"),()=>$("#monthly").value.trim(),()=>$("#maxlot").value,()=>rv("tooling"),()=>rv("moldown")],
  deal:[()=>$("#leadMass").value.trim(),()=>$("#minOrder").value,()=>rv("quoteDays"),()=>rvs("pay").length,()=>rv("nda")],
  lang:[()=>rvs("langs").length,()=>rvs("incoterms").length,()=>$("#exportTo").value.trim()],
  work:[()=>$("#photos").files.length,()=>rvs("industries").length,()=>$("#patents").value.trim()],
@@ -628,7 +651,7 @@ function record(){
       min_feature:$("#minSize").value.trim()||null,
       tolerance_mm:rv("tol")?(rv("tol")==="na"?null:+rv("tol")):null,
       finishes:rvs("finish"),data_formats:rvs("formats"),
-      equipment:equipment(),inspection_equipment:$("#inspEq").value.trim()||null,
+      equipment:equipment(),idle_slots:slots(),bundle_ok:$("#bundleOk").checked||null,inspection_equipment:$("#inspEq").value.trim()||null,
       certificate_files:fileNames("#certFile"),inspection_report:rv("inspReport")||null,
       availability:rv("avail")?{level:rv("avail"),updated_at:today}:null,
       monthly_capacity:$("#monthly").value.trim()||null,max_lot:int($("#maxlot").value),
