@@ -322,7 +322,13 @@ table.cmp{border-collapse:separate;border-spacing:0;width:100%;min-width:760px;f
 .fspec .fsm{display:grid;gap:4px;min-width:120px}.fspec .fsm span{font-size:12px;color:var(--mute)}.fspec .fsm b{font-size:24px;line-height:1}
 .fspec .fsm .bar{height:6px;border-radius:9px;background:var(--line2);overflow:hidden}.fspec .fsm .bar i{display:block;height:100%;background:var(--ice)}
 .fspec .fs-design .fsm .bar i{background:var(--amber)}.fspec .fs-quote .fsm .bar i{background:var(--mint)}
-.fsq{display:grid;gap:12px;margin-top:12px}.fsqi{border:0;padding:0;margin:0;display:grid;gap:6px}.fsqi legend{font-size:14px;font-weight:600;padding:0;margin-bottom:6px}
+.fsq{display:grid;gap:12px;margin-top:12px}.fsqtop{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-top:14px;font-size:12.5px}.fsqtop .fsqstep{font-weight:700;color:var(--ink)}.fsqtop+.fsq{margin-top:6px}.fsqdone{display:grid;gap:6px}
+.cleft{display:grid;gap:12px;align-self:start}@media(min-width:721px){.cleft{position:sticky;top:84px}}
+.cshape{border:1px solid var(--line2);border-radius:12px;padding:12px 14px;display:grid;gap:8px}.cshape h4{margin:0}.cshape h4 .muted{font-weight:400;font-size:12px}
+.cshl{list-style:none;margin:0;padding:0;display:grid;gap:6px}.cshl li{display:flex;gap:8px;align-items:baseline;font-size:13.5px}.cshl li .glink{margin-left:auto;font-size:12px}
+.cshin{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:6px}.cshin select,.cshin input{font:inherit;font-size:13.5px;padding:7px 9px;border:1px solid var(--line2);border-radius:8px;min-width:0;background:#fff}
+.cshn{margin:0;font-size:12px}@media(max-width:720px){.cshin{grid-template-columns:minmax(0,1fr) auto}.cshin select{grid-column:1/-1}.cleft{display:contents}.cleft .cshape{order:2}}
+.mdraft{display:flex!important;flex-direction:row!important;gap:10px;align-items:flex-start;border:1px solid var(--line2);border-radius:10px;padding:10px 12px;margin-bottom:10px;background:color-mix(in srgb,var(--ice) 4%,#fff);cursor:pointer}.mdraft input{margin-top:4px}.mdraft span{display:grid;gap:2px;font-size:13.5px}.mdraft small{color:var(--mute);font-size:12px}.fsqi{border:0;padding:0;margin:0;display:grid;gap:6px}.fsqi legend{font-size:14px;font-weight:600;padding:0;margin-bottom:6px}
 .fsch{display:flex;flex-wrap:wrap;gap:6px}.fsb{font:inherit;font-size:13px;border:1px solid var(--line);background:#fff;border-radius:99px;padding:6px 12px;cursor:pointer;color:var(--fg)}
 .fsqh{display:flex;justify-content:space-between;gap:8px;font-size:12.5px;margin-bottom:4px}.fsqh b{font-size:15px}
 #fsQ{border:1px solid var(--line2);border-radius:12px;padding:12px 14px;background:color-mix(in srgb,var(--ice) 3%,#fff)}
@@ -1382,7 +1388,7 @@ function wireChat(c){const box=$('#mChat');if(!box)return;const {q}=nextQuestion
 const CDH=(x1,x2,y,l)=>`<path class="d" d="M${x1} ${y-5}v10M${x2} ${y-5}v10M${x1} ${y}H${x2}"/><text x="${(x1+x2)/2}" y="${y+14}" text-anchor="middle">${l}</text>`;
 const CDV=(x,y1,y2,l)=>`<path class="d" d="M${x-5} ${y1}h10M${x-5} ${y2}h10M${x} ${y1}V${y2}"/><text x="${x+8}" y="${(y1+y2)/2+4}">${l}</text>`;
 const CFIG={
- slope:f=>`<path class="d" d="M8 200H352"/>${f.pool?`<rect class="o" x="278" y="96" width="10" height="104"/><path class="g" d="M288 118H352V200H288Z" style="fill:color-mix(in srgb,var(--ice) 16%,#fff)"/><path class="o n a" d="M292 118q8-5 16 0t16 0t16 0" /><path class="o n a h" d="M290 104L338 184"/>`:''}
+ slope:f=>`<path class="d" d="M8 200H352"/>${f.pool?`<rect class="o" x="278" y="96" width="10" height="104"/><path class="g" d="M288 118H352V200H288Z" style="fill:color-mix(in srgb,var(--ice) 16%,#fff)"/><path class="o n a" d="M292 118q8-5 16 0t16 0t16 0" /><path class="o n a h" d="M290 104L338 184"/>${f.inpool?'<path class="o" d="M292 114L350 192" style="stroke-width:5"/>':''}`:''}
   <path class="o af" d="M40 200L262 100H278V108H264L50 200Z"/><path class="o n" d="M52 188L262 94"/>${[[150,151],[214,122]].map(([x,y])=>`<path class="o n" d="M${x} ${y}V200"/><rect class="o" x="${x-6}" y="197" width="12" height="5" rx="2"/>`).join('')}<path class="o n" d="M272 108V200"/><rect class="o" x="266" y="197" width="12" height="5" rx="2"/>
   ${f.pet?`<g transform="rotate(-24.2 140 155)"><path class="o n" d="M124 140V155M131 141V155M150 141V155M157 140V155M119 133l-9-7"/><ellipse class="o" cx="140" cy="134" rx="23" ry="9"/><path class="o" d="M158 130l4-12h10l6 6l-2 6h-8z"/><path class="o n" d="M164 118l-3-6"/></g>`:''}
   <path class="d a" d="M86 200A46 46 0 0 0 82 182"/><text x="92" y="197" class="a2">${f.ang}</text>${CDV(24,100,200,'H '+f.h)}${CDH(40,270,206,'L '+f.l)}`,
@@ -1436,11 +1442,11 @@ let V3P=null,V3N=0;const V3L=[],V3T={};
 const loadThree=()=>V3P||(V3P=new Promise((ok,ng)=>{if(window.THREE)return ok(window.THREE);const s=document.createElement('script');s.src='/vendor/three-0.149.0.min.js';s.onload=()=>ok(window.THREE);s.onerror=()=>{V3P=null;ng()};document.head.appendChild(s)}));
 const v3mat=c=>laiFlat((c.rows.find(r=>r[0]==='主な素材')||[,''])[1]);
 function cview(c,cls){const f=c.fig||{};const dims=[+f.w&&'W '+f.w,+f.l&&(f.k==='bag'?'D ':'L ')+f.l,+f.h&&'H '+f.h].filter(Boolean).join(' × ');const v=V3OK&&S.v3!=='fig';
-  return `<figure class="cfig cview${cls?' '+cls:''}" data-v3f="${esc(JSON.stringify({k:f.k,w:+f.w||0,l:+f.l||0,h:+f.h||0,pool:!!f.pool,pet:!!f.pet,p:f.p||''}))}" data-v3m="${esc(v3mat(c))}">
+  return `<figure class="cfig cview${cls?' '+cls:''}" data-v3f="${esc(JSON.stringify(figOf(c)))}" data-v3m="${esc(v3mat(c))}">
     ${V3OK?`<div class="v3tabs" role="group" aria-label="表示"><button type="button" data-v3t="3d" aria-pressed="${v}">3D</button><button type="button" data-v3t="fig" aria-pressed="${!v}">寸法図</button></div>`:''}
     ${V3OK?`<div class="v3box"${v?'':' hidden'}><canvas aria-label="製品イメージ案の3D表示"></canvas><span class="v3cap mono">${dims} mm</span><span class="v3hint">ドラッグで回せます</span><span class="v3load">3Dを準備しています…</span>
       <div class="v3btn"><button type="button" data-v3z="-1" aria-label="拡大">＋</button><button type="button" data-v3z="1" aria-label="縮小">－</button><button type="button" data-v3z="0" aria-label="向きを戻す">↺</button></div></div>`:''}
-    <div class="v3fig"${v?' hidden':''}>${cfig(f)}</div></figure>`}
+    <div class="v3fig"${v?' hidden':''}>${cfig(figOf(c))}</div></figure>`}
 function wireV3(root){(root||document).querySelectorAll('.cview').forEach(el=>{if(el.__w)return;el.__w=1;
   el.querySelectorAll('[data-v3t]').forEach(b=>b.onclick=()=>{S.v3=b.dataset.v3t;track('concept_3d',{action:'tab_'+S.v3,kind:JSON.parse(el.dataset.v3f).k});
     $$('.cview').forEach(x=>{x.querySelectorAll('[data-v3t]').forEach(y=>y.setAttribute('aria-pressed',y.dataset.v3t===S.v3));const bx=x.querySelector('.v3box'),fg=x.querySelector('.v3fig');if(bx)bx.hidden=S.v3==='fig';if(fg)fg.hidden=S.v3!=='fig'});mountV3()})});
@@ -1500,8 +1506,11 @@ function v3build(T,f,mt){const has=r=>r.test(mt);const M=(c,o)=>new T.MeshStanda
      for(const fr of[.5,.8]){const z=-L/2+L*fr,h=H*fr;for(const s of[-1,1])B(t*.8,h,t*.8,s*(W/2-t*.6),h/2,z,m.frame)}
      for(const s of[-1,1])B(t*.8,H,t*.8,s*(W/2-t*.6),H/2,L/2-t*.4,m.frame);B(W,t*.8,t*3,0,H+t*.2,L/2+t,m.frame);
      if(f.pet)dog(dk,Math.min(W*1.5,len*.45),0,t*.5,-len*.1);
-     if(f.pool){const pw=Math.max(W*2.2,1100),pz=L/2+t*2.6+35,wd=Math.min(L*.45,900);B(pw,H*1.02,70,0,H*.51,pz,m.pool);B(pw,40,90,0,H*1.02+20,pz,m.resin);B(pw,H*.82,wd,0,H*.41,pz+35+wd/2,m.water);
-       const hk=new T.Group();g.add(hk);B(W*.8,t*.8,140,0,H*1.04+t,pz,m.frame,hk);B(W*.8,H*.3,t*.8,0,H*.9,pz+75,m.frame,hk)}},
+     if(f.pool){const drop=H*.85,run=drop*L/Math.max(H,1),pw=Math.max(W*2.2,1100),pz=L/2+t*2.6+35,wd=f.inpool?run+260:Math.min(L*.45,900);B(pw,H*1.02,70,0,H*.51,pz,m.pool);B(pw,40,90,0,H*1.02+20,pz,m.resin);B(pw,H*.82,wd,0,H*.41,pz+35+wd/2,m.water);
+       const hk=new T.Group();g.add(hk);B(W*.8,t*.8,140,0,H*1.04+t,pz,m.frame,hk);B(W*.8,H*.3,t*.8,0,H*.9,pz+75,m.frame,hk);
+       if(f.inpool){const len2=Math.hypot(run,drop),z0=pz+80,y0=H*1.04+t,d2=new T.Group();d2.position.set(0,y0-drop/2,z0+run/2);d2.rotation.x=ang;g.add(d2);
+         B(W,t,len2,0,0,0,m.frame,d2);const n2=Math.max(5,Math.round(len2/140));for(let i=0;i<n2;i++)B(W*.9,t*.4,len2/n2*.5,0,t*.7,-len2/2+len2/n2*(i+.5),m.sub,d2);
+         for(const s of[-1,1])B(t*.7,t*1.8,len2,s*(W/2+t*.35),t*.5,0,m.frame,d2);const yb=y0-drop;for(const s of[-1,1])B(t*.8,yb,t*.8,s*(W/2-t*.6),yb/2,z0+run-t,m.frame)}}},
    step(){const n=3;for(let i=0;i<n;i++){const h=H*(i+1)/n,z=-L/2+L/n*(i+.5);B(W,h,L/n,0,h/2,z,m.main);B(W*.94,Math.max(6,H*.02),L/n*.9,0,h+Math.max(3,H*.01),z,m.sub)}},
    house(){const bh=H*.62;B(W,bh,L,0,bh/2,0,m.main);EX([[-W*.56,0],[W*.56,0],[0,H*.38]],L*1.08,0,bh,0,m.sub===m.rubber?m.acc:m.sub);
      const dw=W*.34,dh=bh*.62;B(dw,dh,6,0,dh/2,L/2+2,m.dark);Sp(dw/2,0,dh,L/2+2,m.dark,1,1,.04);B(W*.14,W*.14,6,W*.3,bh*.62,L/2+2,m.dark)},
@@ -1570,9 +1579,11 @@ const frg=v=>Array.isArray(v)?v.map(x=>/^\s*$/.test(x)?x:`<span>${esc(x)}</span>
 const cvarOf=c=>S.cvar&&S.cvar.id===c.id?S.cvar.i:-1;
 function conceptCard(c){const v=cvarOf(c);
   return `<section class="ccard" id="mConcept"><div class="chd"><h2>製品イメージ案</h2>${mk('ai','AI推定・たたき台')}${c.lai?'<span class="chip on">内蔵AIと詰めた案</span>':''}</div>
-    <div class="cgrid">${cview(c)}
-      <div><h3 class="cname">${esc(c.name)}</h3>${c.chips&&c.chips.length?`<div class="cchips"><span class="muted">あなたの文章から読み取った条件</span>${c.chips.map(x=>`<span class="chip">${frg(x)}</span>`).join('')}</div>`:''}<p class="clead">${esc(c.lead)}</p>
-      <dl class="cspec">${c.rows.map(([k,x])=>`<dt>${esc(k)}</dt><dd>${frg(x)}</dd>`).join('')}</dl></div></div>
+    <div class="cgrid"><div class="cleft">${cview(c)}${c.fig?'<!--SHAPE-->':''}</div>
+      <div><h3 class="cname">${esc(c.name)}</h3>${c.chips&&c.chips.length?`<div class="cchips"><span class="muted">あなたの文章から読み取った条件</span>${c.chips.map(x=>`<span class="chip">${frg(x)}</span>`).join('')}</div>`:''}
+      <dl class="cspec">${c.rows.slice(0,1).map(([k,x])=>`<dt>${esc(k)}</dt><dd>${frg(x)}</dd>`).join('')}</dl>
+      <div id="fsQSlot"><!--FSQ--></div>
+      ${fold('cinfo','この案の説明・素材・スペック',`<p class="clead">${esc(c.lead)}</p><dl class="cspec">${c.rows.slice(1).map(([k,x])=>`<dt>${esc(k)}</dt><dd>${frg(x)}</dd>`).join('')}</dl>`)}</div></div>
     ${c.alt?`<div class="calt" role="note"><p><span>AIの回答からは、別の種類の製品とも読めます。</span><b>${esc(c.alt.name)}</b><span>製品の種類は変えずに、寸法・素材・条件だけを反映しました。</span></p><button type="button" class="btn" data-calt="${esc(c.alt.id)}">この種類に切り替える</button></div>`
       :c.altBack?`<div class="calt" role="note"><p><span>AIの回答に合わせて、製品の種類を切り替えています。元の案：</span><b>${esc(c.altBack.name)}</b></p><button type="button" class="btn" data-calt="">元の種類に戻す</button></div>`:''}
     ${fold('cfeat','主な機能と、試作で確かめること',`<div class="ccols"><div><h4>主な機能</h4><ul class="cl">${c.feats.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>
@@ -1612,6 +1623,28 @@ const fsKey=()=>'katachi-fa-'+sxHash(ideaBase());
 function fsAns(){if(S.faFor!==ideaBase()){S.faFor=ideaBase();try{S.fa=JSON.parse(localStorage.getItem(fsKey())||'{}')}catch(e){S.fa={}}}return S.fa||(S.fa={})}
 window.KATACHI_FS=()=>S.fs;window.KATACHI_RL=()=>S.lastRL;window.KATACHI_RFQ=n=>rfq(n||[]);window.KATACHI_SX=(v,t)=>sxParse(v,t);  // 回帰テスト（tools/tests）用
 function fsSave(){try{localStorage.setItem(fsKey(),JSON.stringify(S.fa||{}))}catch(e){}}
+/* 形の要望（図に足したい・変えたいところ）。仕様書と見積の依頼に入る。「プールの中まで続ける」だけは3D・寸法図にも出す */
+const shKey=()=>'katachi-sh-'+sxHash(ideaBase());
+function shList(){if(S.shFor!==ideaBase()){S.shFor=ideaBase();try{S.sh=JSON.parse(localStorage.getItem(shKey())||'[]')}catch(e){S.sh=[]}}return S.sh||(S.sh=[])}
+function shSave(){try{localStorage.setItem(shKey(),JSON.stringify(S.sh||[]))}catch(e){}}
+const SH_POOL=/プールの(中|内)|水の中|水中/;
+function figOf(c){const f=c.fig||{};return {k:f.k,w:+f.w||0,l:+f.l||0,h:+f.h||0,pool:!!f.pool,pet:!!f.pet,p:f.p||'',inpool:!!f.pool&&shList().some(x=>SH_POOL.test(x.t))}}
+function shParts(c){const m=String(laiFlat((c.rows.find(r=>r[0]==='主な素材')||[,''])[1])).match(/[^／：、。\s]{1,8}(?=：)/g)||[];return ['全体',...new Set(m),'足したい部品']}
+function shEx(c){const f=c.fig||{};return f.k==='slope'?[...(f.pool?['プールの中まで続ける']:[]),'2頭が並んで通れる幅にする','手すり・柵を付ける','滑り止めを付ける','たためる・外せるようにする']
+  :['大きさを変える','角を丸くする','部品を足す','分解できるようにする','色・仕上げを変える']}
+function shapeBox(c){const L=shList(),f=c.fig||{};
+  return `<div class="cshape" id="cShape"><h4>形の要望 <span class="muted">図に足したい・変えたいところ</span></h4>
+    ${L.length?`<ul class="cshl">${L.map((x,i)=>`<li><span class="chip">${esc(x.p)}</span><span translate="no">${esc(x.t)}</span><button type="button" class="glink" data-shx="${i}" aria-label="消す">消す</button></li>`).join('')}</ul>`:''}
+    <div class="fsch">${shEx(c).map(e=>`<button type="button" class="fsb" data-shex="${esc(e)}">＋ <span>${esc(e)}</span></button>`).join('')}</div>
+    <div class="cshin"><select id="cShP" aria-label="どこを">${shParts(c).map(x=>`<option>${esc(x)}</option>`).join('')}</select><input id="cShT" type="text" placeholder="例：スロープをプールの中まで続けて、水の中もゆるやかに下りたい" aria-label="形の要望"><button type="button" class="btn sm" id="cShGo">足す</button></div>
+    <p class="muted cshn"><span>${f.pool&&f.k==='slope'?'「プールの中まで続ける」は図にも出ます。ほかの要望は、仕様書と見積の依頼に入り、工場・設計者が図に起こします。':'要望は図には自動で出ません。仕様書と見積の依頼に入り、工場・設計者が図に起こします。'}</span><span>この3Dと寸法図は、見積の依頼にそのまま添付できます。</span></p></div>`}
+function bindGoNext(){$$('[data-gonext]').forEach(b=>b.onclick=()=>$('#mNext')?.click())}
+function wireShape(A){const c=A.concept,box=$('#cShape');if(!c||!box)return;
+  const upd=()=>{box.outerHTML=shapeBox(c);const fg=$('#mConcept .cview');if(fg){fg.outerHTML=cview(c);wireV3($('#mConcept'))}const fs=$('#mFspec');if(fs){fs.outerHTML=fspecCard(A);const sl=$('#fsQSlot');if(sl)sl.innerHTML=S.fsQh||'';wireFspec(A)}wireShape(A)};
+  box.querySelectorAll('[data-shex]').forEach(b=>b.onclick=()=>{const t=$('#cShT');t.value=b.dataset.shex;t.focus()});
+  $('#cShGo').onclick=()=>{const t=($('#cShT').value||'').trim().slice(0,200);if(!t){$('#cShT').focus();return}shList().push({p:$('#cShP').value,t});shSave();track('shape_request',{n:shList().length,pool:SH_POOL.test(t)?1:0});upd()};
+  $('#cShT').onkeydown=e=>{if(e.key==='Enter'&&!e.isComposing){e.preventDefault();$('#cShGo').click()}};
+  box.querySelectorAll('[data-shx]').forEach(b=>b.onclick=()=>{shList().splice(+b.dataset.shx,1);shSave();upd()})}
 function fsCats(A,c){const pc=c&&c.pdb?c.pdb.proc:[],ind=c&&c.pdb?c.pdb.ind:'',ac=A&&A.codes||[],t=String(ideaBase()).toLowerCase();
   const on=(k,codes)=>codes.some(x=>k.proc.some(p=>x===p||x.startsWith(p+'.')));
   /* 製品DBで当てた種類（3点）＞文章の言葉（2点）＞工程の読み取り（1点）。2点以上の品目を最大2つ。なければ一番上の1つ */
@@ -1669,29 +1702,31 @@ function fsBuild(A){const c=A&&A.concept;if(!c)return null;const base=splitAi(S.
   const fq=[];for(const i of items){const v=V[i.k];if(i.req&&(!v||v.lv==='仮'||v.lv==='要確認'))fq.push(i.fq||('「'+i.t+'」：'+'この項目が決まっていません。この製品での一般的な決め方と、費用への影響を教えてください。'))}
   cats.forEach(k=>k.asks.forEach(a=>fq.push(a)));if(design)fq.unshift('図面なしで、この仕様書から設計を受けられますか。設計費と期間の目安を教えてください。');if(RF){fq.unshift('参考品をもとに、変えるところを入れたオリジナルとして作れますか。');if(!/図面|3Dデータ/.test(docs2))fq.push('現物を採寸・3Dスキャンして、図面や3Dデータにできますか。費用と期間を教えてください（できない場合は、できる会社の紹介も歓迎です）。');fq.push('参考品の特許・意匠・商標にかからない形にするため、気をつける点があれば教えてください（権利の最終確認は依頼者が行います）。')}fq.push('返事では、概算の費用・似た製品の実績・日程・量産まで手伝えるかを教えてください。');
   return {V,items,cats,score,mode,ask,fq:[...new Set(fq)],db,c,ref:RF}}
-function fsText(F){if(!F)return '';const L=['■ 工場向け仕様書（KATACHIが整理。確かさ：原文=依頼者の文章／回答=選択式の回答／製品DB=公的機関の出典／仮=似た製品の目安／要確認）'];
+function fsText(F){if(!F)return '';const L=['※ この仕様書と参考図（3D・寸法図）は、KATACHIが作った簡易なたたき台で、図面ではありません。寸法・材質・構造は仮です。専門のお立場からご確認・ご提案ください。不明点はご質問ください。','','■ 工場向け仕様書（KATACHIが整理。確かさ：原文=依頼者の文章／回答=選択式の回答／製品DB=公的機関の出典／仮=似た製品の目安／要確認）'];
   if(F.cats.length)L.push('品目：'+F.cats.map(k=>k.t).join('、'));
   for(const i of F.items){const v=F.V[i.k];L.push('・'+i.t+'：'+(v&&v.v?v.v:'要確認')+'［'+(v?v.lv:'要確認')+']'+(v&&v.src?'（'+v.src+'）':''))}
   {const lw=fsLaws((F.V.reg||{}).v);if(lw.length)L.push('  条文（e-Gov法令検索）：'+lw.map(l=>l.n+' '+l.url).join('　'))}
+  {const sh=shList();if(sh.length){L.push('','■ 形の要望（依頼者が追加。図に反映されていないものは、工場・設計者が図に起こしてください）');sh.forEach(x=>L.push('・'+x.p+'：'+x.t))}}
   L.push('','■ 工場に聞くこと');F.fq.forEach((q,n)=>L.push((n+1)+'. '+q));L.push('','工場に出せる度：'+F.score+'%（'+{quote:'見積に出せます',design:'設計の見積から始めます',more:'あと少しで見積に出せます'}[F.mode]+'）');return L.join('\n')}
 function fspecCard(A){const F=fsBuild(A);if(!F)return '';S.fs=F;const fa=fsAns();
   /* 質問は1問ずつ、同じ場所で答える（答えても画面が飛ばない）。どの質問も複数選べ、「その他」に自由に書ける */
   const sk=S.fsSkip||(S.fsSkip=new Set()),fst=S.fsFirst;const AQ=[...F.items.filter(i=>i.k===fst&&i.q&&i.ch),...F.ask.filter(i=>i.k!==fst&&!sk.has(i.k)),...F.ask.filter(i=>i.k!==fst&&sk.has(i.k))];
   const done=F.items.filter(i=>fa[i.k]&&i.k!==fst).length,cur=AQ[0];
   const head={quote:'見積に出せます',design:'設計の見積から始めます',more:'あと少しで見積に出せます'}[F.mode];
-  const lead={quote:'必要な項目がそろいました。この仕様書を見積の依頼に付けて送れます。',design:'図面や3Dデータがないため、工場はまず設計（仕様を決める仕事）の費用を見積もります。この仕様書を設計の依頼書として送ります。',more:'下の質問に答えると、工場が見積に使える情報がそろいます。わからない所は「わからない」で大丈夫です。'}[F.mode];
+  const lead={quote:'必要な項目がそろいました。この仕様書を見積の依頼に付けて送れます。',design:'図面や3Dデータがないため、工場はまず設計（仕様を決める仕事）の費用を見積もります。この仕様書を設計の依頼書として送ります。',more:'上の質問に答えると、工場が見積に使える情報がそろいます。わからない所は「わからない」で大丈夫です。'}[F.mode];
   const qhtml=cur?(()=>{const a=fa[cur.k]||{},sel=a.unk?[]:Array.isArray(a.v)?a.v:a.v?[a.v]:[],oth=sel.filter(x=>!cur.ch.includes(x)).join('、');
     return `<div class="fsq" id="fsQ"><div class="fsqh"><span><span>質問</span> <b class="mono">${done+1}</b> / ${done+AQ.length}</span><span class="muted">いくつでも選べます</span></div>
     <fieldset class="fsqi" data-fk="${esc(cur.k)}"><legend><span>${esc(cur.q)}</span>${cur.cat?` <span class="chip">${esc((FSPEC.cats.find(k=>k.id===cur.cat)||{}).t||'')}</span>`:''}</legend><div class="fsch">
       ${cur.ch.map(ch=>{const on=sel.includes(ch);return `<button type="button" class="fsb${on?' on':''}" data-fv="${esc(ch)}" aria-pressed="${on}">${esc(ch)}</button>`}).join('')}</div>
       <input class="fsoth" id="fsOth" type="text" value="${esc(oth)}" placeholder="その他（自由に書く）" aria-label="その他（自由に書く）"></fieldset>
     <p class="fsqerr" id="fsQErr" role="alert"></p>
-    <div class="fsqa"><button type="button" class="btn pri" id="fsOk">次へ</button><button type="button" class="btn" id="fsUnk">わからない</button>${AQ.length>1?'<button type="button" class="btn ghost" id="fsLater">あとで</button>':''}</div></div>`})():'';
+    <div class="fsqa"><button type="button" class="btn pri" id="fsOk">次へ</button><button type="button" class="btn" id="fsUnk">わからない</button>${AQ.length>1?'<button type="button" class="btn ghost" id="fsLater">あとで</button>':''}</div></div>`})()
+    :`<div class="fsq fsqdone" id="fsQ"><b>✓ 質問はすべて答えました</b><span class="muted">答えは下の「工場向け仕様書」と見積の依頼に入ります。直すときは仕様書の表の「直す」から。</span><div class="fsqa"><button type="button" class="btn pri" data-gonext>この案で会社を探す →</button></div></div>`;
+  S.fsQh=`<div class="fsqtop"><span class="fsqstep">${cur?'答えてください':'できました'}</span><span class="muted"><span>工場に出せる度</span> <b class="mono">${F.score}%</b></span></div>`+qhtml;
   const row=i=>{const v=F.V[i.k];const lv=v?v.lv:'要確認';const lw=i.k==='reg'&&v?fsLaws(v.v):[];return `<tr><th>${esc(i.t)}${i.req?'<span class="fsreq">*</span>':''}${i.q&&i.ch&&fa[i.k]?` <button type="button" class="fsfix" data-fx="${esc(i.k)}">直す</button>`:''}</th><td>${v&&v.v?(lv==='仮'?'<span>仮：</span>':'')+`<span translate="no">${esc(v.v)}</span>`:'<span>要確認</span>'}</td><td>${mk(FS_LV[lv]||'unk',lv)}${v&&v.src?`<small translate="no">${esc(v.src)}</small>`:''}${lw.length?`<small>条文（e-Gov法令検索）：${lw.map(l=>`<a href="${l.url}" target="_blank" rel="noopener" translate="no">${esc(l.n)}</a>`).join('、')}</small>`:''}</td></tr>`};
   const draft=F.mode==='design'&&F.c&&F.c.fig?`<div class="fsdraft"><h4>設計の下書き</h4><p class="muted">KATACHIが作る下書きです。単純な形なら3Dプリントの試作に出せます。回路・基板・強度・防水・金型は、設計者が仕上げる前提です。</p><div class="fsbtns"><button type="button" class="btn sm" id="fsStl">製品イメージ案の3Dデータ（STL）を保存</button><button type="button" class="btn sm" id="fsSvg">寸法図（SVG）を保存</button></div></div>`:'';
   return `<section class="ccard fspec" id="mFspec"><div class="chd"><h2>工場向け仕様書</h2>${F.cats.map(k=>`<span class="chip">${esc(k.t)}</span>`).join('')}</div>
     <div class="fshd fs-${F.mode}"><div class="fsm"><span>工場に出せる度</span><b class="mono">${F.score}%</b><div class="bar"><i style="width:${F.score}%"></i></div></div><div><b>${head}</b><p>${lead}</p></div></div>
-    ${qhtml}
     ${fold('fstab','仕様書',`<table class="fstb"><thead><tr><th>項目</th><th>内容</th><th>確かさ</th></tr></thead><tbody>${F.items.map(row).join('')}</tbody></table><p class="muted" style="font-size:12px;margin:6px 0 0">仮の値は、似た製品の目安です。工場との打ち合わせで決まります。</p>`,F.items.filter(i=>F.V[i.k]&&F.V[i.k].v).length+' / '+F.items.length)}
     ${fold('fsfq','工場に聞くこと（自動で依頼書に付きます）',`<ol class="cl">${F.fq.map(q=>`<li>${esc(q)}</li>`).join('')}</ol>`,String(F.fq.length))}
     ${PARTS&&F.cats.some(k=>k.id==='elec')?`<div class="fsref" id="fsPt"><h4>部品の参考価格を調べる（DigiKey）</h4><p class="muted" style="font-size:12.5px;margin:0 0 6px">部品名か型番を入れると、電子部品の通販 DigiKey の単価（1個）と在庫を出します。量産の価格は工場の仕入れで変わるので、目安として使ってください。</p>${(()=>{const src=[(F.V.parts||{}).v,(F.V.escope||{}).v,splitAi(S.idea||'')[0]].join(' ');const pp=PQ.filter(([re])=>re.test(src)).slice(0,6);return pp.length?`<div class="fsch" style="margin-bottom:6px">${pp.map(([,l,q])=>`<button type="button" class="fsb" data-pq="${esc(q)}">${esc(l)}</button>`).join('')}</div>`:''})()}<div class="fsgk"><input id="fsPtIn" type="text" autocapitalize="off" spellcheck="false" placeholder="例：ESP32-C3、accelerometer（英語・型番が当たりやすい）" aria-label="部品名・型番"><button type="button" class="btn sm" id="fsPtGo">調べる</button></div><div id="fsPtOut" aria-live="polite"></div></div>`:''}
@@ -1701,11 +1736,11 @@ function fspecCard(A){const F=fsBuild(A);if(!F)return '';S.fs=F;const fa=fsAns()
     <div class="fsbtns"><button type="button" class="btn sm" id="fsPrint">印刷・PDFで保存</button><button type="button" class="btn sm" id="fsCopy">テキストをコピー</button></div></section>`}
 function wireFspec(A){const el=$('#mFspec');if(!el)return;const fa=fsAns();
   // 選ぶだけでは書き換えない（「次へ」で確定）。確定したら作り直し、質問の箱が同じ高さに来るようにずらす
-  el.querySelectorAll('#fsQ .fsb').forEach(b=>b.onclick=()=>{const on=!b.classList.contains('on');b.classList.toggle('on',on);b.setAttribute('aria-pressed',on);$('#fsQErr').textContent=''});
-  const redraw=(focus)=>{const q0=$('#fsQ')||el,top=q0.getBoundingClientRect().top;el.outerHTML=fspecCard(A);wireFspec(A);const q1=$('#fsQ')||$('#mFspec');
+  document.querySelectorAll('#fsQ .fsb').forEach(b=>b.onclick=()=>{const on=!b.classList.contains('on');b.classList.toggle('on',on);b.setAttribute('aria-pressed',on);$('#fsQErr').textContent=''});
+  const redraw=(focus)=>{const q0=$('#fsQ')||el,top=q0.getBoundingClientRect().top;el.outerHTML=fspecCard(A);const sl=$('#fsQSlot');if(sl)sl.innerHTML=S.fsQh||'';wireFspec(A);bindGoNext();const q1=$('#fsQ')||$('#mFspec');
     if(focus){q1&&q1.scrollIntoView({block:'center'})}else if(q1)window.scrollBy(0,q1.getBoundingClientRect().top-top)};
-  const curK=()=>{const f=el.querySelector('#fsQ .fsqi');return f&&f.dataset.fk};
-  $('#fsOk')&&($('#fsOk').onclick=()=>{const k=curK();const v=[...el.querySelectorAll('#fsQ .fsb.on')].map(b=>b.dataset.fv),o=($('#fsOth').value||'').trim().slice(0,100);if(o)v.push(o);
+  const curK=()=>{const f=document.querySelector('#fsQ .fsqi');return f&&f.dataset.fk};
+  $('#fsOk')&&($('#fsOk').onclick=()=>{const k=curK();const v=[...document.querySelectorAll('#fsQ .fsb.on')].map(b=>b.dataset.fv),o=($('#fsOth').value||'').trim().slice(0,100);if(o)v.push(o);
     if(!v.length){$('#fsQErr').textContent='選ぶか、書いてから「次へ」を押してください';return}
     fa[k]={v};fsSave();S.fsSkip&&S.fsSkip.delete(k);if(S.fsFirst===k)S.fsFirst=null;track('fspec_answer',{answered:Object.keys(fa).length,other:o?1:0});redraw()});
   $('#fsUnk')&&($('#fsUnk').onclick=()=>{const k=curK();fa[k]={unk:1};fsSave();S.fsSkip&&S.fsSkip.delete(k);if(S.fsFirst===k)S.fsFirst=null;track('fspec_answer',{answered:Object.keys(fa).length,unk:1});redraw()});
@@ -1733,12 +1768,20 @@ function wireFspec(A){const el=$('#mFspec');if(!el)return;const fa=fsAns();
   $('#fsStl')&&($('#fsStl').onclick=()=>fsStl(A));$('#fsSvg')&&($('#fsSvg').onclick=()=>{track('fspec_draft',{kind:'svg'});const f=A.concept.fig;dl('katachi-dimensions.svg','image/svg+xml',cfig(f).replace('<svg','<svg xmlns="http://www.w3.org/2000/svg"'))})}
 function dl(name,type,body){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([body],{type}));a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)}
 // 製品イメージ案の3D（v3build、単位mm）を STL に書き出す。Z上向きにそろえる
-function fsStl(A){track('fspec_draft',{kind:'stl'});const c=A.concept,f=c.fig||{};loadThree().then(T=>{const g=v3build(T,{k:f.k,w:+f.w||0,l:+f.l||0,h:+f.h||0,pool:!!f.pool,pet:!!f.pet,p:f.p||''},v3mat(c));g.updateMatrixWorld(true);
+function fsStl(A){track('fspec_draft',{kind:'stl'});const c=A.concept;stlOf(c).then(x=>dl('katachi-draft.stl','model/stl',x)).catch(()=>{})}
+function stlOf(c){return loadThree().then(T=>{const g=v3build(T,figOf(c),v3mat(c));g.updateMatrixWorld(true);
   const L=['solid katachi'],a=new T.Vector3(),b=new T.Vector3(),d=new T.Vector3(),n=new T.Vector3();const z=v=>`${v.x.toFixed(3)} ${(-v.z).toFixed(3)} ${v.y.toFixed(3)}`;
   g.traverse(o=>{if(!o.isMesh||!o.geometry)return;const geo=o.geometry.index?o.geometry.toNonIndexed():o.geometry;const p=geo.attributes.position;
     for(let i=0;i+2<p.count;i+=3){a.fromBufferAttribute(p,i).applyMatrix4(o.matrixWorld);b.fromBufferAttribute(p,i+1).applyMatrix4(o.matrixWorld);d.fromBufferAttribute(p,i+2).applyMatrix4(o.matrixWorld);
       n.subVectors(b,a).cross(new T.Vector3().subVectors(d,a)).normalize();L.push(` facet normal ${z(n)}\n  outer loop\n   vertex ${z(a)}\n   vertex ${z(b)}\n   vertex ${z(d)}\n  endloop\n endfacet`)}});
-  L.push('endsolid katachi');dl('katachi-draft.stl','model/stl',L.join('\n'))}).catch(()=>{})}
+  L.push('endsolid katachi');return L.join('\n')})}
+// 見積の依頼・相談に、KATACHIの3D（STL）・寸法図（SVG）・仕様書（テキスト）を添付する
+async function draftFiles(){const c=S.anal&&S.anal.concept;if(!c||!c.fig)return [];const out=[];
+  try{out.push({name:'katachi-draft.stl',mime:'model/stl',blob:new Blob([await stlOf(c)],{type:'model/stl'})})}catch(e){}
+  out.push({name:'katachi-dimensions.svg',mime:'image/svg+xml',blob:new Blob([cfig(figOf(c)).replace('<svg','<svg xmlns="http://www.w3.org/2000/svg"').replace('</svg>','<text x="8" y="218" class="cap" style="font-size:9px">参考図（たたき台）：寸法・構造は仮です。工場でご確認・ご提案ください。</text></svg>')],{type:'image/svg+xml'})});
+  const F=fsNow();if(F)out.push({name:'katachi-spec.txt',mime:'text/plain',blob:new Blob([fsText(F)],{type:'text/plain'})});return out}
+async function upListD(){const u=upList();if(S.attachDraft===false||!(S.anal&&S.anal.concept&&S.anal.concept.fig))return u;
+  for(const x of await draftFiles()){if(u.list.length<UP.files&&u.bytes+x.blob.size<=UP.total){u.list.push(x);u.bytes+=x.blob.size}}return u}
 const LVL={official:'公式・公的機関',article:'報道・記事',listing:'掲載ページ',site:'KATACHIのページ',ai:'AI推定'};
 const srcA=x=>x&&x.url?`<a href="${esc(x.url)}" target="_blank" rel="noopener noreferrer">${esc(x.t||x.url)}</a>${x.level?` <span class="chip">${LVL[x.level]||''}</span>`:''}`:'';
 const fmtN=(r)=>{const f=v=>r.u==='yen'?(v>=10000?(Math.round(v/1000)/10)+'万円':v.toLocaleString()+'円'):r.u==='usd'?'$'+v.toLocaleString():r.u==='pcs'?v.toLocaleString()+'個':String(v);return r.lo===r.hi?f(r.lo):f(r.lo)+'〜'+f(r.hi)};
@@ -1768,7 +1811,8 @@ function wireConcept(A){const c=A.concept;if(!c||!$('#mConcept'))return;wireChat
   const g=$('#mCAi');if(g)g.onclick=()=>{const box=$('#mAi');track('concept_ai',{concept:c.id});const fd=box&&box.closest('details');if(fd)fd.open=true;if(box){box.scrollIntoView({behavior:'smooth',block:'start'});box.classList.add('flash');setTimeout(()=>box.classList.remove('flash'),1600)}}}
 
 function renderMedia(){const el=$('#mediaBox');if(!el)return;const rfqMode=!!$('#rf');
-  el.innerHTML=`${rfqMode?'<div id="readyBox"></div>':''}
+  const cd=S.anal&&S.anal.concept&&S.anal.concept.fig;
+  el.innerHTML=`${cd?`<label class="mdraft"><input type="checkbox" id="f-draft"${S.attachDraft===false?'':' checked'}><span><b>KATACHIの3D（STL）・寸法図（SVG）・仕様書を添付する</b><small>図面がなくても、工場がこの形をもとに見積・設計できます。どれも簡易なたたき台なので、工場から寸法・材質・作り方の確認や提案の連絡が来るのがふつうです。</small></span></label>`:''}${rfqMode?'<div id="readyBox"></div>':''}
     <div class="mlist">${S.files.map((f,i)=>`<div class="mi">
       <div class="mth">${f.thumb?`<img src="${f.thumb}" alt="">`:`<span class="mono">${esc(f.k)}</span>`}${f.k==='動画'||f.k==='YouTube'?'<i class="play">▶</i>':''}</div>
       <div class="mf"><div class="mn"><b translate="no">${f.url?`<a href="${esc(f.url)}" target="_blank" rel="noopener noreferrer">${esc(f.name)}</a>`:esc(f.name)}</b><span class="muted mono">${[f.size?mb(f.size):'',f.m].filter(Boolean).map(esc).join(' · ')}</span></div>
@@ -1787,6 +1831,7 @@ function renderMedia(){const el=$('#mediaBox');if(!el)return;const rfqMode=!!$('
   $('#mUrlGo').onclick=goUrl;$('#mUrl').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();goUrl()}};
   $('#mIn').onchange=e=>{[...e.target.files].forEach(addFile);e.target.value='';renderMedia()};
   $$('[data-mx]').forEach(b=>b.onclick=()=>{S.files.splice(+b.dataset.mx,1);renderFiles();renderMedia()});
+  $('#f-draft')&&($('#f-draft').onchange=e=>{S.attachDraft=e.target.checked;track('attach_draft',{on:e.target.checked?1:0})});
   $$('[data-mr]').forEach(s=>s.onchange=()=>{S.files[+s.dataset.mr].role=s.value});
   $$('[data-md]').forEach(s=>s.oninput=()=>{S.files[+s.dataset.md].dim=s.value.trim();renderReady()});
   $$('[data-mm]').forEach(s=>s.oninput=()=>{S.files[+s.dataset.mm].memo=s.value.trim()});
@@ -2160,7 +2205,7 @@ async function renderMatch(){
     ${S.lostFiles?`<div class="updn" style="background:#fff7e6;border-color:#f3d39b"><span>前に追加した写真・動画（${S.lostFiles}件）は、画面を開き直したため消えました。お手数ですが、もう一度追加してください。</span></div>`:''}
     <div id="fstrip">${stripHTML()}</div>
     ${/【参考にした既製品】/.test(S.idea)?`<div class="refwarn" style="margin-top:12px"><b>既製品をもとにした依頼です。</b>参考品の特許・意匠（デザイン）・商標にかからないか、見積の前に担当者・工場と確かめます。変えたところが少ないと、作れない・売れないことがあります。${/【参考品のページから読み取った内容】/.test(S.idea)?'':'<br><b>参考品のページは読み取れませんでした。</b>「書き直す」で商品名や、どんな製品か（例：犬用の車いす）を書き足すと、案が具体的になります。'}</div>`:''}
-    ${A.concept?conceptCard(A.concept)+fspecCard(A):blocked?'':'<div class="empty" style="margin-top:16px">この文章からは、製品の種類を特定できませんでした。下の「AIで相談」を開くと、外観・サイズ・素材・機能の案も作ってもらえます。</div>'}
+    ${A.concept?(()=>{const fc=fspecCard(A);return conceptCard(A.concept).replace('<!--SHAPE-->',shapeBox(A.concept)).replace('<!--FSQ-->',fc?S.fsQh||'':'')+fc})():blocked?'':'<div class="empty" style="margin-top:16px">この文章からは、製品の種類を特定できませんでした。下の「AIで相談」を開くと、外観・サイズ・素材・機能の案も作ってもらえます。</div>'}
     ${notices}
     ${blocked?'':costPeek(A)}
     ${blocked?'':`<div class="gonext"><button type="button" class="btn pri" data-gonext>${A.concept?'この案で会社を探す':'会社を探す'} →</button></div>`}
@@ -2207,7 +2252,7 @@ async function renderMatch(){
     $$('[data-recall]').forEach(b=>b.onclick=()=>{S.folds.all=true;const d=$('details[data-fold=all]');if(d){d.open=true;d.scrollIntoView({behavior:'smooth',block:'start'})}else{const l=$('.mstep');l&&l.scrollIntoView({behavior:'smooth',block:'start'})}})}
   if(st===2){if(!blocked)renderMatchDock();wireTune(A);if(S.aiAway&&Date.now()-S.aiAway.t>1500)setTimeout(gotoAiPaste,200)}
   else pickDock();
-  bindPicks();wireAiConsult(A);wireConcept(A);wireFspec(A);if(st===2&&A.concept&&S.loggedConcept!==S.idea){S.loggedConcept=S.idea;track('concept_show',{concept:A.concept.id})}
+  bindPicks();wireAiConsult(A);wireConcept(A);wireFspec(A);wireShape(A);if(st===2&&A.concept&&S.loggedConcept!==S.idea){S.loggedConcept=S.idea;track('concept_show',{concept:A.concept.id})}
   $$('[data-alt]').forEach(b=>b.onclick=()=>{track('blocked_alt',{alt:b.dataset.altk});S.idea=b.dataset.alt;S.loggedIdea='';S.gsel=[];S.gstep={};S.gmore={};renderMatch().then(()=>window.scrollTo({top:0,behavior:'smooth'}))});
   if($('#mEst')&&typeof window.KATACHI_EST_CARD==='function'){try{$('#mEst').innerHTML=window.KATACHI_EST_CARD(A.codes,qmax,+((S.idea.match(/(\d[\d,]*)\s*(個|台|枚|本|着|セット|pcs|units)/i)||[])[1]||'').replace(/,/g,''))||''}catch(e){}}
   $('#mEdit').onclick=()=>{S.mode='free';location.hash=''};
@@ -2392,7 +2437,7 @@ function renderMatchDock(){const A=S.anal||{};const away=!!S.aiAway;const arrow=
 const TICON={"lai": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"3\" y=\"4\" width=\"18\" height=\"12\" rx=\"2\"/><path d=\"M8 20h8M12 16v4\"/><path d=\"M12 7l.9 2.1L15 10l-2.1.9L12 13l-.9-2.1L9 10l2.1-.9z\"/></svg>", "q": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M4 5h16v11H9l-5 4z\"/><path d=\"M9 9.5h6M9 12.5h4\"/></svg>", "ai": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z\"/><path d=\"M18 15l.8 2.2L21 18l-2.2.8L18 21l-.8-2.2L15 18l2.2-.8z\"/></svg>", "human": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"12\" cy=\"8\" r=\"3.5\"/><path d=\"M5 20c.8-3.6 3.6-5.5 7-5.5s6.2 1.9 7 5.5\"/></svg>"};
 function tuneBox(A){const c=A.concept;const t=S.tune||'';
   return `<section class="tune2" id="mTune"><div class="th"><b>案を詰めたいときだけ</b><span class="topt">任意</span><span>やらなくても次へ進めます</span></div>
-    <div class="ticons" role="group" aria-label="相談のしかた">${c?`<button type="button" data-tune="q" aria-pressed="${t==='q'}">${TICON.q}<b>質問に答える</b></button>`:''}${c&&LAI.ok?`<button type="button" data-tune="lai" aria-pressed="${t==='lai'}">${TICON.lai}<b>内蔵AIと話す</b></button>`:''}<button type="button" data-tune="ai" aria-pressed="${t==='ai'}">${TICON.ai}<b>AIに相談</b></button><button type="button" data-tune="human" aria-pressed="${t==='human'}">${TICON.human}<b>人に相談</b></button></div>
+    <div class="ticons" role="group" aria-label="相談のしかた">${c&&!(S.fs&&S.fs.c===c)?`<button type="button" data-tune="q" aria-pressed="${t==='q'}">${TICON.q}<b>質問に答える</b></button>`:''}${c&&LAI.ok?`<button type="button" data-tune="lai" aria-pressed="${t==='lai'}">${TICON.lai}<b>内蔵AIと話す</b></button>`:''}<button type="button" data-tune="ai" aria-pressed="${t==='ai'}">${TICON.ai}<b>AIに相談</b></button><button type="button" data-tune="human" aria-pressed="${t==='human'}">${TICON.human}<b>人に相談</b></button></div>
     ${c?`<div data-pane="q" ${t==='q'?'':'hidden'}>${chatBox(c)}</div>`:''}
     ${c&&LAI.ok?`<div data-pane="lai" ${t==='lai'?'':'hidden'}>${laiBox(c)}</div>`:''}
     <div data-pane="ai" ${t==='ai'?'':'hidden'}>${A.notices.some(n=>WEAPON.test(n))?'':aiConsult(A)}<p class="muted" style="margin:8px 0 0;font-size:12.5px">AIは別のタブで開きます。AIが「仕様メモ」をまとめたら、このページに戻って上の欄に貼ってください。戻ると貼る場所が開きます。</p></div>
@@ -2795,6 +2840,8 @@ function company(name){
 const UNK='わからない・相談したい';
 /* 見積に要ること：工場向け仕様書（FSPEC）の「どこまで頼むか・手元の資料・数量3段階・発注の確度」と品目別の項目を、依頼フォームでも同じ答えで聞く。
    根拠：公開発注案件 約250件の分析（2026-11-14）。答えは fsAns() に保存し、上の仕様書と共有する */
+// 会社選び・見積の画面では案を作り直すことがあるので、そのときの案で仕様書を作り直す
+function fsNow(){const c=S.anal&&S.anal.concept;if(!c)return null;if(!S.fs||S.fs.c!==c){try{const F=fsBuild(S.anal);if(F)S.fs=F}catch(e){}}return S.fs&&S.fs.c===c?S.fs:null}
 function fsFormCats(){try{return fsCats(S.anal||null,S.anal&&S.anal.concept||null)}catch(e){return []}}
 function fsFields(){const pick=k=>FSPEC.common.find(i=>i.k===k);
   const its=[...['scope','docs','qs','qf','qc','sure'].map(pick).filter(Boolean),...fsFormCats().flatMap(c=>c.items)].filter(i=>i.ch&&i.ch.length);
@@ -2808,7 +2855,7 @@ function fsFormSave(el){const k=el.id.slice(3),fa=fsAns();let v=el.tagName==='SE
   const sp=$('#f-spec');if(sp&&S.anal&&S.fs&&S.fs.c===S.anal.concept){const old=fsText(S.fs);const F=fsBuild(S.anal);if(F){S.fs=F;if(sp.value===old)sp.value=fsText(F)}}}
 function RFQ(r,qty){return [
  ['依頼者',[['f-who','依頼者の区分','sel','req',['法人（中小企業など）','個人事業主・個人']],['f-org','会社名・屋号','txt','opt',''],['f-name','ご担当者名','txt','opt',''],['f-mail','メールアドレス','email','req','見積が届いたらお知らせします'],['f-tel','電話番号','tel','opt',''],['f-ind','業種','sel','opt',['','消費財ブランド（ペット・アウトドアなど）','店舗・施設の運営','製造業（自社製品をつくりたい）','ハードウェアのスタートアップ','その他']]]],
- ['つくりたいもの',[['f-sum','製品の概要','area','req',(S.idea&&S.matched!=='example'&&!demo())?S.idea:r.summary],...(S.fs&&S.src==='text'&&S.anal&&S.fs.c===S.anal.concept?[['f-spec','工場向け仕様書（KATACHIが整理）','area','opt',fsText(S.fs)]]:[]),['f-use','用途・使う人','txt','ai','例：大型犬の飼い主が毎日の散歩で使う'],['f-env','使う場所・環境','cks','opt',['屋内','屋外・雨','水回り','高温・低温','身につける','食品に触れる','子ども・ペットが触れる']],['f-size','大きさの目安','txt','opt','例：手のひらに乗る、縦90mm以内'],['f-matl','材質の希望','txt','opt','例：ABS樹脂、ステンレス、綿100%、わからない'],['f-wt','重さの目安','txt','opt','例：50g以下'],...(fsFormCats().some(c=>c.id==='elec')?[]:[['f-pow','電源','sel','opt',['','乾電池','充電式','コンセント','電源は不要',UNK]]]),['f-look','色・質感・仕上げ','txt','opt','例：マットな黒、ロゴを入れたい'],['f-ref','参考にしている製品','txt','opt','URLや商品名']]],
+ ['つくりたいもの',[['f-sum','製品の概要','area','req',(S.idea&&S.matched!=='example'&&!demo())?S.idea:r.summary],...(S.src==='text'&&fsNow()?[['f-spec','工場向け仕様書（KATACHIが整理）','area','opt',fsText(fsNow())]]:[]),['f-use','用途・使う人','txt','ai','例：大型犬の飼い主が毎日の散歩で使う'],['f-env','使う場所・環境','cks','opt',['屋内','屋外・雨','水回り','高温・低温','身につける','食品に触れる','子ども・ペットが触れる']],['f-size','大きさの目安','txt','opt','例：手のひらに乗る、縦90mm以内'],['f-matl','材質の希望','txt','opt','例：ABS樹脂、ステンレス、綿100%、わからない'],['f-wt','重さの目安','txt','opt','例：50g以下'],...(fsFormCats().some(c=>c.id==='elec')?[]:[['f-pow','電源','sel','opt',['','乾電池','充電式','コンセント','電源は不要',UNK]]]),['f-look','色・質感・仕上げ','txt','opt','例：マットな黒、ロゴを入れたい'],['f-ref','参考にしている製品','txt','opt','URLや商品名']]],
  ['見積に要ること',fsFields()],
  ['数量と段階',[['f-qty','段階と数量','txt','req',qty],['f-yr','年間の見込み数','txt','opt','例：初年度 3,000個'],['f-iter','試作の回数の想定','sel','ai',['AIの目安に任せる','1回','2〜3回','4回以上']]]],
  ['予算と時期',[['f-due','希望の時期','txt','req','例：2027年3月までに試作品'],['f-fix','時期の固さ','sel','opt',['','展示会・発売日があり動かせない','目安なので相談できる']],['f-bud','予算の目安','txt','opt','例：試作全体で50万円まで'],['f-unit','目標の単価・販売価格','txt','opt','例：原価3,000円以内、売価9,800円']]],
@@ -2883,7 +2930,7 @@ function rfq(names){
     const btn=e.submitter||$('#rf button[type=submit]');btn.disabled=true;
     const abroadOk=!!$('#f-abroad-ok')?.checked;
     const team=G?names.map(n=>({step:roles(n),company:n,country:D.companies[n]?.country||'JP'})):Object.entries(S.assign).map(([rid,n])=>({step:R().per_requirement.find(p=>p.requirement.id===rid)?.requirement.purpose||rid,company:n,country:D.companies[n]?.country||'JP'}));
-    const ups=upList(),upKey=ups.list.length?rkey():'';
+    const ups=await upListD(),upKey=ups.list.length?rkey():'';
     const ok=await sendForm({type:'rfq',upload:upKey?{key:upKey,count:ups.list.length,bytes:ups.bytes}:undefined,lang:window.KATACHI_LANG?window.KATACHI_LANG():'ja',idea:S.idea||r.idea,matched:S.matched||'',scenario:S.scen,plan:R().teams[S.plan]?.profile||'',steps:G&&S.src==='text'?(S.anal?.codes||[]).map(c=>CAPN[c]||c):undefined,guided:G&&S.src==='guided'?{category:gCat()?.t,process:S.g.proc,material:S.g.mat,quantity:S.g.qty,drawing:S.g.draw,due:S.g.due,region:S.g.reg,caps:gCodes()}:undefined,fields:allVals(r,qty).concat(mediaVals()),team:team.filter(t=>abroadOk||!abroad(D.companies[t.company])),abroad_ok:abroadOk,files:S.files.map(f=>f.name),page:location.href.split('#')[0]});
     btn.disabled=false;
     track('generate_lead',{type:'rfq',sent:ok,requester:$('#f-who').selectedIndex?'individual':'company',companies:names.length,quantity:S.qty,files:S.files.length,material:$('#f-mat').selectedIndex,optional_filled:rfqVals(r,qty).length,optional_total:all.length,nda:$('#f-nda').selectedIndex,overseas_ok:$('#f-abr').selectedIndex===0});
@@ -2920,7 +2967,7 @@ function consult(name){
     const miss=[];const m=$('#c-mail').value.trim();if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(m))miss.push('メールアドレス');if(!$('#c-b').value.trim())miss.push('いまの状況');if(!$('#c-agree').checked)miss.push('利用規約とプライバシーポリシーへの同意');
     if(miss.length){$('#cfErr').innerHTML='<span>入力してください</span>: '+miss.map(x=>'<span>'+x+'</span>').join(', ');track('form_error',{reason:'consult_required',fields:miss.length});return}
     const tos=[...$$('#cf .chk input[type=checkbox]')].filter(i=>i.id!=='c-agree'&&i.checked).map(i=>i.closest('label').querySelector('span').childNodes[0].textContent.trim());
-    const ups=upList(),upKey=ups.list.length?rkey():'';const cbtn=e.submitter||$('#cf button[type=submit]');cbtn.disabled=true;
+    const ups=await upListD(),upKey=ups.list.length?rkey():'';const cbtn=e.submitter||$('#cf button[type=submit]');cbtn.disabled=true;
     const ok=await sendForm({type:'consult',upload:upKey?{key:upKey,count:ups.list.length,bytes:ups.bytes}:undefined,fields:mediaVals(),files:S.files.map(f=>f.name),lang:window.KATACHI_LANG?window.KATACHI_LANG():'ja',idea:S.idea||R().idea,company:name||'',topic:$('#c-t').value,body:$('#c-b').value.trim(),email:m,org:$('#c-org').value.trim(),to:tos,page:location.href.split('#')[0]});
     cbtn.disabled=false;
     track('generate_lead',{type:'consult',sent:ok,topic:$('#c-t').selectedIndex,to_company:!!name,files:S.files.length});
