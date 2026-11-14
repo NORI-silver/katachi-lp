@@ -16,6 +16,8 @@ const cases=[
     await p.fill('#idea',cs.text);await p.evaluate(()=>document.querySelector('#idea').form.requestSubmit());
     await p.waitForSelector('#mFspec',{timeout:20000});await p.waitForTimeout(400);
     await p.evaluate(()=>window.KATACHI_RFQ([]));await p.waitForSelector('#rf',{timeout:10000});await p.waitForTimeout(300);
+    // 依頼は1問ずつ（rfqWizard）。任意の項目は最後の画面の「もっと詳しく伝える」に畳まれているので、開いてから確かめる
+    await p.evaluate(()=>{const r=document.querySelector('#wzRest');if(r)r.hidden=false;document.querySelectorAll('#rf details').forEach(d=>d.open=true)});
     const ids=await p.$$eval('#rf [id^="fs-"]',a=>a.map(x=>x.id));
     const chips=await p.$$eval('.ready .rc span',a=>a.map(x=>x.textContent.replace('✓ ','')));
     const pow=await p.$('#f-pow');
