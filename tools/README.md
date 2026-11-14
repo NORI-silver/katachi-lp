@@ -67,3 +67,7 @@ python3 seo_pages.py <リポジトリ>             # ガイド記事・sitemap.x
 - 貼り戻しJSON（`SX_TPL`）には scope・due・budget・docs・category_items（品目別の項目名＋値＋根拠の原文）も入る。受付の保存（`backend/forms.gs` の specsave）は今の項目だけを保存する。
 - 見積依頼のフォームの「見積に要ること」（`template.html` の `fsFields`）は、同じ FSPEC の「どこまで頼むか・手元の資料・試作／初回／継続の数・発注の確度」と、当てた品目の項目を選択式で出す。答えは仕様書と同じ保存先（`fsAns`）に入り、仕様書の欄も作り直す。「見積に必要な点」（`readyChips`）は品目の必須項目（`key`）で数える。根拠は公開発注案件 約250件の分析（2026-11-14）。
 - 回帰テスト：`node tools/tests/fspec_cases.js [URL] [スクショのフォルダ]`、フォームは `node tools/tests/rfq_fs_cases.js [URL] [スクショのフォルダ]`。
+
+## マッチングの精度（会社の並び）
+③の会社の並び（`rankFor`・一社案・完成品メーカー）は、工程の点に `fitOf` を足す：依頼文・製品名の言葉が会社の説明に出るか（言葉の珍しさで重みづけ）、外の注文を受ける業態か、分野が合うか、会社の規模、所在地（文章の都道府県・届け先）。点数は画面に出さない。長い仕様文は `specCore` で読む文を絞る。
+評価は `tools/tests/match_cases.json`（依頼27件）を `node tools/tests/match_eval.js` で回し、★の会社が妥当かを `docs/matching-eval.md` の表に残す。会社の並びを変えたら、表の数（○△×）が下がっていないかを確かめる。

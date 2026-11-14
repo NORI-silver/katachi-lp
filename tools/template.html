@@ -2244,7 +2244,15 @@ function gRfq(){
 }
 
 /* ---------- 文章から工程を読み取る（マッチングエンジンのルール解析 analyze_with_rules と同じ考え方） ---------- */
-function analyzeText(text){
+/* 長い仕様文は、工程を読む文を絞る（Nori 2026-11-14 マッチング精度）。
+   「将来の機能」「初期は不要」「オプション」の行は今回作るものではないので読まない。
+   【見出し】が4つ以上ある長い仕様文は、製品名・構成・外観・寸法・材質・構造・電源・動力・機能の節だけで工程を読む（目的・使う場面の言葉で関係ない工程が出ないように） */
+function specCore(text){let t=String(text||'');
+  t=t.replace(/【[^】]*(将来|オプション|今後|いずれ)[^】]*】[^【]*/g,' ').split(/\n/).filter(l=>!/初期は不要|今回は不要|なくても(よい|いい)|なくてよい|将来(的に)?は|オプションで|あれば(よい|いい|うれしい)/.test(l)).join('\n');
+  const H=t.match(/【[^】]{1,30}】/g)||[];if(H.length<4||t.length<1200)return t;
+  const keep=/製品名|構成|外観|寸法|材質|素材|構造|電源|動力|機能|部品|仕様/;
+  return t.split(/(?=【[^】]{1,30}】)/).filter(b=>{const h=(b.match(/^【([^】]*)】/)||[])[1];return !h||keep.test(h)}).join('\n')}
+function analyzeText(text){text=specCore(text);
   // 電子機器ではないのに電子系の語を含む言い方（スマホケース等）は、先に取り除いてから読む
   const t=String(text||'').toLowerCase().replace(/スマホ(ケース|スタンド|カバー|ホルダー|リング|ストラップ)|ペット用シャンプー|車のアクセサリー|自転車のパーツ/g,m=>m==='ペット用シャンプー'?'シャンプー':' '+m.replace('スマホ','')+' ').replace(/車(椅子|いす)/g,' 車イス ').replace(/スマート(グラス|ウォッチ|リング|メガネ|眼鏡)/g,(m,k)=>' 装着 デバイス 電子 '+({グラス:'眼鏡',ウォッチ:'腕時計',リング:'指輪'}[k]||'眼鏡')+' ').replace(/ウェアラブル/g,' 装着 デバイス '),C=GDB.caps;
   const leaf=c=>!C.some(o=>o.startsWith(c+'.'));
@@ -2261,7 +2269,10 @@ function analyzeText(text){
     if(/電動|バッテリー|充電|電池|ドローン|ロボ|自走/.test(t)&&!hit.includes('electronics.low_power'))hit.push('electronics.low_power')}
   const hw=hit.some(c=>/^(sensing|electronics)/.test(c));
   if(!hw)hit=hit.filter(c=>!['testing.animal_trial','mechanical.wearable_fit','testing.human_trial'].includes(c));
-  if(hw)for(const c of ['electronics.pcb_design','electronics.firmware','electronics.low_power','mechanical.enclosure_design','manufacturing.rapid_proto','electronics.pcba','manufacturing.assembly'])if(!hit.includes(c))hit.push(c);
+  /* 回路図・部品表・ガーバーがあって「実装」を頼むときは、設計は済んでいる。設計・試作の工程は足さない */
+  const implOnly=/実装/.test(t)&&/回路図|ガーバー|部品表|bom|設計データ/.test(t);
+  if(implOnly)hit=hit.filter(c=>!['electronics.pcb_design','electronics.firmware','electronics.low_power','mechanical.enclosure_design','manufacturing.rapid_proto'].includes(c)||false);
+  if(hw)for(const c of (implOnly?['electronics.pcba','manufacturing.assembly']:['electronics.pcb_design','electronics.firmware','electronics.low_power','mechanical.enclosure_design','manufacturing.rapid_proto','electronics.pcba','manufacturing.assembly']))if(!hit.includes(c))hit.push(c);
   if(hit.includes('electronics.wireless')&&!hit.includes('testing.radio_cert'))hit.push('testing.radio_cert');
   if(hit.includes('electronics.low_power')&&!hit.includes('testing.battery_safety'))hit.push('testing.battery_safety');
   // 何も読み取れないときも行き止まりにしない: どの製品でも最初に要る設計・試作・組立の会社を出す
@@ -2279,11 +2290,61 @@ function textSearch(text){
   if(!terms.length)return[];const out=[];
   for(const r of GDB.c){const h=(r[0]+' '+(r[11]||'')).toLowerCase();let m=0;for(const w of terms)if(h.includes(w.toLowerCase()))m++;if(m)out.push([m+(r[10]==='pub'?.5:0)+(r[1]==='JP'?.3:0),r])}
   return out.sort((a,b)=>b[0]-a[0]).map(x=>x[1]).slice(0,30)}
+/* ---------- 依頼に合う会社を上に出す（Nori 2026-11-14「マッチング機能の精度をあげたい」） ----------
+   工程コードだけで並べると、同じ工程の数千社がほぼ同点になり、分野違いの会社（化粧品OEMが化粧箱の先頭など）が★になる。
+   そこで工程の点に、次の5つを足す。どれも公開情報（社名・説明文・所在地・国の公開データ）だけで決め、画面に点数は出さない。
+   1 依頼の中身との近さ：依頼文・製品名の言葉が社名・説明に出てくるか。言葉の珍しさ（IDF）で重みを付ける（「ワッペン」は強く、「加工」はほぼ0）
+   2 外の注文を受ける業態か：OEM・受託・試作・小ロット・オーダー・特注などの記載。土木・不動産・卸だけの会社は下げる
+   3 分野が合うか：依頼にない分野（食品・化粧品・衣料・電子など）を主に持つ会社は下げる
+   4 規模：少量の依頼で従業員1,000人超（国の公開データ）の会社は下げる
+   5 所在地：文章に都道府県があれば（届け先を選べばそれも）、同じ県・同じ地方を上げる。1台だけ・体や場所に合わせるものは強く */
+const PREF_RX=new RegExp('('+REGION.flatMap(g=>g[1].split(' ')).map(p=>p.replace(/[都府県]$/,'')).filter(p=>p!=='北海道').join('|')+')[都府県]|北海道');
+const RSTOP=/^(オリジナル|自社|ブランド|作成|製作|制作|製造|加工|対応|相談|依頼|小ロット|ロット|試作|量産|販売|商品|製品|お願い|個人|会社|全体|部分|必要|使用|予定|希望|場合|程度|以上|以下|前後|最大|最小|目安|想定|可能|不要|未定|将来|機能|仕様|製品名|用途|数量|予算|納期|時期|サイズ|重量|重さ|材質|素材|写真|図面|参考|資料|自分|ロゴ|入れ|作り|使い|置き|付け)$/;
+function relTerms(text,name,kw){const T=String(text||'').normalize('NFKC').replace(/【[^】]{0,20}】/g,' ').replace(PREF_RX,' ').replace(/[\d０-９]+(個|台|枚|本|着|袋|セット|点|kg|cm|mm|m|頭|人|年|月|日|円)/g,' ');
+  const runs=[];const add=(s,w)=>{if(s&&!runs.some(x=>x[0]===s))runs.push([s,w])};
+  const word=/[一-龠々ァ-ヶーA-Za-z]+(?:[ぁ-ゖ][一-龠々ァ-ヶー]+)*/g;
+  for(const s of String(name||'').normalize('NFKC').match(word)||[])add(s,1.5);
+  for(const s of (kw||'').split('|'))if(s.length>=2&&!/[\\()[\]?*+]/.test(s))add(s,1.5);
+  for(const s of (T.match(word)||[]))add(s,1);
+  const SMALL=/^[ッャュョァィゥェォーぁ-ゖ]/;
+  return runs.slice(0,60).map(([s,w])=>{const subs=new Set([s]);if(s.length>2)for(let i=0;i<s.length;i++)for(let j=i+2;j<=s.length;j++){const u=s.slice(i,j);if(!SMALL.test(u)&&!/[ぁ-ゖ]$/.test(u))subs.add(u)}
+    return {w,subs:[...subs].filter(u=>u.length>=2&&!RSTOP.test(u)&&!/^[A-Za-z]{1,2}$/.test(u))}}).filter(x=>x.subs.length)}
+/* カタカナの語は、相手の文でカタカナの語の途中で終わる所には当てない（「マグ」が「ヤマグチ」に当たらないように）。2文字の語は頭も区切りを要る */
+const KTK=/[ァ-ヶー]/;
+function relHas(h,u){let p=h.indexOf(u);if(p<0)return false;if(!KTK.test(u[0])&&!KTK.test(u[u.length-1]))return true;
+  while(p>=0){const e=p+u.length;if(!(KTK.test(u[u.length-1])&&KTK.test(h[e]||''))&&!(u.length<=2&&KTK.test(u[0])&&KTK.test(h[p-1]||'')))return true;p=h.indexOf(u,p+1)}return false}
+function relIndex(){if(GDB.__lc)return GDB.__lc;return GDB.__lc=GDB.c.map(r=>((r[0]||'')+' '+(r[11]||'')).normalize('NFKC').toLowerCase())}
+function relBuild(text,name,kw){const LC=relIndex(),N=LC.length,df={},idf=u=>{if(df[u]===undefined){const k=u.toLowerCase();let n=0;for(const h of LC)if(relHas(h,k))n++;df[u]=n}const n=df[u];return n&&n<=N*.08?Math.log(N/(n+1))-2:0};
+  const R=relTerms(text,name,kw).map(x=>({w:x.w,subs:x.subs.map(u=>[u.toLowerCase(),idf(u)]).filter(y=>y[1]>0).sort((a,b)=>b[1]-a[1]).slice(0,6)})).filter(x=>x.subs.length);
+  return R}
+/* 1社の「依頼との近さ」：言葉のまとまりごとに、会社の文に出てくるいちばん珍しい言葉の重みを取り、上位3つを足す */
+function relOf(r,R){if(!R||!R.length)return 0;const i=GDB.c.indexOf(r);const h=i>=0?relIndex()[i]:((r[0]||'')+' '+(r[11]||'')).normalize('NFKC').toLowerCase();
+  const v=[];for(const x of R){let m=0;for(const[u,w]of x.subs)if(w>m&&relHas(h,u))m=w;if(m)v.push(m*x.w)}
+  return v.sort((a,b)=>b-a).slice(0,3).reduce((a,b)=>a+b,0)}
+const ACC_RX=/OEM|ODM|受託|請負|賃加工|下請|試作|1個から|一個から|小ロット|少量|一品|単品|オーダー|特注|別注|ワンオフ|オリジナル|製作|1点から|一点物|個人(の方|向け|様|から|でも|も)/i;
+const NOTMK_RX=/土木|土工|とび|建設工事|建築工事|建築一式|工事業|舗装|解体|不動産|人材派遣|警備|運送|運輸|倉庫業|卸売|小売|輸入|商社|代理店|コンサルティング/;
+const MK_RX=/製造|加工|製作|工場|縫製|成形|OEM|ODM|受託|試作|工房|職人|設計/i;
+const FAMS=['sensing','electronics','software','food','cosmetics','apparel'];
+function mctxBuild(A,qmax){const t=String(S.idea||'');let p=null;try{p=PDB?pdbMatch((specRead(t).name)||t.slice(0,200)):null}catch(e){}
+  const m=t.normalize('NFKC').match(PREF_RX);const pref=m?(m[0]==='北海道'?'北海道':PREFS.find(x=>x.startsWith(m[1]))||''):'';
+  const fam=new Set((A.codes||[]).map(c=>c.split('.')[0]));
+  const one=qmax<=3||/1台|一台|1つだけ|ひとつだけ|1個だけ|体に合わせ|採寸|オーダーメイド|ワンオフ/.test(t);
+  return {R:relBuild(t,p&&p.name,p&&p.kw),pname:p&&p.name||'',fam,pref,one,qmax}}
+/* 工程の並び（rankFor）・一社案・完成品メーカーの並びに足す点 */
+function fitOf(r,M){if(!M)return 0;const[n,ct,pref,city,web,caps,proto,nodraw,ml,mat,lv,sum]=r;const x=r[14]||{};const txt=(n||'')+' '+(sum||'');let s=0;
+  s+=Math.min(relOf(r,M.R),14)*.8;
+  if(ACC_RX.test(txt))s+=1.5;if(lv==='unk')s+=1;
+  const nm=(txt.match(new RegExp(NOTMK_RX.source,'g'))||[]).length;if(nm&&(!MK_RX.test(txt)||nm>=3))s-=5;
+  if(x.em&&M.qmax<=1000){if(x.em>1000)s-=4;else if(x.em>300)s-=3}
+  const off=new Set(caps.map(i=>(GDB.caps[i]||'').split('.')[0]).filter(f=>FAMS.includes(f)&&!M.fam.has(f)));const on=caps.some(i=>M.fam.has((GDB.caps[i]||'').split('.')[0]));
+  if(off.size)s-=Math.min(off.size,2)*(on?1:2);
+  const to=M.pref||(S.gf&&S.gf.to)||'';if(to&&ct==='JP'&&pref){if(pref===to)s+=M.one?4:1.5;else if(regionOf(pref)===regionOf(to))s+=M.one?2:.7}
+  return s}
 function rankFor(codes,opts){const idx=codes.map(c=>GDB.caps.indexOf(c)).filter(i=>i>=0);const qmax=opts.qmax||1e9;const out=[];
   for(const r of GDB.c){const[n,ct,pref,city,web,caps,proto,nodraw,ml,mat,lv]=r;if(!caps.some(i=>idx.includes(i)))continue;
     if(S.gf.area&&(S.gf.area==='JP'?ct!=='JP':S.gf.area==='ABROAD'?ct==='JP':(ct==='JP'?pref!==S.gf.area:ct!==S.gf.area)))continue;
     if(S.gf.proto&&!proto)continue;
-    const s=(lv==='pub'?3:0)+(proto&&qmax<=10?1.5:0)+(nodraw?1:0)+(ml!=null&&ml<=qmax?1:0)-(ml!=null&&ml>qmax?3:0)+(ct==='JP'?2:0)+(opts.bonus?opts.bonus(r):0);
+    const s=(lv==='pub'?3:0)+(proto&&qmax<=10?1.5:0)+(nodraw?1:0)+(ml!=null&&ml<=qmax?1:0)-(ml!=null&&ml>qmax?3:0)+(ct==='JP'?2:0)+(opts.bonus?opts.bonus(r):0)+(opts.noFit?0:fitOf(r,S.mctx));
     out.push([s,r])}
   return axSort(out.sort((a,b)=>b[0]-a[0]).map(x=>x[1]).filter(r=>axPass(r,qmax)),qmax)}
 function coCard(r,chipCodes){const[n,ct,pref,city,web,caps,proto,nodraw,ml,mat,lv,sum,src]=r;const on=S.gsel.includes(n);
@@ -2343,7 +2404,10 @@ function bindAxBar(re,src){const f=S.gf;
   $('#axTo')&&($('#axTo').onchange=e=>{f.to=e.target.value;if(!f.to)f.near=false;track('filter_company',{filter:'deliver_to',source:src});re()});
   $$('[data-ax]').forEach(b=>b.onclick=()=>{const k=b.dataset.ax;f[k]=!f[k];track('filter_company',{filter:k,source:src});re()})}
 /* 一社にまとめる案と、工程ごとに組み合わせる案を並べて比べる。どちらも、いまの並べ替え・絞り込みの先頭の会社から作る */
-const capCovers=(r,c)=>{const own=GDB.caps.indexOf(c),par=c.includes('.')?GDB.caps.indexOf(c.split('.').slice(0,-1).join('.')):-1;return r[5].includes(own)||(par>=0&&r[5].includes(par))};
+/* 食品・化粧品のOEMの会社は、箱・容器・ラベルの手配もふつう受ける（中身を詰めて仕上げる）ので、包装の工程も受けるとみなす */
+const OEM_CAPS=['food.processed_oem','food.beverage_oem','food.pet_food','cosmetics.oem','cosmetics.household'];
+const capCovers=(r,c)=>{const own=GDB.caps.indexOf(c),par=c.includes('.')?GDB.caps.indexOf(c.split('.').slice(0,-1).join('.')):-1;
+  return r[5].includes(own)||(par>=0&&r[5].includes(par))||(/^packaging/.test(c)&&r[5].some(i=>OEM_CAPS.includes(GDB.caps[i])))};
 function planOf(secs,one){
   const combo=secs.map(s=>({c:s.c,r:s.list[0]||null}));
   const top=one[0]?one[0][2]:null,cov=one[0]?one[0][1]:0;
@@ -2398,6 +2462,7 @@ async function renderMatch(){
   const A=analyzeText(S.idea+' '+S.files.map(f=>f.name).join(' '));A.concept=pickConcept(flowText(),A);if(A.concept&&S.lai&&S.lai.base===ideaBase()&&S.lai.concept)A.concept=laiConcept(A.concept,S.lai.concept);S.anal=A;
   if(S.qnFor!==ideaBase()){S.qnFor=ideaBase();const m=String(S.idea).match(/(\d[\d,]*)\s*(個|台|枚|本|着|セット|点|pcs|units)/i);if(m){const n=+m[1].replace(/,/g,'');if(n>0){S.qn=n;S.qty=n<=10?'proto':n<=500?'small':'mass'}}else S.qn=0}
   const qmax=S.qn>0?S.qn:({proto:10,small:500,mass:1e9}[S.qty]||500);S.axq=qmax;
+  await pdbLoad();S.mctx=mctxBuild(A,qmax);if(S.mctx.pref&&!S.gf.to)S.gf.to=S.mctx.pref;
   const secs=A.codes.map(c=>{let list=rankFor([c],{qmax});if(!list.length&&c.includes('.'))list=rankFor([c.split('.').slice(0,-1).join('.')],{qmax});return {c,list}});
   const total=new Set(secs.flatMap(s=>s.list.map(r=>r[0]))).size;
   /* 「214社が候補」が「214社とも全部作れる」と読まれないよう（Nori 2026-11-13「214社も作れる？」）、
@@ -2412,8 +2477,9 @@ async function renderMatch(){
   const stepIdx=secs.map(s=>{const own=GDB.caps.indexOf(s.c);const par=s.c.includes('.')?GDB.caps.indexOf(s.c.split('.').slice(0,-1).join('.')):-1;return [own,par]});
   const INTEG=['manufacturing.assembly','apparel.garment_oem','food.processed_oem','food.beverage_oem','food.pet_food','cosmetics.oem','cosmetics.household'].map(c=>GDB.caps.indexOf(c));
   let one=[];if(secs.length>=2){const seen=new Map();secs.forEach(s=>s.list.forEach(r=>{if(!seen.has(r[0]))seen.set(r[0],r)}));
-    for(const r of seen.values()){const cov=stepIdx.filter(([a,b])=>r[5].includes(a)||(b>=0&&r[5].includes(b))).length;if(cov<2)continue;
-      const k=S.gf.sort;one.push([cov*10+(k&&k!=='rec'?axOf(r,qmax)[k].s:(r[5].some(i=>INTEG.includes(i))?.5:0)+(r[10]==='pub'?.3:0)),cov,r])}
+    /* OEMの会社は包装の工程も受けるとみなす（capCovers）。依頼に合わない会社（fitOf が大きくマイナス：土木・卸だけ・大企業など）は、一社案の窓口にしない */
+    for(const r of seen.values()){const cov=secs.filter(s=>capCovers(r,s.c)).length;if(cov<2||fitOf(r,S.mctx)<=-4)continue;
+      const k=S.gf.sort;one.push([cov*4+(k&&k!=='rec'?axOf(r,qmax)[k].s:(r[5].some(i=>INTEG.includes(i))?4:0)+(r[1]==='JP'?2:0)+(r[10]==='pub'?.3:0)+fitOf(r,S.mctx)),cov,r])}
     one.sort((a,b)=>b[0]-a[0]);one=one.slice(0,S.gmore.__one||5)}
   const integ=secs.find(s=>s.c==='manufacturing.assembly')||secs.find(s=>/oem$/.test(s.c))||secs.find(s=>/^(manufacturing\.textile|apparel)/.test(s.c))||secs.filter(s=>/^(manufacturing|crafts|packaging)/.test(s.c)).slice(-1)[0];
   track('text_analyze',{steps:A.codes.length,companies:total,chars:S.idea.length});
@@ -2573,10 +2639,17 @@ function recOf(secs,one,qmax){S.lastRL=null;
 const MAKERS=__MAKERS__;
 const MKLV={pub:'公式サイトで確認',unk:'まとめ記事に掲載のみ',gov:'国の登録情報のみ'};
 function makersFor(A){const t=S.idea+' '+(S.files||[]).map(f=>f.name).join(' ');const codes=A.codes||[];
-  for(const k of MAKERS){const hit=k.kind==='codes'?codes.length>=3&&codes.some(c=>new RegExp(k.codes).test(c)):new RegExp(k.idea).test(t)&&!(k.not_codes&&codes.some(c=>new RegExp(k.not_codes).test(c)));
+  /* 工程コードで当てる種類（電子機器のODM）は、製品そのものが電子機器のときだけ。
+     長い仕様文の「将来センサーを付けたい」などで電子の工程が読めただけのスロープ・リフト・基板実装だけの依頼には当てない */
+  const head=String(S.idea||'').split(/\n/).slice(0,3).join(' ')+' '+((S.mctx||{}).pname||'');
+  const elec=/電子|IoT|センサ|基板|回路|充電|電池|バッテリー|Bluetooth|BLE|Wi-?Fi|無線|アプリ|スマホと|スマホに|デバイス|ガジェット|ウェアラブル|トラッカー|GPS|LED|測る|測れ|測定|計測|心拍|体温|記録する|通知|見守り/i.test(head)&&!/実装|ガーバー|部品表|BOM/i.test(head);
+  for(const k of MAKERS){const hit=k.kind==='codes'?elec&&codes.length>=3&&codes.some(c=>new RegExp(k.codes).test(c)):new RegExp(k.idea).test(t)&&!(k.not_codes&&codes.some(c=>new RegExp(k.not_codes).test(c)));
     if(!hit)continue;const re=new RegExp(k.db),need=k.db_need?new RegExp(k.db_need):null,ci=(k.caps_all||[]).map(c=>GDB.caps.indexOf(c));
     const rows=[...k.rows];for(const r of GDB.c){if(!re.test((r[0]||'')+' '+(r[11]||'')))continue;if(need&&!need.test(r[11]||''))continue;if(ci.length&&!ci.every(i=>i>=0&&r[5].includes(i)))continue;rows.push(r)}
-    const seen=new Set(),rk={pub:0,unk:1,gov:2};const out=rows.filter(r=>canOrder(r)&&!seen.has(r[0])&&seen.add(r[0])).map((r,i)=>[r,i]).sort((a,b)=>((rk[a[0][10]]??1)-(rk[b[0][10]]??1))||a[1]-b[1]).map(x=>x[0]);
+    const seen=new Set(),rk={pub:0,unk:1,gov:2};const M=S.mctx,to=M&&(M.pref||(S.gf&&S.gf.to))||'';
+    /* 届け先・文章の都道府県と同じ県、同じ地方のメーカーを先に（採寸・手直しで行き来するため）。そのあとは確かさ・依頼との近さの順 */
+    const near=r=>r[1]!=='JP'?-1:!to?0:r[2]===to?2:regionOf(r[2]||'')===regionOf(to)?1:0;
+    const out=rows.filter(r=>canOrder(r)&&!seen.has(r[0])&&seen.add(r[0])).map((r,i)=>[r,i,near(r),M?Math.min(relOf(r,M.R),14):0]).sort((a,b)=>(b[2]-a[2])||((rk[a[0][10]]??1)-(rk[b[0][10]]??1))||(b[3]-a[3])||a[1]-b[1]).map(x=>x[0]);
     if(out.length)return {k:k.k,name:k.name,why:k.why,note:k.note,rows:out.slice(0,12)}}
   return null}
 function makerBox(MK){const key=ideaBase();const def=MK.rows[0];const r=(S.mkPick&&S.mkPick.k===key&&MK.rows.find(x=>x[0]===S.mkPick.n))||def;S.whoN=1;
@@ -2603,6 +2676,8 @@ function stepAssign(R3,secs){const P=R3.P;const key=ideaBase()+'|'+S.qty+'|'+(S.
 /* 組み合わせるときは、組立と品質の責任を持つ「取りまとめ役」の会社を必ず1社入れる（Nori 2026-11-14「複数社でホントに完成品作れる？」）。
    読み取った工程に組立がなければ「組立・検査（取りまとめ役）」を足す。既定は、チームの中で組立もできる会社、いなければ組立の候補の先頭 */
 function integOf(R3,secs){if(R3.kind==='one'||secs.some(s=>s.c==='manufacturing.assembly'))return [];
+  /* 食品・化粧品・衣料など、OEMの会社が詰める・仕上げるものは、そのOEMの会社が取りまとめる（機械の組立会社は足さない） */
+  if(secs.some(s=>/^(food|cosmetics\.oem|apparel|crafts)/.test(s.c))&&!secs.some(s=>/^(electronics|sensing)/.test(s.c)))return [];
   const team=[];for(const s of secs){const r=(S.stepPick.m[s.c]&&s.list.find(x=>x[0]===S.stepPick.m[s.c]))||s.list[0];if(r&&!team.some(x=>x[0]===r[0]))team.push(r)}
   if(team.length<2)return [];
   const al=rankFor(['manufacturing.assembly'],{qmax:S.axq||500});const inT=team.find(r=>capCovers(r,'manufacturing.assembly'));
