@@ -1108,10 +1108,13 @@ function upNote(r,ups){if(!ups||(!ups.list.length&&!ups.skipped.length))return '
 /* 写真・動画から「見積できる仕様」にまとめる欄（見積の依頼・相談の画面） */
 // 工場は写真だけでは見積を出しにくい。形・寸法・材質・数量の4点がそろうと見積が返ってきやすい
 function readyChips(){const has=id=>{const el=$('#'+id);return !!(el&&el.value.trim())};
-  const shape=S.files.some(isVis),size=has('f-size')||S.files.some(f=>f.dim||(f.k==='3D'&&f.m)),mat=has('f-matl'),qty=has('f-qty');
-  const it=[['形','写真・スケッチ・3D',shape],['寸法','大きさの目安',size],['材質','材質の希望',mat],['数量','段階と数量',qty]];
-  return `<div class="ready"><div class="rh"><b>見積に必要な4点</b><span class="mono">${it.filter(x=>x[2]).length} / 4</span></div><div class="rc">${it.map(([t,s,ok])=>`<span class="${ok?'on':''}" title="${s}">${ok?'✓ ':''}${t}</span>`).join('')}</div>
-    <span class="muted" style="font-size:12.5px">工場は写真だけでは見積を出しにくく、形・寸法・材質・数量がそろうと見積が返ってきやすくなります。わからない所は空けておけば、担当者が一緒に詰めます。</span></div>`}
+  const fv=k=>{const el=$('#fs-'+k);return !!el&&(el.tagName==='SELECT'?!!el.value:!!el.querySelector('input:checked'))};
+  const cats=fsFormCats(),size=has('f-size')||S.files.some(f=>f.dim||(f.k==='3D'&&f.m));
+  /* 品目ごとに「見積に要る点」を変える（服なら生地・サイズ展開、食品なら配合・形態）。品目がわからないときは寸法・材質 */
+  const it=[['どこまで頼むか','設計から／作るだけ',fv('scope')],['手元の資料','図面・写真・現物など',fv('docs')||S.files.length>0],['数量','試作・初回・その後',fv('qs')||fv('qf')||has('f-qty')],
+    ...(cats.length?cats.flatMap(c=>c.items.filter(i=>i.key).map(i=>[i.t,c.t,fv(i.k)])):[['寸法','大きさの目安',size],['材質','材質の希望',has('f-matl')]])];
+  return `<div class="ready"><div class="rh"><b>見積に必要な点</b><span class="mono">${it.filter(x=>x[2]).length} / ${it.length}</span></div><div class="rc">${it.map(([t,s,ok])=>`<span class="${ok?'on':''}" title="${s}">${ok?'✓ ':''}${t}</span>`).join('')}</div>
+    <span class="muted" style="font-size:12.5px">工場は写真だけでは見積を出しにくく、品目ごとに決まった点がそろうと見積が返ってきやすくなります。わからない所は「わからない」を選べば、担当者が一緒に詰めます。</span></div>`}
 function renderReady(){const el=$('#readyBox');if(el)el.innerHTML=readyChips()}
 const AI_PROMPT={
  ja:`添付した写真・動画・スケッチをもとに、工場に見積を頼むための「仕様メモ」を日本語で作ってください。\n次の見出しで、箇条書きで書いてください。\n1. 製品名と用途（だれが・どこで使うか）\n2. 形の説明（パーツごとに。写真の何番に写っているか）\n3. 寸法（わかる所は数字、写真からの推定には「推定」と書く）\n4. 材質の候補と理由\n5. 色・仕上げ・ロゴ\n6. 動く部分・電気・防水などの機能\n7. 数量（試作・小ロット・量産）\n8. 使う環境（屋外・水回り・食品に触れる など）\n9. 工場に確認すべき点・まだ決まっていない点\n写真から読み取れないことは推測で埋めず、「不明」と書いてください。`,
@@ -1583,7 +1586,7 @@ function fsRef(t){const m=String(t||'').match(/【参考にした既製品】([^
   const own=g(/参考品の素材：([^\n]*)/);return {name:m[1].trim(),url,host,size:g(/参考品の大きさ：([^\n]*)/),mat:own||(pm?pm[1].trim():''),chg:g(/【変えたいところ】([^\n]*)/),how:g(/【どう変えたいか】([^\n]*)/),page:!!pk}}
 const fsKey=()=>'katachi-fa-'+sxHash(ideaBase());
 function fsAns(){if(S.faFor!==ideaBase()){S.faFor=ideaBase();try{S.fa=JSON.parse(localStorage.getItem(fsKey())||'{}')}catch(e){S.fa={}}}return S.fa||(S.fa={})}
-window.KATACHI_FS=()=>S.fs;window.KATACHI_SX=(v,t)=>sxParse(v,t);  // 回帰テスト（tools/tests）用
+window.KATACHI_FS=()=>S.fs;window.KATACHI_RFQ=n=>rfq(n||[]);window.KATACHI_SX=(v,t)=>sxParse(v,t);  // 回帰テスト（tools/tests）用
 function fsSave(){try{localStorage.setItem(fsKey(),JSON.stringify(S.fa||{}))}catch(e){}}
 function fsCats(A,c){const pc=c&&c.pdb?c.pdb.proc:[],ind=c&&c.pdb?c.pdb.ind:'',ac=A&&A.codes||[],t=String(ideaBase()).toLowerCase();
   const on=(k,codes)=>codes.some(x=>k.proc.some(p=>x===p||x.startsWith(p+'.')));
@@ -2707,9 +2710,23 @@ function company(name){
 }
 
 const UNK='わからない・相談したい';
+/* 見積に要ること：工場向け仕様書（FSPEC）の「どこまで頼むか・手元の資料・数量3段階・発注の確度」と品目別の項目を、依頼フォームでも同じ答えで聞く。
+   根拠：公開発注案件 約250件の分析（2026-11-14）。答えは fsAns() に保存し、上の仕様書と共有する */
+function fsFormCats(){try{return fsCats(S.anal||null,S.anal&&S.anal.concept||null)}catch(e){return []}}
+function fsFields(){const pick=k=>FSPEC.common.find(i=>i.k===k);
+  const its=[...['scope','docs','qs','qf','qc','sure'].map(pick).filter(Boolean),...fsFormCats().flatMap(c=>c.items)].filter(i=>i.ch&&i.ch.length);
+  return its.map(i=>['fs-'+i.k,i.t,i.multi?'cks':'sel','opt',i.multi?[...i.ch,FSPEC.unk]:['',...i.ch,FSPEC.unk]])}
+function fsFormFill(){const fa=fsAns(),V=(S.fs&&S.fs.V)||{};
+  $$('#rf [id^="fs-"]').forEach(el=>{const k=el.id.slice(3),a=fa[k],v=a?(a.unk?[FSPEC.unk]:[].concat(a.v)):V[k]&&V[k].lv!=='仮'&&V[k].v?String(V[k].v).split('、'):[];if(!v.length)return;
+    if(el.tagName==='SELECT'){if([...el.options].some(o=>o.value===v[0]))el.value=v[0]}else el.querySelectorAll('input').forEach(i=>{i.checked=v.includes(i.value)})})}
+function fsFormSave(el){const k=el.id.slice(3),fa=fsAns();let v=el.tagName==='SELECT'?el.value:[...el.querySelectorAll('input:checked')].map(i=>i.value);
+  if(Array.isArray(v)&&v.includes(FSPEC.unk))v=FSPEC.unk;
+  if(!v||(Array.isArray(v)&&!v.length))delete fa[k];else fa[k]=v===FSPEC.unk?{unk:1}:{v};fsSave();
+  const sp=$('#f-spec');if(sp&&S.anal&&S.fs&&S.fs.c===S.anal.concept){const old=fsText(S.fs);const F=fsBuild(S.anal);if(F){S.fs=F;if(sp.value===old)sp.value=fsText(F)}}}
 function RFQ(r,qty){return [
  ['依頼者',[['f-who','依頼者の区分','sel','req',['法人（中小企業など）','個人事業主・個人']],['f-org','会社名・屋号','txt','opt',''],['f-name','ご担当者名','txt','opt',''],['f-mail','メールアドレス','email','req','見積が届いたらお知らせします'],['f-tel','電話番号','tel','opt',''],['f-ind','業種','sel','opt',['','消費財ブランド（ペット・アウトドアなど）','店舗・施設の運営','製造業（自社製品をつくりたい）','ハードウェアのスタートアップ','その他']]]],
- ['つくりたいもの',[['f-sum','製品の概要','area','req',(S.idea&&S.matched!=='example'&&!demo())?S.idea:r.summary],...(S.fs&&S.src==='text'&&S.anal&&S.fs.c===S.anal.concept?[['f-spec','工場向け仕様書（KATACHIが整理）','area','opt',fsText(S.fs)]]:[]),['f-use','用途・使う人','txt','ai','例：大型犬の飼い主が毎日の散歩で使う'],['f-env','使う場所・環境','cks','opt',['屋内','屋外・雨','水回り','高温・低温','身につける','食品に触れる','子ども・ペットが触れる']],['f-size','大きさの目安','txt','opt','例：手のひらに乗る、縦90mm以内'],['f-matl','材質の希望','txt','opt','例：ABS樹脂、ステンレス、綿100%、わからない'],['f-wt','重さの目安','txt','opt','例：50g以下'],['f-pow','電源','sel','opt',['','乾電池','充電式','コンセント','電源は不要',UNK]],['f-look','色・質感・仕上げ','txt','opt','例：マットな黒、ロゴを入れたい'],['f-ref','参考にしている製品','txt','opt','URLや商品名']]],
+ ['つくりたいもの',[['f-sum','製品の概要','area','req',(S.idea&&S.matched!=='example'&&!demo())?S.idea:r.summary],...(S.fs&&S.src==='text'&&S.anal&&S.fs.c===S.anal.concept?[['f-spec','工場向け仕様書（KATACHIが整理）','area','opt',fsText(S.fs)]]:[]),['f-use','用途・使う人','txt','ai','例：大型犬の飼い主が毎日の散歩で使う'],['f-env','使う場所・環境','cks','opt',['屋内','屋外・雨','水回り','高温・低温','身につける','食品に触れる','子ども・ペットが触れる']],['f-size','大きさの目安','txt','opt','例：手のひらに乗る、縦90mm以内'],['f-matl','材質の希望','txt','opt','例：ABS樹脂、ステンレス、綿100%、わからない'],['f-wt','重さの目安','txt','opt','例：50g以下'],...(fsFormCats().some(c=>c.id==='elec')?[]:[['f-pow','電源','sel','opt',['','乾電池','充電式','コンセント','電源は不要',UNK]]]),['f-look','色・質感・仕上げ','txt','opt','例：マットな黒、ロゴを入れたい'],['f-ref','参考にしている製品','txt','opt','URLや商品名']]],
+ ['見積に要ること',fsFields()],
  ['数量と段階',[['f-qty','段階と数量','txt','req',qty],['f-yr','年間の見込み数','txt','opt','例：初年度 3,000個'],['f-iter','試作の回数の想定','sel','ai',['AIの目安に任せる','1回','2〜3回','4回以上']]]],
  ['予算と時期',[['f-due','希望の時期','txt','req','例：2027年3月までに試作品'],['f-fix','時期の固さ','sel','opt',['','展示会・発売日があり動かせない','目安なので相談できる']],['f-bud','予算の目安','txt','opt','例：試作全体で50万円まで'],['f-unit','目標の単価・販売価格','txt','opt','例：原価3,000円以内、売価9,800円']]],
  ['品質・法規制',[['f-cert','必要な認証・法規制','cks','ai',['PSE（電気用品）','技適（無線）','食品衛生法','医療機器に当たるか確認したい','CE・FCC（海外で販売）',UNK]],['f-insp','検査の記録','sel','opt',['','不要','抜き取り検査の記録がほしい','全数の検査記録がほしい']],['f-def','不良のときの対応','sel','opt',['','作り直してほしい','返金でよい',UNK]]]],
@@ -2751,7 +2768,7 @@ function rfq(names){
     <p class="muted" style="margin:0;font-size:13px">必須は5つだけです。ほかは、わかる範囲で選ぶか空けておけば「相談したい」として届きます。</p>
     <p class="muted" style="margin:0;font-size:13px">製品の概要と「AIが補う」の欄は、入力した内容からAIが下書きしています。直してから送れます。</p>
     <form class="form" id="rf" novalidate>
-      ${RFQ(r,qty).map((g,gi)=>`<details class="grp" ${g[1].some(f=>f[3]==='req'||f[2]==='media')?'open':''}><summary><span>${g[0]}</span><small>${g[1].some(f=>f[3]==='req')?'必須あり':g[1].some(f=>f[2]==='media')?'見積の精度が上がります':'任意'}</small></summary><div class="in">${g[1].map(fld).join('')}</div></details>`).join('')}
+      ${RFQ(r,qty).map((g,gi)=>`<details class="grp" ${g[1].some(f=>f[3]==='req'||f[2]==='media')||g[0]==='見積に要ること'?'open':''}><summary><span>${g[0]}</span><small>${g[1].some(f=>f[3]==='req')?'必須あり':g[1].some(f=>f[2]==='media')||g[0]==='見積に要ること'?'見積の精度が上がります':'任意'}</small></summary><div class="in">${g[1].map(fld).join('')}</div></details>`).join('')}
       <label class="chk"><input type="checkbox" id="f-agree"><span>${TERMS_URL?`<a href="${TERMS_URL}" target="_blank" rel="noopener">利用規約</a>と<a href="${PRIVACY_URL}" target="_blank" rel="noopener">プライバシーポリシー</a>`:'利用規約とプライバシーポリシー'}に同意します<span class="req">必須</span></span></label>
       ${names.some(n=>abroad(D.companies[n]))?`<label class="chk"><input type="checkbox" id="f-abroad-ok"><span>海外の会社（${[...new Set(names.filter(n=>abroad(D.companies[n])).map(n=>CTRY[D.companies[n].country]||D.companies[n].country))].join('、')}）に依頼内容を渡すことに同意します<small>国外の会社に渡すときは、担当者が送る前にもう一度確認します。同意しない場合は、海外の会社には送りません。</small></span></label>`:''}
       <div class="ferr" id="rfErr" role="alert"></div>
@@ -2761,7 +2778,7 @@ function rfq(names){
       <div class="empty"><b>送る前に、KATACHIの担当者が内容を確認します</b>伝わりにくい点や技術的に無理のある点がないかを人が見てから届けます。まだKATACHIに参加していない会社には、担当者から個別に打診します。</div>
       <button class="btn pri" type="submit" style="height:48px">この内容で依頼する</button>
     </form>`);
-  renderMedia();$('#rf').addEventListener('input',renderReady);
+  renderMedia();fsFormFill();renderReady();$('#rf').addEventListener('input',renderReady);$('#rf').addEventListener('change',e=>{const el=e.target.closest('[id^="fs-"]');if(el){fsFormSave(el);track('rfq_fs_answer',{item:el.id.slice(3)})}});
   $('#trPrev')&&($('#trPrev').onclick=async()=>{track('translate_preview',{});
     const langs=[...new Set(names.map(n=>dlvLang(D.companies[n])))];const out=$('#trOut');
     const want=langs.filter(l=>l!==({ja:'日本語',en:'英語',zh:'中国語'})[window.KATACHI_LANG()]);
