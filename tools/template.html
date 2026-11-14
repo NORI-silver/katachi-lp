@@ -748,6 +748,7 @@ body.m2 .gh1{font-size:18px;line-height:1.5}
 .sheet.wzon #rf label.chk{display:flex!important;flex-direction:row!important;align-items:center}.sheet.wzon #rf button[type=submit]{width:100%}
 .wzatt .mbox p,.wzatt .mbox small,.wzatt .mbox details,.wzatt .mbox .muted,.wzatt .mdraft small,.wzatt .ready > .muted{display:none!important}
 .wzatl{margin:0;padding-left:1.2em;font-size:13.5px;display:grid;gap:4px}
+.cmat{display:grid;gap:6px;border:1px solid var(--line);border-radius:12px;padding:12px;background:var(--bg2)}.cmat h4{margin:0;font-size:14px}.cmatt{margin:0;font-size:13px}.cmat ul{margin:0;padding:0;list-style:none;display:grid;gap:6px}.cmat li{display:grid;gap:2px;font-size:12.5px}.cmat .mg{color:#1a7f37}.cmat .mb{color:#9a6700}.cmat summary{font-size:12.5px;color:var(--ice);cursor:pointer}.cmat details ul{margin-top:6px}.cmat small{font-size:12px;color:var(--mute)}
 </style>
 
 <nav class="nav gut"><div class="wrap">
@@ -1631,7 +1632,7 @@ function conceptCard(c){const v=cvarOf(c);
   return `<section class="ccard" id="mConcept"><div class="chd"><h2>製品イメージ案</h2>${mk('ai','AI推定・たたき台')}${c.lai?'<span class="chip on">内蔵AIと詰めた案</span>':''}</div>
     <div class="cgrid"><div class="cleft">${cview(c)}</div>
       <div><h3 class="cname">${esc(c.name)}</h3>${c.chips&&c.chips.length?`<div class="cchips"><span class="muted">あなたの文章から読み取った条件</span>${c.chips.map(x=>`<span class="chip">${frg(x)}</span>`).join('')}</div>`:''}
-      ${c.fig?`<dl class="cspec"><dt>サイズ（目安）</dt><dd id="cSize">${sizeLine(c)}</dd></dl><details class="fold cedf"${S.edOpen||S.edMsg?' open':''}><summary>形・大きさを直す</summary>${edBox(c)}</details>`:`<dl class="cspec">${c.rows.slice(0,1).map(([k,x])=>`<dt>${esc(k)}</dt><dd>${frg(x)}</dd>`).join('')}</dl>`}
+      ${c.fig?`<dl class="cspec"><dt>サイズ（目安）</dt><dd id="cSize">${sizeLine(c)}</dd></dl>${matBox(c)}<details class="fold cedf"${S.edOpen||S.edMsg?' open':''}><summary>形・大きさを直す</summary>${edBox(c)}</details>`:`<dl class="cspec">${c.rows.slice(0,1).map(([k,x])=>`<dt>${esc(k)}</dt><dd>${frg(x)}</dd>`).join('')}</dl>`}
       ${fold('cinfo','この案の説明・素材・スペック',`<p class="clead">${esc(c.lead)}</p><dl class="cspec">${c.rows.slice(c.fig?0:1).map(([k,x])=>`<dt>${esc(k)}</dt><dd>${frg(x)}</dd>`).join('')}</dl>`)}</div></div>
     ${c.alt?`<div class="calt" role="note"><p><span>AIの回答からは、別の種類の製品とも読めます。</span><b>${esc(c.alt.name)}</b><span>製品の種類は変えずに、寸法・素材・条件だけを反映しました。</span></p><button type="button" class="btn" data-calt="${esc(c.alt.id)}">この種類に切り替える</button></div>`
       :c.altBack?`<div class="calt" role="note"><p><span>AIの回答に合わせて、製品の種類を切り替えています。元の案：</span><b>${esc(c.altBack.name)}</b></p><button type="button" class="btn" data-calt="">元の種類に戻す</button></div>`:''}
@@ -1928,11 +1929,15 @@ function fsBuild(A){const c=A&&A.concept;if(!c)return null;const base=splitAi(S.
   const req=items.filter(i=>i.req);const sc2=req.reduce((a,i)=>a+(FSPEC.levels[(V[i.k]||{}).lv]||0),0);const score=req.length?Math.round(sc2/req.length*100):0;
   const docs2=(V.docs||{}).v||'',shape=cats.some(k=>['elec','metal','resin','wood'].includes(k.id))||!cats.length;
   const design=/設計から/.test((V.scope||{}).v||'')||(shape&&!/図面|3Dデータ|現物/.test(docs2));
+  /* 素材・仕上げは、ふつうの人にはわからない（Nori 2026-11-14「やりたいことが実現できる方法でコスパがいい奴がいい。素材のメリット・デメリットがわからない」）。
+     文章に書いていなければ聞かずに「おまかせ」にし、工場に良い点・注意点・費用の差つきで案を出してもらう。食品・化粧品の中身（配合・容器）は利用者が決めるので対象外。あとから変えられる */
+  if(!cats.some(k=>['food','cosme'].includes(k.id)))for(const id of CORE_OMK){const c=FSPEC.core.find(x=>x.id===id);for(const k of (c&&coreKeys(c,cats.map(x=>x.id)))||[])if(items.some(i=>i.k===k&&i.ch&&i.ch.length)&&!fa[k]&&!(V[k]&&V[k].v&&CORE_OKL.includes(V[k].lv)))fa[k]={v:[FSPEC.omakase],auto:1}}
   const core=fsCore({V,items,cats},fa),ready=core.every(x=>x.ok);
   const mode=design?'design':ready?'quote':'more';
   const ask=items.filter(i=>i.q&&i.ch&&(!V[i.k]||V[i.k].lv==='仮'&&!(fa[i.k]&&fa[i.k].unk))&&(i.req||!V[i.k]));
   const fq=[];for(const i of items){const v=V[i.k];if(i.req&&(!v||v.lv==='仮'||v.lv==='要確認'))fq.push(i.fq||('「'+i.t+'」：'+'この項目が決まっていません。この製品での一般的な決め方と、費用への影響を教えてください。'))}
   cats.forEach(k=>k.asks.forEach(a=>fq.push(a)));if(design)fq.unshift('図面なしで、この仕様書から設計を受けられますか。設計費と期間の目安を教えてください。');if(RF){fq.unshift('参考品をもとに、変えるところを入れたオリジナルとして作れますか。');if(!/図面|3Dデータ/.test(docs2))fq.push('現物を採寸・3Dスキャンして、図面や3Dデータにできますか。費用と期間を教えてください（できない場合は、できる会社の紹介も歓迎です）。');fq.push('参考品の特許・意匠・商標にかからない形にするため、気をつける点があれば教えてください（権利の最終確認は依頼者が行います）。')}fq.push('返事では、概算の費用・似た製品の実績・日程・量産まで手伝えるかを教えてください。');
+  const omkQ='素材・仕上げは「おまかせ」です。やりたいことができて費用を抑えられる案を2〜3通り、それぞれの良い点・注意点と費用の差を添えて提案してください。';if(CORE_OMK.some(k=>fa[k]&&[].concat(fa[k].v||[]).includes(FSPEC.omakase)))fq.splice(Math.max(0,fq.length-1),0,omkQ);
   return {V,items,cats,score,mode,ask,fq:[...new Set(fq)],db,c,ref:RF,core,ready}}
 /* 工場が見積を出すのに最低限要る6点（何を作るか・数量・材料・大きさと形・仕上げ・納期）。FSPEC.core が品目ごとの項目を決める。
    材料・仕上げは「おまかせ」（工場が提案）でもよい。仮（似た製品の目安）や「わからない」は、そろったことにしない */
@@ -2843,6 +2848,15 @@ function laiApply(dec,upd){nextQuestion(S.anal.concept);delete S.chat.ans.ai;del
   const t=flowText();const A2=analyzeText(t);let c=pickConcept(t,A2);if(c&&S.lai&&S.lai.concept)c=laiConcept(c,S.lai.concept);
   if(!c){renderMatch();return}const before=LAI.snap;S.anal.concept=c;const card=$('#mConcept');if(card){card.outerHTML=conceptCard(c);wireConcept(S.anal)}
   LAI.chg=upd?laiDiff(before,laiSnap(c)):{};laiRender(c)}
+/* 素材の案（Nori 2026-11-14「素材のメリット・デメリットがわからない」「設計段階で提案してほしい」）。
+   製品イメージ案の「主な素材」に出てくる素材ごとに、一般的な良い点・注意点を出す（金額は書かない。最終は工場・設計者の提案で決める） */
+const MATPC=[[/アルミ/,'アルミ','軽い・さびにくい','鉄より材料が高い・溶接に技術が要る'],[/ステンレス/,'ステンレス','さびにくく丈夫','重く、材料も加工も高め'],[/鋼|鉄|スチール/,'鉄・鋼','丈夫で材料が安い','重い・さびるので塗装やめっきが要る'],
+  [/FRP/i,'FRP','軽くて強い・水に強い','手作業が多く、1個でも割高になりやすい'],[/樹脂|プラスチック|ABS|PP|HDPE|ポリカ|アクリル/i,'樹脂（プラスチック）','軽い・数が多いと安い','少ない数だと型代が割高（3Dプリントや削り出しで代わりに作る）・熱や日光に弱いものがある'],
+  [/木|合板|ウッド|竹/,'木','加工しやすく1個でも作りやすい・温かみがある','水や湿気に弱い（塗装が要る）'],[/革|レザー/,'革','丈夫で高級感がある','材料が高い・水に弱い'],
+  [/布|生地|ナイロン|ポリエステル|綿|帆布|メッシュ/,'布','軽い・たためる・洗える','形を保つには芯や骨組みが要る'],[/シリコ|ゴム/,'シリコーン・ゴム','柔らかく滑りにくい・水に強い','型が要るので少ない数だと割高'],
+  [/陶|磁器|ガラス/,'陶磁器・ガラス','汚れにくく見た目がよい','割れる・型や窯の費用がかかる'],[/人工芝/,'人工芝','滑りにくく足にやさしい','汚れや毛がたまりやすい']];
+function matBox(c){const r=(c.rows||[]).find(x=>x[0]==='主な素材');const t=r?laiFlat(r[1]):'';if(!t)return '';const hit=MATPC.filter(([re])=>re.test(t));if(!hit.length)return '';
+  return `<div class="cmat"><h4>素材の案</h4><p class="cmatt">${esc(t)}</p><details><summary>素材ごとの良い点・注意点</summary><ul>${hit.map(([,n,g,b])=>`<li><b>${esc(n)}</b><span class="mg">○ ${esc(g)}</span><span class="mb">△ ${esc(b)}</span></li>`).join('')}</ul></details><small>工場・設計者が、この案をもとに費用を抑えられる素材を提案します。</small></div>`}
 const laiFlat=v=>Array.isArray(v)?v.join(''):String(v||'');
 const laiSnap=c=>({name:c.name,fig:[c.fig.w,c.fig.l,c.fig.h].join('x'),rows:Object.fromEntries(c.rows.map(([k,v])=>[k,laiFlat(v)]))});
 function laiDiff(a,b){if(!a)return {};const d={name:a.name!==b.name,fig:a.fig!==b.fig,rows:{}};for(const k in b.rows)d.rows[k]=a.rows[k]!==b.rows[k];return d}
@@ -3274,15 +3288,15 @@ function rfqWizard(){const f=$('#rf');if(!f||f.dataset.wz)return;f.dataset.wz=1;
   const mb=opt.querySelector('#mediaBox')||f.querySelector('#mediaBox');if(mb){const g=mb.closest('details.grp');att.appendChild(mb);if(g&&!g.querySelector('.in > *'))g.remove()}sum.after(att);att.after(opt);
   let i=Math.max(0,steps.findIndex(s=>!ok(s)));if(steps.every(ok))i=steps.length;
   function paint(){const last=i>=steps.length;wz.classList.toggle('done',last);rest.hidden=!last;
-    wz.querySelector('.wzn').textContent=last?'確認':`${i+1} / ${steps.length}`;wz.querySelector('.wzbar b').style.width=Math.round(Math.min(i,steps.length)/steps.length*100)+'%';
+    {const n=last?0:Math.max(1,steps.slice(i).filter(x=>!ok(x)).length);wz.querySelector('.wzn').innerHTML=last?'<span>確認</span>':`<span>あと</span><span translate="no"> ${n} </span><span>問</span>`}wz.querySelector('.wzbar b').style.width=Math.round(Math.min(i,steps.length)/steps.length*100)+'%';
     steps.forEach((s,k)=>{s.w.hidden=k!==i;const v=s.el.tagName==='SELECT'?s.el.value:'';s.w.querySelectorAll('.wzopt').forEach(b=>b.classList.toggle('on',b.textContent===v&&(s.touched||!s.el.options[0].value)))});
     const s=steps[i];wz.querySelector('.wzh').textContent=s?(WZH[s.ck||s.id]||''):'';wz.querySelector('.wzerr').textContent='';
     $('#wzBack').hidden=i===0;$('#wzNext').hidden=last||(s&&s.el.tagName==='SELECT');
-    if(last)sum.innerHTML=`<h4>この内容で工場に届きます</h4><dl>${steps.map((s,k)=>{const v=s.el.classList.contains('cks')?[...s.el.querySelectorAll('input:checked')].map(x=>x.value).join('、'):String(s.el.value||'').trim();return `<div><dt>${esc(lab(s))}</dt><dd>${esc(v||(ok(s)?'前の画面で回答済み':'—'))}</dd><button type="button" class="glink" data-wzgo="${k}">直す</button></div>`}).join('')}</dl>`,sum.querySelectorAll('[data-wzgo]').forEach(b=>b.onclick=()=>{i=+b.dataset.wzgo;paint();focusCur()});
+    if(last)sum.innerHTML=`<h4>この内容で工場に届きます</h4><dl>${steps.map((s,k)=>{let v=s.el.classList.contains('cks')?[...s.el.querySelectorAll('input:checked')].map(x=>x.value).join('、'):String(s.el.value||'').trim();v=v.split(FSPEC.omakase).join('設計で提案してもらう');return `<div><dt>${esc(lab(s))}</dt><dd>${esc(v||(ok(s)?'前の画面で回答済み':'—'))}</dd><button type="button" class="glink" data-wzgo="${k}">直す</button></div>`}).join('')}</dl>`,sum.querySelectorAll('[data-wzgo]').forEach(b=>b.onclick=()=>{i=+b.dataset.wzgo;paint();focusCur()});
     sh&&(sh.scrollTop=0)}
   const focusCur=()=>{const s=steps[i];if(s&&/^(INPUT|TEXTAREA)$/.test(s.el.tagName))setTimeout(()=>{try{s.el.focus({preventScroll:true})}catch(e){}},50)};
   function go(d){if(d>0&&steps[i]&&!ok(steps[i])){wz.querySelector('.wzerr').textContent=steps[i].id==='f-mail'?'メールアドレスを入れてください':steps[i].el.classList.contains('cks')?'1つ以上選んでください':'入れてから「次へ」を押してください';return}
-    i=Math.max(0,Math.min(steps.length,i+d));track('rfq_wizard',{step:i,of:steps.length});paint();focusCur()}
+    if(d>0){let j=i+1;while(j<steps.length&&ok(steps[j]))j++;i=j}else i=Math.max(0,i-1);/* 答えずみ（前の画面・最初の文章・提案）は飛ばす */track('rfq_wizard',{step:i,of:steps.length});paint();focusCur()}
   $('#wzNext').onclick=()=>go(1);$('#wzBack').onclick=()=>go(-1);paint();focusCur()}
 function rfq(names){
   track('open_inquiry',{type:'rfq',companies:names.length,overseas:names.filter(n=>abroad(D.companies[n])).length});
