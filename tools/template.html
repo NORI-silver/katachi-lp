@@ -1215,8 +1215,26 @@ function conceptKind(t,A,R,strong){let c=CONCEPTS.find(c=>rx(c.kw,t));
 /* 製品仕様DB（/data/products.json、tools/product_db.py が作る）。近い製品を当てて、工程・最小ロット・法規制を出典つきで出す */
 let PDB=null,PDBP=null;
 function pdbLoad(){if(PDB)return Promise.resolve(PDB);if(!PDBP)PDBP=fetch('/data/products.json').then(r=>r.ok?r.json():null).then(d=>(PDB=d)).catch(()=>null);return PDBP}
+/* 日本標準商品分類（総務省、約2.4万項目）は jscc に [コード, 名前, 探す語] で入る。工程・法規制は上位の分類ごとの決まり（rules）から引く */
+const pdbRx=r=>{if(r._rx===undefined){try{r._rx=new RegExp(r.kw,'i')}catch(e){r._rx=null}}return r._rx};
+function jsccRow(J,i){const[code,name]=J.items[i];let rule=null;for(let k=code.length;k>1&&!rule;k--)rule=J.rules[code.slice(0,k)]||null;rule=rule||{};
+  const names=[];for(let k=2;k<code.length;k++){const n=J.name[code.slice(0,k)];if(n&&names[names.length-1]!==n)names.push(n)}
+  const proc=rule.proc||[],lot=[];for(const p of proc)for(const x of (PDB.lots[p]||[]))if(lot.length<6)lot.push(Object.assign({proc:p},x));
+  return{id:'j_'+code,name,ind:rule.ind||'',kind:rule.kind||'',proc,parts:[],mat:[],lot,reg:(rule.reg||[]).map(k=>PDB.regs[k]).filter(Boolean),cls:names.concat(name).join(' > '),src:[J.src],from:'jscc'}}
 function pdbMatch(s){if(!PDB||!s)return null;const t=String(s).toLowerCase();let best=null,bl=0;
-  for(const r of PDB.products){if(!r.kw||r.from==='concept')continue;let m;try{m=t.match(new RegExp(r.kw,'i'))}catch(e){continue}if(m&&m[0].length>bl){best=r;bl=m[0].length}}return best}
+  const iK=c=>/[ァ-ヺー]/.test(c||'');
+  for(const r of PDB.products){if(!r.kw||r.from==='concept')continue;const rx=pdbRx(r);const m=rx&&t.match(rx);if(m&&m[0].length+1>bl&&!(iK(m[0][0])&&iK(t[m.index-1]))&&!(iK(m[0].slice(-1))&&iK(t[m.index+m[0].length]))){best=r;bl=m[0].length+1}}
+  const J=PDB.jscc;if(J){const KA=/[ァ-ヺー]/,fold=x=>x.replace(/[ァ-ヶ]/g,c=>String.fromCharCode(c.charCodeAt(0)-96)),isK=c=>KA.test(c||'');
+    if(!J.name){J.name={};J.kws=[];J.items.forEach(([c,n,k],i)=>{J.name[c]=n;if(k)for(const w of (k===1?[n.normalize('NFKC').toLowerCase()]:k.split('|')))J.kws.push([fold(w),i,w,/^(7[2-9]|8|9)/.test(c)?0:1])})}
+    const tn=t.normalize('NFKC'),tf=fold(tn);
+    /* 入力のカタカナの語の途中には当てない（「ベアリング」の中の「リング」）。同じ長さなら暮らしの品（72〜95）を先に */
+    const hit=k=>{let p=tf.indexOf(k);while(p>=0){const e=p+k.length;if(!(isK(tn[p])&&isK(tn[p-1]))&&!(isK(tn[e-1])&&isK(tn[e])))return true;p=tf.indexOf(k,p+1)}return false};
+    let bi=-1,bw='',bp=9;for(const[k,i,w,pr]of J.kws)if((k.length>bl||(k.length===bl&&bi>=0&&pr<bp))&&hit(k)){bl=k.length;bi=i;bw=w;bp=pr}
+    /* 短い入力（「ギター」など）は、分類名のほうに入力が含まれるものを探す（暮らしの品・短い名前を先に。カタカナの語の途中は除く） */
+    if(!best&&bi<0&&tf.length>=2&&tf.length<=12){let sl=1e9;for(const[k,i,w,pr]of J.kws){const p=k.indexOf(tf),L=k.length+pr*100;if(p>=0&&L<sl&&!(isK(w[p])&&isK(w[p-1]))&&!(isK(w[p+tf.length-1])&&isK(w[p+tf.length]))){sl=L;bi=i;bw=w}}}
+    if(bi>=0){best=jsccRow(J,bi);if(/[、，,]|及び|並びに/.test(best.name)&&bw)best.name=bw}}
+  return best}
+window.KATACHI_PDB={load:pdbLoad,match:s=>pdbMatch(s)};  // 回帰テスト（tools/tests）用
 function kindById(id,R){if(!id)return null;if(/^(shape:|g_)/.test(id)){const s=CGEN.shapes.find(x=>x.id===id.replace(/^(shape:|g_)/,''));return s&&s.id!=='product'?shapeConcept(s,R):null}return CONCEPTS.find(c=>c.id===id)||null}
 /* 長い仕様文を項目に整理した結果（利用者が自分のAIで作り、貼り戻したJSON）。AIのAPIは使わない（費用ゼロ）。
    根拠の原文（quote）があなたの文章に見つからない値は「要確認」にする。同じ文章は、この端末と受付（type:'spec'）に保存した結果を返す */
@@ -1535,6 +1553,7 @@ function cdbBody(c){const d=c.pdb,X=c.sx,cap=(KATACHI_DATA.cap||{});let h='';
     h+=`<dt>よくある素材</dt><dd>${d.mat.length?esc(d.mat.join('・'))+` <span class="chip">${LVL.ai}</span>`:'要確認'}</dd>`;
     h+=`<dt>最小ロット・費用の目安</dt><dd>${d.lot.length?'<ul class="cl">'+d.lot.map(r=>`<li>${esc(cap[r.proc]||r.proc)}：${esc(r.t)} ${fmtN(r)}（${srcA(r.src)}）</li>`).join('')+'</ul>':'要確認（公開された相場が見つかっていません）'}</dd>`;
     h+=`<dt>確かめる法規制・表示</dt><dd>${d.reg.length?'<ul class="cl">'+d.reg.map(r=>`<li>${esc(r.t)}（${srcA(r.src)}）</li>`).join('')+'</ul>':'要確認'}</dd>`;
+    if(d.cls)h+=`<dt>商品分類</dt><dd>${esc(d.cls)}（${srcA(d.src[0])}）</dd>`;
     if(d.example)h+=`<dt>作例</dt><dd>${esc(d.example.qty)}：${esc(d.example.text)}（${srcA(d.example.src)}）</dd>`;
     h+='</dl>'}
   if(X){const rows=[['製品名',X.product_name],['目的',X.purpose],['形',X.shape],['幅',X.width],['長さ',X.length],['高さ',X.height],['重さ',X.weight],['乗せる重さ',X.load],['電源',X.power],['試作の数',X.quantity_proto],['製造の数',X.quantity_mass]];

@@ -53,6 +53,8 @@ IND = {
     'wear': 'ウェアラブル・健康管理（医療機器を除く）', 'mech': '機械・装置・治具', 'parts': '金属・樹脂の部品',
     'care': '福祉・介護・暮らしの補助（医療機器を除く）', 'kids': 'ベビー・キッズ・玩具', 'car': '車・バイク・自転車用品',
     'garden': '園芸・農業資材', 'store': '店舗・施設の什器・サイン',
+    'material': '素材・中間材（布・紙・木材・金属材料など）', 'chem': '化学品・塗料・接着剤', 'build': '建築部材・住宅設備',
+    'vehicle': '輸送機器（自動車・鉄道・船舶・航空機）', 'measure': '計測・試験・光学機器', 'instrument': '楽器', 'office': '文具・事務用品',
 }
 
 # ---- よくある製品（ind, id, 名前, 探す語, 種類, 工程, 法規制, よくある構成, よくある素材）
@@ -289,6 +291,77 @@ def _kind(name):
     return ''
 
 
+# ---- 日本標準商品分類（総務省、平成2年6月改定）をすべて取り込む（e-Stat の分類検索から。tools/data/jscc_1990.tsv）
+# 工程・法規制・業界は、上位の分類ごとの決まり（JRULES、tools/jscc_rules.py）から引く。構成・素材は入れない（要確認）。
+# 扱わない分野（原料・エネルギー、スクラップ、酒類・医薬品・医療機器・たばこ・武器）は JRULES で None にして取り込まない。
+import unicodedata  # noqa: E402
+import jscc_rules  # noqa: E402
+
+JSCC_SRC = dict(t='総務省「日本標準商品分類（平成2年6月改定）」（e-Stat 統計分類）', url='https://www.e-stat.go.jp/classifications/terms/30', level='official')
+_GENERIC = re.compile(r'^(その他|他に分類されない|.{0,2}(登録|無登録)$|.*(のもの|以外のもの)$|.*部分品・取付具・附属品$)')
+
+
+def _norm(x):
+    return unicodedata.normalize('NFKC', x).lower()
+
+
+_ATTR = re.compile(r'^.{1,8}(式|型|形|製|用|系|級|品種)$')
+
+
+def _kws(name, parent):
+    """名前から探す語をつくる（かっこ書きを外し、「、」で分ける。短すぎる語・あいまいな語は使わない）"""
+    base = re.sub(r'[（(][^）)]*[）)]', '', name).strip()
+    if not base or _GENERIC.match(base) or _ATTR.match(base):
+        return ''
+    out = []
+    for w in re.split(r'[、，,]|及び|並びに', base):
+        w = _norm(w.strip(' 　・'))
+        w = re.sub(r'^(その他の|各種)', '', w)
+        if len(w) >= 2 and w != _norm(parent) and not re.fullmatch(r'[\d.]+.*', w):
+            out.append(w)
+    return '|'.join(dict.fromkeys(out))
+
+
+def jscc():
+    path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data', 'jscc_1990.tsv')
+    if not os.path.exists(path):
+        return None
+    rows = []
+    with open(path, encoding='utf-8') as f:
+        for line in f:
+            if '\t' in line and not line.startswith('#'):
+                c, n = line.rstrip('\n').split('\t', 1)
+                rows.append((c.strip(), n.strip()))
+    rows.sort(key=lambda r: r[0])
+    names = dict(rows)
+
+    def rule(code):
+        for k in range(len(code), 1, -1):
+            if code[:k] in jscc_rules.R:
+                return jscc_rules.R[code[:k]]
+        return None
+    items, used = [], {}
+    for c, n in rows:
+        r = rule(c)
+        if r is None:
+            continue
+        parent = ''
+        for k in range(len(c) - 1, 1, -1):
+            if c[:k] in names:
+                parent = names[c[:k]]
+                break
+        k = _kws(n, parent)
+        items.append([c, n, 1 if k == _norm(n) else k])
+    codes = [i[0] for i in items]
+    anc = {c[:k] for c in codes for k in range(2, len(c))}
+    items = [i for i in items if i[2] or i[0] in anc]
+    rules = {}
+    for k, r in jscc_rules.R.items():
+        if r is not None:
+            rules[k] = {x: v for x, v in dict(ind=r.get('ind', ''), proc=r.get('proc', '').split(), reg=r.get('reg', '').split(), kind=r.get('kind', '')).items() if v}
+    return dict(src=JSCC_SRC, rules=rules, items=items)
+
+
 def build():
     rows = []
     for c in CAT:
@@ -319,8 +392,16 @@ def build():
     for r in rows:
         if r['kw']:
             re.compile(r['kw'])
-    return dict(updated=UPDATED, levels={'official': '公的機関・会社の公式ページ', 'article': '報道・記事', 'listing': '業者の掲載ページ・まとめ', 'site': 'KATACHIの作例・ガイド（中に出典）', 'ai': 'AI推定（よくある例）'},
+    J = jscc()
+    out = dict(updated=UPDATED, levels={'official': '公的機関・会社の公式ページ', 'article': '報道・記事', 'listing': '業者の掲載ページ・まとめ', 'site': 'KATACHIの作例・ガイド（中に出典）', 'ai': 'AI推定（よくある例）'},
                 ind=IND, products=rows)
+    if J:
+        procs = sorted({p for r in J['rules'].values() for p in r.get('proc', [])})
+        out['lots'] = {p: [{k: v for k, v in x.items() if k != 'proc'} for x in _lot([p])] for p in procs}
+        out['lots'] = {p: v for p, v in out['lots'].items() if v}
+        out['regs'] = {k: _reg([k])[0] for k in REG}
+        out['jscc'] = J
+    return out
 
 
 def stats(db):
@@ -329,6 +410,8 @@ def stats(db):
     by_from = Counter(r['from'] for r in rows)
     by_ind = Counter(db['ind'].get(r['ind'], '種類の型') for r in rows)
     sourced = sum(1 for r in rows if r['lot'] or r['reg'] or r['src'])
+    if db.get('jscc'):
+        by_from['jscc'] = len(db['jscc']['items'])
     return by_from, by_ind, sourced
 
 

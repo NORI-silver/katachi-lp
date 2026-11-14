@@ -418,6 +418,7 @@ T_GENERIC.update({ja: (en, zh) for ja, en, zh in [
     ("下は、その種類の製品で一般にかかわることです。数字と法規制は出典のあるものだけで、出典がない項目は「要確認」です。", "Below is what generally applies to this kind of product. Figures and regulations are shown only with a source; anything without one is \"to be confirmed\".", "以下是这类产品一般涉及的内容。数字和法规只列出有出处的，没有出处的项目为“待确认”。"),
     ("主な工程", "Main processes", "主要工序"), ("よくある構成", "Typical components", "常见构成"), ("よくある素材", "Typical materials", "常见材料"),
     ("最小ロット・費用の目安", "Minimum lot and cost guide", "最小批量与费用参考"), ("確かめる法規制・表示", "Regulations and labeling to check", "需确认的法规与标示"),
+    ("商品分類", "Product classification", "商品分类"),
     ("作例", "Example", "示例"), ("要確認", "To be confirmed", "待确认"), ("要確認（公開された相場が見つかっていません）", "To be confirmed (no published market price found)", "待确认（未找到公开行情）"),
     ("公式・公的機関", "Official", "官方・公共机构"), ("報道・記事", "News / article", "报道・文章"), ("掲載ページ", "Listing page", "刊登页面"), ("KATACHIのページ", "KATACHI page", "KATACHI 页面"), ("AI推定", "AI estimate", "AI 推测"),
     ("お使いのAIで整理した項目", "Fields organized by your AI", "由您的 AI 整理的项目"), ("AIの整理", "AI-organized", "AI 整理"),
