@@ -333,7 +333,7 @@ table.cmp{border-collapse:separate;border-spacing:0;width:100%;min-width:760px;f
 #cEdMsg:empty{display:none}#cEdMsg p{margin:0;font-size:13px}.cedok{color:var(--ink);font-weight:600}.cedq{display:grid;gap:6px;font-size:13px}
 .cedp,.fssz{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;font-size:13px}.cedp label,.fssz label{display:inline-flex!important;flex-direction:row!important;align-items:center;gap:4px}
 .cedp input[type=number],.fssz input[type=number]{width:72px;font:inherit;font-size:14px;padding:5px 6px;border:1px solid var(--line2);border-radius:6px;background:#fff}
-.cedang{color:var(--mute)}.cedang b{color:var(--ink)}.cedlog{display:grid;gap:4px;font-size:12.5px}.cedlog ol{margin:0;padding-left:18px}.cedlog .glink{justify-self:start;font-size:12px}
+.cedang{color:var(--mute)}.cedp select,.fssz select{font:inherit;font-size:13.5px;padding:4px 6px;border:1px solid var(--line2);border-radius:6px;background:#fff}.cedang b{color:var(--ink)}.cedlog{display:grid;gap:4px;font-size:12.5px}.cedlog ol{margin:0;padding-left:18px}.cedlog .glink{justify-self:start;font-size:12px}
 @media(max-width:720px){.cgrid .cleft{display:block;position:sticky;top:var(--stk,60px);z-index:3;background:#fff;padding:4px 0 6px;margin:0 -4px}.cgrid .cleft .v3box{aspect-ratio:360/190}}@media(max-width:720px){.cshin{grid-template-columns:minmax(0,1fr) auto}.cshin select{grid-column:1/-1}}
 .mdraft{display:flex!important;flex-direction:row!important;gap:10px;align-items:flex-start;border:1px solid var(--line2);border-radius:10px;padding:10px 12px;margin-bottom:10px;background:color-mix(in srgb,var(--ice) 4%,#fff);cursor:pointer}.mdraft input{margin-top:4px}.mdraft span{display:grid;gap:2px;font-size:13.5px}.mdraft small{color:var(--mute);font-size:12px}.fsqi{border:0;padding:0;margin:0;display:grid;gap:6px}.fsqi legend{font-size:14px;font-weight:600;padding:0;margin-bottom:6px}
 .fsch{display:flex;flex-wrap:wrap;gap:6px}.fsb{font:inherit;font-size:13px;border:1px solid var(--line);background:#fff;border-radius:99px;padding:6px 12px;cursor:pointer;color:var(--fg)}
@@ -1395,10 +1395,10 @@ function wireChat(c){const box=$('#mChat');if(!box)return;const {q}=nextQuestion
 const CDH=(x1,x2,y,l)=>`<path class="d" d="M${x1} ${y-5}v10M${x2} ${y-5}v10M${x1} ${y}H${x2}"/><text x="${(x1+x2)/2}" y="${y+14}" text-anchor="middle">${l}</text>`;
 const CDV=(x,y1,y2,l)=>`<path class="d" d="M${x-5} ${y1}h10M${x-5} ${y2}h10M${x} ${y1}V${y2}"/><text x="${x+8}" y="${(y1+y2)/2+4}">${l}</text>`;
 const CFIG={
- slope:f=>`<path class="d" d="M8 200H352"/>${f.pool?`<rect class="o" x="278" y="96" width="10" height="104"/><path class="g" d="M288 118H352V200H288Z" style="fill:color-mix(in srgb,var(--ice) 16%,#fff)"/><path class="o n a" d="M292 118q8-5 16 0t16 0t16 0" /><path class="o n a h" d="M290 104L338 184"/>${f.inpool?'<path class="o" d="M292 114L350 192" style="stroke-width:5"/>':''}`:''}
-  <path class="o af" d="M40 200L262 100H278V108H264L50 200Z"/><path class="o n" d="M52 188L262 94"/>${f.rail?'<path class="o n" d="M52 166L262 72M70 158V180M130 131V153M190 104V126M250 77V99"/>':''}${[[150,151],[214,122]].map(([x,y])=>`<path class="o n" d="M${x} ${y}V200"/><rect class="o" x="${x-6}" y="197" width="12" height="5" rx="2"/>`).join('')}<path class="o n" d="M272 108V200"/><rect class="o" x="266" y="197" width="12" height="5" rx="2"/>
+ slope:f=>`<path class="d" d="M8 200H352"/>${f.pool?`<rect class="o" x="278" y="96" width="10" height="104"/><path class="g" d="M288 118H352V200H288Z" style="fill:color-mix(in srgb,var(--ice) 16%,#fff)"/><path class="o n a" d="M292 118q8-5 16 0t16 0t16 0" />${f.inpool?'':'<path class="o n a h" d="M290 104L338 184"/>'}${f.inpool?(f.ist?(()=>{const n=Math.min(8,Math.max(2,f.inn||4)),dx=58/n,dy=78/n;let d='M290 114';for(let i=0;i<n;i++)d+=`H${(290+dx*(i+1)).toFixed(1)}V${(114+dy*(i+1)).toFixed(1)}`;return `<path class="o" d="${d}" style="stroke-width:3;fill:none"/>`})():'<path class="o" d="M292 114L350 192" style="stroke-width:5"/>'):''}`:''}
+  ${f.ost?(()=>{const n=Math.min(10,Math.max(2,f.on||5)),dx=222/n,dy=100/n;let d='M40 200';for(let i=0;i<n;i++)d+=`V${(200-dy*(i+1)).toFixed(1)}H${(40+dx*(i+1)).toFixed(1)}`;return `<path class="o af" d="${d}H278V200Z"/>`})():'<path class="o af" d="M40 200L262 100H278V108H264L50 200Z"/><path class="o n" d="M52 188L262 94"/>'}${f.rail?'<path class="o n" d="M52 166L262 72M70 158V180M130 131V153M190 104V126M250 77V99"/>':''}${f.ost?'':[[150,151],[214,122]].map(([x,y])=>`<path class="o n" d="M${x} ${y}V200"/><rect class="o" x="${x-6}" y="197" width="12" height="5" rx="2"/>`).join('')}<path class="o n" d="M272 108V200"/><rect class="o" x="266" y="197" width="12" height="5" rx="2"/>
   ${f.pet?`<g transform="rotate(-24.2 140 155)"><path class="o n" d="M124 140V155M131 141V155M150 141V155M157 140V155M119 133l-9-7"/><ellipse class="o" cx="140" cy="134" rx="23" ry="9"/><path class="o" d="M158 130l4-12h10l6 6l-2 6h-8z"/><path class="o n" d="M164 118l-3-6"/></g>`:''}
-  <path class="d a" d="M86 200A46 46 0 0 0 82 182"/><text x="92" y="197" class="a2">${f.ang}</text>${CDV(24,100,200,'H '+f.h)}${CDH(40,270,206,'L '+f.l)}`,
+  ${f.ost?`<text x="92" y="197" class="a2">${f.on}段</text>`:`<path class="d a" d="M86 200A46 46 0 0 0 82 182"/><text x="92" y="197" class="a2">${f.ang}</text>`}${CDV(24,100,200,'H '+f.h)}${CDH(40,270,206,'L '+f.l)}`,
  step:f=>`<path class="d" d="M20 200H340"/><path class="o af" d="M70 200V164H130V126H190V88H260V200Z"/><path class="o n" d="M70 164h60M130 126h60M190 88h70" style="stroke-width:3"/>${CDH(70,260,206,'L '+f.l)}${CDV(290,88,200,'H '+f.h)}`,
  house:f=>`<path class="d" d="M20 200H340"/><path class="o" d="M78 96L180 40L282 96Z"/><rect class="o af" x="92" y="94" width="176" height="106"/><path class="o" d="M150 200V150Q180 118 210 150V200Z"/><rect class="o n" x="232" y="112" width="22" height="22"/>${CDH(92,268,206,'W '+f.w)}${CDV(306,40,200,'H '+f.h)}`,
  fence:f=>`<path class="d" d="M10 200H350"/><rect class="o n" x="40" y="74" width="280" height="112" rx="4"/>${Array.from({length:13},(_,i)=>`<path class="o n" d="M${60+i*20} 74V186"/>`).join('')}<rect class="o af" x="150" y="80" width="60" height="100" rx="3" style="fill-opacity:.6"/><rect class="o" x="30" y="186" width="30" height="10" rx="3"/><rect class="o" x="300" y="186" width="30" height="10" rx="3"/>${CDH(40,320,208,'W '+f.w)}`,
@@ -1508,15 +1508,17 @@ function v3build(T,f,mt){const has=r=>r.test(mt);const M=(c,o)=>new T.MeshStanda
     add(new T.CapsuleGeometry(r*.16,len*.28,4,8),m.fur,0,lg+r*1.6,-len*.48,-.9,0,0,d);return d};
   const K={
    slope(){const t=Math.max(22,H*.04),ang=Math.atan2(H,L),len=Math.hypot(L,H);const dk=new T.Group();dk.position.set(0,H/2,0);dk.rotation.x=-ang;g.add(dk);
-     B(W,t,len,0,0,0,m.frame,dk);const n=Math.max(5,Math.round(len/140));for(let i=0;i<n;i++)B(W*.9,t*.4,len/n*.5,0,t*.7,-len/2+len/n*(i+.5),m.sub,dk);
+     if(f.ost){const n=Math.max(2,f.on||Math.round(H/150)),td=L/n;for(let i=0;i<n;i++){const hi=H*(i+1)/n,z=-L/2+td*(i+.5);B(W,hi,td,0,hi/2,z,m.frame);B(W*.94,t*.4,td*.9,0,hi+t*.2,z,m.sub)}}
+     else{B(W,t,len,0,0,0,m.frame,dk);const n=Math.max(5,Math.round(len/140));for(let i=0;i<n;i++)B(W*.9,t*.4,len/n*.5,0,t*.7,-len/2+len/n*(i+.5),m.sub,dk);
      for(const s of[-1,1])B(t*.7,t*1.8,len,s*(W/2+t*.35),t*.5,0,m.frame,dk);
-     for(const fr of[.5,.8]){const z=-L/2+L*fr,h=H*fr;for(const s of[-1,1])B(t*.8,h,t*.8,s*(W/2-t*.6),h/2,z,m.frame)}
+     for(const fr of[.5,.8]){const z=-L/2+L*fr,h=H*fr;for(const s of[-1,1])B(t*.8,h,t*.8,s*(W/2-t*.6),h/2,z,m.frame)}}
      for(const s of[-1,1])B(t*.8,H,t*.8,s*(W/2-t*.6),H/2,L/2-t*.4,m.frame);B(W,t*.8,t*3,0,H+t*.2,L/2+t,m.frame);
      if(f.rail){const rh=Math.max(260,Math.min(W*.6,420)),n3=Math.max(3,Math.round(len/500));for(const s of[-1,1]){B(t*.5,t*.5,len,s*(W/2+t*.35),rh,0,m.frame,dk);for(let i=0;i<=n3;i++)B(t*.45,rh,t*.45,s*(W/2+t*.35),rh/2,-len/2+len*i/n3,m.frame,dk)}}
      if(f.pet)dog(dk,Math.min(W*1.5,len*.45),0,t*.5,-len*.1);
-     if(f.pool){const drop=H*.85,run=drop*L/Math.max(H,1),pw=Math.max(W*2.2,1100),pz=L/2+t*2.6+35,wd=f.inpool?run+260:Math.min(L*.45,900);B(pw,H*1.02,70,0,H*.51,pz,m.pool);B(pw,40,90,0,H*1.02+20,pz,m.resin);B(pw,H*.82,wd,0,H*.41,pz+35+wd/2,m.water);
+     if(f.pool){const drop=H*.85,run=f.irun||drop*L/Math.max(H,1),pw=Math.max(W*2.2,1100),pz=L/2+t*2.6+35,wd=f.inpool?run+260:Math.min(L*.45,900);B(pw,H*1.02,70,0,H*.51,pz,m.pool);B(pw,40,90,0,H*1.02+20,pz,m.resin);B(pw,H*.82,wd,0,H*.41,pz+35+wd/2,m.water);
        const hk=new T.Group();g.add(hk);B(W*.8,t*.8,140,0,H*1.04+t,pz,m.frame,hk);B(W*.8,H*.3,t*.8,0,H*.9,pz+75,m.frame,hk);
-       if(f.inpool){const len2=Math.hypot(run,drop),z0=pz+80,y0=H*1.04+t,d2=new T.Group();d2.position.set(0,y0-drop/2,z0+run/2);d2.rotation.x=ang;g.add(d2);
+       if(f.inpool&&f.ist){const n=Math.max(2,f.inn||Math.round(drop/150)),td=run/n,z0=pz+80,y0=H*1.04+t;for(let i=0;i<n;i++){const top=y0-drop*(i+1)/n,z=z0+td*(i+.5);B(W,Math.max(top,t),td,0,Math.max(top,t)/2,z,m.frame);B(W*.94,t*.4,td*.9,0,top+t*.2,z,m.sub)}}
+       else if(f.inpool){const len2=Math.hypot(run,drop),z0=pz+80,y0=H*1.04+t,d2=new T.Group();d2.position.set(0,y0-drop/2,z0+run/2);d2.rotation.x=ang;g.add(d2);
          B(W,t,len2,0,0,0,m.frame,d2);const n2=Math.max(5,Math.round(len2/140));for(let i=0;i<n2;i++)B(W*.9,t*.4,len2/n2*.5,0,t*.7,-len2/2+len2/n2*(i+.5),m.sub,d2);
          for(const s of[-1,1])B(t*.7,t*1.8,len2,s*(W/2+t*.35),t*.5,0,m.frame,d2);const yb=y0-drop;for(const s of[-1,1])B(t*.8,yb,t*.8,s*(W/2-t*.6),yb/2,z0+run-t,m.frame)}}},
    step(){const n=3;for(let i=0;i<n;i++){const h=H*(i+1)/n,z=-L/2+L/n*(i+.5);B(W,h,L/n,0,h/2,z,m.main);B(W*.94,Math.max(6,H*.02),L/n*.9,0,h+Math.max(3,H*.01),z,m.sub)}},
@@ -1641,45 +1643,76 @@ function edOf(){if(S.edFor!==ideaBase()){S.edFor=ideaBase();try{S.ed=JSON.parse(
 function edSave(){try{localStorage.setItem(edKey(),JSON.stringify(S.ed||{}))}catch(e){}}
 const SH_POOL=/プールの(中|内)|水の中|水中/;
 const r10=x=>Math.max(10,Math.round(x/10)*10),degOf=(h,l)=>l>0?Math.round(Math.atan2(h,l)*180/Math.PI):0;
-function figOf(c){const f=c.fig||{},E=edOf();const w=E.w||+f.w||0,h=E.h||+f.h||0,l=E.l||+f.l||0;
-  return {k:f.k,w,l,h,ang:f.k==='slope'?degOf(h,l)+'°':f.ang,pool:!!f.pool,pet:!!f.pet,p:f.p||'',inpool:!!f.pool&&f.k==='slope'&&(E.inpool!=null?!!E.inpool:shList().some(x=>SH_POOL.test(x.t))),rail:f.k==='slope'&&!!E.rail}}
+// 外側（上り）とプールの中（下り）は、それぞれ「スロープ」か「階段」。階段は1段の高さ（rise）と踏み面（tread）から段数と長さを出す
+const FORMN={slope:'スロープ',stairs:'階段'};
+function figOf(c){const f=c.fig||{},E=edOf();const w=E.w||+f.w||0,h=E.h||+f.h||0;let l=E.l||+f.l||0;const slope=f.k==='slope';
+  const rise=E.rise||150,tread=E.tread||300,ost=slope&&E.ost==='stairs',ist=slope&&E.ist==='stairs';
+  const on=Math.max(2,Math.round(h/rise));if(ost)l=on*tread;
+  const inpool=!!f.pool&&slope&&(E.inpool!=null?!!E.inpool:ist||shList().some(x=>SH_POOL.test(x.t)));const drop=h*.85,inn=Math.max(2,Math.round(drop/rise));
+  return {k:f.k,w,l,h,ang:slope?degOf(h,l)+'°':f.ang,pool:!!f.pool,pet:!!f.pet,p:f.p||'',inpool,rail:slope&&!!E.rail,ost,ist:inpool&&ist,rise,tread,on,inn,
+    irun:inpool?(ist?inn*tread:Math.round(drop*l/Math.max(h,1))):0}}
 const cmS=mm=>(Math.round(mm/10*10)/10)+'cm';
-function sizeLine(c){const f=figOf(c);return `<span>幅</span> ${cmS(f.w)}${f.l>60?` × <span>長さ</span> ${cmS(f.l)}`:''} × <span>高さ</span> ${cmS(f.h)}${f.k==='slope'?` / <span>傾き</span> ${f.ang}`:''}`}
-// 指示の文 → 変える値。返り値 {set:{w,l,h,ang,inpool,rail}, done:[説明]}。何も読めなければ done は空
-function edParse(raw,c){const t=String(raw||'').normalize('NFKC').replace(/\s+/g,''),f=figOf(c),set={},done=[];const slope=f.k==='slope';
-  const unit=(n,u)=>{n=+n;u=u||'';if(/^(mm|ミリ)/.test(u))return n;if(/^(m|メートル)$/.test(u)||/^(m|メートル)/.test(u)&&!/^(mm|ミリ)/.test(u))return n*1000;return n*10};
+function stairTxt(n,f){return n+'段（1段 '+cmS(f.rise)+'・踏み面 '+cmS(f.tread)+'）'}
+function sizeLine(c){const f=figOf(c);return `<span>幅</span> ${cmS(f.w)}${f.l>60?` × <span>長さ</span> ${cmS(f.l)}`:''} × <span>高さ</span> ${cmS(f.h)}${f.k==='slope'?(f.ost?` / <span>階段</span> <span translate="no">${stairTxt(f.on,f)}</span>`:` / <span>傾き</span> ${f.ang}`)+(f.inpool?` / <span>プールの中</span> <span translate="no">${f.ist?stairTxt(f.inn,f):'スロープ'}</span>`:''):''}`}
+function shapeTxt(f){return ['幅 '+cmS(f.w)+(f.l>60?' × 長さ '+cmS(f.l):'')+' × 高さ '+cmS(f.h)+(f.k==='slope'?(f.ost?'（外側は階段 '+stairTxt(f.on,f)+'）':'（傾き '+f.ang+'）'):''),
+  f.inpool?'プールの中まで続ける（'+(f.ist?'階段 '+stairTxt(f.inn,f):'スロープ')+'）':'',f.rail?'手すりを付ける':''].filter(Boolean).join('、')}
+// 指示の文 → 変える値。何も読めなければ空のオブジェクト
+function edParse(raw,c){const t=String(raw||'').normalize('NFKC').replace(/\s+/g,'').replace(/１/g,'1'),f=figOf(c),set={};const slope=f.k==='slope';
+  const unit=(n,u)=>{n=+n;u=u||'';if(/^(mm|ミリ)/.test(u))return n;if(/^(m|メートル)/.test(u))return n*1000;return n*10};
   const NUM='(\\d+(?:\\.\\d+)?)(mm|ミリ|cm|センチ|メートル|m)?';
-  const F=[['w','幅|横幅|はば'],['l','長さ|全長|奥行き?|距離'],['h','高さ|段差']];
-  for(const [k,wd] of F){const m=t.match(new RegExp('('+wd+')[^\\d]{0,6}?'+NUM));if(m){set[k]=r10(unit(m[2],m[3]));continue}
-    const up=new RegExp('('+wd+')[^。]{0,6}?(もっと|少し|ちょっと)?(広|大き|長|高)'),dn=new RegExp('('+wd+')[^。]{0,6}?(もっと|少し|ちょっと)?(狭|小さ|短|低)');
-    if(up.test(t))set[k]=r10(f[k]*1.2);else if(dn.test(t))set[k]=r10(f[k]*.8)}
-  if(slope){const a=t.match(/(傾き|角度|勾配)[^\d]{0,6}?(\d+(?:\.\d+)?)度?/)||t.match(/(\d+(?:\.\d+)?)度/);if(a)set.ang=+a[a.length-1]||+a[1];
-    else if(/ゆるやか|緩やか|なだらか|ゆるく|緩く|ゆるい|緩い/.test(t))set.ang=Math.max(8,degOf(f.h,f.l)-4);else if(/急に|きつく|急な|短く済/.test(t))set.ang=Math.min(35,degOf(f.h,f.l)+4);
-    if(/(2|二|２)頭|並んで|すれ違/.test(t)&&set.w==null)set.w=r10(Math.max(f.w*1.8,700));
-    const neg=/(なし|無し|いらない|要らない|やめ|外して|取って|不要)/;
-    if(/(プール|水)の?(中|内)|中にも|水中/.test(t))set.inpool=!neg.test(t);
-    if(/手すり|手摺|柵|ガード|落下防止/.test(t))set.rail=!neg.test(t)}
-  if(!Object.keys(set).length){const big=t.match(/(全体|大きさ|サイズ)?[^\d]{0,4}?(\d+)(%|割)(大きく|小さく)?/);
-    if(/(全体|大きさ|サイズ)を?(もっと|少し)?大き/.test(t))['w','l','h'].forEach(k=>set[k]=r10(f[k]*1.2));else if(/(全体|大きさ|サイズ)を?(もっと|少し)?小さ/.test(t))['w','l','h'].forEach(k=>set[k]=r10(f[k]*.8));
-    else if(big&&big[4]){const p=+big[2]*(big[3]==='割'?10:1)/100;['w','l','h'].forEach(k=>set[k]=r10(f[k]*(big[4]==='大きく'?1+p:1-p)))}}
+  const neg=/(なし|無し|いらない|要らない|やめ|外して|外す|取って|取る|不要|なくして|無くして)/;
+  // 階段・段の数値（先に読む。「1段の高さ」を全体の高さと取り違えないため）
+  let tt=t;
+  if(slope){const ri=tt.match(new RegExp('(1段の高さ|段の高さ|一段の高さ|蹴上げ?|けあげ)[^\\d]{0,6}?'+NUM));if(ri){set.rise=r10(unit(ri[2],ri[3]));tt=tt.replace(ri[0],'')}
+    const tr=tt.match(new RegExp('(踏み面|踏面|ふみづら|段の奥行き?|1段の奥行き?|段の幅)[^\\d]{0,6}?'+NUM));if(tr){set.tread=r10(unit(tr[2],tr[3]));tt=tt.replace(tr[0],'')}
+    const sn=tt.match(/(\d+)段/);if(sn&&!/(\d+)段目/.test(tt)){set.steps=+sn[1];tt=tt.replace(sn[0],'')}
+    const inner=/(プール|水)の?(中|内)|中は|中を|中の|中も|中にも|内側|水中|下り/.test(tt),outer=/外側|外は|外を|外の|プールの外|上り|乗り口|手前/.test(tt);
+    const toSt=/階段|段差|段々|ステップ|段にし|段をつけ|段を付け/.test(tt)&&!neg.test(tt),toSl=/スロープ|坂|傾斜にし|なだらかな道/.test(tt)&&!/階段/.test(tt);
+    if(toSt||toSl){const v=toSt?'stairs':'slope';if(inner&&f.pool){set.ist=v;set.inpool=true}if(outer||!inner)set.ost=v;if(!inner&&!outer&&f.inpool)set.ist=v}
+    if(set.steps&&!set.ost&&!set.ist){if(f.ost||!f.ist)set.ost='stairs';else set.ist='stairs'}
+    if((set.rise||set.tread)&&!set.ost&&!set.ist&&!f.ost&&!f.ist)set.ost='stairs'}
+  const F=[['w','幅|横幅|はば'],['l','長さ|全長|奥行き?|距離'],['h','高さ|段差の高さ|プールの高さ']];
+  for(const [k,wd] of F){const m=tt.match(new RegExp('('+wd+')[^\\d]{0,6}?'+NUM));if(m){set[k]=r10(unit(m[2],m[3]));continue}
+    const up=new RegExp('('+wd+')[^。]{0,6}?(もっと|少し|ちょっと)?(広|大き|長|高|増)'),dn=new RegExp('('+wd+')[^。]{0,6}?(もっと|少し|ちょっと)?(狭|小さ|短|低|減)');
+    if(up.test(tt))set[k]=r10(f[k]*1.2);else if(dn.test(tt))set[k]=r10(f[k]*.8)}
+  // 項目の言葉がない「広く」「低く」など
+  if(set.w==null&&/(広く|広げ|太く|ワイド)/.test(tt)&&!/(全体|大きさ|サイズ)/.test(tt))set.w=r10(f.w*1.2);if(set.w==null&&/(狭く|細く|スリム)/.test(tt))set.w=r10(f.w*.8);
+  if(set.h==null&&!slope&&/低く/.test(tt))set.h=r10(f.h*.8);if(set.h==null&&!slope&&/高く/.test(tt))set.h=r10(f.h*1.2);
+  if(set.l==null&&!set.ost&&/短く/.test(tt)&&!/(全体|大きさ|サイズ)/.test(tt)&&!slope)set.l=r10(f.l*.8);if(set.l==null&&/長く/.test(tt)&&!slope)set.l=r10(f.l*1.2);
+  if(slope){const a=tt.match(/(傾き|角度|勾配|傾斜)[^\d]{0,6}?(\d+(?:\.\d+)?)度?/)||tt.match(/(\d+(?:\.\d+)?)度/);if(a)set.ang=+a[a.length-1]||+a[1];
+    else if(/ゆるやか|緩やか|なだらか|ゆるく|緩く|ゆるい|緩い|ゆったり/.test(tt)&&!set.ost)set.ang=Math.max(8,degOf(f.h,f.l)-4);else if(/急に|きつく|急な|急勾配|短く/.test(tt)&&!set.ost&&!/(全体|大きさ|サイズ)/.test(tt))set.ang=Math.min(35,degOf(f.h,f.l)+4);
+    if(/(2|二|２|ふた)(頭|匹)|並んで|すれ違|同時に/.test(tt)&&set.w==null)set.w=Math.max(f.w,800);
+    if(set.ist==null&&/(プール|水)の?(中|内)|中にも|水中|中まで/.test(tt))set.inpool=!neg.test(tt);
+    if(/手すり|手摺|柵|ガード|落下防止|転落防止/.test(tt))set.rail=!neg.test(tt)}
+  if(!Object.keys(set).length){const big=tt.match(/(\d+)(%|割)(大きく|小さく)/);
+    if(/(全体|大きさ|サイズ)を?(もっと|少し|ひと回り|一回り)?大き/.test(tt)||/ひと回り大き|一回り大き/.test(tt))['w','l','h'].forEach(k=>set[k]=r10(f[k]*1.2));else if(/(全体|大きさ|サイズ)を?(もっと|少し|ひと回り|一回り)?小さ/.test(tt)||/ひと回り小さ|一回り小さ/.test(tt))['w','l','h'].forEach(k=>set[k]=r10(f[k]*.8));
+    else if(big){const p=+big[1]*(big[2]==='割'?10:1)/100;['w','l','h'].forEach(k=>set[k]=r10(f[k]*(big[3]==='大きく'?1+p:1-p)))}}
   return set}
-// 値を図に入れる。高さを変えたら傾きは保つ（長さを直す）。傾きを変えたら長さを直す
+// 値を図に入れる。高さを変えたら傾きは保つ（長さを直す）。傾きを変えたら長さを直す。階段は段数から1段の高さを出す
 function edApply(c,set,src){const E=edOf(),f0=figOf(c),log=[];const nm={w:'幅',l:'長さ',h:'高さ'};
+  const prev={w:E.w,l:E.l,h:E.h,inpool:E.inpool,rail:E.rail,ost:E.ost,ist:E.ist,rise:E.rise,tread:E.tread};
   for(const k of ['w','l','h'])if(set[k]&&set[k]!==f0[k]){E[k]=set[k];log.push(nm[k]+' '+cmS(f0[k])+' → '+cmS(set[k]))}
-  if(f0.k==='slope'){const keep=degOf(f0.h,f0.l);if(set.h&&!set.l&&!set.ang)E.l=r10(E.h/Math.tan(keep*Math.PI/180));
-    if(set.ang){const h=E.h||f0.h;E.l=r10(h/Math.tan(set.ang*Math.PI/180));log.push('傾き '+keep+'° → '+set.ang+'°（長さ '+cmS(E.l)+'）')}
+  if(f0.k==='slope'){const keep=degOf(f0.h,f0.l);if(set.h&&!set.l&&!set.ang&&!f0.ost)E.l=r10(E.h/Math.tan(keep*Math.PI/180));
+    if(set.ang){const h=E.h||f0.h;E.l=r10(h/Math.tan(set.ang*Math.PI/180));if(f0.ost){E.ost='slope';log.push('外側を スロープ に')}log.push('傾き '+keep+'° → '+set.ang+'°（長さ '+cmS(E.l)+'）')}
     if(set.inpool!=null&&set.inpool!==f0.inpool){E.inpool=set.inpool;log.push(set.inpool?'プールの中まで続ける':'プールの中の部分をなくす')}
+    if(set.ost&&set.ost!==(f0.ost?'stairs':'slope')){E.ost=set.ost;if(set.ost==='slope'&&!set.ang)E.l=r10((E.h||f0.h)/Math.tan(22*Math.PI/180));log.push('外側を '+FORMN[set.ost]+' に')}
+    if(set.ist&&set.ist!==(f0.ist?'stairs':'slope')){E.ist=set.ist;E.inpool=true;log.push('プールの中を '+FORMN[set.ist]+' に')}
+    if(set.rise&&set.rise!==f0.rise){E.rise=set.rise;log.push('1段の高さ '+cmS(f0.rise)+' → '+cmS(set.rise))}
+    if(set.tread&&set.tread!==f0.tread){E.tread=set.tread;log.push('踏み面 '+cmS(f0.tread)+' → '+cmS(set.tread))}
+    if(set.steps){const outer=(E.ost==='stairs');const H=outer?(E.h||f0.h):(E.h||f0.h)*.85;const r=r10(H/set.steps);if(r!==(E.rise||150)){E.rise=r;log.push((outer?'外側':'プールの中')+'を '+set.steps+'段に（1段 '+cmS(r)+'）')}}
     if(set.rail!=null&&set.rail!==f0.rail){E.rail=set.rail;log.push(set.rail?'手すりを付ける':'手すりを外す')}}
-  if(log.length){(E.log||(E.log=[])).push({t:log.join('、'),src:src||'',prev:{w:f0.w,l:f0.l,h:f0.h,inpool:f0.inpool,rail:f0.rail}});E.log=E.log.slice(-20);edSave()}
+  if(log.length){(E.log||(E.log=[])).push({t:log.join('、'),src:src||'',prev});E.log=E.log.slice(-20);edSave()}
   return log}
-function edEx(c){const f=c.fig||{};return f.k==='slope'?[...(f.pool?['プールの中にも続けて']:[]),'幅を80cmに','もっとゆるやかに','高さを70cmに','手すりを付けて']:['幅を30cmに','高さを少し低く','全体を2割大きく']}
+function edEx(c){const f=c.fig||{};return f.k==='slope'?[...(f.pool?['プールの中は階段に','プールの中にも続けて']:[]),'幅を80cmに','もっとゆるやかに','外側も階段に','手すりを付けて']:['幅を30cmに','高さを少し低く','全体を2割大きく']}
+const fsel=(attr,k,v,lb)=>`<label class="cedck"><span>${lb}</span><select data-${attr}="${k}"><option value="slope"${v?'':' selected'}>スロープ</option><option value="stairs"${v?' selected':''}>階段</option></select></label>`;
 function edBox(c){const f=figOf(c),E=edOf(),L=shList(),slope=f.k==='slope';const num=(k,lb)=>`<label><span>${lb}</span><input type="number" inputmode="decimal" min="1" step="1" data-edn="${k}" value="${Math.round(f[k]/10)}"><span>cm</span></label>`;
   return `<div class="ced" id="cEd"><h4>図を見ながら直す</h4>
     <div class="cedin"><input id="cEdT" type="text" placeholder="例：幅を80cmに／もっとゆるやかに／プールの中にも続けて" aria-label="図を直す指示"><button type="button" class="btn pri sm" id="cEdGo">図に反映</button></div>
     <div class="fsch">${edEx(c).map(e=>`<button type="button" class="fsb" data-edex="${esc(e)}">${esc(e)}</button>`).join('')}</div>
     <div id="cEdMsg" role="status" aria-live="polite">${S.edMsg||''}</div>
-    <div class="cedp">${num('w','幅')}${f.l>60||slope?num('l','長さ'):''}${num('h','高さ')}${slope?`<span class="cedang"><span>傾き</span> <b class="mono">${f.ang}</b></span>`:''}
-      ${slope&&f.pool?`<label class="cedck"><input type="checkbox" data-edc="inpool"${f.inpool?' checked':''}><span>プールの中まで続ける</span></label>`:''}${slope?`<label class="cedck"><input type="checkbox" data-edc="rail"${f.rail?' checked':''}><span>手すり</span></label>`:''}</div>
+    <div class="cedp">${num('w','幅')}${f.l>60||slope?num('l','長さ'):''}${num('h','高さ')}${slope?(f.ost?`<span class="cedang"><span translate="no">${stairTxt(f.on,f)}</span></span>`:`<span class="cedang"><span>傾き</span> <b class="mono">${f.ang}</b></span>`):''}
+      ${slope?fsel('eds','ost',f.ost,'外側'):''}${slope&&f.pool?`<label class="cedck"><input type="checkbox" data-edc="inpool"${f.inpool?' checked':''}><span>プールの中まで続ける</span></label>${f.inpool?fsel('eds','ist',f.ist,'プールの中'):''}`:''}
+      ${slope&&(f.ost||f.ist)?`<label><span>1段の高さ</span><input type="number" inputmode="decimal" min="5" data-edn="rise" value="${Math.round(f.rise/10)}"><span>cm</span></label><label><span>踏み面</span><input type="number" inputmode="decimal" min="10" data-edn="tread" value="${Math.round(f.tread/10)}"><span>cm</span></label>`:''}${slope?`<label class="cedck"><input type="checkbox" data-edc="rail"${f.rail?' checked':''}><span>手すり</span></label>`:''}</div>
     ${E.log&&E.log.length?`<div class="cedlog"><span class="muted">図に反映したこと</span><ol>${E.log.slice(-4).map(x=>`<li translate="no">${esc(x.t)}</li>`).join('')}</ol><button type="button" class="glink" id="cEdUndo">ひとつ戻す</button></div>`:''}
     ${L.length?`<div class="cedlog"><span class="muted">図には出ない要望（工場に伝えます）</span><ul class="cshl">${L.map((x,i)=>`<li><span class="chip">${esc(x.p)}</span><span translate="no">${esc(x.t)}</span><button type="button" class="glink" data-shx="${i}">消す</button></li>`).join('')}</ul></div>`:''}
     <p class="muted cshn">図は簡易なたたき台です。寸法・材質・作り方は、工場から確認や提案の連絡が来るのがふつうです。</p></div>`}
@@ -1699,7 +1732,8 @@ function wireShape(A){const c=A.concept,box=$('#cEd');if(!c||!box)return;
     track('shape_edit',{how:src||'text',ok:log.length?1:0});
     if(log.length){S.edMsg=`<p class="cedok">✓ <span translate="no">${esc(log.join('、'))}</span></p>`;S.edPend='';edRedraw(A,'#cEdT')}
     else if(Object.keys(set).length){S.edMsg='<p class="muted">いまの図と同じです。</p>';edRedraw(A,'#cEdT')}
-    else{S.edPend=t;$('#cEdMsg').innerHTML=edPick(c,t);wirePick()}};
+    else if(/\d|幅|長さ|高さ|傾|角度|勾配|大き|小さ|広|狭|段/.test(t.normalize('NFKC'))){S.edPend=t;$('#cEdMsg').innerHTML=edPick(c,t);wirePick()}
+    else{shList().push({p:'全体',t});shSave();S.edMsg='<p class="cedok"><span>✓ 図には描けない内容なので、要望として仕様書に入れました。工場・設計者が図に起こします。</span></p>';track('shape_request',{n:shList().length});edRedraw(A,'#cEdT')}};
   const wirePick=()=>{box.querySelectorAll('[data-edk]').forEach(b=>b.onclick=()=>{const k=b.dataset.edk,n=(S.edPend||'').normalize('NFKC').match(/\d+(?:\.\d+)?/);
       if(n&&k!=='ang'){go({w:'幅',l:'長さ',h:'高さ'}[k]+'を'+n[0]+'cmに','pick');return}if(n&&k==='ang'){go('傾き'+n[0]+'度','pick');return}
       const el=box.querySelector(k==='ang'?'#cEdT':`[data-edn="${k}"]`);if(el){el.focus();el.select&&el.select()}$('#cEdMsg').innerHTML=`<p class="muted">${k==='ang'?'「傾き15度」のように書いてください。':'下の数字を直すと、図に反映します。'}</p>`});
@@ -1707,7 +1741,8 @@ function wireShape(A){const c=A.concept,box=$('#cEd');if(!c||!box)return;
   $('#cEdGo').onclick=()=>go($('#cEdT').value);
   $('#cEdT').onkeydown=e=>{if(e.key==='Enter'&&!e.isComposing){e.preventDefault();go($('#cEdT').value)}};
   box.querySelectorAll('[data-edex]').forEach(b=>b.onclick=()=>go(b.dataset.edex,'example'));
-  box.querySelectorAll('[data-edn]').forEach(i=>i.onchange=()=>{const v=+i.value;if(!(v>0))return;const set={[i.dataset.edn]:r10(v*10)};if(i.dataset.edn==='l')set.l=r10(v*10);const log=edApply(c,set,'数値');S.edMsg=log.length?`<p class="cedok">✓ <span translate="no">${esc(log.join('、'))}</span></p>`:'';track('shape_edit',{how:'number',ok:log.length?1:0});edRedraw(A,'#cEdT')});
+  box.querySelectorAll('[data-edn]').forEach(i=>i.onchange=()=>{const v=+i.value;if(!(v>0))return;const set={[i.dataset.edn]:r10(v*10)};const log=edApply(c,set,'数値');S.edMsg=log.length?`<p class="cedok">✓ <span translate="no">${esc(log.join('、'))}</span></p>`:'';track('shape_edit',{how:'number',ok:log.length?1:0});edRedraw(A,'#cEdT')});
+  box.querySelectorAll('[data-eds]').forEach(i=>i.onchange=()=>{const log=edApply(c,{[i.dataset.eds]:i.value},'選択');S.edMsg=log.length?`<p class="cedok">✓ <span translate="no">${esc(log.join('、'))}</span></p>`:'';track('shape_edit',{how:'form',ok:1});edRedraw(A,'#cEdT')});
   box.querySelectorAll('[data-edc]').forEach(i=>i.onchange=()=>{const log=edApply(c,{[i.dataset.edc]:i.checked},'選択');S.edMsg=log.length?`<p class="cedok">✓ <span translate="no">${esc(log.join('、'))}</span></p>`:'';track('shape_edit',{how:'toggle',ok:1});edRedraw(A,'#cEdT')});
   $('#cEdUndo')&&($('#cEdUndo').onclick=()=>{const E=edOf(),x=(E.log||[]).pop();if(x){Object.assign(E,x.prev);edSave()}S.edMsg='<p class="muted">ひとつ前に戻しました。</p>';edRedraw(A,'#cEdT')});
   box.querySelectorAll('[data-shx]').forEach(b=>b.onclick=()=>{shList().splice(+b.dataset.shx,1);shSave();edRedraw(A,'#cEdT')})}
@@ -1723,7 +1758,7 @@ function fsBuild(A){const c=A&&A.concept;if(!c)return null;const base=splitAi(S.
   const xs=k=>X&&X[k]&&X[k].value&&X[k].value!==NA?X[k]:null;
   // 1) 回答（選択式で答えたもの）が最優先
   for(const k in fa){const a=fa[k];if(!a)continue;if(a.unk)continue;put(k,Array.isArray(a.v)?a.v.join('、'):a.v,'回答')}
-  if(c.fig){const E=edOf();if(E.w||E.l||E.h){const f=figOf(c);put('size','幅 '+cmS(f.w)+(f.l>60?' × 長さ '+cmS(f.l):'')+' × 高さ '+cmS(f.h)+(f.k==='slope'?'（傾き '+f.ang+'）':''),'回答','イメージ図で調整')}}
+  if(c.fig){const E=edOf();if(E.w||E.l||E.h||E.ost||E.rise){const f=figOf(c);put('size','幅 '+cmS(f.w)+(f.l>60?' × 長さ '+cmS(f.l):'')+' × 高さ '+cmS(f.h)+(f.k==='slope'?(f.ost?'（外側は階段 '+stairTxt(f.on,f)+'）':'（傾き '+f.ang+'）'):''),'回答','イメージ図で調整')}}
   // 2) 利用者の文章（原文）と、貼り戻したJSON（根拠の原文を確かめ済み）
   put('name',P.name||(xs('product_name')||{}).value||(P.long||P.head.length<=40?P.head:''),'原文',P.name?'【製品名】':(xs('product_name')||{}).quote||'');
   const pu=[[/販売|売る|売りたい|ブランド|商品化|自社製品|ec|通販/i,'自社・自分の商品として売る'],[/店舗|店で|施設|ホテル|サロン|飲食店|クリニック/,'お店・施設で使う'],[/ノベルティ|記念品|配布|配る|販促|イベント/,'配る（ノベルティ・記念品）'],[/自分用|自分で使|家族|趣味/,'自分・家族で使う']].find(([re])=>re.test(t));
@@ -1774,7 +1809,7 @@ function fsText(F){if(!F)return '';const L=['※ この仕様書と参考図（3
   if(F.cats.length)L.push('品目：'+F.cats.map(k=>k.t).join('、'));
   for(const i of F.items){const v=F.V[i.k];L.push('・'+i.t+'：'+(v&&v.v?v.v:'要確認')+'［'+(v?v.lv:'要確認')+']'+(v&&v.src?'（'+v.src+'）':''))}
   {const lw=fsLaws((F.V.reg||{}).v);if(lw.length)L.push('  条文（e-Gov法令検索）：'+lw.map(l=>l.n+' '+l.url).join('　'))}
-  {const c=F.c;if(c&&c.fig){const f=figOf(c),E=edOf();const d=[f.inpool?'プールの中まで続ける':'',f.rail?'手すりを付ける':''].filter(Boolean);if(d.length||(E.log||[]).length)L.push('','■ 参考図（3D・寸法図）で決めた形：'+['幅 '+cmS(f.w)+(f.l>60?' × 長さ '+cmS(f.l):'')+' × 高さ '+cmS(f.h)+(f.k==='slope'?'（傾き '+f.ang+'）':''),...d].join('、'))}}
+  {const c=F.c;if(c&&c.fig){const f=figOf(c),E=edOf();if(f.inpool||f.rail||f.ost||(E.log||[]).length)L.push('','■ 参考図（3D・寸法図）で決めた形：'+shapeTxt(f))}}
   {const sh=shList();if(sh.length){L.push('','■ 形の要望（依頼者が追加。図に反映されていないものは、工場・設計者が図に起こしてください）');sh.forEach(x=>L.push('・'+x.p+'：'+x.t))}}
   L.push('','■ 工場に聞くこと');F.fq.forEach((q,n)=>L.push((n+1)+'. '+q));L.push('','工場に出せる度：'+F.score+'%（'+{quote:'見積に出せます',design:'設計の見積から始めます',more:'あと少しで見積に出せます'}[F.mode]+'）');return L.join('\n')}
 function fspecCard(A){const F=fsBuild(A);if(!F)return '';S.fs=F;const fa=fsAns();
@@ -1794,7 +1829,7 @@ function fspecCard(A){const F=fsBuild(A);if(!F)return '';S.fs=F;const fa=fsAns()
   S.fsQh=`<div class="fsqtop"><span class="fsqstep">${cur?'答えてください':'できました'}</span><span class="muted"><span>工場に出せる度</span> <b class="mono">${F.score}%</b></span></div>`+qhtml;
   const fg=F.c&&F.c.fig?figOf(F.c):null;
   const szEd=fg?`<div class="fssz">${[['w','幅'],...(fg.l>60||fg.k==='slope'?[['l','長さ']]:[]),['h','高さ']].map(([k,l])=>`<label><span>${l}</span><input type="number" inputmode="decimal" min="1" data-fsz="${k}" value="${Math.round(fg[k]/10)}"><span>cm</span></label>`).join('')}</div>`:'';
-  const shRow=fg&&fg.k==='slope'?`<tr><th>図で決めた形</th><td><div class="fssz">${fg.pool?`<label class="cedck"><input type="checkbox" data-fsc="inpool"${fg.inpool?' checked':''}><span>プールの中まで続ける</span></label>`:''}<label class="cedck"><input type="checkbox" data-fsc="rail"${fg.rail?' checked':''}><span>手すり</span></label></div>${shList().length?`<small translate="no">${esc(shList().map(x=>x.t).join(' ／ '))}</small>`:''}</td><td>${mk('ok','回答')}<small>イメージ図</small></td></tr>`:'';
+  const shRow=fg&&fg.k==='slope'?`<tr><th>図で決めた形</th><td><div class="fssz">${fsel('fss','ost',fg.ost,'外側')}${fg.pool?`<label class="cedck"><input type="checkbox" data-fsc="inpool"${fg.inpool?' checked':''}><span>プールの中まで続ける</span></label>${fg.inpool?fsel('fss','ist',fg.ist,'プールの中'):''}`:''}<label class="cedck"><input type="checkbox" data-fsc="rail"${fg.rail?' checked':''}><span>手すり</span></label></div>${shList().length?`<small translate="no">${esc(shList().map(x=>x.t).join(' ／ '))}</small>`:''}</td><td>${mk('ok','回答')}<small>イメージ図</small></td></tr>`:'';
   const row=i=>{const v=F.V[i.k];const lv=v?v.lv:'要確認';const lw=i.k==='reg'&&v?fsLaws(v.v):[];return `<tr><th>${esc(i.t)}${i.req?'<span class="fsreq">*</span>':''}${i.q&&i.ch&&fa[i.k]?` <button type="button" class="fsfix" data-fx="${esc(i.k)}">直す</button>`:''}</th><td>${i.k==='size'&&szEd?szEd+(lv==='仮'?'<small>仮：似た製品の目安。数字を直すと図も変わります</small>':''):v&&v.v?(lv==='仮'?'<span>仮：</span>':'')+`<span translate="no">${esc(v.v)}</span>`:'<span>要確認</span>'}</td><td>${mk(FS_LV[lv]||'unk',lv)}${v&&v.src?`<small translate="no">${esc(v.src)}</small>`:''}${lw.length?`<small>条文（e-Gov法令検索）：${lw.map(l=>`<a href="${l.url}" target="_blank" rel="noopener" translate="no">${esc(l.n)}</a>`).join('、')}</small>`:''}</td></tr>`};
   const draft=F.mode==='design'&&F.c&&F.c.fig?`<div class="fsdraft"><h4>設計の下書き</h4><p class="muted">KATACHIが作る下書きです。単純な形なら3Dプリントの試作に出せます。回路・基板・強度・防水・金型は、設計者が仕上げる前提です。</p><div class="fsbtns"><button type="button" class="btn sm" id="fsStl">製品イメージ案の3Dデータ（STL）を保存</button><button type="button" class="btn sm" id="fsSvg">寸法図（SVG）を保存</button></div></div>`:'';
   return `<section class="ccard fspec" id="mFspec"><div class="chd"><h2>工場向け仕様書</h2>${F.c&&F.c.fig?'<span class="muted" style="font-size:12.5px">上の図と、下の答えから作ります</span>':''}${F.cats.map(k=>`<span class="chip">${esc(k.t)}</span>`).join('')}</div>
@@ -1821,6 +1856,7 @@ function wireFspec(A){const el=$('#mFspec');if(!el)return;const fa=fsAns();
   el.querySelectorAll('[data-fx]').forEach(b=>b.onclick=()=>{S.fsFirst=b.dataset.fx;const k=b.dataset.fx,a=fa[k];if(a&&a.unk)delete fa[k];fsSave();redraw(true)});
 
   el.querySelectorAll('[data-fsz]').forEach(i=>i.onchange=()=>{const v=+i.value;if(!(v>0))return;const log=edApply(A.concept,{[i.dataset.fsz]:r10(v*10)},'仕様書');S.edMsg=log.length?`<p class="cedok">✓ <span>仕様書から</span> <span translate="no">${esc(log.join('、'))}</span></p>`:'';track('shape_edit',{how:'spec',ok:log.length?1:0});edRedraw(A,'[data-fsz="'+i.dataset.fsz+'"]')});
+  el.querySelectorAll('[data-fss]').forEach(i=>i.onchange=()=>{const log=edApply(A.concept,{[i.dataset.fss]:i.value},'仕様書');S.edMsg=log.length?`<p class="cedok">✓ <span>仕様書から</span> <span translate="no">${esc(log.join('、'))}</span></p>`:'';track('shape_edit',{how:'spec_form',ok:1});edRedraw(A,'[data-fss="'+i.dataset.fss+'"]')});
   el.querySelectorAll('[data-fsc]').forEach(i=>i.onchange=()=>{const log=edApply(A.concept,{[i.dataset.fsc]:i.checked},'仕様書');S.edMsg=log.length?`<p class="cedok">✓ <span>仕様書から</span> <span translate="no">${esc(log.join('、'))}</span></p>`:'';track('shape_edit',{how:'spec_toggle',ok:1});edRedraw(A,'[data-fsc="'+i.dataset.fsc+'"]')});
   $('#fsJpp')&&($('#fsJpp').onclick=()=>track('fspec_jplatpat',{}));
   document.querySelectorAll('[data-pq]').forEach(b=>b.onclick=()=>{$('#fsPtIn').value=b.dataset.pq;$('#fsPtGo').click()});
