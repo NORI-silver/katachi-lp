@@ -661,6 +661,8 @@ T.update({k: v for k, v in T_IDEAS.items() if k not in T})
 # 工場向け仕様書（fspec.py の文言、2026-11-14）
 from fspec import T_FSPEC
 T.update({k: v for k, v in T_FSPEC.items() if k not in T})
+from designers import T_DESIGN
+T.update({k: v for k, v in T_DESIGN.items() if k not in T})
 
 # 一社にまとめる案と組み合わせる案の比較、料金・品質・納期の並べ替え（2026-11-13）
 T.update({

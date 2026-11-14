@@ -32,6 +32,9 @@
 | select_plan | チーム案を切り替え | plan | |
 | open_step | 工程を開いた | step_id | |
 | swap_company | 担当会社を入れ替え | step_id, company_level, overseas | |
+| design_type | ③「まず設計」で相談先の種類を変えた | type（fab/prod/elec/id/pattern/free/pub）, rec（★の種類か） | |
+| design_link | ③「まず設計」で探す場所（ココナラ・公設試など）を開いた | type | 届け先の都道府県は送らない |
+| design_site | ③「まず設計」で会社の公式サイトを開いた | なし | 社名は送らない |
 | select_tab | 表で比べる/作り方 | tab | |
 | demo_toggle | 見積後の画面の切替 | on | |
 | view_partners | 会社の詳細を開いた | company_level, overseas | |
