@@ -958,3 +958,27 @@ T.update({
 "設計・試作・量産・認証までを1社でまとめて受ける会社（ODM）があります。窓口が1つで、完成品の品質の責任もその会社が持ちます。": ("can be handled by one company (ODM) covering design, prototyping, mass production and certification. You deal with one contact, and that company is responsible for the finished product's quality.", "有一家公司（ODM）可一并承接设计、试制、量产和认证。只需一个窗口，成品质量也由该公司负责。"),
 "試作の数・量産の数・費用は、見積の依頼で確かめます。自社でできない部分の手配まで頼めるかも、あわせて確かめます。": ("Prototype and production quantities and costs are confirmed in the quote request, along with whether they can arrange the parts they don't make themselves.", "试制数量、量产数量和费用会在询价时确认，同时确认能否代为安排其自身无法完成的部分。"),
 })
+
+# 一社か組み合わせかのおすすめルール・窓口・確かめる質問（2026-11-14）
+T['体や置く場所に合わせて、採寸・試着・調整をする物です。採寸から調整・修理まで同じ会社に頼むと、合わないときの直しもその会社に頼めます。'] = ("This is fitted to a body or a place, with measuring, trying on and adjusting. If one company handles everything from measuring to adjusting and repairs, you can ask that same company to fix it when it doesn't fit.", '这是需要按身体或摆放位置测量、试穿、调整的物品。从测量到调整、维修都交给同一家公司，不合适时也能找这家公司修改。')
+T['中身と容器の相性（漏れ・変色など）を確かめる必要がある物です。中身から詰めるまでを1社に頼むと、品質の責任が一か所にまとまります。'] = ('The contents and the container must be checked together (leaks, discolouration, etc.). If one company handles everything from the contents to filling, responsibility for quality sits in one place.', '需要确认内容物与容器的相容性（渗漏、变色等）。从内容物到灌装交给一家公司，质量责任就集中在一处。')
+T['まだ試作の段階で、図面がありません。試作は何度か直すので、まず1社で形を固めるほうが早く済みます。形が決まったら、量産では工程ごとに分けて安くできます。'] = ('It is still at the prototype stage and has no drawings. Prototypes are revised several times, so settling the shape with one company first is faster. Once the shape is fixed, mass production can be split by process to lower the cost.', '目前还处于试制阶段，没有图纸。试制要修改好几次，先由一家公司把形状定下来会更快。形状确定后，量产时可按工序分开以降低成本。')
+T['形と寸法が決まっているので、工程ごとに得意な会社に分けられます。最後に組み立てる「取りまとめ役」の会社が窓口になり、完成品の品質を確かめます。'] = ('The shape and dimensions are fixed, so the work can be split among companies that are good at each process. The coordinating company that does the final assembly is your contact and checks the quality of the finished product.', '形状和尺寸已确定，可以按工序分给各自擅长的公司。负责最后组装的“总负责方”公司作为窗口，确认成品质量。')
+T['すべての工程を受けられる会社は一覧にないため、いちばん多くの工程を受けられる会社を窓口にし、足りない工程は別の会社で補います。'] = ('No listed company covers every process, so the company that covers the most becomes the contact and other companies fill the gaps.', '列表中没有能承接所有工序的公司，因此由承接工序最多的公司作为窗口，其余工序由其他公司补充。')
+T['ただ、この物を通して受けられる会社が一覧にないため、工程ごとの案を出しています。1社で受けられる会社は、担当者が探します。'] = ('However, no listed company can take it on from start to finish, so this is a plan split by process. Our staff will look for a company that can take on all of it.', '不过，列表中没有能一条龙承接的公司，因此给出按工序分开的方案。能由一家公司承接的公司，将由负责人寻找。')
+T['手元にある資料はどれですか'] = ('What do you have on hand?', '手头有哪些资料？')
+T['図面・3Dデータがある'] = ('Drawings or 3D data', '有图纸、3D数据')
+T['写真・スケッチ・現物だけ'] = ('Only photos, sketches or a sample', '只有照片、草图或实物')
+T['おすすめを確かめる質問'] = ('Questions to check the recommendation', '确认推荐的问题')
+T['答えると、一社か組み合わせかのおすすめが変わることがあります。つくる数は、下の「つくる数」で変えられます。'] = ('Your answers may change whether one company or a combination is recommended. You can change the quantity under "Quantity" below.', '回答后，推荐“一家公司”还是“组合”可能会改变。数量可在下方“制作数量”中更改。')
+T['窓口'] = ('Contact', '窗口')
+T['（この会社が完成まで受け持ちます。部品や一部の加工は、この会社が外から手配することがあります）'] = ('(This company takes it through to completion. It may source some parts or processing from other companies.)', '（这家公司负责到完成。部分零部件或加工可能由该公司向外部采购。）')
+T['（取りまとめ役：最後に組み立てて、完成品の品質を確かめます）'] = ('(Coordinator: does the final assembly and checks the quality of the finished product)', '（总负责方：负责最后组装，并确认成品质量）')
+T['KATACHIの担当者'] = ('KATACHI staff', 'KATACHI负责人')
+T['（取りまとめ役の会社を探して、会社同士の受け渡しを決めます）'] = ('(We find a coordinating company and arrange hand-offs between companies)', '（寻找总负责方公司，并安排公司之间的交接）')
+T['（設計から完成まで受け持ちます。部品や一部の加工は、この会社が外から手配することがあります）'] = ('(Handles everything from design to completion. It may source some parts or processing from other companies.)', '（从设计到完成全部负责。部分零部件或加工可能由该公司向外部采购。）')
+T['もう一方の案と比べて選ぶ'] = ('Compare with the other plan and choose', '与另一方案比较并选择')
+T['★の一社案のほかに、工程ごとに組み合わせる案も選べます。両方に見積を取ると、価格と納期の差が分かります。'] = ('Besides the ★ one-company plan, you can choose a plan combining companies by process. Getting quotes for both shows the differences in price and lead time.', '除了★的一家公司方案，也可以选择按工序组合的方案。两者都询价，就能看出价格和交期的差异。')
+T['★の組み合わせ案のほかに、一社にまとめる案も選べます。両方に見積を取ると、価格と納期の差が分かります。'] = ('Besides the ★ combination plan, you can choose a one-company plan. Getting quotes for both shows the differences in price and lead time.', '除了★的组合方案，也可以选择交给一家公司的方案。两者都询价，就能看出价格和交期的差异。')
+T['1社が完成まで受け持つ'] = ('One company takes it to completion', '由一家公司负责到完成')
+T['工程ごとに得意な会社に分ける'] = ('Split among companies good at each process', '按工序分给擅长的公司')
