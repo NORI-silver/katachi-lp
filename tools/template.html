@@ -765,7 +765,7 @@ body.m2 .gh1{font-size:18px;line-height:1.5}
 .cedf>summary{font-weight:600}
 .sheet.qkon .rflead,.sheet.qkon #readyBox{display:none}.qk{display:grid;gap:14px}.qkwho{display:grid;gap:8px}.qkl{font-size:13.5px;display:flex;gap:6px;align-items:center}.qkopts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .qkopt{min-height:48px;border-radius:12px;border:1px solid var(--line2);background:#fff;font-size:14px;padding:6px 10px}.qkopt[aria-pressed="true"]{border-color:var(--ice);box-shadow:inset 0 0 0 1px var(--ice);background:var(--hover);font-weight:600}
-.qkwho.bad .qkopt{border-color:#d33}.mback{margin:0 0 10px}.toimg{margin:14px 0 0;display:flex;gap:8px;align-items:baseline;font-size:13.5px}.toimg small{color:var(--mute)}.dsalso{margin:0 0 12px}
+.qkwho.bad .qkopt{border-color:#d33}.mback{margin:0 0 10px}.toimg{margin:14px 0 0;display:flex;gap:8px;align-items:baseline;font-size:13.5px}.toimg small{color:var(--mute)}.dsto{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:0 0 14px}.dsto button{display:grid;gap:2px;min-height:56px;padding:8px 6px;border-radius:12px;border:1px solid var(--line2);background:#fff;text-align:center}.dsto button b{font-size:14px}.dsto button small{font-size:11.5px;color:var(--mute)}.dsto button[aria-pressed="true"]{border-color:var(--ice);box-shadow:inset 0 0 0 1px var(--ice);background:var(--hover)}
 .wzatt{display:grid;gap:10px;border:1px solid var(--line2);border-radius:14px;padding:14px;background:#fff}.wzatt h4{margin:0;font-size:15px}
 .wzfig{max-height:180px;overflow:hidden;border-radius:10px;background:var(--bg2);display:grid;place-items:center}.wzfig svg{max-width:100%;max-height:176px;height:auto}
 .sheet.wzon #rf label.chk{display:flex!important;flex-direction:row!important;align-items:center}.sheet.wzon #rf button[type=submit]{width:100%}
@@ -2360,7 +2360,7 @@ async function renderPick(){
     ${!all.length?`<div class="empty"><b>条件に合う会社が見つかりませんでした</b>地域・「試作に対応」・料金や品質の絞り込みを外すか、このまま依頼してください。担当者が探してお声がけします。</div>`:''}
     <p class="muted" style="font-size:12.5px;margin-top:24px">一覧は公開情報から集めたものです。「要確認」の会社は、見積の依頼で対応できるかを確かめます。順番は、選んだ加工への対応・確認の度合い・数量への合い方で決めています。</p>
   </div></section>`;
-  const dock=()=>{$('#dock').innerHTML=`<div class="dock gut"><div class="wrap"><div class="gdl"><b>${S.gsel.length?`${S.gsel.length}社 · 選択中`:'会社選びは担当者に任せる'}</b><small translate="${S.gsel.length?'no':'yes'}">${S.gsel.length?S.gsel.map(esc).join('、'):'候補から合いそうな会社を選んで打診します'}</small></div><span class="sp"></span><button class="btn pri" id="gRfq">${S.src==='text'&&location.hash==='#co'&&S.dsOn&&!S.dsAlso&&S.gsel.length?'相談を送る':'見積を依頼する'}</button></div></div>`;$('#gRfq').onclick=gRfq};dock();
+  const dock=()=>{$('#dock').innerHTML=`<div class="dock gut"><div class="wrap"><div class="gdl"><b>${S.gsel.length?`${S.gsel.length}社 · 選択中`:'会社選びは担当者に任せる'}</b><small translate="${S.gsel.length?'no':'yes'}">${S.gsel.length?S.gsel.map(esc).join('、'):'候補から合いそうな会社を選んで打診します'}</small></div><span class="sp"></span><button class="btn pri" id="gRfq">${S.src==='text'&&location.hash==='#co'&&S.dsOn&&(S.dsTo||'ds')==='ds'&&S.gsel.length?'相談を送る':'見積を依頼する'}</button></div></div>`;$('#gRfq').onclick=gRfq};dock();
   $('#gEdit').onclick=()=>{S.mode='guided';S.g.step=1;location.hash=''};
   $('#gArea').value=S.gf.area;$('#gArea').onchange=e=>{S.gf.area=e.target.value;S.gshow=20;track('filter_company',{filter:'area',source:'guided'});renderPick()};
   $('#gProto').onchange=e=>{S.gf.proto=e.target.checked;S.gshow=20;track('filter_company',{filter:'proto',source:'guided'});renderPick()};
@@ -2565,7 +2565,7 @@ function coCard(r,chipCodes){const[n,ct,pref,city,web,caps,proto,nodraw,ml,mat,l
 function bindPicks(rerender){
   $$('[data-pick]').forEach(b=>b.onchange=()=>{const n=b.dataset.pick;S.autoPick=false;if(S.planPick){S.planPick='';$$('[data-plan-pick]').forEach(x=>{x.setAttribute('aria-pressed','false');x.classList.remove('pri')});$$('.pcard.on').forEach(x=>x.classList.remove('on'))}if(b.checked){if(S.gsel.length>=8){b.checked=false;return}S.gsel.push(n);S.gstep[n]=b.closest('[data-step]')?.dataset.step||S.gstep[n]}else S.gsel=S.gsel.filter(x=>x!==n);
     b.closest('.gco').classList.toggle('on',b.checked);track('select_company',{source:S.src,selected:S.gsel.length});pickDock()})}
-function pickDock(){$('#dock').innerHTML=`<div class="dock gut"><div class="wrap"><div class="gdl"><b>${S.gsel.length?`${S.src==='text'&&S.dsOn&&!S.dsAlso&&location.hash==='#co'?'設計の相談先 · ':S.planPick?PLAN_L[S.planPick]+' · ':''}${S.gsel.length}社 · 選択中`:'会社選びは担当者に任せる'}</b><small translate="${S.gsel.length?'no':'yes'}">${S.gsel.length?S.gsel.map(esc).join('、'):'候補から合いそうな会社を選んで打診します'}</small></div><span class="sp"></span><button class="btn pri" id="gRfq">${S.src==='text'&&location.hash==='#co'&&S.dsOn&&!S.dsAlso&&S.gsel.length?'相談を送る':'見積を依頼する'}</button></div></div>`;$('#gRfq').onclick=gRfq}
+function pickDock(){$('#dock').innerHTML=`<div class="dock gut"><div class="wrap"><div class="gdl"><b>${S.gsel.length?`${S.src==='text'&&S.dsOn&&(S.dsTo||'ds')==='ds'&&location.hash==='#co'?'設計の相談先 · ':S.planPick?PLAN_L[S.planPick]+' · ':''}${S.gsel.length}社 · 選択中`:'会社選びは担当者に任せる'}</b><small translate="${S.gsel.length?'no':'yes'}">${S.gsel.length?S.gsel.map(esc).join('、'):'候補から合いそうな会社を選んで打診します'}</small></div><span class="sp"></span><button class="btn pri" id="gRfq">${S.src==='text'&&location.hash==='#co'&&S.dsOn&&(S.dsTo||'ds')==='ds'&&S.gsel.length?'相談を送る':'見積を依頼する'}</button></div></div>`;$('#gRfq').onclick=gRfq}
 /* ---------- 料金・品質・納期で比べる（見積の前の目安） ----------
    点数や星は出さない。掲載情報・国の公開データ（gBizINFO）・所在地から分かる事実だけを、出典つきで並べる。
    材料は data/companies.json の列14（tools/company_signals.py）。根拠がない軸は「見積で確認」。並べ替えの点数は画面に出さない。 */
@@ -2723,13 +2723,15 @@ async function renderMatch(){
     const multi=secsP.length>=2;
     const recH=A.codes.length?(MKv?makerBox(MK):recBox(R3,secsP,qmax)+(multi&&R3&&R3.P?planCmp(R3):'')+(MK?`<p class="mkback"><button type="button" class="glink" data-mkon>完成品のメーカーに1社で頼む案に戻る</button></p>`:'')):'';
     const dsH=DS?dsBox(DS):'';
-    /* 設計が要る内容は「設計の相談先」だけを送り先にする（作る工場は畳んだ一覧から、選んだときだけ一緒に送る） */
-    S.recSel=[...S.gsel];/* 精度テスト（match_eval）は、畳んだ工場の★も含めた候補を採点する */
-    if(DS&&S.autoPick!==false&&!S.dsAlso){const d=S.gsel.find(n=>/設計/.test(S.gstep[n]||''));if(d)S.gsel=[d]}
+    /* 設計が要る内容は、送り先を「設計の相談先／作る工場／両方」から選ぶ（Nori 2026-11-15「選択できる方がいいね」）。最初は設計の相談先 */
+    S.recSel=[...S.gsel];/* 精度テスト（match_eval）は、工場の★も含めた候補を採点する */
+    const dsTo=DS?(S.dsTo||'ds'):'';
+    if(DS&&S.autoPick!==false){const isD=n=>S.gstep[n]==='設計（図面・3Dデータ）';if(dsTo==='ds'){const d=S.gsel.find(n=>/設計/.test(S.gstep[n]||''));if(d)S.gsel=[d]}else if(dsTo==='mk')S.gsel=S.gsel.filter(n=>!isD(n))}
+    const toBar=DS?`<div class="dsto" role="group" aria-label="送り先">${[['ds','設計の相談先','図面から作ってもらう'],['mk','作る工場','見積をもらう'],['both','両方','まとめて送る']].map(([k,t,d])=>`<button type="button" data-dsto="${k}" aria-pressed="${dsTo===k}"><b>${t}</b><small>${d}</small></button>`).join('')}</div>`:'';
     const imgL=A.concept?`<p class="toimg"><button type="button" class="glink" data-toimg>製品イメージ案（3D・寸法図）を見る・直す</button><small>任意</small></p>`:'';
     body=`${stepBar(2)}${head}${blocked?notices+blockedNext(A):''}
-    ${A.codes.length?`${S.dsFirst&&!DS?(MKv?'<p class="dsnone"><b>この品は、専門のメーカーが設計から作ります</b><span>図面だけを先に頼む必要はありません。下のメーカーに、そのまま相談してください。</span></p>':'<p class="dsnone"><b>この品は、作る会社が配合・処方から考えます</b><span>図面だけを先に頼む必要はありません。下のおすすめの会社に、そのまま相談してください。</span></p>'):''}<h2 class="stepnow">${DS?'設計の相談先':MKv?'見積を頼むメーカー':'見積を頼む工場'}</h2>
-      ${DS?dsH+fold('mkalso','作る工場の候補も見る（任意）',`<label class="chk dsalso"><input type="checkbox" data-dsalso ${S.dsAlso?'checked':''}><span>作る工場にも、同時に見積を頼む</span></label>${recH}`):recH}
+    ${A.codes.length?`${S.dsFirst&&!DS?(MKv?'<p class="dsnone"><b>この品は、専門のメーカーが設計から作ります</b><span>図面だけを先に頼む必要はありません。下のメーカーに、そのまま相談してください。</span></p>':'<p class="dsnone"><b>この品は、作る会社が配合・処方から考えます</b><span>図面だけを先に頼む必要はありません。下のおすすめの会社に、そのまま相談してください。</span></p>'):''}<h2 class="stepnow">${DS?'送り先を選ぶ':MKv?'見積を頼むメーカー':'見積を頼む工場'}</h2>
+      ${toBar}${DS?(dsTo==='mk'?recH:dsTo==='both'?dsH+recH:dsH):recH}
       ${qBar()}${imgL}`
     :blocked?'':`<div class="empty" style="margin-top:16px"><b>文章から工程を読み取れませんでした</b>このまま見積を依頼すれば、担当者が内容を読んで工程と会社を探します。型が決まっているもの（部品・ノベルティ・袋物など）なら「選んで探す」が早いです。<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn" id="mGuided">選んで探す</button></div></div>${(()=>{const ts=textSearch(S.idea);return ts.length?`<section class="mstep" data-step="文章に近い会社"><div class="mhead"><span class="mono mno">?</span><h2>文章の言葉が会社の説明に出てくる会社</h2><span class="muted">${fmt(ts.length)}社</span></div><p class="muted" style="margin:0 0 12px;font-size:13px">工程は読み取れませんでしたが、書いた言葉が社名や説明に含まれる会社です。参考にしてください。</p><ol class="glist">${ts.slice(0,10).map(r=>coCard(r,[])).join('')}</ol></section>`:''})()}`}`;
   }
@@ -2749,7 +2751,7 @@ async function renderMatch(){
     $$('[data-mkon]').forEach(b=>b.onclick=()=>{S.mkView='';S.autoPick=true;track('choose_plan',{plan:'maker'});renderMatch().then(()=>{const d=$('#mPlans');d&&d.scrollIntoView({block:'start'});window.scrollBy(0,-80)})});
     $$('details.alts').forEach(d=>d.ontoggle=()=>{S.folds['pc_'+d.dataset.pc]=d.open;if(d.open)track('fold_open',{fold:'compare'})});
     bindRlAsk();
-    $$('[data-dsalso]').forEach(b=>b.onchange=()=>{S.dsAlso=b.checked;S.autoPick=true;track('design_also_factory',{on:b.checked?1:0});const y=b.getBoundingClientRect().top;renderMatch().then(()=>{const d=$('[data-dsalso]');if(d)window.scrollBy(0,d.getBoundingClientRect().top-y)})});
+    $$('[data-dsto]').forEach(b=>b.onclick=()=>{S.dsTo=b.dataset.dsto;S.autoPick=true;track('design_send_to',{to:S.dsTo});const y=b.getBoundingClientRect().top;renderMatch().then(()=>{const d=$('[data-dsto]');if(d)window.scrollBy(0,d.getBoundingClientRect().top-y)})});
     $$('[data-toimg]').forEach(b=>b.onclick=()=>{track('open_image',{});location.hash='match'});
     /* 設計の相談先：種類を変える・会社を変える。探す場所のリンクは押したことだけ記録する（中身は送らない） */
     const dsKeep=sel=>{const el=$(sel);const y=el?el.getBoundingClientRect().top:0;renderMatch().then(()=>{const d=$(sel);if(d)window.scrollBy(0,d.getBoundingClientRect().top-y)})};
@@ -3621,7 +3623,7 @@ function rfq(names){
   const G=S.scen==='guided';
   const roles=n=>G?(S.src==='guided'?(S.g.proc&&S.g.proc!==OMAKASE?S.g.proc:gCat()?.t||''):(S.gstep[n]==='まとめて依頼'?'まとめて（'+(S.anal?.codes||[]).map(c=>CAPN[c]||c).join('、')+'）':(S.gstep[n]||''))):Object.entries(S.assign).filter(([,v])=>v===n).map(([k])=>r.per_requirement.find(p=>p.requirement.id===k)?.requirement.purpose).filter(Boolean).join('、');
   const QK=S.src==='text';
-  sheet(`${head('Request for quote',QK&&S.dsOn&&!S.dsAlso&&names.length?'相談を送る':'見積を依頼する')}${QK?stepBar(2)+'<p class="muted qklead" style="margin:0;font-size:13.5px">連絡先を入れて送るだけです。ほかの点は、相手の会社や担当者から確かめます。</p>':''}
+  sheet(`${head('Request for quote',QK&&S.dsOn&&(S.dsTo||'ds')==='ds'&&names.length?'相談を送る':'見積を依頼する')}${QK?stepBar(2)+'<p class="muted qklead" style="margin:0;font-size:13.5px">連絡先を入れて送るだけです。ほかの点は、相手の会社や担当者から確かめます。</p>':''}
     <p class="muted rflead" style="margin:0;font-size:13px">必須は、工場が見積を出すのに要る点と連絡先だけです。材料・仕上げは「おまかせ」でも大丈夫です（工場が提案します）。ほかは空けておけば「相談したい」として届きます。</p>
     <p class="muted rflead" style="margin:0;font-size:13px">製品の概要と「AIが補う」の欄は、入力した内容からAIが下書きしています。直してから送れます。</p>
     <form class="form" id="rf" novalidate>
