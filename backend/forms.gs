@@ -1153,7 +1153,8 @@ function offerReply_(p) {
 //    受付の確認メールに「◯社に送る」ボタン（サイトの ?send=鍵）が入り、押すと type:'rfqsend' でその会社に送る（本人のメールの確認と、送る意思の確認を兼ねる）。
 // 3. 工場に送るのは依頼の要点と打診リンク（/reply/）だけ。依頼者の名前・メール・電話・会社名・納品先は送らない（offerSummary_ と同じ）。
 //    送った記録は「メール送信」タブと「工場への打診」タブに入り、運営者に控えが届く。工場が配信停止を押すと、その会社には以後送らない。
-// 4. 特定電子メール法の表示のため、スクリプトのプロパティ SENDER_NAME（送信者の氏名・名称）と SENDER_ADDRESS（住所）が無いと送らない（サイトにも出さない）。
+// 4. 特定電子メール法の表示のため、送信者として依頼者のお名前（屋号可）と住所を必須で入れてもらい、メールの末尾に載せる（Nori 2026-11-15「じゃあそれは必須項目にしよう」）。
+//    KATACHI は取り次ぎとして名前と運営者情報のページを載せる。依頼者のメール・電話・納品先は送らない。
 //    止めたいときは MAIL_SEND を off にする。Gmail の1日の送信数（無料のアカウントは100通）を超えないよう、残りが少ないときは送らない。
 var MAIL_HEAD = ['会社名', '都道府県', '公式サイト', 'メール', '見つけたページ', '状態', '確認日', 'メモ'];
 var MAIL_OK = '送れる';
@@ -1326,7 +1327,15 @@ function collectMail() {
 }
 
 // 送信者の表示（特定電子メール法）が入っていて、止めていないときだけ送る
-function mailOn_() { return !!(prop_('SENDER_NAME') && prop_('SENDER_ADDRESS')) && prop_('MAIL_SEND') !== 'off'; }
+function mailOn_() { return prop_('MAIL_SEND') !== 'off'; }
+// 送信者（依頼者）のお名前と住所。どちらも無ければ送らない
+function mailSender_(p) {
+  var x = p && p.mail_sender || {}, cl = function (v, n) { return String(v == null ? '' : v).replace(/[\u0000-\u001f]/g, ' ').trim().slice(0, n); };
+  var o = {name: cl(x.name, 80), addr: cl(x.addr, 160)};
+  return o.name.length >= 2 && o.addr.length >= 6 ? o : null;
+}
+function senderMemo_(o) { return '送信者: ' + o.name + '｜住所: ' + o.addr; }
+function senderOf_(memo) { var m = String(memo || '').match(/送信者: (.*?)｜住所: (.*)$/); return m ? {name: m[1], addr: m[2]} : null; }
 
 // 会社名 → {row, email, state, page}
 function mailMap_() {
@@ -1349,6 +1358,8 @@ function mailable_(p) {
 // 見積の依頼を受けたとき: メールで届ける会社を「メール送信」タブに「依頼者の確認待ち」で入れ、確認の鍵を返す
 function mailPrepare_(id, p, email) {
   if (!mailOn_()) return null;
+  var snd = mailSender_(p);
+  if (!snd) return null;
   var team = {}; (p.team || []).forEach(function (t) { if (t && t.company && (!t.country || t.country === 'JP')) team[String(t.company)] = 1; });
   var map = mailMap_(), names = [];
   [].concat(p.mail || []).forEach(function (n) { n = String(n); if (team[n] && mailUsable_(map[n]) && names.indexOf(n) < 0) names.push(n); });
@@ -1356,12 +1367,13 @@ function mailPrepare_(id, p, email) {
   if (!names.length) return null;
   if (!limit_('mr' + Utilities.base64EncodeWebSafe(Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, email.toLowerCase())).slice(0, 12), MAIL_CFG.PER_REQUESTER_DAY)) return {names: [], over: true};
   var key = offerKey_(), now = new Date(), sh = sendTab_();
-  sh.getRange(sh.getLastRow() + 1, 1, names.length, SEND_HEAD.length).setValues(names.map(function (n) { return [id, n, map[n].email, '依頼者の確認待ち', key, now, '', '', ''].map(safe_); }));
-  return {key: key, names: names, url: CONFIG.SITE_URL + '?send=' + key, preview: factoryMail_(id, names[0], OFFER_URL + '（会社ごとのリンク）', CONFIG.SITE_URL + 'reply/?k=…&stop=1', map[names[0]].page).body};
+  sh.getRange(sh.getLastRow() + 1, 1, names.length, SEND_HEAD.length).setValues(names.map(function (n) { return [id, n, map[n].email, '依頼者の確認待ち', key, now, '', '', senderMemo_(snd)].map(safe_); }));
+  return {key: key, names: names, url: CONFIG.SITE_URL + '?send=' + key, preview: factoryMail_(id, names[0], OFFER_URL + '（会社ごとのリンク）', CONFIG.SITE_URL + 'reply/?k=…&stop=1', map[names[0]].page, snd).body};
 }
 
 // 工場に届くメール（日本の会社だけに送るので日本語）
-function factoryMail_(id, company, link, stop, page) {
+function factoryMail_(id, company, link, stop, page, snd) {
+  snd = snd || {name: '', addr: ''};
   var q = offerSummary_(id), L = [];
   var add = function (k, v, n) { v = String(v || '').trim(); if (v) L.push(k + ': ' + clip_(v, n || 300)); };
   add('製品の概要', q.summary, 600); add('段階と数量', q.qty); add('希望の時期', q.due);
@@ -1385,12 +1397,12 @@ function factoryMail_(id, company, link, stop, page) {
     '■ お返事のお願い',
     'お受けできそうか、下のページで「受ける・質問する・断る」をお選びください（1分ほど・登録は不要です）。',
     link, 'このメールへの返信でもかまいません。', '',
-    '・依頼者のお名前とご連絡先は、受けていただけると決まってから KATACHI がお伝えします。',
+    '・依頼者のメールアドレス・電話番号は、受けていただけると決まってから KATACHI がお伝えします。',
     '・まだ発注は決まっていません。見積をご覧になってから、依頼者が依頼先を決めます。', '',
     '――――――――――',
     'このメールは、貴社のウェブサイトに掲載されているメールアドレス宛てに、KATACHI の利用者の依頼を取り次いでお送りしています。' + (page ? '\n（掲載ページ: ' + page + '）' : ''),
     '今後 KATACHI からの依頼のメールが不要な場合は、こちらからお知らせください。以後はお送りしません。', stop, '',
-    '送信者: ' + (prop_('SENDER_NAME') || '') + '（KATACHI）', '住所: ' + (prop_('SENDER_ADDRESS') || ''), 'お問い合わせ: このメールにご返信ください', CONFIG.SITE_URL].join('\n');
+    '送信者（依頼者）: ' + snd.name, '住所: ' + snd.addr, '取り次ぎ: KATACHI（運営者の情報 ' + CONFIG.SITE_URL + 'privacy/#operator ）', 'お問い合わせ: このメールにご返信ください'].join('\n');
   return {subject: '【KATACHI】見積のご相談' + (sum ? '：' + sum : '') + '（受付番号 ' + id + '）', body: body};
 }
 
@@ -1417,14 +1429,15 @@ function rfqSend_(p) {
     var map = mailMap_(), sent = [], skipped = [], now = new Date(), copy = [];
     wait.forEach(function (x) {
       var name = String(x.r[1]), m = map[name], why = '';
-      if (!mailUsable_(m)) why = '送れない：' + (m ? m.state : '工場のメールに無い');
+      if (!senderOf_(x.r[8])) why = '送れない：送信者の名前・住所が無い';
+      else if (!mailUsable_(m)) why = '送れない：' + (m ? m.state : '工場のメールに無い');
       else if (m.email !== String(x.r[2])) why = '送れない：アドレスが変わった';
       else if (MailApp.getRemainingDailyQuota() <= MAIL_CFG.RESERVE) why = '送れない：今日のメールの上限';
       else if (!limit_('md', MAIL_CFG.DAILY)) why = '送れない：今日の工場へのメールの上限';
       else if (!limit_('mc' + Utilities.base64EncodeWebSafe(Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, name)).slice(0, 12), MAIL_CFG.PER_COMPANY_DAY)) why = '送れない：この会社に今日は送った';
       if (why) { sh.getRange(x.i, 4).setValue(why); skipped.push(name); return; }
       var link = offerEnsure_(id, name, ''), kk = link.split('k=')[1];
-      var mail = factoryMail_(id, name, link, CONFIG.SITE_URL + 'reply/?k=' + kk + '&stop=1', m.page);
+      var mail = factoryMail_(id, name, link, CONFIG.SITE_URL + 'reply/?k=' + kk + '&stop=1', m.page, senderOf_(x.r[8]));
       try {
         MailApp.sendEmail({to: m.email, subject: mail.subject, body: mail.body, name: CONFIG.SERVICE_NAME});
         sh.getRange(x.i, 4, 1, 5).setValues([['送信済み', k, x.r[5], now, link]]);

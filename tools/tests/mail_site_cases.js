@@ -28,13 +28,18 @@ const [base='http://localhost:8765/',shots]=process.argv.slice(2);
     f.querySelectorAll('select').forEach(s=>{if(!s.value&&s.options.length>1)s.selectedIndex=1});
     ['f-sum','f-qty','f-size','f-due'].forEach(id=>{const e=document.getElementById(id);if(e&&!e.value)e.value='テスト 100個'});
     document.getElementById('f-mail').value='a@example.com';document.getElementById('f-name')&&(document.getElementById('f-name').value='山田');document.getElementById('f-agree').checked=true});
+  // 住所が無いと送れない
+  await p.evaluate(()=>document.querySelector('#rf').requestSubmit());await p.waitForTimeout(400);
+  ok('送る人の住所が無いと止まる',!posts.some(x=>x.type==='rfq')&&/住所/.test(await p.$eval('#rfErr',x=>x.textContent)));
+  await p.fill('#f-sname','テスト商店');await p.fill('#f-saddr','東京都千代田区');
   await p.evaluate(()=>{const d=document.querySelector('#mlPrev');d.open=true;d.dispatchEvent(new Event('toggle'))});await p.waitForTimeout(200);
   const prev=await p.$eval('#mlPrev .trbox',x=>x.textContent);
+  ok('見本の末尾に送る人の名前と住所',/送信者（依頼者）: テスト商店\n住所: 東京都千代田区/.test(prev),prev.slice(-120));
   ok('会社に届くメールの見本：要点あり、名前・メールなし',/ご担当者さま/.test(prev)&&/依頼の要点/.test(prev)&&!/a@example\.com|山田/.test(prev),prev.slice(0,200));
   if(shots){await p.$eval('#mlBox',x=>x.scrollIntoView());await p.waitForTimeout(200);await p.screenshot({path:path.join(shots,'mail_rfq.png')})}
   await p.evaluate(()=>document.querySelector('#rf').requestSubmit());await p.waitForTimeout(2500);
   const rq=posts.find(x=>x.type==='rfq');
-  ok('依頼に mail（国内の会社名）が入る',rq&&JSON.stringify(rq.mail)===JSON.stringify([q.names[0]]),rq&&{mail:rq.mail,err:await p.$eval('#rfErr',x=>x.textContent).catch(()=>'')});
+  ok('依頼に mail（国内の会社名）と送る人が入る',rq&&JSON.stringify(rq.mail)===JSON.stringify([q.names[0]])&&rq.mail_sender&&rq.mail_sender.addr==='東京都千代田区',rq&&{mail:rq.mail,err:await p.$eval('#rfErr',x=>x.textContent).catch(()=>'')});
   ok('受付の画面に「確認メールの…を押す」',/メールで送る」を押す/.test(await p.$eval('#ov',x=>x.textContent).catch(()=>'')));
   // チェックを外すと送らない
   // 確認メールのボタンから開く

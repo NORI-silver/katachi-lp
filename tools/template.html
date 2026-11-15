@@ -3574,13 +3574,14 @@ function rfq(names){
   $('#rf').onsubmit=async e=>{e.preventDefault();
     const K=rfqCoreKeys(),cok=rfqCoreOk();const miss=[['f-sum','製品の概要'],['f-qty','段階と数量'],...(K.mat?[['fs-'+K.mat.k,'材料',cok.mat]]:[]),['f-size','大きさ・形',cok.size],...(K.fin?[['fs-'+K.fin.k,'仕上げ',cok.fin]]:[]),['f-due','希望の時期'],['f-fix','時期の幅'],['f-mail','メールアドレス']].filter(([id,,ok])=>{const el=$('#'+id);if(!el)return false;const bad=!ok&&(el.classList.contains('cks')?!el.querySelector('input:checked'):!el.value.trim()||(id==='f-mail'&&!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(el.value.trim())));el.classList.toggle('bad',bad);return bad});
     if(!$('#f-agree').checked)miss.push(['f-agree','利用規約とプライバシーポリシーへの同意']);
+    if(mailPick(true)){[['f-sname','送る人のお名前',2],['f-saddr','住所',6]].forEach(([id,l,n])=>{const el=$('#'+id),bad=el.value.trim().length<n;el.classList.toggle('bad',bad);if(bad)miss.push([id,l])})}
     if(miss.length){miss.forEach(([id])=>{const d=$('#'+id).closest('details');if(d)d.open=true});$('#rfErr').innerHTML='<span>入力してください</span>: '+miss.map(m=>'<span>'+m[1]+'</span>').join(', ');$('#'+miss[0][0]).focus();track('form_error',{reason:'rfq_required',fields:miss.length});return}
     const all=RFQ(r,qty).flatMap(g=>g[1]).filter(f=>f[3]!=='req');
     const btn=e.submitter||$('#rf button[type=submit]');btn.disabled=true;
     const abroadOk=!!$('#f-abroad-ok')?.checked;
     const team=G?names.map(n=>({step:roles(n),company:n,country:D.companies[n]?.country||'JP'})):Object.entries(S.assign).map(([rid,n])=>({step:R().per_requirement.find(p=>p.requirement.id===rid)?.requirement.purpose||rid,company:n,country:D.companies[n]?.country||'JP'}));
     const ups=await upListD(),upKey=ups.list.length?rkey():'';
-    const ok=await sendForm({type:'rfq',upload:upKey?{key:upKey,count:ups.list.length,bytes:ups.bytes}:undefined,lang:window.KATACHI_LANG?window.KATACHI_LANG():'ja',idea:S.idea||r.idea,matched:S.matched||'',scenario:S.scen,plan:R().teams[S.plan]?.profile||'',steps:G&&S.src==='text'?(S.anal?.codes||[]).map(c=>CAPN[c]||c):undefined,guided:G&&S.src==='guided'?{category:gCat()?.t,process:S.g.proc,material:S.g.mat,quantity:S.g.qty,drawing:S.g.draw,due:S.g.due,region:S.g.reg,caps:gCodes()}:undefined,fields:allVals(r,qty).concat(mediaVals()),team:team.filter(t=>abroadOk||!abroad(D.companies[t.company])),abroad_ok:abroadOk,files:S.files.map(f=>f.name),slot:slotOf(),mail:mailPick(abroadOk),page:location.href.split('#')[0]});
+    const ok=await sendForm({type:'rfq',upload:upKey?{key:upKey,count:ups.list.length,bytes:ups.bytes}:undefined,lang:window.KATACHI_LANG?window.KATACHI_LANG():'ja',idea:S.idea||r.idea,matched:S.matched||'',scenario:S.scen,plan:R().teams[S.plan]?.profile||'',steps:G&&S.src==='text'?(S.anal?.codes||[]).map(c=>CAPN[c]||c):undefined,guided:G&&S.src==='guided'?{category:gCat()?.t,process:S.g.proc,material:S.g.mat,quantity:S.g.qty,drawing:S.g.draw,due:S.g.due,region:S.g.reg,caps:gCodes()}:undefined,fields:allVals(r,qty).concat(mediaVals()),team:team.filter(t=>abroadOk||!abroad(D.companies[t.company])),abroad_ok:abroadOk,files:S.files.map(f=>f.name),slot:slotOf(),mail:mailPick(abroadOk),mail_sender:mailSender(),page:location.href.split('#')[0]});
     btn.disabled=false;if(ok)mineSent(names.map(n=>({n,role:roles(n)})),rfqVals(r,qty));
     track('generate_lead',{type:'rfq',sent:ok,requester:$('#f-who').selectedIndex?'individual':'company',companies:names.length,quantity:S.qty,files:S.files.length,material:$('#f-mat').selectedIndex,optional_filled:rfqVals(r,qty).length,optional_total:all.length,nda:$('#f-nda').selectedIndex,overseas_ok:$('#f-abr').selectedIndex===0});
     const ml=mailPick(abroadOk)||[];if(ok&&ml.length)track('mail_request',{companies:ml.length,of:names.length});
@@ -3634,20 +3635,25 @@ async function mailOffer(names,vals){ML=null;const box=$('#mlBox');if(!box||!FOR
   ML=j.names.slice(0,j.max||10);track('mail_offer',{companies:ML.length,of:names.length});
   ML.forEach(n=>{const li=$(`#rf li[data-co="${CSS.escape(n)}"] .chip`);li&&li.insertAdjacentHTML('beforebegin','<span class="chip hi">メールで届く</span>')});
   box.innerHTML=`<div class="blk"><h4>メールですぐ届ける · ${ML.length}社</h4>
-    <label class="chk"><input type="checkbox" id="f-mailsend" checked><span>公開メールがわかる会社には、KATACHIからすぐメールで届ける<small>${ML.map(esc).join('、')}</small><small>送るのは依頼の要点だけです。お名前・メール・電話は送りません（会社が受けると決まってからお伝えします）。依頼を送ったあとに届く確認メールの「メールで送る」を押すと送られます。</small></span></label>
+    <label class="chk"><input type="checkbox" id="f-mailsend" checked><span>公開メールがわかる会社には、KATACHIからすぐメールで届ける<small>${ML.map(esc).join('、')}</small><small>送るのは依頼の要点と、送る人のお名前・住所です。メール・電話は送りません（会社が受けると決まってからお伝えします）。依頼を送ったあとに届く確認メールの「メールで送る」を押すと送られます。</small></span></label>
+    <div id="mlSnd" style="display:grid;gap:10px"><p class="muted" style="margin:0;font-size:13px">法律（特定電子メール法）で、メールには送る人の名前と住所を書きます。会社に届くメールの末尾に、あなたの名前と住所が載ります。</p>
+      <label for="f-sname"><span>送る人のお名前（会社名・屋号でも可）<span class="req">必須</span></span><input id="f-sname" autocomplete="name"></label>
+      <label for="f-saddr"><span>住所（市区町村まで）<span class="req">必須</span></span><input id="f-saddr" autocomplete="street-address" placeholder="例：東京都千代田区"></label></div>
     <details id="mlPrev"><summary>会社に届くメールを見る</summary><div class="trbox" style="white-space:pre-wrap;font-size:12.5px" translate="no"></div></details></div>`;
   const staff=$('#rfStaff');const upd=()=>{if(staff)staff.innerHTML=$('#f-mailsend').checked?'<b>メールのわかる会社には、確認メールのボタンを押すとすぐ届きます</b>ほかの会社には、KATACHIの担当者が内容を確かめてから打診します。会社の返事はKATACHIからメールでお知らせします。':'<b>送る前に、KATACHIの担当者が内容を確認します</b>伝わりにくい点や技術的に無理のある点がないかを人が見てから届けます。まだKATACHIに参加していない会社には、担当者から個別に打診します。'};
-  upd();$('#f-mailsend').addEventListener('change',e=>{upd();track('mail_toggle',{on:e.target.checked?1:0})});
+  {const o=$('#f-org')?.value.trim(),nm=$('#f-name')?.value.trim();if(o||nm)$('#f-sname').value=o||nm}
+  upd();$('#f-mailsend').addEventListener('change',e=>{upd();$('#mlSnd').hidden=!e.target.checked;track('mail_toggle',{on:e.target.checked?1:0})});
   $('#mlPrev').addEventListener('toggle',e=>{if(!e.target.open)return;track('mail_preview',{});
     e.target.querySelector('.trbox').textContent=mailPreview(ML[0],vals())})}
 function mailPick(abroadOk){return ML&&ML.length&&$('#f-mailsend')?.checked?ML.filter(n=>abroadOk||!abroad(D.companies[n])):undefined}
+function mailSender(){return mailPick(true)?{name:$('#f-sname').value.trim(),addr:$('#f-saddr').value.trim()}:undefined}
 // 会社に届くメールの見本（本物は受付が作る。送る直前の内容は確認メールにも入る）
 const MAIL_OPEN=/おまかせ|わからない|未定/;
 function mailPreview(n,vals){const v=vals.filter(([,x])=>!MAIL_OPEN.test(x)),open=vals.filter(([,x])=>MAIL_OPEN.test(x)).map(([l])=>l);
   return [n+' ご担当者さま','','ものづくりの依頼先を探せるサイト「KATACHI」です。KATACHI で貴社を依頼先に選んだ方から見積のご相談をお預かりしましたので、お届けします。','',
     '■ 依頼の要点',...v.map(([l,x])=>l+': '+String(x).slice(0,300)),...(open.length?['','■ 決まっていない点（ご提案ください）',open.join('、')]:[]),'',
     '■ お返事のお願い','下のページで「受ける・質問する・断る」をお選びください（1分ほど・登録は不要です）。','（返事のページのリンク）','',
-    '・依頼者のお名前とご連絡先は、受けていただけると決まってから KATACHI がお伝えします。','・まだ発注は決まっていません。','','――――――――――','（送信者の表示と、配信停止のリンク）'].join('\n')}
+    '・依頼者のメールアドレス・電話番号は、受けていただけると決まってから KATACHI がお伝えします。','・まだ発注は決まっていません。','','――――――――――','（配信停止のリンク）','送信者（依頼者）: '+($('#f-sname')?.value.trim()||'（お名前）'),'住所: '+($('#f-saddr')?.value.trim()||'（住所）'),'取り次ぎ: KATACHI'].join('\n')}
 // 確認メールの「◯社にメールで送る」から開いたとき
 async function mailSendFromUrl(){let k='';try{k=new URLSearchParams(location.search).get('send')||''}catch(e){}if(!/^[A-Za-z0-9]{24}$/.test(k))return false;
   try{history.replaceState(null,'',location.pathname+location.hash)}catch(e){}

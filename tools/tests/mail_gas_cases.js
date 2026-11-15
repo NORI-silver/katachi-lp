@@ -39,12 +39,12 @@ const sheet=rows=>({rows,getLastRow:()=>rows.length,getLastColumn:()=>rows[0].le
 const other=['用途・使う人: 店頭での販売','材質（記号）: おまかせ（工場の提案で）','納品先: 大阪府大阪市北区1-2-3','写真・動画・図面: logo.png'].join('\n');
 const main=sheet([ctx.HEAD,['K1',new Date(),'見積の依頼','ja','a@example.com','山田商店 / 山田','個人','090-1111-2222','トートを作りたい','トートバッグ 綿 100個','100個','2027年3月まで','縫製: A社','',other,'logo.png','未対応','1件']]);
 ctx.sheet_=()=>main;
-const props={SENDER_NAME:'送信者テスト',SENDER_ADDRESS:'東京都テスト区1-1'};
+const props={};const SND={name:'送信者テスト',addr:'東京都テスト区1-1'};
 ctx.PropertiesService={getScriptProperties:()=>({getProperty:k=>props[k]||null,setProperty:(k,v)=>{props[k]=v}})};
-const fm=ctx.factoryMail_('K1','株式会社テスト縫製','https://katachi.shiokonbu.com/reply/?k=AAA','https://katachi.shiokonbu.com/reply/?k=AAA&stop=1','https://t.jp/contact/');
+const fm=ctx.factoryMail_('K1','株式会社テスト縫製','https://katachi.shiokonbu.com/reply/?k=AAA','https://katachi.shiokonbu.com/reply/?k=AAA&stop=1','https://t.jp/contact/',SND);
 ok('本文に要点と打診リンク',/トートバッグ 綿 100個/.test(fm.body)&&/reply\/\?k=AAA\n/.test(fm.body)&&/用途・使う人: 店頭での販売/.test(fm.body),fm.body);
-ok('依頼者の名前・メール・電話・納品先・ファイル名は入らない',!/example\.com|090|山田|大阪府|logo\.png/.test(fm.body+fm.subject),fm.body);
-ok('送信者の名前・住所・配信停止・掲載ページ（特定電子メール法の表示）',/送信者: 送信者テスト/.test(fm.body)&&/住所: 東京都テスト区1-1/.test(fm.body)&&/stop=1/.test(fm.body)&&/t\.jp\/contact/.test(fm.body));
+ok('依頼者のメール・電話・納品先・ファイル名は入らない',!/example\.com|090|山田|大阪府|logo\.png/.test(fm.body+fm.subject),fm.body);
+ok('送信者の名前・住所・配信停止・掲載ページ（特定電子メール法の表示）',/送信者（依頼者）: 送信者テスト/.test(fm.body)&&/取り次ぎ: KATACHI/.test(fm.body)&&/住所: 東京都テスト区1-1/.test(fm.body)&&/stop=1/.test(fm.body)&&/t\.jp\/contact/.test(fm.body));
 ok('おまかせの項目は「ご提案ください」に',/決まっていない点（ご提案ください）\n材質/.test(fm.body)&&!/材質（記号）: おまかせ/.test(fm.body),fm.body);
 ok('件名に受付番号',/K1/.test(fm.subject)&&/^【KATACHI】見積のご相談/.test(fm.subject),fm.subject);
 const ms={names:['株式会社テスト縫製','B工業'],url:'https://katachi.shiokonbu.com/?send=XYZ',preview:fm.body};
@@ -65,7 +65,8 @@ ctx.Session={getEffectiveUser:()=>({getEmail:()=>'admin@x'})};
 const sent=[];ctx.MailApp={getRemainingDailyQuota:()=>90,sendEmail:o=>sent.push(o)};
 const av=ctx.mailable_({names:['株式会社テスト縫製','B工業','D社']});
 ok('mailable: 送れる会社の名前だけ（アドレスは返さない）',av.on&&JSON.stringify(av.names)==='["株式会社テスト縫製"]'&&!JSON.stringify(av).includes('@'),av);
-const prep=ctx.mailPrepare_('K1',{mail:['株式会社テスト縫製','B工業','C製作所'],team:[{company:'株式会社テスト縫製',country:'JP'},{company:'B工業',country:'JP'}]},'a@example.com');
+const prep=ctx.mailPrepare_('K1',{mail:['株式会社テスト縫製','B工業','C製作所'],team:[{company:'株式会社テスト縫製',country:'JP'},{company:'B工業',country:'JP'}],mail_sender:SND},'a@example.com');
+ok('送信者の名前・住所が無ければ準備しない',ctx.mailPrepare_('K9',{mail:['株式会社テスト縫製'],team:[{company:'株式会社テスト縫製'}],mail_sender:{name:'山',addr:''}},'z@x.jp')===null);
 ok('準備: 依頼の送り先に入っていて送れる会社だけ（C製作所は送り先でない、B工業はお断り）',JSON.stringify(prep.names)==='["株式会社テスト縫製"]'&&tabs['メール送信'].rows.length===2&&tabs['メール送信'].rows[1][3]==='依頼者の確認待ち',prep);
 const k=prep.key;
 const r1=ctx.rfqSend_({k});
@@ -75,15 +76,16 @@ ok('運営者に控え（本文つき）',sent.some(m=>m.to==='admin@x'&&/控え
 const r2=ctx.rfqSend_({k});
 ok('2回押しても送り直さない',r2.ok&&r2.already&&sent.filter(m=>m.to==='info@t.jp').length===1,r2);
 ok('知らない鍵',ctx.rfqSend_({k:'x'.repeat(24)}).error==='key'&&ctx.rfqSend_({k:'../'}).error==='key');
-props.SENDER_ADDRESS='';
-ok('送信者の住所が無ければ止まる',ctx.mailable_({names:['株式会社テスト縫製']}).on===false&&ctx.mailPrepare_('K2',{mail:['株式会社テスト縫製'],team:[{company:'株式会社テスト縫製'}]},'b@x.jp')===null);
-props.SENDER_ADDRESS='東京都テスト区1-1';
+props.MAIL_SEND='off';
+ok('MAIL_SEND=off で止まる',ctx.mailable_({names:['株式会社テスト縫製']}).on===false&&ctx.mailPrepare_('K2',{mail:['株式会社テスト縫製'],team:[{company:'株式会社テスト縫製'}],mail_sender:SND},'b@x.jp')===null);
+delete props.MAIL_SEND;
+ok('送ったメールの末尾に依頼者の名前・住所',sent.some(m=>m.to==='info@t.jp'&&/送信者（依頼者）: 送信者テスト\n住所: 東京都テスト区1-1/.test(m.body)));
 // 配信停止
 const kk=tabs['工場への打診'].rows[1][11];
 const st=ctx.offerReply_({k:kk,answer:'stop'});
 ok('配信停止を押すと、その会社には送らない',st.ok&&tabs['工場のメール'].rows[1][5]==='送らない（配信停止）'&&ctx.mailable_({names:['株式会社テスト縫製']}).names.length===0,st);
 // 確認待ちの間に会社が止めた
-const p2=ctx.mailPrepare_('K3',{mail:['C製作所'],team:[{company:'C製作所',country:'JP'}]},'c@x.jp');
+const p2=ctx.mailPrepare_('K3',{mail:['C製作所'],team:[{company:'C製作所',country:'JP'}],mail_sender:SND},'c@x.jp');
 tabs['工場のメール'].rows[3][5]='送らない（手で止める）';
 const r3=ctx.rfqSend_({k:p2.key});
 ok('確認待ちの間に止めた会社には送らない',r3.ok&&!r3.sent.length&&r3.skipped[0]==='C製作所'&&!sent.some(m=>m.to==='info@c.jp'),r3);
