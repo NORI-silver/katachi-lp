@@ -2399,13 +2399,25 @@ function analyzeText(text){text=specCore(text);
   // 電子機器ではないのに電子系の語を含む言い方（スマホケース等）は、先に取り除いてから読む
   const t=String(text||'').toLowerCase().replace(/スマホ(ケース|スタンド|カバー|ホルダー|リング|ストラップ)|ペット用シャンプー|車のアクセサリー|自転車のパーツ/g,m=>m==='ペット用シャンプー'?'シャンプー':' '+m.replace('スマホ','')+' ').replace(/車(椅子|いす)/g,' 車イス ').replace(/スマート(グラス|ウォッチ|リング|メガネ|眼鏡)/g,(m,k)=>' 装着 デバイス 電子 '+({グラス:'眼鏡',ウォッチ:'腕時計',リング:'指輪'}[k]||'眼鏡')+' ').replace(/ウェアラブル/g,' 装着 デバイス '),C=GDB.caps;
   const leaf=c=>!C.some(o=>o.startsWith(c+'.'));
-  let hit=[];C.forEach((c,i)=>{if(leaf(c)&&GDB.kw[i].some(k=>t.includes(k.toLowerCase())))hit.push(c)});
+  /* 長い言葉が当たった所の中の短い言葉は使わない（Nori 2026-11-15「マッチング精度が命」）。
+     「ドリップバッグ」の「バッグ」（革製品）、「靴下」の「靴」、「ジャーキー」の「ジャー」（容器）を読まないように */
+  const occ=[];C.forEach((c,i)=>{if(!leaf(c))return;for(const k0 of GDB.kw[i]){const k=k0.toLowerCase();if(!k)continue;let p=t.indexOf(k);while(p>=0){occ.push([p,p+k.length,c]);p=t.indexOf(k,p+1)}}});
+  let hit=[...new Set(occ.filter(h=>!occ.some(o=>o[0]<=h[0]&&h[1]<=o[1]&&o[1]-o[0]>h[1]-h[0]&&o[2]!==h[2])).map(h=>h[2]))];
+  /* 「ロゴ入り」「名入れ」「プリント」だけで読めたプリント・刺繍の工程は、布の物のときだけ（紙袋・マグ・タンブラーは、その品を作る会社が入れる） */
+  /* 「キャンプ」「アウトドア」「ゴルフ」などの使う場面の言葉だけで読めた雑貨の工程は、ほかに作る工程（金属・木・布など）が読めたら外す
+     （ステンレスの焚き火台に、ボールペンなどの雑貨の会社が付かないように） */
+  const CTX=/^(アウトドア|キャンプ|ゴルフ|釣り|スポーツ用品|生活用品|ペット用品|日用品|雑貨)$/;
+  if(hit.includes('cosmetics.household')&&hit.some(c=>/^(manufacturing|crafts|apparel)\./.test(c))){const hk=GDB.kw[C.indexOf('cosmetics.household')].filter(k=>!CTX.test(k)).map(k=>k.toLowerCase());
+    if(!hk.some(k=>t.includes(k)))hit=hit.filter(c=>c!=='cosmetics.household')}
+  const DECO=/ロゴ入り|名入れ|プリント|転写|昇華/;
+  if(hit.includes('apparel.print_embroidery')&&!/刺繍|ワッペン|シルクスクリーン|染色/.test(t)&&DECO.test(t)&&!hit.some(c=>/^(apparel\.(garment_oem|knit|leather)|manufacturing\.textile)$/.test(c)))hit=hit.filter(c=>c!=='apparel.print_embroidery');
   const notices=[];
   for(const c of Object.keys(GDB.deferred||{}))if(hit.includes(c)){hit=hit.filter(x=>x!==c);notices.push(GDB.deferred[c])}
   for(const [kws,msg] of GDB.deferred_kw||[])if(kws.some(k=>t.includes(k.toLowerCase())))notices.push(msg);
   // 機械・装置（草刈機・ロボット・電動台車など）: モーター・駆動・フレームを持つものは、板金・切削・制御基板・組立の工程で読む
   const MACH=/機械|装置|ロボ|自動化|自走|自律|電動|台車|草刈|芝刈|除草|モーター|モータ|農機|農業機|搬送|コンベア|ドローン|マシン|アクチュエータ|駆動|エンジン|[一-龠ァ-ヶー]機(?![器能会嫌関構種内])/;
-  const mach=MACH.test(t);
+  /* 「機械を載せる架台」「装置のカバー」のように、機械が置き場所・相手として出てくるだけなら、機械そのものを作る依頼ではない */
+  const mach=MACH.test(t.replace(/(機械|装置|ロボット|ロボ|モーター|モータ|マシン|エンジン)(を|に|の|用の?)(載せる|乗せる|置く|入れる|守る|囲う|据える|固定する)?[^。、\n]{0,6}?(架台|台座|台|カバー|ケース|部品|パーツ|フレーム|ベース|囲い|棚)/g,' '));
   if(mach){for(const c of ['mechanical.enclosure_design','manufacturing.sheet_metal','manufacturing.cnc','electronics.pcb_design','electronics.firmware','electronics.pcba','manufacturing.rapid_proto','manufacturing.assembly'])if(!hit.includes(c))hit.push(c);
     if(/屋外|法面|斜面|農|畑|田|庭|雨|野外|山/.test(t)){for(const c of ['mechanical.waterproof','testing.environmental'])if(!hit.includes(c))hit.push(c)}
     if(/自動|自律|ロボ|センサ|ドローン|自走/.test(t)&&!hit.includes('sensing.algorithm'))hit.push('sensing.algorithm');
@@ -2454,7 +2466,10 @@ function relTerms(text,name,kw){const T=String(text||'').normalize('NFKC').repla
   for(const s of (kw||'').split('|'))if(s.length>=2&&!/[\\()[\]?*+]/.test(s))add(s,1.5);
   for(const s of (T.match(word)||[]))add(s,1);
   const SMALL=/^[ッャュョァィゥェォーぁ-ゖ]/;
-  return runs.slice(0,60).map(([s,w])=>{const subs=new Set([s]);if(s.length>2)for(let i=0;i<s.length;i++)for(let j=i+2;j<=s.length;j++){const u=s.slice(i,j);if(!SMALL.test(u)&&!/[ぁ-ゖ]$/.test(u))subs.add(u)}
+  /* カタカナの切れ端（「ケー」「キー」「ブラン」）は言葉にならないので使わない。止める言葉（「ブランド」）は切れ端も使わない（Nori 2026-11-15） */
+  const KT=/[ァ-ヶー]/,KJUNK=(u,s,i,j)=>/^[ァ-ヶー]+$/.test(u)&&(u.length<3||/ー$/.test(u)||u.length<4&&(KT.test(s[i-1]||'')||KT.test(s[j]||'')));
+  const RSTOPG=new RegExp(RSTOP.source.replace(/^\^/,'').replace(/\$$/,''),'g');
+  return runs.slice(0,60).map(([s,w])=>{const subs=new Set([s]);if(s.length>2&&!RSTOP.test(s))for(const s1 of s.replace(RSTOPG,' ').split(' ').filter(x=>x.length>=2))for(let i=0;i<s1.length;i++)for(let j=i+2;j<=s1.length;j++){const u=s1.slice(i,j);if(!SMALL.test(u)&&!/[ぁ-ゖ]$/.test(u)&&!KJUNK(u,s1,i,j))subs.add(u)}
     return {w,subs:[...subs].filter(u=>u.length>=2&&!RSTOP.test(u)&&!/^[A-Za-z]{1,2}$/.test(u))}}).filter(x=>x.subs.length)}
 /* カタカナの語は、相手の文でカタカナの語の途中で終わる所には当てない（「マグ」が「ヤマグチ」に当たらないように）。2文字の語は頭も区切りを要る */
 const KTK=/[ァ-ヶー]/;
@@ -2466,10 +2481,11 @@ function relBuild(text,name,kw){const LC=relIndex(),N=LC.length,df={},idf=u=>{if
   return R}
 /* 1社の「依頼との近さ」：言葉のまとまりごとに、会社の文に出てくるいちばん珍しい言葉の重みを取り、上位3つを足す */
 function relOf(r,R){if(!R||!R.length)return 0;const i=GDB.c.indexOf(r);const h=i>=0?relIndex()[i]:((r[0]||'')+' '+(r[11]||'')).normalize('NFKC').toLowerCase();
-  const v=[];for(const x of R){let m=0;for(const[u,w]of x.subs)if(w>m&&relHas(h,u))m=w;if(m)v.push(m*x.w)}
+  /* 同じ言葉が別のまとまりで何度も数えられないように（「ケース」が キーケース・カードケース で3回など） */
+  const v=[],used=new Set();for(const x of R){let m=0,mu='';for(const[u,w]of x.subs)if(w>m&&!used.has(u)&&relHas(h,u)){m=w;mu=u}if(m){used.add(mu);v.push(m*x.w)}}
   return v.sort((a,b)=>b-a).slice(0,3).reduce((a,b)=>a+b,0)}
 const ACC_RX=/OEM|ODM|受託|請負|賃加工|下請|試作|1個から|一個から|小ロット|少量|一品|単品|オーダー|特注|別注|ワンオフ|オリジナル|製作|1点から|一点物|個人(の方|向け|様|から|でも|も)/i;
-const NOTMK_RX=/土木|土工|とび|建設工事|建築工事|建築一式|工事業|舗装|解体|不動産|人材派遣|警備|運送|運輸|倉庫業|卸売|小売|輸入|商社|代理店|コンサルティング/;
+const NOTMK_RX=/土木|土工|とび|建設工事|建築工事|建築一式|工事業|舗装|解体|不動産|人材派遣|警備|運送|運輸|倉庫業|卸売|小売|輸入|商社|代理店|コンサルティング|ガソリンスタンド|自動車整備|レンタカー|保険/;
 const MK_RX=/製造|加工|製作|工場|縫製|成形|OEM|ODM|受託|試作|工房|職人|設計/i;
 const FAMS=['sensing','electronics','software','food','cosmetics','apparel'];
 function mctxBuild(A,qmax){const t=String(S.idea||'');let p=null;try{p=PDB?pdbMatch((specRead(t).name)||t.slice(0,200)):null}catch(e){}
@@ -2953,8 +2969,9 @@ function dsRows(T,A,f){const rows=[...T.rows];const M=S.mctx;
   const near=r=>!to?0:r[2]===to?2:regionOf(r[2]||'')===regionOf(to)?1:0;
   /* 依頼の作る工程に合う会社を先に（手で集めた会社は列14の proc、DBの会社は工程で見る）。設計込みの工場で、木の物に金属の工場が先に出ないように */
   const mc=(A.codes||[]).filter(c=>mphaseOf(c)>3),pm=r=>{const x=r[14]||{};if(x.proc)return x.proc.some(p=>mc.some(c=>c===p||c.startsWith(p+'.')||p.startsWith(c+'.')))?1:0;return T.db_re&&mc.some(c=>{const i=GDB.caps.indexOf(c),j=GDB.caps.indexOf(c.split('.')[0]);return r[5].includes(i)||r[5].includes(j)})?1:0};
+  /* 依頼の品の言葉が説明に出る会社（財布の依頼で「財布」と書いた会社）を、確かさ・所在地より先に（Nori 2026-11-15「マッチング精度が命」） */
   return rows.filter(r=>r[1]==='JP'&&canOrder(r)&&!seen.has(r[0])&&seen.add(r[0])).map((r,i)=>[r,i,near(r),f.indiv&&(r[14]||{}).ind?1:0,M?Math.min(relOf(r,M.R),14):0,(r[14]||{}).ds?1:0,T.db_re?pm(r):0])
-    .sort((a,b)=>(b[3]-a[3])||(b[6]-a[6])||(gv(a[0])-gv(b[0]))||(b[2]-a[2])||(b[5]-a[5])||((rk[a[0][10]]??1)-(rk[b[0][10]]??1))||(b[4]-a[4])||a[1]-b[1]).map(x=>x[0]).slice(0,12)}
+    .sort((a,b)=>(b[3]-a[3])||(b[6]-a[6])||((b[4]>=3)-(a[4]>=3))||(gv(a[0])-gv(b[0]))||(b[2]-a[2])||(b[5]-a[5])||((rk[a[0][10]]??1)-(rk[b[0][10]]??1))||(b[4]-a[4])||a[1]-b[1]).map(x=>x[0]).slice(0,12)}
 /* 受け持つ範囲：設計だけ／設計から製作まで／設置工事まで（行の列14 scope → 種類 → 概要の言葉） */
 const DS_SC={design:['設計だけ',1],make:['設計から製作まで',2],install:['設計から設置工事まで',3],advice:['相談だけ（無料）',0]};
 function dsScope(r,T){const x=r&&r[14]||{};if(x.scope)return x.scope;const sm=String(r&&r[11]||'');
