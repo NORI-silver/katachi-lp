@@ -103,6 +103,12 @@
 | attach_draft | 見積の依頼に3D・寸法図・仕様書を添付するかを切り替えた | on | |
 | ai_shape_go | 「ChatGPT／Claude／Geminiで直す」を押した | ai | 質問文は送らない |
 | ai_shape_back | AIの「KATACHIで開く」リンクか貼り付けで戻った | ok、via（link/paste）、skip、reason | 中身は送らない |
+| mail_offer | 見積の依頼で「メールですぐ届ける」が出た | companies（届けられる社数）, of（送り先の社数） | 会社名は送らない |
+| mail_toggle | 「メールですぐ届ける」を切り替えた | on | |
+| mail_preview | 「会社に届くメールを見る」を開いた | なし | |
+| mail_request | メールで届ける会社つきで依頼を送った | companies, of | |
+| mail_send | 確認メールの「◯社にメールで送る」から開いた | sent, skipped, again / error | 会社名は送らない |
+| offer_stop | 工場が打診ページで「今後のメールを止める」を押した | なし | |
 
 ## 送らないもの
 入力文・会社名・ファイル名などの中身は送らない（個人情報や未公開アイデアを含みうるため）。種類・件数・文字数だけを送る。

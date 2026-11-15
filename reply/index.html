@@ -90,6 +90,7 @@ const T={
  bad:["このリンクは使えません。KATACHIからのメールに、そのまま返信してください。","This link isn't valid. Please reply directly to KATACHI's email.","此链接无法使用。请直接回复 KATACHI 的邮件。"],
  neterr:["送れませんでした。通信を確かめて、もう一度押してください。","Couldn't send. Please check your connection and try again.","发送失败。请检查网络后再试一次。"],
  need:["質問を書いてください。","Please write your question.","请填写问题。"],
+ stop_h:["KATACHIからの依頼のメールを止める","Stop request emails from KATACHI","停止接收KATACHI的委托邮件"],stop_t:["押すと、今後この会社あてにKATACHIから依頼のメールをお送りしません。このページの依頼へのお返事は、下からできます。","Press this and KATACHI will no longer email requests to your company. You can still answer this request below.","点击后，KATACHI今后不再向贵公司发送委托邮件。对本次委托的答复仍可在下方进行。"],stop_b:["今後のメールを止める","Stop future emails","停止今后的邮件"],stop_ok:["止めました。今後、KATACHIから依頼のメールはお送りしません。","Done. KATACHI will not email you requests from now on.","已停止。今后KATACHI不会再向您发送委托邮件。"],
  flex_fixed:["この日までに必要（動かせない）","Fixed date","必须在此日期前"],flex_m1:["1か月ほど前後してよい","About a month either way","前后一个月左右均可"],flex_m3:["2〜3か月のうちいつでも","Any time within 2–3 months","2〜3个月内任何时候"],flex_any:["急がない（空き時期でよい）","No rush (whenever you're free)","不急（空闲时即可）"]
 };
 const FLEXJ={"この日までに必要":"flex_fixed","1か月ほど前後してよい":"flex_m1","2〜3か月のうちいつでも":"flex_m3","急がない（空き時期でよい）":"flex_any"};
@@ -98,6 +99,7 @@ const I={ja:0,en:1,zh:2};const t=k=>(T[k]||[k])[I[L]||0];
 const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const $=s=>document.querySelector(s);
 const K=new URLSearchParams(location.search).get("k")||"";
+const STOP=new URLSearchParams(location.search).get("stop")==="1";let stopped=false;
 let D=null,pick=null,editing=false,err="";
 function track(n,o){try{gtag("event",n,o||{})}catch(e){}}
 async function post(body){const r=await fetch(FORM_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(body)});return r.json()}
@@ -120,7 +122,9 @@ function doneCard(){return `<section class="card done" role="status"><h2>${esc(t
 function render(){document.documentElement.lang=L==="zh"?"zh-Hans":L;document.querySelectorAll(".lang button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.l===L));
   const head=`<div style="display:grid;gap:8px"><h1>${esc(t("title"))}</h1><p class="mute">${esc(t("lead"))}</p></div>`;
   if(!D){$("#app").innerHTML=head+`<div class="card"><p class="err">${esc(err||t("bad"))}</p></div>`;return}
-  $("#app").innerHTML=head+reqCard()+(D.state&&!editing?doneCard():form());
+  const stopCard=STOP?`<section class="card" id="stop"><h2>${esc(t("stop_h"))}</h2>${stopped?`<p role="status">${esc(t("stop_ok"))}</p>`:`<p class="mute">${esc(t("stop_t"))}</p><button type="button" class="btn" id="stopB">${esc(t("stop_b"))}</button>`}</section>`:"";
+  $("#app").innerHTML=head+stopCard+reqCard()+(D.state&&!editing?doneCard():form());
+  const sb=$("#stopB");if(sb)sb.onclick=async()=>{sb.disabled=true;try{const j=await post({type:"offerreply",k:K,answer:"stop"});if(!j.ok)throw 0;stopped=true;track("offer_stop",{});render()}catch(e){sb.disabled=false;sb.insertAdjacentHTML("afterend",`<p class="err" role="alert">${esc(t("neterr"))}</p>`)}};
   document.querySelectorAll(".choice").forEach(b=>b.onclick=()=>{pick=b.dataset.a;err="";render();const f=$("#rf textarea,#rf input");f&&f.focus()});
   const chg=$("#chg");if(chg)chg.onclick=()=>{editing=true;pick=D.state;render()};
   const f=$("#rf");if(f)f.addEventListener("input",()=>{const e=f.querySelector(".err");if(e){e.remove();err=""}});
