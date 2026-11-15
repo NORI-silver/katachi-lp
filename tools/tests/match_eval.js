@@ -50,9 +50,20 @@ async function one(b,cs){const c=await b.newContext({viewport:{width:1280,height
   if(process.env.TEXT){const r=res[0];console.log(`工程: ${(r.codes||[]).join(', ')}\n案: ${r.plan}`);for(const p of r.picked)console.log(`★ ${p.step} | ${p.n}（${p.pref||''}）${p.sum||''}`);
     if(r.maker)console.log('完成品メーカー: '+r.maker.rows.slice(0,8).map(x=>x.n).join('、'));for(const s of r.secs)console.log(`${s.name}（${s.n}社）: `+s.top.slice(0,5).map(x=>x.n).join('、'));return}
   console.log('\n'+judge.summaryText(J.sum));
+  // AI経由（API・MCP の search_companies）の上位が、サイトの③の★と同じ会社か（Nori 2026-11-15「MCPの候補がサイトの★と一致しない」）。
+  // 先に `node api/build.mjs` でサイトの JS を API 用に取り出しておく。API=0 で省く
+  let apiBad=[],apiN=0;
+  if(process.env.API!=='0'&&fs.existsSync(path.join(__dirname,'../../api/src/gen/site.js'))){const core=await import(path.join(__dirname,'../../api/src/core.js'));
+    cases.forEach((cs,i)=>{const r=res[i];const text=cs.file?fs.readFileSync(path.join(__dirname,'specs',cs.file),'utf8'):cs.text;if(!text||text.length>200||!r||r.error)return;
+      const site=r.plan==='maker'&&r.maker?[r.maker.rows[0]&&r.maker.rows[0].n]:(r.picked||[]).filter(p=>(p.step||'')!=='設計（図面・3Dデータ）').map(p=>p.n);if(!site.length||!site[0])return;
+      let top;try{top=core.searchCompanies({product:text}).companies.slice(0,3).map(c=>c.name)}catch(e){return}
+      apiN++;const ok=site.includes(top[0])&&(site.length>=3?top.every(n=>site.includes(n)):site.every(n=>top.includes(n)));
+      if(!ok)apiBad.push(`${cs.id}：サイト★ ${site.slice(0,3).join('・')} ／ API ${top.join('・')}`)});
+    console.log(`AI経由（API・MCP）の上位3社がサイトの★と同じ ${apiN-apiBad.length}/${apiN}件`+(apiBad.length?'\n  '+apiBad.join('\n  '):''))}
   if(out)fs.writeFileSync(out,JSON.stringify({sum:J.sum,cases:J.cases,raw:res},null,1));
   if(process.env.BASELINE){const s=J.sum;fs.writeFileSync(path.join(__dirname,'match_baseline.json'),JSON.stringify({date:new Date().toISOString().slice(0,10),note:'node tools/tests/match_eval.js --check の基準。精度が上がったら BASELINE=1 を付けて流し、書き直す',ok:s.ok,mid:s.mid,ng:s.ng,codeMiss:s.codeMiss,top5:s.top5,recall:s.recall,recall20:s.recall20,verdicts:s.verdicts},null,1)+'\n');console.log('基準を書き直しました')}
   if(check){const bl=JSON.parse(fs.readFileSync(path.join(__dirname,'match_baseline.json'),'utf8'));const bad=judge.compare(J.sum,bl);
+    for(const x of apiBad)bad.push('AI経由の候補がサイトと違う '+x);
     if(bad.length){console.log('\n✗ マッチング精度が基準より下がりました:\n- '+bad.join('\n- '));process.exit(1)}
     console.log('\n✓ 基準（match_baseline.json）以上です')}
 })();

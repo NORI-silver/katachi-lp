@@ -5,8 +5,8 @@ import F0 from '../../data/fspec.json' with {type: 'json'};
 // Workers では文字列（wrangler.toml の rules）、Node のテストではオブジェクトで来る
 const parse = x => typeof x === 'string' ? JSON.parse(x) : x;
 const products = parse(P0), companiesRaw = parse(C0), fspec = parse(F0);
-import {setPDB, pdbMatch} from './gen/pdb.js';
-import {setGDB, relBuild, fitOf, REGION} from './gen/fit.js';
+// サイトの画面の JS をそのまま取り出したもの（api/build.mjs）。読み取り・並べ方・★の案をサイトと同じにする
+import {setData, siteMatch, pdbMatch, relBuild, fitOf, REGION} from './gen/site.js';
 
 export const VERSION = '1.0.0';
 export const SITE = 'https://katachi.shiokonbu.com';
@@ -17,7 +17,7 @@ export class ApiError extends Error {
 }
 
 // ---------------------------------------------------------------- データの準備（起動時に1回）
-setPDB(products);
+setData(companiesRaw, products);
 pdbMatch('準備');  // 索引を起動時に作っておく（1回目の検索を軽くする）
 
 const C = companiesRaw;
@@ -33,8 +33,6 @@ const canOrder = r => {
 };
 const seen = new Set();
 const ROWS = C.c.filter(r => canOrder(r) && !seen.has(r[0]) && seen.add(r[0]));
-// サイトと同じ並べ方（fitOf）を使うための会社一覧
-setGDB({c: ROWS, caps: C.caps});
 const PREF_ALL = REGION.flatMap(g => g[1].split(' '));
 const LV = {pub: '公開情報（公式サイト・報道）で確認', unk: '掲載ページのみ（要確認）', gov: '国の登録情報のみ（gBizINFO、要確認）'};
 const LV_RANK = {pub: 0, unk: 1, gov: 2};
@@ -149,12 +147,15 @@ export function searchCompanies({process: proc, product, q, area, prototype, no_
   const qty = int(quantity, 'quantity', 1, 10_000_000, null);
   const kw = text(q, 'q', 60);
   const ar = text(area, 'area', 20);
-  let idx = codesFor(proc), prod = null;
+  let idx = codesFor(proc), prod = null, site = null;
   if (product) {
     const p = text(product, 'product', 200);
     policy(p);
     prod = pdbMatch(p);
-    if (prod) idx = idx.concat(codesFor(prod.proc));
+    // 製品名・依頼の文章は、サイトの③と同じ読み方で工程と★の会社を出す（Nori 2026-11-15「MCPの候補がサイトの★と一致しない」）
+    site = siteMatch(p, qty);
+    const codes = site.A.fallback ? [] : site.A.codes;
+    idx = idx.concat(codesFor(codes.length ? codes : prod ? prod.proc : []));
   }
   if (!idx.length && !kw) throw new ApiError(400, 'invalid_input', 'process（工程）・product（製品名）・q（キーワード）のどれかを指定してください。一覧の取得はできません');
   const kwl = kw.toLowerCase(), out = [];
@@ -162,15 +163,20 @@ export function searchCompanies({process: proc, product, q, area, prototype, no_
   const fams = new Set(idx.map(i => C.caps[i].split('.')[0]));
   const M = (product || kw) ? {R: relBuild([product, kw].filter(Boolean).join(' '), prod && prod.name, prod && prod.kw), fam: fams,
     pref: PREF_ALL.find(p => ar && (p === ar || p.replace(/[都府県]$/, '') === ar)) || '', one: !!qty && qty <= 3, qmax: qty || 500} : null;
-  for (const r of ROWS) {
-    const caps = r[5], m = caps.filter(i => idx.includes(i));
-    if (idx.length && !m.length) continue;
+  // サイトの★（完成品メーカー、または一社案・組み合わせ案で選ばれる会社）を、その順で先頭に置く
+  const star = new Map(), seenN = new Set();
+  for (const r of site ? site.star : []) if (!star.has(r[0])) star.set(r[0], star.size);
+  const rows = site ? [...site.star.filter(r => canOrder(r) && !seenN.has(r[0]) && seenN.add(r[0])), ...ROWS.filter(r => !seenN.has(r[0]))] : ROWS;
+  for (const r of rows) {
+    const caps = r[5], m = caps.filter(i => idx.includes(i)), st = star.has(r[0]);
+    if (idx.length && !m.length && !st) continue;
     if (kwl && !(r[0] + ' ' + (r[11] || '')).toLowerCase().includes(kwl)) continue;
     if (country === 'JP' && r[1] !== 'JP') continue;
     if (country === 'ABROAD' && r[1] === 'JP') continue;
     if (ar && !((r[2] || '') + (r[3] || '')).includes(ar) && r[1] !== ar) continue;
     if (prototype && !r[6]) continue;
     if (no_drawing && !r[7]) continue;
+    if (st) { out.push([1e6 - star.get(r[0]), LV_RANK[r[10]] ?? 1, r, m]); continue; }
     const ml = r[8];
     const s = m.length * 2 + (r[10] === 'pub' ? 3 : 0) + (r[6] && qty && qty <= 10 ? 1.5 : 0) + (r[7] && no_drawing ? 1 : 0)
       + (ml != null && qty && ml <= qty ? 1 : 0) - (ml != null && qty && ml > qty ? 3 : 0) + (r[1] === 'JP' ? 2 : 0) + (M ? fitOf(r, M) : 0);

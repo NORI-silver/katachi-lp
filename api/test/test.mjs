@@ -38,6 +38,12 @@ await t('会社: サイトと同じ並べ方（品の言葉が説明にある会
     assert.ok(top.filter(c => re.test(c.name + ' ' + (c.description || ''))).length >= 2, p + ': ' + top.map(c => c.name).join(','));
   }
 });
+await t('会社: 製品の文章ではサイトの③の★（完成品メーカー）を先頭に', async () => {
+  // サイトの③の★はアレクソン・Braveridge・BlueGraphy（電子機器のODM）。MCP がサイトと違う会社を出していた（Nori 2026-11-15）
+  const {j} = await rpc('tools/call', {name: 'search_companies', arguments: {product: 'セントバーナード用のスマートカラー'}});
+  const names = JSON.stringify(j.result).match(/株式会社アレクソン|株式会社Braveridge|BlueGraphy株式会社/g) || [];
+  assert.ok(new Set(names).size === 3, JSON.stringify(j.result).slice(0, 400));
+});
 await t('会社: 上位3社の名前と理由だけ', async () => {
   const {j} = await call('/v1/companies?product=' + encodeURIComponent('アクリルスタンド') + '&quantity=50');
   assert.ok(j.top.length > 0 && j.top.length <= 3); assert.ok(j.candidates_total >= j.top.length);

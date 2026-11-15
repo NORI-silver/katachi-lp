@@ -2397,12 +2397,35 @@ function specCore(text){let t=String(text||'');
   return t.split(/(?=【[^】]{1,30}】)/).filter(b=>{const h=(b.match(/^【([^】]*)】/)||[])[1];return !h||keep.test(h)}).join('\n')}
 function analyzeText(text){text=specCore(text);
   // 電子機器ではないのに電子系の語を含む言い方（スマホケース等）は、先に取り除いてから読む
-  const t=String(text||'').toLowerCase().replace(/スマホ(ケース|スタンド|カバー|ホルダー|リング|ストラップ)|ペット用シャンプー|車のアクセサリー|自転車のパーツ/g,m=>m==='ペット用シャンプー'?'シャンプー':' '+m.replace('スマホ','')+' ').replace(/車(椅子|いす)/g,' 車イス ').replace(/スマート(グラス|ウォッチ|リング|メガネ|眼鏡)/g,(m,k)=>' 装着 デバイス 電子 '+({グラス:'眼鏡',ウォッチ:'腕時計',リング:'指輪'}[k]||'眼鏡')+' ').replace(/ウェアラブル/g,' 装着 デバイス '),C=GDB.caps;
+  const t=String(text||'').toLowerCase().replace(/スマホ(ケース|スタンド|カバー|ホルダー|リング|ストラップ|置き|立て|ポーチ|ショルダー)|ペット用シャンプー|車のアクセサリー|自転車のパーツ/g,m=>m==='ペット用シャンプー'?'シャンプー':' '+m.replace('スマホ','')+' ').replace(/車(椅子|いす)/g,' 車イス ').replace(/スマート(グラス|ウォッチ|リング|メガネ|眼鏡)/g,(m,k)=>' 装着 デバイス 電子 '+({グラス:'眼鏡',ウォッチ:'腕時計',リング:'指輪'}[k]||'眼鏡')+' ').replace(/ウェアラブル/g,' 装着 デバイス '),C=GDB.caps;
   const leaf=c=>!C.some(o=>o.startsWith(c+'.'));
   /* 長い言葉が当たった所の中の短い言葉は使わない（Nori 2026-11-15「マッチング精度が命」）。
      「ドリップバッグ」の「バッグ」（革製品）、「靴下」の「靴」、「ジャーキー」の「ジャー」（容器）を読まないように */
-  const occ=[];C.forEach((c,i)=>{if(!leaf(c))return;for(const k0 of GDB.kw[i]){const k=k0.toLowerCase();if(!k)continue;let p=t.indexOf(k);while(p>=0){occ.push([p,p+k.length,c]);p=t.indexOf(k,p+1)}}});
-  let hit=[...new Set(occ.filter(h=>!occ.some(o=>o[0]<=h[0]&&h[1]<=o[1]&&o[1]-o[0]>h[1]-h[0]&&o[2]!==h[2])).map(h=>h[2]))];
+  /* 自由に書いた文も読む（Nori 2026-11-15「フリーで書いたアイデアを工場とマッチングできてない」「しつもんとかしない」）。
+     カタカナの言葉はひらがなで書かれても当てる（「かばん」「Tしゃつ」。3文字以上のときだけ） */
+  const hira=k=>k.replace(/[ァ-ヶ]/g,ch=>String.fromCharCode(ch.charCodeAt(0)-96));
+  const occ=[];C.forEach((c,i)=>{if(!leaf(c))return;for(const k0 of GDB.kw[i]){const k=k0.toLowerCase();if(!k)continue;const kh=hira(k);
+    /* ひらがなだけの短い言葉（「におい」）は、ひらがなの語の途中には当てない（「玄関においてる」） */
+    const hs=/^[ぁ-ゖー]{1,3}$/.test(k);
+    for(const q of (kh!==k&&kh.length>=3?[k,kh]:[k])){let p=t.indexOf(q);while(p>=0){const nx=t[p+q.length]||'';if(!(hs&&q===k&&/[ぁ-ゖ]/.test(nx)&&!/[をがはのにでもとやか]/.test(nx)))occ.push([p,p+q.length,c,k]);p=t.indexOf(q,p+1)}}}});
+  let keep=occ.filter(h=>!occ.some(o=>o[0]<=h[0]&&h[1]<=o[1]&&o[1]-o[0]>h[1]-h[0]&&o[2]!==h[2]));
+  /* 材料・加工の言葉は、ほかの言葉の前後にあっても工程の手がかりとして残す */
+  const MATK=/^(革|本革|レザー|合皮|布|布製|布の|帆布|ナイロン|木製|木の|木|天然木|ウッド|紙|段ボール|ガラス|陶器|磁器|ステンレス|ステンレス板|アルミ|真鍮|鉄|鉄板|金属|シリコン|シリコーン|ゴム|ラバー|樹脂|プラスチック|ニット|デニム|フェルト|板金|溶接|切削|削り出し|鋳造|鋳物|縫製|成形|射出成形|プレス|曲げ|刺繍|印刷|プリント|3Dプリント|3Dプリンタ|3Dプリンター|光造形|刻印|彫刻)$/;
+  /* 入れる物・載せる物・置く場所は、作る物ではない（「コーヒー豆を入れるキャニスター」「ドリンクホルダー」「パターのカバー」「犬を乗せるカート」） */
+  const HOLD=/^[一-龠々ァ-ヶー]{0,2}?(の)?(ホルダー|ケース|スタンド|置き|立て|入れ(?![るたてらまとな])|カバー|ラック|ポーチ|トレー|トレイ|ハンガー|フック|キャニスター|ストッカー)|^[一-龠々ァ-ヶー]{0,2}?を(入れる|入れて|入れられ|入れておけ|しまう|しまえ|しまって|収納|載せ|乗せ|置[くけ]|飾[るれ]|運[ぶべ]|持ち運)|^[一-龠々ァ-ヶー]{0,2}?に(上が|あが|登|のぼ|届)|^[一-龠々ァ-ヶー]{0,2}?を[^。、\n]{1,12}?ための/;
+  keep=keep.filter(h=>MATK.test(h[3])||!HOLD.test(t.slice(h[1])));
+  /* カタカナの言葉のすぐ後に別の工程のカタカナの言葉が続くときは、前は飾りの言葉（「デスクライト」の「デスク」） */
+  const KT=/[ァ-ヶー]/;keep=keep.filter(h=>MATK.test(h[3])||!KT.test(t[h[1]-1]||'')||!keep.some(o=>o[0]===h[1]&&KT.test(t[o[0]])&&o[2]!==h[2]));
+  /* 材料・加工をはっきり書いたら、形だけの言葉（カバー・ケース・キャップ・容器など）から読んだ別の工程は使わない（「革でカバー」は革製品、「ステンレスでボトル」は金属） */
+  const SHK=/^(カバー|ケース|キャップ|フタ|マット|ホルダー|フック|クリップ|容器|ボトル|ラック|フレーム|ベッド)$/;
+  /* 材料と形の言葉がつながっているときだけ（「板金のケース」「カバーを革で」。「アルミの台座とアクリルのカバー」のカバーは残す） */
+  const mats=keep.filter(h=>MATK.test(h[3]));
+  if(mats.length)keep=keep.filter(h=>{if(!SHK.test(h[3]))return true;
+    const tied=mats.filter(m=>m[1]<=h[0]&&/^(の|製|製の|で作る|で作った)?$/.test(t.slice(m[1],h[0]))||h[1]<=m[0]&&/^を$/.test(t.slice(h[1],m[0]))&&/^で/.test(t.slice(m[1])));
+    return !tied.length||tied.some(m=>m[2]===h[2])});
+  /* 「1個だけ」「一点もの」だけで読めた試作（3Dプリント・簡易型）は、布・食品・化粧品・器などの品には付けない */
+  if(keep.some(h=>h[2]==='manufacturing.rapid_proto')&&keep.filter(h=>h[2]==='manufacturing.rapid_proto').every(h=>/^(1個だけ|一点もの)$/.test(h[3]))&&keep.some(h=>/^(manufacturing\.textile|apparel|food|cosmetics\.oem|crafts)/.test(h[2])))keep=keep.filter(h=>h[2]!=='manufacturing.rapid_proto');
+  let hit=[...new Set(keep.map(h=>h[2]))];
   /* 「ロゴ入り」「名入れ」「プリント」だけで読めたプリント・刺繍の工程は、布の物のときだけ（紙袋・マグ・タンブラーは、その品を作る会社が入れる） */
   /* 「キャンプ」「アウトドア」「ゴルフ」などの使う場面の言葉だけで読めた雑貨の工程は、ほかに作る工程（金属・木・布など）が読めたら外す
      （ステンレスの焚き火台に、ボールペンなどの雑貨の会社が付かないように） */
@@ -2435,12 +2458,14 @@ function analyzeText(text){text=specCore(text);
   let byShape='';if(!hit.length&&!notices.length){const sh=CGEN.shapes.find(x=>x.caps&&x.caps.length&&rx(x.kw,t));
     if(sh){hit=sh.caps.slice();byShape=sh.id;
       for(const[re,c]of[[/木製|木で|木の|天然木|無垢|合板|ウッド|wood/,'crafts.wood_furniture'],[/金属|アルミ|ステンレス|鉄|スチール|鋼|metal|alumin|steel/,'manufacturing.sheet_metal'],[/布|生地|帆布|ナイロン|ポリエステル|革|レザー|fabric|leather/,'manufacturing.textile'],[/樹脂|プラスチック|plastic/,'manufacturing.injection_molding'],[/シリコン|シリコーン|ゴム製|silicone|rubber/,'manufacturing.silicone_molding']])if(re.test(t)&&!hit.includes(c))hit.push(c)}}
+  /* それでも読めないときは、製品仕様DB（日本標準商品分類など）で品名を当て、その品の工程を使う */
+  let byPdb='';if(!hit.length&&!notices.length&&PDB){const m=pdbMatch(t.replace(REL_CTX,' '));if(m&&m.proc&&m.proc.length){hit=m.proc.filter(c=>C.includes(c));byPdb=m.name}}
   let fallback=false;if(!hit.length&&!notices.length){hit=['mechanical.enclosure_design','manufacturing.rapid_proto','manufacturing.assembly'];fallback=true}
   // 試作・設計・製造・試験の順に並べる
   const order=['sensing','electronics','mechanical','software','manufacturing','apparel','crafts','packaging','food','cosmetics','testing'];
   hit.sort((a,b)=>order.indexOf(a.split('.')[0])-order.indexOf(b.split('.')[0]));
   const regs=(GDB.regs||[]).filter(([kws])=>kws.some(k=>t.includes(k.toLowerCase()))).map(x=>x[1]);
-  return {codes:hit,regs,notices:[...new Set(notices)],fallback,mach,byShape};
+  return {codes:hit,regs,notices:[...new Set(notices)],fallback,mach,byShape,byPdb};
 }
 /* 工程が読み取れないときの手がかり: 入力の言葉を、会社名・会社の説明文から探す */
 const STOP=/^(オリジナル|自社|ブランド|作りたい|つくりたい|作る|つくる|作成|製作|制作|製造|依頼|相談|お願い|したい|ほしい|欲しい|小ロット|ロット|個|本|枚|探して|探している|のOEM|OEM|ODM)$/i;
@@ -2459,7 +2484,9 @@ function textSearch(text){
    5 所在地：文章に都道府県があれば（届け先を選べばそれも）、同じ県・同じ地方を上げる。1台だけ・体や場所に合わせるものは強く */
 const PREF_RX=new RegExp('('+REGION.flatMap(g=>g[1].split(' ')).map(p=>p.replace(/[都府県]$/,'')).filter(p=>p!=='北海道').join('|')+')[都府県]|北海道');
 const RSTOP=/^(オリジナル|自社|ブランド|作成|製作|制作|製造|加工|対応|相談|依頼|小ロット|ロット|試作|量産|販売|商品|製品|お願い|個人|会社|全体|部分|必要|使用|予定|希望|場合|程度|以上|以下|前後|最大|最小|目安|想定|可能|不要|未定|将来|機能|仕様|製品名|用途|数量|予算|納期|時期|サイズ|重量|重さ|材質|素材|写真|図面|参考|資料|自分|ロゴ|入れ|作り|使い|置き|付け)$/;
-function relTerms(text,name,kw){const T=String(text||'').normalize('NFKC').replace(/【[^】]{0,20}】/g,' ').replace(PREF_RX,' ').replace(/[\d０-９]+(個|台|枚|本|着|袋|セット|点|kg|cm|mm|m|頭|人|年|月|日|円)/g,' ');
+/* 入れる物・載せる物・行き先（「コーヒー豆を入れる」「ベッドに上がれる」「スマホ置き」）は、作る物ではないので近さの言葉にしない（Nori 2026-11-15 自由文） */
+const REL_CTX=/[一-龠々ァ-ヶー]+(?=を(入れる|入れて|入れられ|しまう|しまえ|収納|載せ|乗せ|置[くけ]|飾[るれ]|運[ぶべ]|持ち運)|に(上が|あが|登|のぼ|届)|を[^。、\n]{1,12}?ための|の?(ホルダー|置き|立て)(?![ァ-ヶ]))/g;
+function relTerms(text,name,kw){const T=String(text||'').normalize('NFKC').replace(REL_CTX,' ').replace(/【[^】]{0,20}】/g,' ').replace(PREF_RX,' ').replace(/[\d０-９]+(個|台|枚|本|着|袋|セット|点|kg|cm|mm|m|頭|人|年|月|日|円)/g,' ');
   const runs=[];const add=(s,w)=>{if(s&&!runs.some(x=>x[0]===s))runs.push([s,w])};
   const word=/[一-龠々ァ-ヶーA-Za-z]+(?:[ぁ-ゖ][一-龠々ァ-ヶー]+)*/g;
   for(const s of String(name||'').normalize('NFKC').match(word)||[])add(s,1.5);
@@ -2488,7 +2515,7 @@ const ACC_RX=/OEM|ODM|受託|請負|賃加工|下請|試作|1個から|一個か
 const NOTMK_RX=/土木|土工|とび|建設工事|建築工事|建築一式|工事業|舗装|解体|不動産|人材派遣|警備|運送|運輸|倉庫業|卸売|小売|輸入|商社|代理店|コンサルティング|ガソリンスタンド|自動車整備|レンタカー|保険/;
 const MK_RX=/製造|加工|製作|工場|縫製|成形|OEM|ODM|受託|試作|工房|職人|設計/i;
 const FAMS=['sensing','electronics','software','food','cosmetics','apparel'];
-function mctxBuild(A,qmax){const t=String(S.idea||'');let p=null;try{p=PDB?pdbMatch((specRead(t).name)||t.slice(0,200)):null}catch(e){}
+function mctxBuild(A,qmax){const t=String(S.idea||'');let p=null;try{p=PDB?pdbMatch(String((specRead(t).name)||t.slice(0,200)).replace(REL_CTX,' ')):null}catch(e){}
   const m=t.normalize('NFKC').match(PREF_RX);const pref=m?(m[0]==='北海道'?'北海道':PREFS.find(x=>x.startsWith(m[1]))||''):'';
   const fam=new Set((A.codes||[]).map(c=>c.split('.')[0]));
   const one=qmax<=3||/1台|一台|1つだけ|ひとつだけ|1個だけ|体に合わせ|採寸|オーダーメイド|ワンオフ/.test(t);
@@ -2622,11 +2649,12 @@ async function renderMatch(){
   $('#app').innerHTML=`<section class="gut build"><div><div class="eyebrow">Building your team</div><h2 style="margin-top:10px">工程を読み取っています</h2></div></section>`;
   const db=await loadGDB();
   if(!db){$('#app').innerHTML=`<section class="gut"><div class="wrap" style="padding:60px 0"><h2>会社の一覧を読み込めませんでした</h2><p class="muted">通信の状態を確かめて、もう一度お試しください。</p><button class="btn" onclick="location.reload()">再読み込み</button></div></section>`;return}
+  await pdbLoad();
   const A=analyzeText(S.idea+' '+S.files.map(f=>f.name).join(' '));A.concept=pickConcept(flowText(),A);if(A.concept&&S.lai&&S.lai.base===ideaBase()&&S.lai.concept)A.concept=laiConcept(A.concept,S.lai.concept);S.anal=A;
-  if(S.qnFor!==ideaBase()){S.qnFor=ideaBase();const m=String(S.idea).match(/(\d[\d,]*)\s*(個|台|枚|本|着|セット|点|pcs|units)/i);if(m){const n=+m[1].replace(/,/g,'');if(n>0){S.qn=n;S.qty=n<=10?'proto':n<=500?'small':'mass'}}else S.qn=0}
+  if(S.qnFor!==ideaBase()){S.qnFor=ideaBase();const m=String(S.idea).match(/(\d[\d,]*)\s*(個|台|枚|本|着|セット|点|pcs|units|まい|こ(?![ぁ-ゖ]))/i);if(m){const n=+m[1].replace(/,/g,'');if(n>0){S.qn=n;S.qty=n<=10?'proto':n<=500?'small':'mass'}}else S.qn=0}
   const qmax=S.qn>0?S.qn:({proto:10,small:500,mass:1e9}[S.qty]||500);S.axq=qmax;
   await pdbLoad();S.mctx=mctxBuild(A,qmax);if(S.mctx.pref&&!S.gf.to)S.gf.to=S.mctx.pref;
-  const secs=A.codes.map(c=>{let list=rankFor([c],{qmax});if(!list.length&&c.includes('.'))list=rankFor([c.split('.').slice(0,-1).join('.')],{qmax});return {c,list}});
+  const secs=secsOf(A,qmax);
   const total=new Set(secs.flatMap(s=>s.list.map(r=>r[0]))).size;
   /* 「214社が候補」が「214社とも全部作れる」と読まれないよう（Nori 2026-11-13「214社も作れる？」）、
      工程ごとの候補の合計・全工程を1社で受けられる会社の数・数量と試作対応を確かめられた数と要確認の数を分けて出す */
@@ -2637,13 +2665,7 @@ async function renderMatch(){
     return {steps:secs.length,all:secs.length>=2?all:total,ok,unk:total-ok}})();
   if(S.loggedIdea!==S.idea+'|'+S.qty){S.loggedIdea=S.idea+'|'+S.qty;logInput({mode:'text',text:S.idea,quantity:S.qty,steps:A.codes.map(c=>CAPN[c]||c),companies:total,top:secs.map(s=>(CAPN[s.c]||s.c)+': '+(s.list[0]?.[0]||'-')),notices:A.notices,file_kinds:S.files.map(f=>f.k)})}
   // 1社でまとめて頼める会社: 読み取った工程のうち多くを1社で持っている会社（OEM・EMS・組立の会社を優先）
-  const stepIdx=secs.map(s=>{const own=GDB.caps.indexOf(s.c);const par=s.c.includes('.')?GDB.caps.indexOf(s.c.split('.').slice(0,-1).join('.')):-1;return [own,par]});
-  const INTEG=['manufacturing.assembly','apparel.garment_oem','food.processed_oem','food.beverage_oem','food.pet_food','cosmetics.oem','cosmetics.household'].map(c=>GDB.caps.indexOf(c));
-  let one=[];if(secs.length>=2){const seen=new Map();secs.forEach(s=>s.list.forEach(r=>{if(!seen.has(r[0]))seen.set(r[0],r)}));
-    /* OEMの会社は包装の工程も受けるとみなす（capCovers）。依頼に合わない会社（fitOf が大きくマイナス：土木・卸だけ・大企業など）は、一社案の窓口にしない */
-    for(const r of seen.values()){const cov=secs.filter(s=>capCovers(r,s.c)).length;if(cov<2||fitOf(r,S.mctx)<=-4)continue;
-      const k=S.gf.sort;one.push([cov*4+(k&&k!=='rec'?axOf(r,qmax)[k].s:(r[5].some(i=>INTEG.includes(i))?4:0)+(r[1]==='JP'?2:0)+(r[10]==='pub'?.3:0)+fitOf(r,S.mctx)),cov,r])}
-    one.sort((a,b)=>b[0]-a[0]);one=one.slice(0,S.gmore.__one||5)}
+  const one=oneOf(secs,qmax);
   const integ=secs.find(s=>s.c==='manufacturing.assembly')||secs.find(s=>/oem$/.test(s.c))||secs.find(s=>/^(manufacturing\.textile|apparel)/.test(s.c))||secs.filter(s=>/^(manufacturing|crafts|packaging)/.test(s.c)).slice(-1)[0];
   track('text_analyze',{steps:A.codes.length,companies:total,chars:S.idea.length});
   const st=location.hash==='#co'?3:2;const blocked=A.notices.length&&!A.codes.length;
@@ -2680,11 +2702,8 @@ async function renderMatch(){
     const filt=`<div class="gflt" style="margin:0"><label>地域<select id="gArea"><option value="">すべて</option><option value="JP">国内だけ</option><option value="ABROAD">海外だけ</option></select></label>
 </div>${axBar()}`;
     /* 図面がない依頼は、最初に「まず設計」の相談先を出し（dsPlan）、作る会社の案からは設計の工程を外す（設計は上の相談先が受ける） */
-    const MK=A.codes.length?makersFor(A):null;const MKv=MK&&!(S.mkView&&S.mkView===ideaBase());
-    const DS=A.codes.length&&!MKv?dsPlan(A,qmax):null;S.dsOn=!!DS;
-    const secsP=DS&&secs.some(s=>mphaseOf(s.c)>3)?secs.filter(s=>mphaseOf(s.c)>3):secs;
+    const {MK,MKv,DS,secsP,R3}=siteTop(A,secs,one,qmax);
     const multi=secsP.length>=2;
-    S.secs=secsP;const R3=A.codes.length?recOf(secsP,one,qmax):null;
     const recH=A.codes.length?(MKv?makerBox(MK):recBox(R3,secsP,qmax)+(multi&&R3&&R3.P?planCmp(R3):'')+(MK?`<p class="mkback"><button type="button" class="glink" data-mkon>完成品のメーカーに1社で頼む案に戻る</button></p>`:'')):'';
     const dsH=DS?dsBox(DS):'';
     body=`${stepBar(3)}${head}
@@ -2812,13 +2831,32 @@ function recOf(secs,one,qmax){S.lastRL=null;
 /* 完成品メーカー（1社で完成まで受ける会社）。製品の種類ごとの一覧は tools/makers.py（Nori 2026-11-14「犬の補助輪とか普通一つの会社で作ってるよ」） */
 const MAKERS=__MAKERS__;
 const MKLV={pub:'公式サイトで確認',unk:'まとめ記事に掲載のみ',gov:'国の登録情報のみ'};
-const ELEC_RX=/電子|IoT|センサ|基板|回路|充電|電池|バッテリー|Bluetooth|BLE|Wi-?Fi|無線|アプリ|スマホと|スマホに|デバイス|ガジェット|ウェアラブル|トラッカー|GPS|LED|測る|測れ|測定|計測|心拍|体温|記録する|通知|見守り/i;
+const ELEC_RX=/コンセント|見える化|電気代|消費電力|知らせてくれる|充電式|電池式|スマートロック|遠隔操作|電子|IoT|センサ|基板|回路|充電|電池|バッテリー|Bluetooth|BLE|Wi-?Fi|無線|アプリ|スマホと|スマホに|デバイス|ガジェット|ウェアラブル|トラッカー|GPS|LED|測る|測れ|測定|計測|心拍|体温|記録する|通知|見守り/i;
+/* 工程ごとの候補（③の各工程の一覧） */
+function secsOf(A,qmax){return A.codes.map(c=>{let list=rankFor([c],{qmax});if(!list.length&&c.includes('.'))list=rankFor([c.split('.').slice(0,-1).join('.')],{qmax});return {c,list}})}
+/* ③の★：完成品メーカーに当たればその一覧、図面がなければ「まず設計」の相談先を別に出して作る工程だけで案（recOf）を作る。
+   サイトとAPI（api/build.mjs が取り出す。Nori 2026-11-15「MCPの候補がサイトの★と一致しない」）で同じ関数を使う */
+function siteTop(A,secs,one,qmax){
+  const MK=A.codes.length?makersFor(A):null;const MKv=MK&&!(S.mkView&&S.mkView===ideaBase());
+  const DS=A.codes.length&&!MKv?dsPlan(A,qmax):null;S.dsOn=!!DS;
+  const secsP=DS&&secs.some(s=>mphaseOf(s.c)>3)?secs.filter(s=>mphaseOf(s.c)>3):secs;
+  S.secs=secsP;const R3=A.codes.length?recOf(secsP,one,qmax):null;
+  return {MK,MKv,DS,secsP,R3}}
+/* 1社でまとめて頼める会社: 読み取った工程のうち多くを1社で持っている会社（OEM・EMS・組立の会社を優先）。サイトの③とAPI（api/build.mjs が取り出す）で同じ */
+function oneOf(secs,qmax){
+  const INTEG=['manufacturing.assembly','apparel.garment_oem','food.processed_oem','food.beverage_oem','food.pet_food','cosmetics.oem','cosmetics.household'].map(c=>GDB.caps.indexOf(c));
+  let one=[];if(secs.length>=2){const seen=new Map();secs.forEach(s=>s.list.forEach(r=>{if(!seen.has(r[0]))seen.set(r[0],r)}));
+    /* OEMの会社は包装の工程も受けるとみなす（capCovers）。依頼に合わない会社（fitOf が大きくマイナス：土木・卸だけ・大企業など）は、一社案の窓口にしない */
+    for(const r of seen.values()){const cov=secs.filter(s=>capCovers(r,s.c)).length;if(cov<2||fitOf(r,S.mctx)<=-4)continue;
+      const k=S.gf.sort;one.push([cov*4+(k&&k!=='rec'?axOf(r,qmax)[k].s:(r[5].some(i=>INTEG.includes(i))?4:0)+(r[1]==='JP'?2:0)+(r[10]==='pub'?.3:0)+fitOf(r,S.mctx)),cov,r])}
+    one.sort((a,b)=>b[0]-a[0]);one=one.slice(0,S.gmore.__one||5)}
+  return one}
 function makersFor(A){const t=S.idea+' '+(S.files||[]).map(f=>f.name).join(' ');const codes=A.codes||[];
   /* 工程コードで当てる種類（電子機器のODM）は、製品そのものが電子機器のときだけ。
      長い仕様文の「将来センサーを付けたい」などで電子の工程が読めただけのスロープ・リフト・基板実装だけの依頼には当てない */
   const head=String(S.idea||'').split(/\n/).slice(0,3).join(' ')+' '+((S.mctx||{}).pname||'');
   const elec=ELEC_RX.test(head)&&!/実装|ガーバー|部品表|BOM/i.test(head);
-  for(const k of MAKERS){const hit=k.kind==='codes'?elec&&codes.length>=3&&codes.some(c=>new RegExp(k.codes).test(c)):new RegExp(k.idea).test(t)&&!(k.not_codes&&codes.some(c=>new RegExp(k.not_codes).test(c)));
+  for(const k of MAKERS){const hit=k.kind==='codes'?elec&&codes.length>=3&&codes.some(c=>new RegExp(k.codes).test(c)):new RegExp(k.idea).test(k.head?head:t)&&!(k.not_codes&&codes.some(c=>new RegExp(k.not_codes).test(c)));
     if(!hit)continue;const re=new RegExp(k.db),need=k.db_need?new RegExp(k.db_need):null,ci=(k.caps_all||[]).map(c=>GDB.caps.indexOf(c)),ca=(k.caps_any||[]).map(c=>GDB.caps.indexOf(c)).filter(i=>i>=0),mkx=k.make?new RegExp(k.make):null;
     /* 設計の工程（caps_all）は必ず。作る工程は caps_any のどれか、または概要に「製造」「自社工場」など（make）があればよい */
     const rows=[...k.rows];for(const r of GDB.c){if(!re.test((r[0]||'')+' '+(r[11]||'')))continue;if(need&&!need.test(r[11]||''))continue;if(ci.length&&!ci.every(i=>i>=0&&r[5].includes(i)))continue;
@@ -3340,7 +3378,7 @@ const estQ0=(codes,qmax,q)=>(S.estKey===JSON.stringify([...new Set(codes||[])])+
    estimates.py の出典つきの数字だけで、試作1個・利用者の数量・小ロット100個の合計と1個あたりを出す。相場がない工程は「見積で確認」。
    案（内蔵AI・質問・AIの回答）で工程が変わると renderMatch が作り直すので、費用も一緒に変わる */
 function costPeek(A){const codes=[...new Set(A.codes||[])];if(!D.est||!codes.length)return '';
-  const n=S.qn>0?S.qn:+((String(S.idea).match(/(\d[\d,]*)\s*(個|台|枚|本|着|セット|点|pcs|units)/i)||[])[1]||'').replace(/,/g,'');
+  const n=S.qn>0?S.qn:+((String(S.idea).match(/(\d[\d,]*)\s*(個|台|枚|本|着|セット|点|pcs|units|まい|こ(?![ぁ-ゖ]))/i)||[])[1]||'').replace(/,/g,'');
   const qs=[...new Set([1,n>1?n:0,100].filter(Boolean))].sort((a,b)=>a-b);
   const all=qs.map(q=>estimate(codes,q));
   const known=[...new Set(all.flatMap(o=>o.rows.map(x=>x.code)))],miss=codes.filter(c=>!known.includes(c));
