@@ -1125,8 +1125,8 @@ body::before{background:#fff}
 .composer{background:#fff;border:1px solid var(--line);border-radius:var(--r-lg);padding:var(--s10);box-shadow:none}
 .composer:focus-within{border-color:var(--line);box-shadow:none}
 .clabel{display:flex;justify-content:space-between;align-items:center;gap:var(--s3);padding:0;margin:0 0 var(--s3);font-size:var(--t-md);font-weight:700;color:var(--fg)}
-.reqt,.req{font-weight:500;font-size:var(--t-xs);color:var(--mute);background:var(--panel2);padding:2px 9px;border-radius:4px;letter-spacing:0}
-.composer textarea#idea{display:block;width:100%;min-height:200px;border:1px solid var(--line2);border-radius:var(--r);padding:var(--s5);font-size:var(--t-md);line-height:1.8;background:#fff}
+.reqt,.req{white-space:nowrap;flex:none;font-weight:500;font-size:var(--t-xs);color:var(--mute);background:var(--panel2);padding:2px 9px;border-radius:4px;letter-spacing:0}
+.composer textarea#idea{display:block;width:100%;min-height:140px;border:1px solid var(--line2);border-radius:var(--r);padding:var(--s5);font-size:var(--t-md);line-height:1.8;background:#fff}
 .composer textarea#idea:focus{border-color:var(--ice);box-shadow:0 0 0 3px rgba(36,94,234,.12);outline:none}
 .composer .hint{margin:var(--s3) 0 0;font-size:var(--t-sm);color:var(--mute)}
 .composer .files{padding:var(--s3) 0 0}
@@ -1257,6 +1257,40 @@ body::before{background:#fff}
 }
 @media (max-width:340px){.qdl{grid-template-columns:minmax(0,1fr)}}
 #rf label.chk{display:flex;flex-direction:row;align-items:flex-start;gap:var(--s3)}
+/* 最初の画面：図面の有無と、書き方のガイド（2026-11-15 Nori「ない場合のガイドがかなり重要」） */
+.hasdw{display:flex;align-items:center;justify-content:space-between;gap:var(--s3);flex-wrap:wrap;margin:0 0 var(--s6);padding-bottom:var(--s5);border-bottom:1px solid var(--line)}
+.hdq{font-size:var(--t-md);font-weight:700}
+.hdseg{display:inline-grid;grid-auto-flow:column;grid-auto-columns:minmax(0,auto);background:var(--panel2);border-radius:var(--r-sm);padding:3px;gap:2px}
+.hdseg button{min-height:40px;min-width:72px;padding:0 var(--s4);border:0;border-radius:6px;background:none;font-size:var(--t-sm);color:var(--mute);font-weight:500;white-space:nowrap}
+.hdseg button[aria-pressed="true"]{background:#fff;color:var(--fg);font-weight:700;box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.gde{margin-top:var(--s6);padding-top:var(--s5);border-top:1px solid var(--line);display:grid;gap:var(--s4)}
+.gdeh{display:grid;gap:2px}.gdeh b{font-size:var(--t-md)}.gdeh span{font-size:var(--t-sm);color:var(--mute)}
+.gdel{list-style:none;margin:0;padding:0;display:grid}
+.gdel li{display:grid;grid-template-columns:22px 6.5em minmax(0,1fr);gap:var(--s2) var(--s3);align-items:start;padding:var(--s3) 0;border-top:1px solid var(--line)}
+.gdel li:first-child{border-top:0}
+.gck{width:20px;height:20px;border-radius:50%;border:1.5px solid var(--line2);margin-top:6px;display:grid;place-items:center}
+.gdel li.gdok .gck{background:#262626;border-color:#262626}
+.gdel li.gdok .gck::after{content:"";width:8px;height:5px;border-left:2px solid #fff;border-bottom:2px solid #fff;transform:translateY(-1px) rotate(-45deg)}
+.gdt{font-size:var(--t-sm);font-weight:700;padding-top:7px}
+.gdel li.gdok .gdt{color:var(--mute)}
+.gdch{display:flex;flex-wrap:wrap;gap:6px}
+.gdch button{min-height:34px;padding:4px 12px;border:1px solid var(--line2);border-radius:var(--r-pill);background:#fff;font-size:var(--t-sm);color:var(--fg);line-height:1.4}
+.gdch button:hover{border-color:var(--fg)}
+.gdch button[aria-pressed="true"]{border-color:var(--ice);color:var(--ice);background:var(--accent-bg)}
+.gdph{font-size:var(--t-sm);color:var(--mute);padding-top:6px}
+.gdtip{background:var(--bg2);border-radius:var(--r);padding:var(--s4);display:grid;gap:var(--s3)}
+.gdtip p{margin:0;display:grid;gap:2px;font-size:var(--t-sm)}.gdtip p span{color:var(--mute)}
+.gdbt{display:flex;flex-wrap:wrap;gap:var(--s2);align-items:center}
+.gdbt .btn.sm{background:#fff}
+@media (max-width:600px){
+  .hasdw{margin-bottom:var(--s4);padding-bottom:var(--s4)}
+  .hasdw{gap:var(--s2)}
+  .composer textarea#idea{min-height:108px}
+  .composer .cbar .sp{display:none}
+  .gdel li{grid-template-columns:22px minmax(0,1fr)}
+  .gdel li .gdch,.gdel li .gdph{grid-column:2}
+  .gdt{padding-top:2px}.gck{margin-top:2px}
+}
 </style>
 
 <nav class="nav gut"><div class="wrap">
@@ -1453,10 +1487,10 @@ function renderHome(){
     ${G?modeTabs():''}
     <div class="composer gw" id="gw" ${G?'':'hidden'}></div>
     <form class="composer${DR?' drawm':''}" id="cmp" autocomplete="off" ${G?'hidden':''}>
-      <div class="clabel"><label for="idea">${DR?'図面・データから見積を頼む':'どんなものを作りたいですか？'}</label>${DR?'':'<span class="reqt">必須</span>'}</div>
+      <div class="hasdw"><span class="hdq" id="hdQ">図面や3Dデータはありますか？</span><div class="hdseg" role="group" aria-labelledby="hdQ"><button type="button" data-start="idea" aria-pressed="${!DR}">ない</button><button type="button" data-start="draw" aria-pressed="${DR}">ある</button></div></div>
       <button type="button" class="dpick" id="dPick">＋ 図面・3D・仕様書を入れる<small>PDF・DXF・STEP・STL・写真など。いくつでも</small></button>
-      <textarea id="idea" rows="3" placeholder="${DR?'何の部品・製品ですか？（なくても大丈夫。例：アルミのブラケット）':'例：オリジナルの金属パーツを50個作りたい'}">${esc(DR?'':S.idea)}</textarea>
-      ${G?'':`<p class="hint">${DR?'写真や手描きのスケッチでも受け付けます。':'図面がなくても大丈夫。形・大きさ・素材・使い方・数量など、わかる範囲で書いてください。'}</p>`}
+      <div class="clabel"><label for="idea">${DR?'何の部品・製品ですか？':'どんなものを作りたいですか？'}</label><span class="reqt">${DR?'任意':'必須'}</span></div>
+      <textarea id="idea" rows="3" placeholder="${DR?'例：アルミのブラケット。図面のとおりに100個':'例：オリジナルの金属パーツを50個作りたい'}">${esc(S.idea||'')}</textarea>
       <div class="files" id="files" aria-live="polite"></div>
       <div class="paste" id="paste"><textarea id="pasteT" aria-label="会話を貼る" placeholder="ChatGPT・Gemini・Claude の共有リンクや会話の本文、YouTube・Instagram・TikTok などの動画のリンクを貼り付け"></textarea><div><button type="button" class="btn sm" id="pasteGo">取り込む</button></div>${aiHelp()}</div>
       ${refPanel()}
@@ -1466,8 +1500,9 @@ function renderHome(){
         <button class="btn pri" type="submit">${DR?'見積を頼む':'相談を始める'}${ARW}</button>
       </div>
       <input type="file" id="fileIn" multiple hidden>
+      ${G?'':`<p class="hint">${DR?'図面・3Dデータ・仕様書を上から入れてください（いくつでも）。数と時期は、下から足せます。':'図面がなくても大丈夫。下の項目を押すと、入力欄に足せます。'}</p>`}
+      ${G?'':guideBox(DR)}
     ${G?'':`    <div class="start2" role="group" aria-label="ほかの始め方"><span class="s2l">こんなことからでも始められます</span>
-      <button type="button" data-start="${DR?'idea':'draw'}" aria-pressed="false">${DR?'アイデアから書く':'図面・データがある'}</button>
       <button type="button" id="pasteBtn" aria-expanded="false">AIとの会話を貼る</button>
       <button type="button" class="ref" id="refBtn" aria-expanded="${!!(S.ref&&S.ref.on)}">既製品をもとに作る</button>
       <button type="button" data-mode="guided">型が決まっているもの</button>
@@ -1570,14 +1605,50 @@ function ideaFromUrl(){let q;try{q=new URLSearchParams(location.search)}catch(e)
   if(q.get('edit')==='1'&&!x.ex){location.hash='';renderHome();ideaEdit(x.k,'page');return true}
   S.qty=x.q;S.mode='free';location.hash='';renderHome();if(x.ex){$('#idea').value=D.scen[x.ex].idea;go(null);return true}
   $('#idea').value=x.idea;go(null);return true}
+/* ---------- 最初の画面のガイド（Nori 2026-11-15「必要な情報を直感的に入力できるように」「ない場合のガイドがかなり重要」）----------
+   会社選びに効く点（作る物・数量・大きさ・材料・用途・電子部品・時期）を、押すだけで入力欄に足せる。
+   入力欄の文がそのまま会社選びに使われる（質問やフォームは増やさない）。書いてある点には ✓ が付く。どれも任意 */
+const GUIDE=[
+  ['what','何を作るか',null,'何に使う、どんな物か（例：犬の首輪につけるケース）'],
+  ['qty','数量',['まず試作で1個','10個くらい','100個くらい','1000個以上']],
+  ['size','大きさ',['手のひらくらい（約10cm）','A4くらい（約30cm）','机くらい（約1m）','人が乗れるくらい大きい']],
+  ['mat','材料',['金属','プラスチック（樹脂）','布','木','おまかせ（相談したい）']],
+  ['use','用途',['自分で使う','お店・ネットで売る','会社で使う・配る']],
+  ['elec','電子部品',['使う（センサー・電池など）','使わない']],
+  ['due','希望の時期',['1か月以内','3か月以内','急がない']]];
+const GD_RX={
+  qty:/\d+\s*(個|本|枚|台|着|セット|点|部|冊|袋|箱|組|pcs|pieces|units|个|件|套)|試作|量産|ロット|数量|quantity/i,
+  size:/\d+(\.\d+)?\s*(mm|cm|m\b|ｍｍ|ｃｍ|メートル|センチ|ミリ|インチ|inch|毫米|厘米)|大きさ|サイズ|手のひら|A4|A3|B5|size|尺寸|大小/i,
+  mat:/金属|鉄|ステンレス|アルミ|真鍮|銅|チタン|樹脂|プラスチック|ABS|アクリル|ナイロン|シリコ|ゴム|布|綿|コットン|ポリエステル|革|レザー|木|紙|ガラス|陶|セラミック|カーボン|材料|素材|おまかせ|metal|steel|alumin|plastic|resin|fabric|cotton|leather|wood|paper|glass|material|塑料|布料|木材/i,
+  use:/用途|使う|使い|売る|販売|ノベルティ|備品|ギフト|プレゼント|向け|のため|配る|for my|to sell|\buse\b|用于|销售|自用/i,
+  elec:/電子|電池|バッテリ|センサ|基板|LED|モーター|Bluetooth|Wi-?Fi|充電|スイッチ|IoT|アプリ|electronic|battery|sensor|电子|电池|传感/i,
+  due:/\d+\s*(月|か月|ヶ月|カ月|週|日)|まで|納期|時期|急ぎ|急がない|いつでも|month|week|deadline|urgent|月内|交期/i};
+const GD_EX=['犬の首輪につける、小さなセンサーケースを作りたい。','雨に濡れても大丈夫で、首輪に固定できる形。','数量：まず試作で3個','大きさ：手のひらくらい（約5cm）','材料：おまかせ（相談したい）','用途：自分で使う','電子部品：使う（センサー・電池など）'];
+function guideBox(DR){const items=DR?GUIDE.filter(g=>['qty','mat','due'].includes(g[0])).map(g=>g[0]==='mat'?['mat','材料',['図面のとおり','おまかせ（相談したい）']]:g):GUIDE;
+  return `<div class="gde" id="gde"><div class="gdeh"><b>${DR?'図面のほかに伝えること':'合う会社が見つかりやすくなる書き方'}</b><span>${DR?'わかる点だけで大丈夫です。押すと入力欄に足せます。':'わかる点だけで大丈夫です。押すと入力欄に足せます。決まっていない点は、空けたままで送れます。'}</span></div>
+    <ul class="gdel">${items.map(([k,t,ch,ph])=>`<li data-gk="${k}"><span class="gck" aria-hidden="true"></span><b class="gdt">${t}</b>${ch?`<span class="gdch">${ch.map(c=>`<button type="button" data-gadd="${k}" aria-pressed="false">${c}</button>`).join('')}</span>`:`<span class="gdph">${ph}</span>`}</li>`).join('')}</ul>
+    ${DR?'':`<div class="gdtip"><p><b>形を伝えるコツ</b><span>写真・手描きのスケッチ・似た製品のページがあると、言葉より早く伝わります。寸法は「だいたい」で大丈夫です。</span></p><div class="gdbt"><button type="button" class="btn sm" data-gpick>写真・スケッチを添付</button><button type="button" class="btn sm" data-gref>似た製品のURLを入れる</button><button type="button" class="glink" data-gex>書き方の例を入れる</button></div></div>`}
+  </div>`}
+function guideMark(){const ta=$('#idea'),g=$('#gde');if(!ta||!g)return;const t=ta.value;
+  g.querySelectorAll('[data-gk]').forEach(li=>{const k=li.dataset.gk;const on=k==='what'?(t.replace(/^[^\n]*[:：][^\n]*$/gm,'').replace(/\s/g,'').length>=6):GD_RX[k].test(t);li.classList.toggle('gdok',on)})}
+function guideBind(){const g=$('#gde'),ta=$('#idea');if(!g||!ta)return;
+  g.querySelectorAll('[data-gadd]').forEach(b=>b.onclick=()=>{const k=b.dataset.gadd;const lab=b.closest('li').querySelector('.gdt').textContent.trim();const line=`${lab}：${b.textContent.trim()}`;
+    const ls=ta.value.split('\n');const i=ls.findIndex(x=>x.startsWith(lab+'：')||x.startsWith(lab+':'));if(i>=0)ls[i]=line;else{while(ls.length&&!ls[ls.length-1].trim())ls.pop();ls.push(line)}
+    ta.value=ls.join('\n').replace(/^\n+/,'');ta.dispatchEvent(new Event('input'));track('guide_add',{item:k});
+    b.closest('.gdch').querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)))});
+  const pk=g.querySelector('[data-gpick]');pk&&(pk.onclick=()=>{track('guide_attach',{});$('#fileIn').click()});
+  const rf=g.querySelector('[data-gref]');rf&&(rf.onclick=()=>{track('guide_ref',{});const r=$('#refBtn');if(r&&r.getAttribute('aria-expanded')!=='true')r.click();const p=$('.refp');p&&p.scrollIntoView({block:'center'})});
+  const ex=g.querySelector('[data-gex]');ex&&(ex.onclick=()=>{if(ta.value.trim()&&!ex.dataset.armed){ex.dataset.armed=1;ex.textContent='書いた文を例で置き換える（もう一度押す）';return}
+    delete ex.dataset.armed;track('guide_example',{});ta.value=GD_EX.join('\n');ta.dispatchEvent(new Event('input'));ta.focus()});
+  guideMark()}
 function bindHome(){
   const f=$('#cmp'),ta=$('#idea');
-  let started=false;const grow=()=>{ta.style.height='auto';ta.style.height=Math.min(ta.scrollHeight,260)+'px'};ta.oninput=()=>{grow();if(!started&&ta.value.trim()){started=true;track('form_input_start',{form:'idea'})}};grow();
+  let started=false;const grow=()=>{ta.style.height='auto';ta.style.height=Math.min(ta.scrollHeight,260)+'px'};ta.oninput=()=>{grow();guideMark();if(!started&&ta.value.trim()){started=true;track('form_input_start',{form:'idea'})}};grow();guideBind();
   $$('[data-qty]').forEach(b=>b.onclick=()=>{S.qty=b.dataset.qty;track('select_quantity',{quantity:S.qty});$$('[data-qty]').forEach(x=>x.setAttribute('aria-pressed',x===b))});
   $$('[data-haigo]').forEach(a=>a.onclick=()=>{const A={home:true,idea:ta.value.trim()};a.href=aiUrl(a.dataset.haigo,A);aiCopy(aiQuestion(A));track('ai_consult_open',{ai:a.dataset.haigo,place:'home',chars:A.idea.length})});
   $$('[data-ex]').forEach(b=>b.onclick=()=>{track('example_click',{example:b.dataset.ex});ta.value=D.scen[b.dataset.ex].idea;go(null)});
   $('#pick').onclick=()=>$('#fileIn').click();$('#dPick')&&($('#dPick').onclick=()=>$('#fileIn').click());
-  $$('[data-start]').forEach(b=>b.onclick=()=>{if(S.start===b.dataset.start)return;S.start=b.dataset.start;track('start_choice',{start:S.start});renderHome();const t=$('#idea');t&&t.focus({preventScroll:true})});
+  $$('[data-start]').forEach(b=>b.onclick=()=>{if(S.start===b.dataset.start)return;S.idea=$('#idea')?$('#idea').value:S.idea;S.start=b.dataset.start;track('start_choice',{start:S.start});renderHome();const t=$('#idea');t&&t.focus({preventScroll:true})});
   $('#fileIn').onchange=e=>{[...e.target.files].forEach(addFile);e.target.value=''};
   $('#pasteBtn')&&($('#pasteBtn').onclick=()=>{const on=$('#paste').classList.toggle('on');$('#pasteBtn').setAttribute('aria-expanded',on);if(on)$('#pasteT').focus()});
   wireRef();
