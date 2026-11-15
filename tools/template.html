@@ -6,10 +6,10 @@
 :root{
   /* KATACHI デザインシステム（2026-11 全面リニューアル）。色・文字・余白・角丸・影はここだけで決める。
      基本は白・黒・グレー。青（--ice）はボタンと選択中だけに使う */
-  --bg:#ffffff; --bg2:#f6f6f7; --panel:#ffffff; --panel2:#f1f1f3; --hover:#f4f4f6; --accent-bg:#eef2fc;
-  --line:rgba(12,13,16,.08); --line2:rgba(12,13,16,.15);
-  --fg:#0c0d10; --fg2:#2a2c31; --mute:#55585f; --dim:#6e7179;
-  --ice:#2350c8; --ice-ink:#ffffff; --ice-dk:#1a3fa3; --amber:#9a5b00; --mint:#137a52; --red:#b3261e;
+  --bg:#ffffff; --bg2:#f7f7f7; --page:#f7f7f7; --panel:#ffffff; --panel2:#f2f2f2; --hover:#f4f4f4; --accent-bg:#eef3ff;
+  --line:#e5e5e5; --line2:#cecece;
+  --fg:#181818; --fg2:#2b2b2b; --mute:#707070; --dim:#8a8a8a;
+  --ice:#245eea; --ice-ink:#ffffff; --ice-dk:#174bc9; --amber:#9a5b00; --mint:#137a52; --red:#b3261e;
   --f-jp:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Hiragino Kaku Gothic ProN","Noto Sans JP","Yu Gothic UI","Yu Gothic","PingFang SC","Microsoft YaHei",Meiryo,sans-serif;
   --f-lat:var(--f-jp); --f-body:var(--f-jp);
   --f-mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
@@ -18,7 +18,7 @@
   /* 余白（4の倍数） */
   --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:20px; --s6:24px; --s8:32px; --s10:40px; --s12:48px; --s16:64px;
   /* 角丸・影 */
-  --r-sm:8px; --r:12px; --r-lg:16px; --r-xl:20px; --r-pill:999px;
+  --r-sm:8px; --r:12px; --r-lg:18px; --r-xl:18px; --r-pill:999px;
   --sh-1:0 1px 2px rgba(12,13,16,.04),0 1px 1px rgba(12,13,16,.03);
   --sh-2:0 8px 28px -12px rgba(12,13,16,.18),0 1px 2px rgba(12,13,16,.05);
   --tap:44px; color-scheme:light;
@@ -1079,6 +1079,184 @@ p,li,dd,small,span{line-break:strict}
 .modes button[aria-selected="true"] b{color:var(--fg)}
 /* フッター（prod.py が足す） */
 .sfoot{border-top:1px solid var(--line);color:var(--mute)}
+/* =====================================================================
+   KATACHI デザインシステム v4（2026-11-15 Nori さんの ChatGPT デザイン案を取り込み）
+   薄いグレーの地に白いパネル。番号の丸と線の進み具合。青は主ボタン・選択中・今の段だけ。
+   機能（★おすすめ・送り先の切り替え・任意の質問・送信）は変えず、見た目だけをここで決める
+   ===================================================================== */
+html,body{background:var(--page);margin:0}
+body::before{background:#fff}
+.nav{background:#fff;backdrop-filter:none}
+.nav .wrap{height:64px;max-width:1160px}
+.brand img{width:30px!important;height:30px!important}
+.brand b{font-weight:800;letter-spacing:.105em;font-size:17px}
+.tagl{font-size:var(--t-sm);color:var(--mute);white-space:nowrap}
+.langs{background:#fff;border:1px solid var(--line);padding:2px}
+.langs button[aria-pressed="true"]{background:var(--panel2);box-shadow:none}
+.nav .tag{display:none}
+@media (min-width:900px){.nav .wrap{height:74px}}
+@media (max-width:760px){.tagl{display:none}}
+
+/* 進み具合：丸い番号と線 */
+.stepbar{margin:0 0 var(--s10);max-width:740px}
+.stepbar ol{display:flex;align-items:center;gap:var(--s3)}
+.stepbar li{display:flex;align-items:center;gap:var(--s3);min-width:0;flex:0 1 auto}
+.stepbar li:not(:last-child){flex:1 1 auto}
+.stepbar li:not(:last-child)::after{content:"";flex:1;height:1px;background:var(--line2);min-width:8px}
+.stepbar li>*{flex:none;flex-direction:row;align-items:center;gap:var(--s2);width:auto;color:var(--dim);min-width:0}
+.stepbar li>*::before{display:none}
+.stepbar .sn{flex:none;display:grid;place-items:center;width:26px;height:26px;border-radius:50%;border:1px solid var(--line2);font-style:normal;font-size:12px;color:var(--dim);margin:0;font-family:var(--f-jp)}
+.stepbar b{font-size:var(--t-sm);font-weight:500;white-space:nowrap;display:block;line-height:1.4}
+.stepbar li.on>*{color:var(--fg)}.stepbar li.on b{font-weight:700}
+.stepbar li.on .sn{background:var(--ice);border-color:var(--ice);color:#fff}
+.stepbar li.done>*{color:var(--mute)}
+.stepbar li.done .sn{background:#262626;border-color:#262626;color:#fff;font-size:11px}
+@media (max-width:600px){.stepbar{margin-bottom:var(--s6)}.stepbar ol,.stepbar li{gap:var(--s2)}.stepbar .sn{width:23px;height:23px;font-size:11px}.stepbar b{font-size:11px}}
+@media (max-width:600px){.stepbar li:not(:last-child)::after{min-width:4px}.stepbar b{white-space:normal;line-height:1.25;max-width:6.5em}}
+@media (max-width:360px){.stepbar ol,.stepbar li{gap:5px}.stepbar b{max-width:5.5em}}
+
+/* 見出し */
+.hero .wrap{max-width:760px;padding-block:var(--s12) var(--s8)}
+.hero h1{font-size:32px;font-weight:700;line-height:1.35;letter-spacing:-.035em}
+.hero .sub{font-size:var(--t-md);margin:var(--s3) 0 var(--s10)}
+@media (max-width:600px){.hero .wrap{padding-block:var(--s8) var(--s6)}.hero h1{font-size:26px}.hero .sub{font-size:14px;margin-bottom:var(--s6)}}
+
+/* 入力パネル */
+.composer{background:#fff;border:1px solid var(--line);border-radius:var(--r-lg);padding:var(--s10);box-shadow:none}
+.composer:focus-within{border-color:var(--line);box-shadow:none}
+.clabel{display:flex;justify-content:space-between;align-items:center;gap:var(--s3);padding:0;margin:0 0 var(--s3);font-size:var(--t-md);font-weight:700;color:var(--fg)}
+.reqt,.req{font-weight:500;font-size:var(--t-xs);color:var(--mute);background:var(--panel2);padding:2px 9px;border-radius:4px;letter-spacing:0}
+.composer textarea#idea{display:block;width:100%;min-height:200px;border:1px solid var(--line2);border-radius:var(--r);padding:var(--s5);font-size:var(--t-md);line-height:1.8;background:#fff}
+.composer textarea#idea:focus{border-color:var(--ice);box-shadow:0 0 0 3px rgba(36,94,234,.12);outline:none}
+.composer .hint{margin:var(--s3) 0 0;font-size:var(--t-sm);color:var(--mute)}
+.composer .files{padding:var(--s3) 0 0}
+.composer .cbar{padding:0;margin-top:var(--s5);gap:var(--s3)}
+.composer .clip{border:1px solid var(--line2);height:48px;border-radius:var(--r-sm);padding:0 var(--s4)}
+.btn.pri{border-radius:var(--r-sm);box-shadow:none;font-weight:700}
+.cbar>.btn.pri,.dock .btn.pri{height:52px;min-width:220px;border-radius:var(--r-sm);padding:0 var(--s6);gap:var(--s4);justify-content:center}
+.composer .start2{margin:var(--s8) 0 0;padding-top:var(--s6);border-top:1px solid var(--line)}
+.start2 .s2l{font-size:var(--t-sm);font-weight:700;color:var(--fg);margin-bottom:var(--s1)}
+.start2 button{min-height:38px;padding:8px 13px;border:1px solid var(--line2);border-radius:var(--r-pill);font-size:var(--t-sm);color:var(--fg);line-height:1.45}
+.ctip{display:flex;gap:var(--s3);align-items:flex-start;margin:var(--s6) 0 0;font-size:var(--t-sm);color:var(--mute)}
+.tipm{flex:none;width:21px;height:21px;line-height:19px;text-align:center;border:1px solid var(--line2);border-radius:50%;font-size:12px;font-style:normal}
+.composer.drawm .dpick{margin:0 0 var(--s3)}
+.paste.on,.refp.on{padding:var(--s3) 0 0}
+.logn{margin:var(--s5) 4px 0}
+@media (max-width:600px){
+  .composer{padding:var(--s5);border-radius:var(--r)}
+  .composer textarea#idea{min-height:132px;padding:var(--s4)}
+  .composer .cbar>.btn.pri{min-width:0;flex:1;padding:0 var(--s4);gap:var(--s2)}
+  .composer .start2{margin-top:var(--s6)}
+}
+
+/* トップの下の段：白いパネル */
+.how3 .wrap,.trust .wrap{border-top:0}
+.how3 .wrap{background:#fff;border:1px solid var(--line);border-radius:var(--r-lg);padding:var(--s8) var(--s10);margin-block:var(--s4)}
+.ideas{border-top:0}
+.trust .wrap{max-width:1160px}
+.icard{background:#fff}
+.steps4 i{background:#262626}
+@media (max-width:600px){.how3 .wrap{padding:var(--s6) var(--s5)}}
+
+/* 画面2：左に候補、右に整理した条件 */
+.gpick{max-width:1160px;padding:var(--s12) 0 140px}
+.cohd{margin:0 0 var(--s8);gap:var(--s3)}
+.stepnow{font-size:32px;line-height:1.35;letter-spacing:-.035em}
+.cosub{font-size:var(--t-md)}
+.colay{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:var(--s6);align-items:start}
+.comain{min-width:0;display:grid;gap:var(--s4);align-content:start}
+.coside{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:var(--s6);position:sticky;top:96px;display:grid;gap:var(--s4);min-width:0}
+.coside .rq{border-bottom:1px solid var(--line);padding-bottom:var(--s4)}
+.coside .rq .glink{margin-top:0;color:var(--mute);text-decoration-color:currentColor}
+.coside .rqt{font-size:var(--t-md)}
+.coside .cond{padding:0;border:0}
+.coside .cdh h2{font-size:var(--t-lg)}
+.coside .cdl{grid-template-columns:minmax(0,1fr);gap:0}
+.coside .cdr{grid-template-columns:minmax(0,1fr);gap:3px;padding:var(--s3) 0;border-top:1px solid var(--line)}
+.coside .cdr:nth-child(-n+2){border-top:1px solid var(--line)}
+.coside .cdr:first-child{border-top:0}
+.coside .cdr dd{justify-content:space-between}
+.cdt.none,.pend{background:var(--panel2);color:var(--mute);box-shadow:none;font-weight:500}
+.cdt.you{background:#262626}
+.coback{margin:var(--s4) 0 0}
+.coback .glink,.qbk{color:var(--mute);text-decoration-color:currentColor}
+@media (max-width:900px){
+  .colay{grid-template-columns:minmax(0,1fr)}
+  .coside{position:static;grid-row:1}
+  .coside .cdl{grid-template-columns:repeat(2,minmax(0,1fr));column-gap:var(--s5)}
+  .coside .cdr:nth-child(2){border-top:0}
+}
+@media (max-width:600px){.gpick{padding-top:var(--s8)}.stepnow{font-size:26px}.cosub{font-size:14px}.coside{padding:var(--s5)}.colay{gap:var(--s8)}}
+@media (max-width:600px){.coside .cdr dd{flex-direction:column;align-items:flex-start;gap:4px}.coside .cdh .cdlg{display:none}}
+@media (max-width:340px){.coside .cdl{grid-template-columns:minmax(0,1fr)}.coside .cdr:nth-child(2){border-top:1px solid var(--line)}}
+
+/* 候補のカード：白い箱。選んだ会社は青い2pxの枠と四角のチェック */
+.rec{background:none}
+.rec .rtag{color:var(--mute)}
+.rwin{border-color:var(--line)}
+.stp{background:none}
+.opt{grid-template-columns:24px minmax(0,1fr);gap:var(--s4);padding:var(--s5);border:1px solid var(--line);border-radius:var(--r)}
+.opt.on{border:2px solid var(--ice);padding:calc(var(--s5) - 1px);box-shadow:none}
+.opt input{appearance:none;-webkit-appearance:none;width:22px;height:22px;margin:3px 0 0;border:1.5px solid var(--line2);border-radius:6px;background:#fff;display:grid;place-items:center}
+.opt input:checked{background:var(--ice);border-color:var(--ice)}
+.opt input:checked::after{content:"";width:10px;height:6px;border-left:2px solid #fff;border-bottom:2px solid #fff;transform:translateY(-1px) rotate(-45deg)}
+.opt input:focus-visible{outline:2px solid var(--ice);outline-offset:2px}
+.opt b{font-size:var(--t-lg)}
+.opt .rk{background:var(--panel2);color:var(--fg2);border-radius:5px;font-weight:600}
+.opt .om{font-size:var(--t-sm)}
+.alts .altl .opt{background:#fff}
+.dsto{background:#fff;border:1px solid var(--line);border-radius:var(--r)}
+.dsto button[aria-pressed="true"]{background:var(--ice);color:#fff;box-shadow:none}
+.dsg .dst button[aria-pressed=true]{background:#262626;border-color:#262626}
+.dsg .dsl li{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:var(--s4)}
+.qbar{border-top:1px solid var(--line)}
+.empty{background:#fff;border:1px solid var(--line)}
+@media (max-width:600px){.opt{padding:var(--s4);gap:var(--s3)}.opt.on{padding:calc(var(--s4) - 1px)}.opt b{font-size:15px}}
+
+/* 下のバー */
+.dock{background:#fff;backdrop-filter:none}
+.dock .wrap{max-width:1160px}
+@media (max-width:600px){.dock .btn.pri{min-width:0;height:48px;padding:0 var(--s4)}}
+
+/* 画面3：確認して送る（1枚のページ） */
+.sheet.qkon{left:0;width:100%!important;max-width:none;background:var(--page);border:0;box-shadow:none;animation:none;
+  padding:calc(var(--s12) + env(safe-area-inset-top,0px)) max(var(--s6),calc((100% - 820px)/2)) calc(88px + env(safe-area-inset-bottom,0px))}
+.sheet.qkon>.stepbar{order:-1;margin-bottom:var(--s4)}
+.sheet.qkon .sh h2{font-size:32px;line-height:1.35;letter-spacing:-.035em;margin-top:0!important}
+.sheet.qkon .sh .x{background:#fff;border:1px solid var(--line)}
+.sheet.qkon .qklead{font-size:var(--t-md)!important;color:var(--mute)}
+.sheet.qkon .rflead{display:none}
+.qpn{background:#fff;border:1px solid var(--line);border-radius:var(--r-lg);padding:var(--s8)}
+.qph{display:flex;align-items:center;justify-content:space-between;gap:var(--s4);margin:0 0 var(--s5)}
+.qph h3,.qto h4{font-size:var(--t-lg);font-weight:700;margin:0;color:var(--fg);letter-spacing:0}
+.qph .glink,.qreco{color:var(--mute);text-decoration-color:currentColor;white-space:nowrap}
+.qdl{margin:0;display:grid;grid-template-columns:1fr 1fr;gap:var(--s5) var(--s6)}
+.qdl .w{grid-column:1/-1}
+.qdl dt{font-size:var(--t-xs);color:var(--mute);margin-bottom:4px}
+.qdl dd{margin:0;font-size:14px}
+.pend{display:inline-block;font-size:var(--t-xs);border-radius:4px;padding:2px 7px}
+.qto #rfTo{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:var(--s4);align-items:center;border:0;padding:0;background:none}
+.qto #rfTo>:not(h4):not(.qreco){grid-column:1/-1}
+.qto .list li{background:none;border-radius:0;border-top:1px solid var(--line);padding:var(--s4) 0}
+.qto .list li:first-child{border-top:0;padding-top:0}
+.qk.qpn{display:grid;gap:var(--s5)}
+.qk.qpn .qph{margin:0}
+.wzatt.qpn{background:#fff;border:1px solid var(--line)}
+.grp.qpn{padding:0}
+.qnote{display:block;background:var(--panel2)!important;border:0!important;border-radius:var(--r-sm);padding:var(--s4)!important;color:#555;font-size:var(--t-sm)}
+.qnote b{display:block;color:var(--fg2)}
+.qfoot{display:flex;align-items:center;justify-content:space-between;gap:var(--s4);margin-top:var(--s3)}
+#rf .qfoot>button[type=submit]{width:auto;min-width:235px;height:52px;font-size:var(--t-md);border-radius:var(--r-sm)}
+@media (max-width:600px){
+  .sheet.qkon{padding:calc(var(--s8) + env(safe-area-inset-top,0px)) var(--s4) calc(72px + env(safe-area-inset-bottom,0px))}
+  .sheet.qkon .sh h2{font-size:26px}
+  .qpn{padding:var(--s5);border-radius:var(--r)}
+  .qdl{gap:var(--s4)}
+  .qfoot{flex-wrap:wrap}
+  #rf .qfoot>button[type=submit]{width:100%;order:-1}
+}
+@media (max-width:340px){.qdl{grid-template-columns:minmax(0,1fr)}}
+#rf label.chk{display:flex;flex-direction:row;align-items:flex-start;gap:var(--s3)}
 </style>
 
 <nav class="nav gut"><div class="wrap">
@@ -1086,6 +1264,7 @@ p,li,dd,small,span{line-break:strict}
     <img src="/logo-mark.png" width="24" height="24" alt="" style="display:block;border-radius:50%">
     <b>KATACHI</b></a>
   <span class="sp"></span>
+  <span class="tagl">ものづくりを、もっと身近に。</span>
   <span id="mt"></span>
   <div class="langs" role="group" aria-label="Language" translate="no"><button data-lang="ja">日本語</button><button data-lang="en">EN</button><button data-lang="zh">中文</button></div>
   <span class="tag">PROTOTYPE</span>
@@ -1188,7 +1367,7 @@ addEventListener('hashchange',route);
 /* ---------- 2ステップ（書く→選んで送る）。Nori 2026-11-15「ステップ2はもっとシンプルに。相談会社一覧もしくは見積もり依頼工場一覧が出てくる。あとは利用者がサブミットして終わり」。
    ②は図面が要る内容なら設計の相談先、作れる内容なら見積を頼む工場の一覧（★おすすめ選択済み）。製品イメージ案（#match）は任意の寄り道 ---------- */
 const STEPS=['伝える','会社を選ぶ','確認して送る'];
-function stepBar(n){return `<nav class="stepbar" aria-label="進み具合"><ol>${STEPS.map((t,i)=>{const k=i+1,cls=k<n?'done':k===n?'on':'';const inner=`<b><i class="mono">${k}</i>${t}</b>`;
+function stepBar(n){return `<nav class="stepbar" aria-label="進み具合"><ol>${STEPS.map((t,i)=>{const k=i+1,cls=k<n?'done':k===n?'on':'';const inner=`<i class="sn" aria-hidden="true">${k<n?'✓':k}</i><b>${t}</b>`;
   return `<li class="${cls}"${k===n?' aria-current="step"':''}>${k<n?`<button type="button" data-stepgo="${k}">${inner}</button>`:`<span>${inner}</span>`}</li>`}).join('')}</ol></nav>`}
 function bindStepBar(root){(root||document).querySelectorAll('[data-stepgo]').forEach(b=>b.onclick=()=>{const k=+b.dataset.stepgo;track('step_back',{to:k});if($('#ov .sheet'))closeSheet();
   if(k===1){S.mode='free';location.hash=''}else if(k===2){if($('#ov .sheet'))closeSheet();location.hash='co'}})}
@@ -1268,14 +1447,16 @@ function renderHome(){
      図面がある人・会話を貼る・既製品をもとに・型が決まっているものは、入力欄の下の「ほかの始め方」にまとめる */
   $('#app').innerHTML=`
   <section class="hero gut"><div class="wrap">
+    ${G?'':stepBar(1)}
     <h1>${G?'選んで、<br>工場を探す。':'作りたいものを、<br>カタチに。'}</h1>
     <p class="sub">${G?'ノベルティ・部品・袋物など、型が決まっているものは、選ぶだけで対応できる会社が見つかります。':DR?'図面・3Dデータ・仕様書を入れて、数と時期を伝えるだけ。担当者が図面を見て、作れる工場を探します。':'アイデアを伝えるだけで、ものづくりの第一歩が始まります。'}</p>
     ${G?modeTabs():''}
     <div class="composer gw" id="gw" ${G?'':'hidden'}></div>
     <form class="composer${DR?' drawm':''}" id="cmp" autocomplete="off" ${G?'hidden':''}>
-      <label for="idea" class="clabel">${DR?'図面・データから見積を頼む':'どんなものを作りたいですか？'}</label>
+      <div class="clabel"><label for="idea">${DR?'図面・データから見積を頼む':'どんなものを作りたいですか？'}</label>${DR?'':'<span class="reqt">必須</span>'}</div>
       <button type="button" class="dpick" id="dPick">＋ 図面・3D・仕様書を入れる<small>PDF・DXF・STEP・STL・写真など。いくつでも</small></button>
       <textarea id="idea" rows="3" placeholder="${DR?'何の部品・製品ですか？（なくても大丈夫。例：アルミのブラケット）':'例：オリジナルの金属パーツを50個作りたい'}">${esc(DR?'':S.idea)}</textarea>
+      ${G?'':`<p class="hint">${DR?'写真や手描きのスケッチでも受け付けます。':'図面がなくても大丈夫。形・大きさ・素材・使い方・数量など、わかる範囲で書いてください。'}</p>`}
       <div class="files" id="files" aria-live="polite"></div>
       <div class="paste" id="paste"><textarea id="pasteT" aria-label="会話を貼る" placeholder="ChatGPT・Gemini・Claude の共有リンクや会話の本文、YouTube・Instagram・TikTok などの動画のリンクを貼り付け"></textarea><div><button type="button" class="btn sm" id="pasteGo">取り込む</button></div>${aiHelp()}</div>
       ${refPanel()}
@@ -1285,15 +1466,16 @@ function renderHome(){
         <button class="btn pri" type="submit">${DR?'見積を頼む':'相談を始める'}${ARW}</button>
       </div>
       <input type="file" id="fileIn" multiple hidden>
-    </form>
-    ${G?'':`<p class="hint">${DR?'写真や手描きのスケッチでも受け付けます。':'図面がなくても大丈夫。まずはアイデアから。'}</p>
-    <div class="start2" role="group" aria-label="ほかの始め方"><span class="s2l">ほかの始め方</span>
+    ${G?'':`    <div class="start2" role="group" aria-label="ほかの始め方"><span class="s2l">こんなことからでも始められます</span>
       <button type="button" data-start="${DR?'idea':'draw'}" aria-pressed="false">${DR?'アイデアから書く':'図面・データがある'}</button>
       <button type="button" id="pasteBtn" aria-expanded="false">AIとの会話を貼る</button>
       <button type="button" class="ref" id="refBtn" aria-expanded="${!!(S.ref&&S.ref.on)}">既製品をもとに作る</button>
       <button type="button" data-mode="guided">型が決まっているもの</button>
       <button type="button" id="toIdeas">作例から選ぶ</button>
-    </div>`}
+    </div>
+    <p class="ctip"><span class="tipm" aria-hidden="true">i</span><span>書いた内容から、工場に相談しやすい条件に整理します。まだ決まっていないことは、あとから選べます。</span></p>`}
+    </form>
+
     ${mineRow()}
     <p class="logn">入力した内容は、サービスの改善と傾向の分析のために保存します。メールアドレスや電話番号は書かないでください。</p>
   </div></section>
@@ -2683,7 +2865,7 @@ async function renderPick(){
     ${!all.length?`<div class="empty"><b>条件に合う会社が見つかりませんでした</b>地域・「試作に対応」・料金や品質の絞り込みを外すか、このまま依頼してください。担当者が探してお声がけします。</div>`:''}
     <p class="muted" style="font-size:12.5px;margin-top:24px">一覧は公開情報から集めたものです。「要確認」の会社は、見積の依頼で対応できるかを確かめます。順番は、選んだ加工への対応・確認の度合い・数量への合い方で決めています。</p>
   </div></section>`;
-  const dock=()=>{$('#dock').innerHTML=`<div class="dock gut"><div class="wrap"><div class="gdl"><b>${S.gsel.length?`${S.gsel.length}社 · 選択中`:'会社選びは担当者に任せる'}</b><small translate="${S.gsel.length?'no':'yes'}">${S.gsel.length?S.gsel.map(esc).join('、'):'候補から合いそうな会社を選んで打診します'}</small></div><span class="sp"></span><button class="btn pri" id="gRfq">${S.src==='text'&&location.hash==='#co'&&S.dsOn&&(S.dsTo||'ds')==='ds'&&S.gsel.length?'相談を送る':'見積を依頼する'}</button></div></div>`;$('#gRfq').onclick=gRfq};dock();
+  const dock=()=>{$('#dock').innerHTML=`<div class="dock gut"><div class="wrap"><div class="gdl"><b>${S.gsel.length?`${S.gsel.length}社 · 選択中`:'会社選びは担当者に任せる'}</b><small translate="${S.gsel.length?'no':'yes'}">${S.gsel.length?S.gsel.map(esc).join('、'):'候補から合いそうな会社を選んで打診します'}</small></div><span class="sp"></span><button class="btn pri" id="gRfq">${S.src==='text'&&location.hash==='#co'&&S.dsOn&&(S.dsTo||'ds')==='ds'&&S.gsel.length?'相談を送る':'見積を依頼する'}<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div></div>`;$('#gRfq').onclick=gRfq};dock();
   $('#gEdit').onclick=()=>{S.mode='guided';S.g.step=1;location.hash=''};
   $('#gArea').value=S.gf.area;$('#gArea').onchange=e=>{S.gf.area=e.target.value;S.gshow=20;track('filter_company',{filter:'area',source:'guided'});renderPick()};
   $('#gProto').onchange=e=>{S.gf.proto=e.target.checked;S.gshow=20;track('filter_company',{filter:'proto',source:'guided'});renderPick()};
@@ -2888,7 +3070,7 @@ function coCard(r,chipCodes){const[n,ct,pref,city,web,caps,proto,nodraw,ml,mat,l
 function bindPicks(rerender){
   $$('[data-pick]').forEach(b=>b.onchange=()=>{const n=b.dataset.pick;S.autoPick=false;if(S.planPick){S.planPick='';$$('[data-plan-pick]').forEach(x=>{x.setAttribute('aria-pressed','false');x.classList.remove('pri')});$$('.pcard.on').forEach(x=>x.classList.remove('on'))}if(b.checked){if(S.gsel.length>=8){b.checked=false;return}S.gsel.push(n);S.gstep[n]=b.closest('[data-step]')?.dataset.step||S.gstep[n]}else S.gsel=S.gsel.filter(x=>x!==n);
     b.closest('.gco').classList.toggle('on',b.checked);track('select_company',{source:S.src,selected:S.gsel.length});pickDock()})}
-function pickDock(){$('#dock').innerHTML=`<div class="dock gut"><div class="wrap"><div class="gdl"><b>${S.gsel.length?`${S.src==='text'&&S.dsOn&&(S.dsTo||'ds')==='ds'&&location.hash==='#co'?'設計の相談先 · ':S.planPick?PLAN_L[S.planPick]+' · ':''}${S.gsel.length}社 · 選択中`:'会社選びは担当者に任せる'}</b><small translate="${S.gsel.length?'no':'yes'}">${S.gsel.length?S.gsel.map(esc).join('、'):'候補から合いそうな会社を選んで打診します'}</small></div><span class="sp"></span><button class="btn pri" id="gRfq">${S.src==='text'&&location.hash==='#co'&&S.dsOn&&(S.dsTo||'ds')==='ds'&&S.gsel.length?'相談を送る':'見積を依頼する'}</button></div></div>`;$('#gRfq').onclick=gRfq}
+function pickDock(){$('#dock').innerHTML=`<div class="dock gut"><div class="wrap"><div class="gdl"><b>${S.gsel.length?`${S.src==='text'&&S.dsOn&&(S.dsTo||'ds')==='ds'&&location.hash==='#co'?'設計の相談先 · ':S.planPick?PLAN_L[S.planPick]+' · ':''}${S.gsel.length}社 · 選択中`:'会社選びは担当者に任せる'}</b><small translate="${S.gsel.length?'no':'yes'}">${S.gsel.length?S.gsel.map(esc).join('、'):'候補から合いそうな会社を選んで打診します'}</small></div><span class="sp"></span><button class="btn pri" id="gRfq">${S.src==='text'&&location.hash==='#co'&&S.dsOn&&(S.dsTo||'ds')==='ds'&&S.gsel.length?'相談を送る':'見積を依頼する'}<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div></div>`;$('#gRfq').onclick=gRfq}
 /* ---------- 料金・品質・納期で比べる（見積の前の目安） ----------
    点数や星は出さない。掲載情報・国の公開データ（gBizINFO）・所在地から分かる事実だけを、出典つきで並べる。
    材料は data/companies.json の列14（tools/company_signals.py）。根拠がない軸は「見積で確認」。並べ替えの点数は画面に出さない。 */
@@ -3079,11 +3261,13 @@ async function renderMatch(){
     if(DS&&S.autoPick!==false){const isD=n=>S.gstep[n]==='設計（図面・3Dデータ）';if(dsTo==='ds'){const d=S.gsel.find(n=>/設計/.test(S.gstep[n]||''));if(d)S.gsel=[d]}else if(dsTo==='mk')S.gsel=S.gsel.filter(n=>!isD(n))}
     const toBar=DS?`<div class="dsto" role="group" aria-label="送り先">${[['ds','設計を相談'],['mk','工場に見積'],['both','両方']].map(([k,t])=>`<button type="button" data-dsto="${k}" aria-pressed="${dsTo===k}">${t}</button>`).join('')}</div>`:'';
     const imgL=A.concept?`<p class="toimg"><button type="button" class="glink" data-toimg>製品イメージ案（3D・寸法図）を見る・直す</button><small>任意</small></p>`:'';
-    body=`${stepBar(2)}${head3}${S.files.length?`<div class="files rqf">${''}</div>`:''}${blocked?notices+blockedNext(A):''}${A.codes.length&&A.concept?condBox(A,DS):''}
-    ${A.codes.length?`${S.dsFirst&&!DS?(MKv?'<p class="dsnone"><b>この品は、専門のメーカーが設計から作ります</b><span>図面だけを先に頼む必要はありません。下のメーカーに、そのまま相談してください。</span></p>':'<p class="dsnone"><b>この品は、作る会社が配合・処方から考えます</b><span>図面だけを先に頼む必要はありません。下のおすすめの会社に、そのまま相談してください。</span></p>'):''}<div class="cohd"><h2 class="stepnow">${DS?{ds:'設計を相談する会社',mk:'見積を頼む工場',both:'設計と製作を頼む会社'}[dsTo]:MKv?'見積を頼むメーカー':'見積を頼む工場'}</h2><p class="cosub">${DS?'図面がない依頼なので、まず設計を頼める会社をおすすめしています。作る工場にも送れます。':'書いた内容に合う会社を、確かめられた情報の多い順に選んであります。'}</p></div>
+    /* 画面2：左に会社の候補、右（スマホでは上）に「あなたの依頼」と「整理した条件」（2026-11-15 ChatGPTのデザイン案） */
+    const side=`<aside class="coside">${head3}${S.files.length?`<div class="files rqf">${''}</div>`:''}${A.codes.length&&A.concept?condBox(A,DS):''}</aside>`;
+    body=`${stepBar(2)}${blocked?notices+blockedNext(A):''}
+    ${A.codes.length?`<div class="cohd"><h2 class="stepnow">${DS?{ds:'設計を相談する会社',mk:'見積を頼む工場',both:'設計と製作を頼む会社'}[dsTo]:MKv?'見積を頼むメーカー':'見積を頼む工場'}</h2><p class="cosub">${DS?'図面がない依頼なので、まず設計を頼める会社をおすすめしています。作る工場にも送れます。':'書いた内容に合う会社を、確かめられた情報の多い順に選んであります。'}</p></div><div class="colay"><div class="comain">${S.dsFirst&&!DS?(MKv?'<p class="dsnone"><b>この品は、専門のメーカーが設計から作ります</b><span>図面だけを先に頼む必要はありません。下のメーカーに、そのまま相談してください。</span></p>':'<p class="dsnone"><b>この品は、作る会社が配合・処方から考えます</b><span>図面だけを先に頼む必要はありません。下のおすすめの会社に、そのまま相談してください。</span></p>'):''}
       ${toBar}${DS?(dsTo==='mk'?recH:dsTo==='both'?dsH+recH:dsH):recH}
-      ${qBar()}${imgL}`
-    :blocked?'':`<div class="empty" style="margin-top:16px"><b>文章から工程を読み取れませんでした</b>このまま見積を依頼すれば、担当者が内容を読んで工程と会社を探します。型が決まっているもの（部品・ノベルティ・袋物など）なら「選んで探す」が早いです。<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn" id="mGuided">選んで探す</button></div></div>${(()=>{const ts=textSearch(S.idea);return ts.length?`<section class="mstep" data-step="文章に近い会社"><div class="mhead"><span class="mono mno">?</span><h2>文章の言葉が会社の説明に出てくる会社</h2><span class="muted">${fmt(ts.length)}社</span></div><p class="muted" style="margin:0 0 12px;font-size:13px">工程は読み取れませんでしたが、書いた言葉が社名や説明に含まれる会社です。参考にしてください。</p><ol class="glist">${ts.slice(0,10).map(r=>coCard(r,[])).join('')}</ol></section>`:''})()}`}`;
+      ${qBar()}${imgL}<p class="coback"><button type="button" class="glink" data-stepgo="1">← 入力内容に戻る</button></p></div>${side}</div>`
+    :blocked?side:`${side}<div class="empty" style="margin-top:16px"><b>文章から工程を読み取れませんでした</b>このまま見積を依頼すれば、担当者が内容を読んで工程と会社を探します。型が決まっているもの（部品・ノベルティ・袋物など）なら「選んで探す」が早いです。<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn" id="mGuided">選んで探す</button></div></div>${(()=>{const ts=textSearch(S.idea);return ts.length?`<section class="mstep" data-step="文章に近い会社"><div class="mhead"><span class="mono mno">?</span><h2>文章の言葉が会社の説明に出てくる会社</h2><span class="muted">${fmt(ts.length)}社</span></div><p class="muted" style="margin:0 0 12px;font-size:13px">工程は読み取れませんでしたが、書いた言葉が社名や説明に含まれる会社です。参考にしてください。</p><ol class="glist">${ts.slice(0,10).map(r=>coCard(r,[])).join('')}</ol></section>`:''})()}`}`;
   }
   body=body.split('__WHON__').join(fmt((S.gsel||[]).length));
   $('#app').innerHTML=`<section class="gut"><div class="wrap gpick">${body}</div></section>`;
@@ -3916,8 +4100,12 @@ const wzEmail=v=>/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(String(v||'').trim());
    見積に要る点・仕様書・時期などの欄は「もっと詳しく伝える」に畳み、空けたまま送れる（相手の会社・担当者が確かめる）。図面ありの道（S.src==='draw'）は rfqWizard のまま */
 function rfqQuick(f){f.dataset.wz=1;const sh=f.closest('.sheet');sh&&sh.classList.add('qkon');
   const wrap=id=>{const el=f.querySelector('#'+id);if(!el)return null;let w=el;while(w.parentElement&&!w.parentElement.classList.contains('in'))w=w.parentElement;return w.parentElement?w:(el.closest('label')||el)};
-  const top=document.createElement('div');top.className='qk';
-  const to=f.querySelector('#rfTo');to&&top.appendChild(to);
+  /* 画面3は1枚のページ：相談する内容 → 送り先 → あなたの連絡先 → 相手に届くもの（2026-11-15 ChatGPTのデザイン案） */
+  const sum=document.createElement('section');sum.className='qpn qsum';{let F=null;try{F=fsNow()}catch(e){}const rows=F?condRows(F,S.dsOn&&(S.dsTo||'ds')!=='mk'):[];const t=String(ideaBase()||'').trim();
+    sum.innerHTML=`<div class="qph"><h3>相談する内容</h3><button type="button" class="glink" data-qedit>内容を直す</button></div><dl class="qdl"><div class="w"><dt>あなたの依頼</dt><dd translate="no">${esc(t.length>140?t.slice(0,140)+'…':t)}</dd></div>${rows.map(r=>`<div><dt>${esc(r.t)}</dt><dd>${r.val?`<span${r.lv==='you'?' translate="no"':''}>${esc(r.val.length>60?r.val.slice(0,60)+'…':r.val)}</span>`:`<span class="pend">${r.unk?'相談したい':'未定・相談したい'}</span>`}</dd></div>`).join('')}</dl>`}
+  const toP=document.createElement('section');toP.className='qpn qto';
+  const to=f.querySelector('#rfTo');if(to){toP.appendChild(to);const h=to.querySelector('h4');h&&h.insertAdjacentHTML('afterend','<button type="button" class="glink qreco" data-qback>会社を選び直す</button>')}
+  const top=document.createElement('section');top.className='qk qpn';top.innerHTML='<div class="qph"><h3>あなたの連絡先</h3></div>';
   const who=f.querySelector('#f-who');if(who){const wb=document.createElement('div');wb.className='qkwho';wb.id='qkWho';wb.innerHTML='<span class="qkl"><span>どちらとして頼みますか</span><span class="req">必須</span></span><div class="qkopts" role="group"></div>';const pv=wb.querySelector('.qkopts');
     [...who.options].filter(o=>o.value).forEach(o=>{const b=document.createElement('button');b.type='button';b.className='qkopt';b.textContent=o.value;b.setAttribute('aria-pressed','false');b.onclick=()=>{who.value=o.value;who.dispatchEvent(new Event('change',{bubbles:true}));f.dataset.who=1;wb.classList.remove('bad');pv.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)))};pv.appendChild(b)});top.appendChild(wb)}
   const ml=wrap('f-mail');ml&&top.appendChild(ml);
@@ -3929,7 +4117,13 @@ function rfqQuick(f){f.dataset.wz=1;const sh=f.closest('.sheet');sh&&sh.classLis
   [...f.querySelectorAll(':scope > details.grp')].forEach(d=>{if(!d.querySelector('.in > *')){d.remove();return}d.open=false;const sm=d.querySelector('summary small');if(sm)sm.textContent='任意';opt.querySelector('.in').appendChild(d)});
   const lg=f.querySelector('#rfLang');lg&&opt.querySelector('.in').appendChild(lg);
   opt.querySelectorAll('.req').forEach(x=>{x.className='opt-t';x.textContent='任意'});
-  f.prepend(top,att,opt)}
+  att.classList.add('qpn');opt.classList.add('qpn');
+  f.prepend(sum,toP,top,att,opt);
+  /* 送る前の注意は同意の上に。下に「会社の選択に戻る」 */
+  const st=f.querySelector('#rfStaff'),ag=f.querySelector('#f-agree');if(st&&ag){st.classList.add('qnote');ag.closest('label').before(st)}
+  const sb=f.querySelector('button[type=submit]');if(sb){const ft=document.createElement('div');ft.className='qfoot';sb.before(ft);ft.append(Object.assign(document.createElement('button'),{type:'button',className:'glink qbk',textContent:'← 会社の選択に戻る'}),sb);ft.querySelector('.qbk').dataset.qback=1}
+  f.querySelectorAll('[data-qback]').forEach(b=>b.onclick=()=>{closeSheet();track('step_back',{to:2})});
+  f.querySelectorAll('[data-qedit]').forEach(b=>b.onclick=()=>{closeSheet();track('step_back',{to:2,edit:1});const c=$('#mCond')||$('.rq');c&&c.scrollIntoView({block:'start'})})}
 function rfqWizard(){const f=$('#rf');if(!f||f.dataset.wz)return;if(S.src==='text')return rfqQuick(f);f.dataset.wz=1;if(S.src==='draw'){/* 図面がある人には、大きさ・素材・仕上げは聞かない（図面のとおり） */const z=f.querySelector('#f-size');if(z&&!z.value.trim())z.value='図面・データのとおり';const ml=f.querySelector('#f-matl');if(ml&&!ml.value.trim())ml.value='図面・データのとおり';const K0=rfqCoreKeys();for(const it of [K0.mat,K0.fin]){const c=it&&f.querySelector('#fs-'+it.k);if(c&&!c.querySelector('input:checked')){const o=[...c.querySelectorAll('input')].find(x=>x.value===FSPEC.omakase);if(o){o.checked=true;o.dispatchEvent(new Event('change',{bubbles:true}))}}}}const sh=f.closest('.sheet');sh&&sh.classList.add('wzon');
   const K=rfqCoreKeys();
   const steps=[['f-sum'],['f-qty'],...(K.mat?[['fs-'+K.mat.k,'mat']]:[]),['f-size','f-size'],...(K.fin?[['fs-'+K.fin.k,'fin']]:[]),['f-due'],['f-fix'],['f-who'],['f-mail']].filter(([id])=>f.querySelector('#'+id)).map(([id,ck])=>{const el=f.querySelector('#'+id);let w=el;while(w.parentElement&&!w.parentElement.classList.contains('in'))w=w.parentElement;if(!w.parentElement)w=el.closest('label')||el;return {id,ck,el,w}});
@@ -3973,7 +4167,7 @@ function rfq(names){
   const G=S.scen==='guided';
   const roles=n=>G?(S.src==='guided'?(S.g.proc&&S.g.proc!==OMAKASE?S.g.proc:gCat()?.t||''):(S.gstep[n]==='まとめて依頼'?'まとめて（'+(S.anal?.codes||[]).map(c=>CAPN[c]||c).join('、')+'）':(S.gstep[n]||''))):Object.entries(S.assign).filter(([,v])=>v===n).map(([k])=>r.per_requirement.find(p=>p.requirement.id===k)?.requirement.purpose).filter(Boolean).join('、');
   const QK=S.src==='text';
-  sheet(`${head('Request for quote',QK&&S.dsOn&&(S.dsTo||'ds')==='ds'&&names.length?'相談を送る':'見積を依頼する')}${QK?stepBar(3)+'<p class="muted qklead" style="margin:0;font-size:13.5px">連絡先を入れて送るだけです。ほかの点は、相手の会社や担当者から確かめます。</p>':''}
+  sheet(`${head('Request for quote',QK?'内容を確認して送る':'見積を依頼する')}${QK?stepBar(3)+'<p class="muted qklead" style="margin:0;font-size:13.5px">連絡先を入れて送るだけです。ほかの点は、相手の会社や担当者から確かめます。</p>':''}
     <p class="muted rflead" style="margin:0;font-size:13px">必須は、工場が見積を出すのに要る点と連絡先だけです。材料・仕上げは「おまかせ」でも大丈夫です（工場が提案します）。ほかは空けておけば「相談したい」として届きます。</p>
     <p class="muted rflead" style="margin:0;font-size:13px">製品の概要と「AIが補う」の欄は、入力した内容からAIが下書きしています。直してから送れます。</p>
     <form class="form" id="rf" novalidate>
