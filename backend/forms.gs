@@ -1175,7 +1175,7 @@ var MAIL_CFG = {
   RESERVE: 20,            // Gmail の残り送信数がこれ以下なら送らない（受付・控えのメールのため）
   KEY_DAYS: 7,            // 確認メールのボタンが使える日数
   BATCH: 20,              // 集めるとき、一度に読むサイトの数
-  RUN_MS: 270000          // 1回の実行で使う時間（6分の上限より短く）
+  RUN_MS: 180000          // 1回の実行で使う時間（6分の上限より十分短く。最後のまとまりの読み込みで上限を超えないように）
 };
 var MAIL_FREE = /(^|\.)(gmail\.com|googlemail\.com|yahoo\.co\.jp|ymail\.ne\.jp|icloud\.com|me\.com|outlook\.com|outlook\.jp|hotmail\.com|hotmail\.co\.jp|live\.jp|msn\.com|nifty\.com|ocn\.ne\.jp|biglobe\.ne\.jp|so-net\.ne\.jp|plala\.or\.jp|dion\.ne\.jp|ezweb\.ne\.jp|docomo\.ne\.jp|softbank\.ne\.jp|[a-z0-9-]+\.ne\.jp)$/i;
 var MAIL_BAD_LOCAL = /^(recruit|recruiting|saiyo|saiyou|jinji|career|careers|job|jobs|entry|privacy|kojinjoho|personal|noreply|no-reply|donotreply|do-not-reply|postmaster|abuse|mailer-daemon|ir|press|kouhou|koho|hr|newsletter|magazine|mag|unsubscribe|test|sample|example|xxx|yourname|name|email|mail-address)$/i;
@@ -1298,7 +1298,7 @@ function restartMail() { PropertiesService.getScriptProperties().setProperty('MA
 
 function collectMail() {
   // 長く動くので、受付（写真の受け取り・メール送信）と同じ鍵は使わない。同時に2つ動かないようにだけする
-  var run = runGuard_('collectMail', 330); if (!run) return;
+  var run = runGuard_('collectMail', 360); if (!run) return;
   try {
     var t0 = Date.now(), props = PropertiesService.getScriptProperties();
     var data = JSON.parse(UrlFetchApp.fetch(CONFIG.SITE_URL + 'data/companies.json').getContentText());
