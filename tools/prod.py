@@ -25,7 +25,7 @@ ld = {"@context": "https://schema.org", "@graph": [
   {"@type": "Service", "name": "KATACHI 工場チームのマッチング", "url": SITE, "serviceType": "製造委託先・試作先のマッチング", "areaServed": ["JP", "CN", "TW", "VN"],
    "provider": {"@id": SITE + "#org"}, "description": DESC,
    "offers": {"@type": "Offer", "price": "0", "priceCurrency": "JPY", "description": "工程の整理・会社の検索・見積の依頼は無料"}},
-  {"@type": "Organization", "@id": SITE + "#org", "name": "KATACHI", "url": SITE, "logo": SITE + "apple-touch-icon.png"},
+  {"@type": "Organization", "@id": SITE + "#org", "name": "KATACHI", "url": SITE, "logo": SITE + "icon-512.png"},
   {"@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": q, "acceptedAnswer": {"@type": "Answer", "text": a}} for q, a in FAQ]}]}
 head = f'''<!doctype html>
 <html lang="ja">
@@ -38,8 +38,10 @@ head = f'''<!doctype html>
 <meta name="google-site-verification" content="MmM3OGz9LIPxBOmE4jR8GdP4vACP_FrchZwBLT3W0sM" />  <!-- Search Console（URLプレフィックス）の確認。消さない -->
 <link rel="alternate" hreflang="ja" href="{SITE}">
 <meta name="theme-color" content="#ffffff">
-<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" href="/icon-32.png" type="image/png" sizes="32x32">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="KATACHI">
 <meta property="og:title" content="{TITLE}">

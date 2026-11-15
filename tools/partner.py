@@ -32,7 +32,7 @@ head = f'''<!doctype html>
 <title>{TITLE}</title><meta name="description" content="{DESC}">
 <link rel="canonical" href="https://katachi.shiokonbu.com/partner/">
 <meta property="og:title" content="{TITLE}"><meta property="og:description" content="{DESC}"><meta property="og:image" content="https://katachi.shiokonbu.com/og.png"><meta property="og:url" content="https://katachi.shiokonbu.com/partner/">
-<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon.ico" sizes="any"><link rel="icon" href="/icon-32.png" type="image/png" sizes="32x32"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="manifest" href="/site.webmanifest">
 <script async src="https://www.googletagmanager.com/gtag/js?id={GA[0]}"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){{dataLayer.push(arguments)}}gtag("js",new Date());{''.join(f'gtag("config","{g}");' for g in GA)}</script>
 </head><body>
