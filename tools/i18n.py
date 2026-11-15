@@ -1257,3 +1257,4 @@ T.update({
 "書いた文を例で置き換える（もう一度押す）": ("Replace your text with the example (tap again)", "用示例替换已写内容（再点一次）"),
 "図面のとおり": ("As drawn", "按图纸"),
 })
+T.update({"← 入力に戻る": ("← Back to your request", "← 返回填写")})
