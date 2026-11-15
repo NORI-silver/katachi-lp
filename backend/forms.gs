@@ -1558,3 +1558,40 @@ function surveyForms() {
     if (cur >= list.length) ScriptApp.getProjectTriggers().forEach(function (t) { if (t.getHandlerFunction() === 'surveyForms') ScriptApp.deleteTrigger(t); });
   } finally { lock.releaseLock(); }
 }
+
+// 「見積フォーム調査」の集計：フォームの文字に、どの項目が出てくるかを数え、「見積フォーム集計」タブにカテゴリごとの割合を書く（関数 surveyTally を実行）
+var SURVEY_ITEMS = [
+  ['会社名', /会社名|御社名|貴社名|法人名|団体名|社名|屋号/], ['お名前', /お名前|氏名|ご担当者|担当者名|名前/], ['メール', /メール|e-?mail/i], ['電話', /電話|tel/i],
+  ['住所', /住所|所在地|郵便番号|都道府県/], ['FAX', /fax/i], ['部署・役職', /部署|役職/], ['業種', /業種|業態|事業内容/],
+  ['問い合わせの種類', /種別|ご用件|お問い?合わ?せ(の)?項目|お問い?合わ?せ(の)?種類|件名|カテゴリ|区分/], ['自由記述', /お問い?合わ?せ内容|ご相談内容|ご依頼内容|内容|詳細|ご質問|ご要望|備考|メッセージ/],
+  ['添付ファイル', /添付|ファイル|アップロード|upload/i], ['図面の有無', /図面/], ['品名・製品名', /品名|製品名|商品名|部品名|アイテム|品目|製品の種類/],
+  ['数量・ロット', /数量|個数|ロット|枚数|本数|台数|生産数|発注数|lot/i], ['希望納期', /納期|納品日|希望日|納品希望|いつまで|発売予定|スケジュール/],
+  ['材質・素材', /材質|材料|素材|生地|樹脂|鋼種|原料|成分/], ['大きさ・寸法', /サイズ|寸法|大きさ|外形|板厚|容量|重量|重さ/],
+  ['表面処理・仕上げ', /表面処理|仕上げ|塗装|メッキ|めっき|アルマイト|熱処理|研磨|印刷|刺繍|プリント/], ['精度・公差', /公差|精度/],
+  ['予算・単価', /予算|単価|価格|金額|費用/], ['用途・目的', /用途|使用目的|使い道|目的|使用環境/], ['試作か量産か', /試作|量産|サンプル/],
+  ['加工・工程の種類', /加工内容|加工方法|加工の種類|工程|製法|加工品目/], ['支給品', /支給|持ち込み|持込/], ['検査・成績書', /検査|成績書|ミルシート/],
+  ['知ったきっかけ', /知った|きっかけ|どこで|何で知/], ['連絡方法の希望', /連絡方法|ご希望の連絡|連絡手段/], ['個人情報の同意', /個人情報|プライバシー/],
+  ['「見積」の欄・選択肢がある', /見積|見積り|見積もり|お見積/]
+];
+function surveyTally() {
+  var ss = sheet_().getParent(), sh = ss.getSheetByName('見積フォーム調査');
+  if (!sh || sh.getLastRow() < 2) return;
+  var v = sh.getRange(2, 1, sh.getLastRow() - 1, 6).getValues(), cat = {}, flags = [];
+  v.forEach(function (r) {
+    var c = String(r[1]), has = r[4] === 'あり', txt = String(r[5] || ''), f = [];
+    var k = cat[c] = cat[c] || {n: 0, read: 0, form: 0, hit: SURVEY_ITEMS.map(function () { return 0; })};
+    k.n++; if (r[4] !== '読めない') k.read++;
+    if (has) { k.form++; SURVEY_ITEMS.forEach(function (it, i) { if (it[1].test(txt)) { k.hit[i]++; f.push(it[0]); } }); }
+    flags.push([f.join('、')]);
+  });
+  sh.getRange(1, 9).setValue('見つけた項目');
+  sh.getRange(2, 9, flags.length, 1).setValues(flags);
+  var out = slotTab_('見積フォーム集計', ['項目'].concat(Object.keys(cat)).concat(['全体']));
+  var tot = {n: 0, read: 0, form: 0, hit: SURVEY_ITEMS.map(function () { return 0; })};
+  Object.keys(cat).forEach(function (c) { tot.n += cat[c].n; tot.read += cat[c].read; tot.form += cat[c].form; cat[c].hit.forEach(function (h, i) { tot.hit[i] += h; }); });
+  var cols = Object.keys(cat).map(function (c) { return cat[c]; }).concat([tot]);
+  var rows = [['調べた会社'].concat(cols.map(function (k) { return k.n; })), ['サイトを読めた'].concat(cols.map(function (k) { return k.read; })), ['フォームがあった'].concat(cols.map(function (k) { return k.form; }))];
+  SURVEY_ITEMS.forEach(function (it, i) { rows.push([it[0] + '（%）'].concat(cols.map(function (k) { return k.form ? Math.round(k.hit[i] * 100 / k.form) : ''; }))); });
+  out.clear(); out.getRange(1, 1, 1, cols.length + 1).setValues([['項目'].concat(Object.keys(cat)).concat(['全体'])]);
+  out.getRange(2, 1, rows.length, cols.length + 1).setValues(rows);
+}
