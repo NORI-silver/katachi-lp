@@ -2540,12 +2540,14 @@ function relTerms(text,name,kw){const T=String(text||'').normalize('NFKC').repla
 const KTK=/[ァ-ヶー]/;
 function relHas(h,u){let p=h.indexOf(u);if(p<0)return false;if(!KTK.test(u[0])&&!KTK.test(u[u.length-1]))return true;
   while(p>=0){const e=p+u.length;if(!(KTK.test(u[u.length-1])&&KTK.test(h[e]||''))&&!(u.length<=2&&KTK.test(u[0])&&KTK.test(h[p-1]||'')))return true;p=h.indexOf(u,p+1)}return false}
-function relIndex(){if(GDB.__lc)return GDB.__lc;return GDB.__lc=GDB.c.map(r=>((r[0]||'')+' '+(r[11]||'')).normalize('NFKC').toLowerCase())}
+/* 会社の文：社名・説明に、公式サイトから集めた品目・工程・材料（列14 pf.t、tools/profiles.py）を足す。Nori 2026-11-15「各社がどんな情報が必要なのかをもっと具体的に」 */
+const relText=r=>((r[0]||'')+' '+(r[11]||'')).normalize('NFKC').toLowerCase();
+function relIndex(){if(GDB.__lc)return GDB.__lc;return GDB.__lc=GDB.c.map(relText)}
 function relBuild(text,name,kw){const LC=relIndex(),N=LC.length,df={},idf=u=>{if(df[u]===undefined){const k=u.toLowerCase();let n=0;for(const h of LC)if(relHas(h,k))n++;df[u]=n}const n=df[u];return n&&n<=N*.08?Math.log(N/(n+1))-2:0};
   const R=relTerms(text,name,kw).map(x=>({w:x.w,subs:x.subs.map(u=>[u.toLowerCase(),idf(u)]).filter(y=>y[1]>0).sort((a,b)=>b[1]-a[1]).slice(0,6)})).filter(x=>x.subs.length);
   return R}
 /* 1社の「依頼との近さ」：言葉のまとまりごとに、会社の文に出てくるいちばん珍しい言葉の重みを取り、上位3つを足す */
-function relOf(r,R){if(!R||!R.length)return 0;const i=GDB.c.indexOf(r);const h=i>=0?relIndex()[i]:((r[0]||'')+' '+(r[11]||'')).normalize('NFKC').toLowerCase();
+function relOf(r,R){if(!R||!R.length)return 0;const i=GDB.c.indexOf(r);const h=i>=0?relIndex()[i]:relText(r);
   /* 同じ言葉が別のまとまりで何度も数えられないように（「ケース」が キーケース・カードケース で3回など） */
   const v=[],used=new Set();for(const x of R){let m=0,mu='';for(const[u,w]of x.subs)if(w>m&&!used.has(u)&&relHas(h,u)){m=w;mu=u}if(m){used.add(mu);v.push(m*x.w)}}
   return v.sort((a,b)=>b-a).slice(0,3).reduce((a,b)=>a+b,0)}
@@ -2553,14 +2555,25 @@ const ACC_RX=/OEM|ODM|受託|請負|賃加工|下請|試作|1個から|一個か
 const NOTMK_RX=/土木|土工|とび|建設工事|建築工事|建築一式|工事業|舗装|解体|不動産|人材派遣|警備|運送|運輸|倉庫業|卸売|小売|輸入|商社|代理店|コンサルティング|ガソリンスタンド|自動車整備|レンタカー|保険/;
 const MK_RX=/製造|加工|製作|工場|縫製|成形|OEM|ODM|受託|試作|工房|職人|設計/i;
 const FAMS=['sensing','electronics','software','food','cosmetics','apparel'];
+/* 材料の種類：依頼と会社（公式サイトの材料）を同じ物差しで読む（中身は tools/profiles.py の MAT_FAM） */
+const MAT_FAM={"leather": "革|レザー|皮革|合皮|ヌメ|スエード|ヌバック", "fabric": "布|生地|帆布|キャンバス|コットン|綿|麻|リネン|ナイロン(?!樹脂)|ポリエステル|不織布|フェルト|デニム|ウール|ニット|メッシュ|ガーゼ|タオル地", "wood": "木材|木製|木工|木の|ウッド|合板|無垢|天然木|ひのき|檜|杉|竹", "metal": "金属|ステンレス|SUS|アルミ|鉄|スチール|鋼|真鍮|銅|チタン|シルバー|銀|ゴールド|亜鉛|ダイカスト|板金", "resin": "樹脂|プラスチック|アクリル|ABS|ポリカ|PVC|塩ビ|ポリプロピレン|ポリエチレン|ウレタン|PET(?!ボトル)|熱可塑|(?<![A-Za-z])(PP|PBT|POM|PMMA|TPU|TPE)(?![A-Za-z])", "rubber": "ゴム|シリコン|シリコーン|エラストマー|ラバー", "paper": "紙|段ボール|ダンボール|板紙", "glass": "ガラス|陶器|磁器|陶磁器|セラミック|焼き物", "food": "食品|原料|菓子|茶葉|コーヒー豆|果実|野菜|肉|魚", "cosme": "化粧品|精油|植物エキス|界面活性|美容成分|(?<![ァ-ヶ])オイル(?![ァ-ヶ])"};const MAT_RX=Object.fromEntries(Object.entries(MAT_FAM).map(([k,v])=>[k,new RegExp(v,'i')]));
+const matsOf=t=>Object.keys(MAT_RX).filter(k=>MAT_RX[k].test(t));
 function mctxBuild(A,qmax){const t=String(S.idea||'');let p=null;try{p=PDB?pdbMatch(String((specRead(t).name)||t.slice(0,200)).replace(REL_CTX,' ')):null}catch(e){}
   const m=t.normalize('NFKC').match(PREF_RX);const pref=m?(m[0]==='北海道'?'北海道':PREFS.find(x=>x.startsWith(m[1]))||''):'';
   const fam=new Set((A.codes||[]).map(c=>c.split('.')[0]));
   const one=qmax<=3||/1台|一台|1つだけ|ひとつだけ|1個だけ|体に合わせ|採寸|オーダーメイド|ワンオフ/.test(t);
-  return {R:relBuild(t,p&&p.name,p&&p.kw),pname:p&&p.name||'',fam,pref,one,qmax}}
+  /* 依頼の材料（入れる物・載せる物は除く）と、電子機器かどうか */
+  const mats=matsOf(specCore(t).normalize('NFKC').replace(REL_CTX,' '));const hw=!A.fallback&&(A.codes||[]).some(c=>/^(sensing|electronics)/.test(c));
+  return {R:relBuild(t,p&&p.name,p&&p.kw),tl:t.normalize('NFKC').toLowerCase(),pname:p&&p.name||'',fam,pref,one,qmax,mats,hw}}
 /* 工程の並び（rankFor）・一社案・完成品メーカーの並びに足す点 */
 function fitOf(r,M){if(!M)return 0;const[n,ct,pref,city,web,caps,proto,nodraw,ml,mat,lv,sum]=r;const x=r[14]||{};const txt=(n||'')+' '+(sum||'');let s=0;
-  s+=Math.min(relOf(r,M.R),14)*.8;
+  const rel=relOf(r,M.R);s+=Math.min(rel,14)*.8;
+  /* 公式サイトに書いてある材料・電子の扱いと、依頼が合うか（書いていない会社は上げも下げもしない） */
+  const pf=x.pf;if(pf){if(pf.m&&M.mats&&M.mats.length){if(!M.mats.some(m=>pf.m.includes(m)))s-=4}
+    if(M.hw&&pf.el===0)s-=6;
+    /* 公式サイトの「作れる品目」に依頼の言葉があれば上げる。言い換えの言葉だけで近く見えて、品目には依頼の言葉が無い会社は少し下げる（品目は例なので、近さ0の会社は下げない） */
+    const own=pf.t&&M.R&&M.tl?[...new Set(M.R.flatMap(x=>x.subs.map(([u])=>u)).filter(u=>u.length>=2&&M.tl.includes(u)))]:[];
+    if(own.length){const h=pf.t.normalize('NFKC').toLowerCase();if(own.some(u=>relHas(h,u)))s+=1;else if(rel>0)s-=1.5}}
   if(ACC_RX.test(txt))s+=1.5;if(lv==='unk')s+=1;
   const nm=(txt.match(new RegExp(NOTMK_RX.source,'g'))||[]).length;if(nm&&(!MK_RX.test(txt)||nm>=3))s-=5;
   if(x.em&&M.qmax<=1000){if(x.em>1000)s-=4;else if(x.em>300)s-=3}
