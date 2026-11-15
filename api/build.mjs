@@ -18,7 +18,7 @@ const NAMES = ['cm', 'shapeConcept', 'DS_WHY', 'MPHASE', 'mphaseOf', 'dsRows', '
   'winOf', 'RL_WHY', 'planRule', 'planOf', 'recOf', 'MAKERS', 'ELEC_RX', 'makersFor', 'capCovers', 'MK_RX', 'axPass', 'axSort', 'FAMS',
   'NOTMK_RX', 'ACC_RX', 'relOf', 'fitOf', 'rankFor', 'KTK', 'relHas', 'RSTOP', 'relTerms', 'relIndex', 'relBuild', 'REGION', 'PREF_RX',
   'CONCEPTS', 'headSegs', 'conceptKind', 'specRead', 'AIMEMO', 'splitAi', 'readConds', 'pdbRx', 'REL_CTX', 'rx', 'CGEN', 'specCore',
-  'fillCAPN', 'DOMESTIC_ONLY', 'USER_CT', 'F0', 'S', 'analyzeText', 'pickConcept', 'flowText', 'mctxBuild', 'secsOf', 'oneOf', 'siteTop',
+  'fillCAPN', 'DOMESTIC_ONLY', 'USER_CT', 'F0', 'S', 'MAT_FAM', 'MAT_RX', 'matsOf', 'relText', 'analyzeText', 'pickConcept', 'flowText', 'mctxBuild', 'secsOf', 'oneOf', 'siteTop',
   'stepAssign', 'pdbMatch', 'jsccRow', 'canOrder', 'useGDB', 'regionOf', 'PREFS', 'kindById', 'specConcept', 'mmc', 'integOf', 'axOf', 'OEM_CAPS'];
 const START = /^(async function|function|const|let|var)\s+([A-Za-z_$][\w$]*)/;
 const TOP = /^(async function|function|const|let|var|\/\*|\/\/|window\.|document\.|if|for|try|addEventListener|\(|<\/script>|[A-Za-z_$][\w$.]*\()/;
