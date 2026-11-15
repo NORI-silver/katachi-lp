@@ -2803,12 +2803,17 @@ function makersFor(A){const t=S.idea+' '+(S.files||[]).map(f=>f.name).join(' ');
   const head=String(S.idea||'').split(/\n/).slice(0,3).join(' ')+' '+((S.mctx||{}).pname||'');
   const elec=ELEC_RX.test(head)&&!/実装|ガーバー|部品表|BOM/i.test(head);
   for(const k of MAKERS){const hit=k.kind==='codes'?elec&&codes.length>=3&&codes.some(c=>new RegExp(k.codes).test(c)):new RegExp(k.idea).test(t)&&!(k.not_codes&&codes.some(c=>new RegExp(k.not_codes).test(c)));
-    if(!hit)continue;const re=new RegExp(k.db),need=k.db_need?new RegExp(k.db_need):null,ci=(k.caps_all||[]).map(c=>GDB.caps.indexOf(c));
-    const rows=[...k.rows];for(const r of GDB.c){if(!re.test((r[0]||'')+' '+(r[11]||'')))continue;if(need&&!need.test(r[11]||''))continue;if(ci.length&&!ci.every(i=>i>=0&&r[5].includes(i)))continue;rows.push(r)}
+    if(!hit)continue;const re=new RegExp(k.db),need=k.db_need?new RegExp(k.db_need):null,ci=(k.caps_all||[]).map(c=>GDB.caps.indexOf(c)),ca=(k.caps_any||[]).map(c=>GDB.caps.indexOf(c)).filter(i=>i>=0),mkx=k.make?new RegExp(k.make):null;
+    /* 設計の工程（caps_all）は必ず。作る工程は caps_any のどれか、または概要に「製造」「自社工場」など（make）があればよい */
+    const rows=[...k.rows];for(const r of GDB.c){if(!re.test((r[0]||'')+' '+(r[11]||'')))continue;if(need&&!need.test(r[11]||''))continue;if(ci.length&&!ci.every(i=>i>=0&&r[5].includes(i)))continue;
+      if((ca.length||mkx)&&!(ca.some(i=>r[5].includes(i))||(mkx&&mkx.test(r[11]||''))))continue;rows.push(r)}
     const seen=new Set(),rk={pub:0,unk:1,gov:2};const M=S.mctx,to=M&&(M.pref||(S.gf&&S.gf.to))||'';
     /* 届け先・文章の都道府県と同じ県、同じ地方のメーカーを先に（採寸・手直しで行き来するため）。そのあとは確かさ・依頼との近さの順 */
-    const near=r=>r[1]!=='JP'?-1:!to?0:r[2]===to?2:regionOf(r[2]||'')===regionOf(to)?1:0;
-    const out=rows.filter(r=>canOrder(r)&&!seen.has(r[0])&&seen.add(r[0])).map((r,i)=>[r,i,near(r),M?Math.min(relOf(r,M.R),14):0]).sort((a,b)=>(b[2]-a[2])||((rk[a[0][10]]??1)-(rk[b[0][10]]??1))||(b[3]-a[3])||a[1]-b[1]).map(x=>x[0]);
+    /* near:0 の種類（電子機器など、採寸・手直しで行き来しない物）は、国内か海外かだけを見る */
+    const near=r=>r[1]!=='JP'?-1:!to||k.near===0?0:r[2]===to?2:regionOf(r[2]||'')===regionOf(to)?1:0;
+    /* 工程コードで当てる種類は、依頼から読み取った工程を多く持つ会社を先に（概要の言葉の近さより先に見る） */
+    const ix=k.kind==='codes'?codes.map(c=>GDB.caps.indexOf(c)).filter(i=>i>=0):[],cov=r=>ix.filter(i=>(r[5]||[]).includes(i)).length;
+    const out=rows.filter(r=>canOrder(r)&&!seen.has(r[0])&&seen.add(r[0])).map((r,i)=>[r,i,near(r),M?Math.min(relOf(r,M.R),14):0,cov(r)]).sort((a,b)=>(b[2]-a[2])||((rk[a[0][10]]??1)-(rk[b[0][10]]??1))||(b[4]-a[4])||(b[3]-a[3])||a[1]-b[1]).map(x=>x[0]);
     if(out.length)return {k:k.k,name:k.name,why:k.why,note:k.note,rows:out.slice(0,12)}}
   return null}
 function makerBox(MK){const key=ideaBase();const def=MK.rows[0];const r=(S.mkPick&&S.mkPick.k===key&&MK.rows.find(x=>x[0]===S.mkPick.n))||def;S.whoN=1;
