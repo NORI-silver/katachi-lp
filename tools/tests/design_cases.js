@@ -50,6 +50,6 @@ const cases=[
     console.log(`${pass?'○':'×'} ${name}: 期待=${exp} 結果=${r.got} ${r.hash}${errs.length?' ERR '+errs.join(' | '):''}`);await c.close()}
   {const c=await b.newContext({viewport:{width:390,height:844}});await c.addInitScript(()=>localStorage.setItem('katachi-lang',JSON.stringify({lang:'ja'})));
     await c.route(/script\.google\.com|googletagmanager|google-analytics/,r=>r.fulfill({status:200,contentType:'application/json',body:'{"ok":false}'}));
-    const p=await c.newPage();await p.goto(base);const n=await p.$$eval('.start2 [data-start]',x=>x.length);await p.fill('#idea','家庭用プールに犬が入れるスロープを1台作りたい');await p.click('#cmp button.pri');await p.waitForTimeout(800);
-    const h=await p.evaluate(()=>location.hash);const pass=n===2&&h==='#co';if(pass)ok++;console.log(`${pass?'○':'×'} 入口は2つ・「はじめる」は②（一覧）へ: 入口=${n} ${h}`);await c.close()}
+    const p=await c.newPage();await p.goto(base);const n=await p.$$eval('.start2 [data-start="draw"]',x=>x.length)+await p.$$eval('#cmp',x=>x.length);await p.fill('#idea','家庭用プールに犬が入れるスロープを1台作りたい');await p.click('#cmp button.pri');await p.waitForTimeout(800);
+    const h=await p.evaluate(()=>location.hash);const pass=n===2&&h==='#co';if(pass)ok++;console.log(`${pass?'○':'×'} 入口は入力欄＋「図面・データがある」・「相談を始める」は②（一覧）へ: 入口=${n} ${h}`);await c.close()}
   await b.close();const all=cases.length+top.length+1;console.log(`\n${ok}/${all}`);process.exit(ok===all?0:1)})();

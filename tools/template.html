@@ -1,20 +1,27 @@
 <title>KATACHI 試作版</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@500;700;900&family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Sans+JP:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
 <style>
 /* Layout: 白地に藍の一色。主役は「工程ボード」。工程ごとに会社を1社ずつはめ込んでチームを組む。
    確からしさは形で示す：● 確認済み / ○ 公開情報 / ◌(破線) AI推定 / ┈(点線) 要確認 */
 :root{
-  --bg:#ffffff; --bg2:#f5f7fb; --panel:#ffffff; --panel2:#f2f5fb; --hover:#eef3fd;
-  --line:rgba(16,28,58,.10); --line2:rgba(16,28,58,.18);
-  --fg:#0d1424; --mute:#566176; --dim:#8b94a7;
-  --ice:#2350c8; --ice-ink:#ffffff; --amber:#b06800; --mint:#13845b;
-  --f-jp:"Zen Kaku Gothic New","Hiragino Sans","Yu Gothic","PingFang SC","Microsoft YaHei",sans-serif;
-  --f-lat:"Space Grotesk","Zen Kaku Gothic New",sans-serif;
-  --f-body:"IBM Plex Sans JP","Hiragino Sans","Yu Gothic","PingFang SC","Microsoft YaHei",sans-serif;
-  --f-mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
-  --r:14px; color-scheme:light;
+  /* KATACHI デザインシステム（2026-11 全面リニューアル）。色・文字・余白・角丸・影はここだけで決める。
+     基本は白・黒・グレー。青（--ice）はボタンと選択中だけに使う */
+  --bg:#ffffff; --bg2:#f6f6f7; --panel:#ffffff; --panel2:#f1f1f3; --hover:#f4f4f6; --accent-bg:#eef2fc;
+  --line:rgba(12,13,16,.08); --line2:rgba(12,13,16,.15);
+  --fg:#0c0d10; --fg2:#2a2c31; --mute:#55585f; --dim:#6e7179;
+  --ice:#2350c8; --ice-ink:#ffffff; --ice-dk:#1a3fa3; --amber:#9a5b00; --mint:#137a52; --red:#b3261e;
+  --f-jp:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Hiragino Kaku Gothic ProN","Noto Sans JP","Yu Gothic UI","Yu Gothic","PingFang SC","Microsoft YaHei",Meiryo,sans-serif;
+  --f-lat:var(--f-jp); --f-body:var(--f-jp);
+  --f-mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  /* 文字 */
+  --t-xs:12px; --t-sm:13px; --t-md:15px; --t-lg:17px; --t-xl:22px; --t-2xl:clamp(26px,4vw,34px);
+  /* 余白（4の倍数） */
+  --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:20px; --s6:24px; --s8:32px; --s10:40px; --s12:48px; --s16:64px;
+  /* 角丸・影 */
+  --r-sm:8px; --r:12px; --r-lg:16px; --r-xl:20px; --r-pill:999px;
+  --sh-1:0 1px 2px rgba(12,13,16,.04),0 1px 1px rgba(12,13,16,.03);
+  --sh-2:0 8px 28px -12px rgba(12,13,16,.18),0 1px 2px rgba(12,13,16,.05);
+  --tap:44px; color-scheme:light;
 }
 *{box-sizing:border-box}
 html,body{background:var(--bg);color:var(--fg)}
@@ -584,7 +591,7 @@ details.grp>summary small{font-weight:400;color:var(--dim);font-size:12px}
 details.grp>summary::after{content:"+";color:var(--dim);font-family:var(--f-mono)}
 details.grp[open]>summary::after{content:"−"}
 details.grp>.in{display:grid;gap:12px;padding:0 14px 14px}
-.req{display:inline-block;font-size:10.5px;color:#fff;background:var(--ice);border-radius:4px;padding:1px 5px;margin-left:6px;vertical-align:1px}
+.req{display:inline-block;font-size:10.5px;color:var(--fg2);background:var(--panel2);font-weight:600;border-radius:4px;padding:1px 5px;margin-left:6px;vertical-align:1px}
 .opt-t{font-size:10.5px;color:var(--dim);margin-left:6px}
 .aitag{font-size:10.5px;color:var(--amber);margin-left:6px}
 .cks{display:flex;flex-wrap:wrap;gap:6px 14px}
@@ -784,6 +791,294 @@ body.m2 .gh1{font-size:18px;line-height:1.5}
 .composer.drawm textarea#idea{min-height:56px;font-size:15px}
 .composer.drawm #pasteBtn,.composer.drawm #refBtn,.composer.drawm .pillset,.composer.drawm .cam,.composer.drawm #pick,.composer.drawm .paste,.composer.drawm .refp{display:none!important}
 @media (max-width:520px){.start2 button{padding:12px}.start2 button b{font-size:15px}}
+
+/* =====================================================================
+   KATACHI デザインシステム v3（2026-11 全面リニューアル）
+   ここから下が共通の部品。トークンは :root。ページごとの場当たりの指定は足さず、ここの部品を直す。
+   原則：白・黒・グレー／青はボタンと選択中だけ／枠・背景・影は最小限／文字の強弱と余白で階層を作る
+   ===================================================================== */
+body{font-family:var(--f-body);font-size:var(--t-md);line-height:1.75;letter-spacing:.01em;font-feature-settings:"palt" 0}
+h1,h2,h3{font-family:var(--f-jp);letter-spacing:-.005em;line-break:strict;word-break:auto-phrase}
+p,li,dd,small,span{line-break:strict}
+:focus-visible{outline:2px solid var(--ice);outline-offset:2px;border-radius:var(--r-sm)}
+::selection{background:#dfe6fb}
+.eyebrow{font-family:var(--f-jp);font-size:var(--t-xs);letter-spacing:.04em;text-transform:none;color:var(--dim)}
+.muted{color:var(--mute)}
+
+/* ナビ */
+.nav{background:rgba(255,255,255,.86);backdrop-filter:saturate(1.6) blur(14px);border-bottom:1px solid var(--line)}
+.nav .wrap{height:56px;gap:var(--s3)}
+.brand b{font-family:var(--f-jp);font-weight:700;letter-spacing:.22em;font-size:14px}
+.langs{border:0;background:var(--panel2);padding:2px;border-radius:var(--r-pill)}
+.langs button{height:30px;min-width:40px;padding:0 10px;font-size:12px;white-space:nowrap;border-radius:var(--r-pill);color:var(--mute)}
+.langs button[aria-pressed="true"]{background:#fff;color:var(--fg);box-shadow:var(--sh-1);font-weight:600}
+.tag{font-family:var(--f-mono);font-size:10px;letter-spacing:.1em;border:0;background:var(--panel2);color:var(--mute);padding:4px 8px}
+@media (max-width:420px){.langs button{min-width:34px;padding:0 8px}.brand b{letter-spacing:.16em}}
+
+/* ボタン */
+.btn{height:var(--tap);padding:0 var(--s5);border-radius:var(--r);border:1px solid var(--line2);background:#fff;font-size:14px;font-weight:600;color:var(--fg);transition:background .15s,border-color .15s,box-shadow .15s}
+.btn:hover{background:var(--hover);border-color:var(--line2)}
+.btn.pri{background:var(--ice);border-color:var(--ice);color:#fff;box-shadow:0 1px 2px rgba(35,80,200,.25)}
+.btn.pri:hover{background:var(--ice-dk);border-color:var(--ice-dk)}
+.btn.pri:disabled,.btn:disabled{opacity:.55;cursor:not-allowed}
+.btn.sm{height:36px;padding:0 var(--s3);font-size:13px;border-radius:var(--r-sm)}
+.glink,.link{color:var(--ice);font-size:var(--t-sm);text-decoration:underline;text-underline-offset:3px;text-decoration-color:color-mix(in srgb,var(--ice) 35%,transparent);background:none;border:0;padding:0;cursor:pointer;font-weight:500}
+.glink:hover{text-decoration-color:currentColor}
+
+/* チップ・印 */
+.chip{font-size:var(--t-xs);color:var(--mute);border:0;background:var(--panel2);border-radius:var(--r-pill);padding:2px 9px;line-height:1.6}
+.chip.on{background:var(--accent-bg);color:var(--ice)}
+.mk{font-size:11.5px;color:var(--mute);gap:5px}
+.mk.pub i{border-color:var(--mint);background:transparent;border-width:1.5px}
+
+/* ---------- トップ ---------- */
+.hero{border-bottom:0;overflow:visible}
+.hero::after{display:none}
+.hero .wrap{max-width:760px;padding-block:clamp(40px,9vh,96px) var(--s8);text-align:left}
+.hero h1{font-weight:800;font-size:clamp(30px,8vw,64px);letter-spacing:-.02em;line-height:1.14;max-width:none;background:none;color:var(--fg);-webkit-text-fill-color:currentColor}
+.hero .sub{font-size:clamp(15px,1.9vw,18px);color:var(--mute);margin:var(--s4) 0 var(--s8);max-width:32em}
+.composer{max-width:none;background:#fff;border:1px solid var(--line2);border-radius:var(--r-xl);padding:var(--s1);box-shadow:var(--sh-2);backdrop-filter:none;position:relative}
+.composer:focus-within{border-color:color-mix(in srgb,var(--ice) 55%,var(--line2));box-shadow:var(--sh-2),0 0 0 4px rgba(35,80,200,.10)}
+.composer.drag{border-color:var(--ice);background:var(--accent-bg)}
+.clabel{display:block;padding:var(--s4) var(--s4) 0;font-size:var(--t-sm);font-weight:600;color:var(--fg2)}
+.composer textarea{min-height:104px;font-size:17px;padding:var(--s2) var(--s4) var(--s2);line-height:1.7}
+.composer textarea::placeholder{color:#9a9ca3}
+.cbar{padding:var(--s2) var(--s2) var(--s2) var(--s2);gap:var(--s2);flex-wrap:nowrap}
+.cbar>.btn.pri{height:var(--s12);padding:0 var(--s5);border-radius:14px;font-size:15px;margin-left:auto}
+.clip{white-space:nowrap;flex:none;height:var(--tap);min-width:var(--tap);padding:0 var(--s3);border:0;border-radius:var(--r);color:var(--fg2);font-size:14px;font-weight:500;gap:6px;background:transparent}
+.clip:hover{background:var(--hover);color:var(--fg)}
+.hint,.hero .sub,.cosub,.steps4 span,.trust .lead{text-wrap:pretty}
+.hint{margin:var(--s3) 2px 0;font-size:var(--t-sm);color:var(--mute)}
+.start2{display:flex;flex-wrap:wrap;gap:var(--s1) var(--s2);align-items:center;max-width:none;margin:var(--s6) 0 0;grid-template-columns:none}
+.start2 .s2l{font-size:var(--t-xs);color:var(--dim);margin-right:var(--s1);flex-basis:100%}
+.start2 button{display:inline-flex;align-items:center;min-height:36px;padding:0 var(--s3);border:1px solid var(--line);border-radius:var(--r-pill);background:#fff;font-size:13px;color:var(--fg2);box-shadow:none;text-align:left}
+.start2 button:hover{border-color:var(--line2);background:var(--hover)}
+.start2 button[aria-expanded="true"]{border-color:var(--fg);color:var(--fg)}
+.composer.drawm .dpick{border:1.5px dashed var(--line2);background:var(--bg2);border-radius:var(--r-lg);color:var(--fg);margin:var(--s2) var(--s2) 0}
+.paste.on,.refp.on{padding:var(--s2) var(--s4) var(--s3)}
+.refp{border-top:1px solid var(--line);margin-top:var(--s2)}
+.refwarn{background:#fbf6ec;border:0;border-radius:var(--r);color:#6b4500}
+.logn{margin:var(--s4) 2px 0;font-size:11.5px;color:var(--dim)}
+.mine{max-width:none;margin-top:var(--s8)}
+
+/* 依頼までの流れ */
+.how3 .wrap{max-width:760px;padding-block:var(--s12) var(--s8);border-top:1px solid var(--line)}
+.how3 h2,.trust h2,.ideas .rhead h2{font-size:var(--t-xl);font-weight:700;letter-spacing:-.01em}
+.steps4{list-style:none;margin:var(--s6) 0 0;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--s6) var(--s8)}
+.steps4 li{display:grid;grid-template-columns:28px minmax(0,1fr);column-gap:var(--s3);row-gap:2px}
+.steps4 i{grid-row:span 2;font-style:normal;width:28px;height:28px;border-radius:50%;background:var(--fg);color:#fff;font-size:13px;font-weight:600;display:grid;place-items:center}
+.steps4 b{font-size:15px;line-height:1.5;padding-top:2px}
+.steps4 span{font-size:var(--t-sm);color:var(--mute);line-height:1.65}
+.aifold{max-width:none;margin-top:var(--s8)}.aifold summary{font-size:var(--t-sm);color:var(--mute);cursor:pointer}
+.aihome a{border:1px solid var(--line2);color:var(--fg2);background:#fff}
+@media (max-width:640px){.steps4{grid-template-columns:minmax(0,1fr);gap:var(--s5)}}
+
+/* 作例 */
+.ideas{padding:var(--s12) 0 var(--s4);border-top:1px solid var(--line)}
+.ideas .rhead{padding:0;gap:var(--s2)}.ideas .rhead .eyebrow{display:none}.ideas .rhead p{margin:0;font-size:var(--t-sm)}
+.inds button{border-color:var(--line);color:var(--fg2);background:#fff}
+.inds button[aria-selected="true"]{background:var(--fg);border-color:var(--fg);color:#fff}
+.icard{border-color:var(--line);border-radius:var(--r-lg);box-shadow:none}
+.icard:hover{border-color:var(--line2);box-shadow:var(--sh-1)}
+.ifoot{border-top:1px solid var(--line)}
+.icard .btn.pri{background:#fff;color:var(--fg);border-color:var(--line2);box-shadow:none}
+.icard .btn.pri:hover{background:var(--hover)}
+
+@media (max-width:640px){.icards .icard:nth-child(n+7){display:none}}
+/* 信頼 */
+.trust{padding-block:var(--s12) var(--s16)}
+.trust .wrap{border-top:1px solid var(--line);padding-top:var(--s12);max-width:1240px}
+.trust .lead{color:var(--mute);margin:var(--s2) 0 var(--s6);max-width:40em;font-size:14px}
+.trust dl{margin:0;display:grid;grid-template-columns:auto minmax(0,1fr);gap:var(--s3) var(--s5);align-items:baseline;max-width:760px}
+.trust dt .mk{font-size:13px;color:var(--fg)}.trust dd{margin:0;color:var(--mute);font-size:var(--t-sm)}
+.figs{border:0;margin-top:var(--s10);grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--s4)}
+.fig,.fig+.fig{padding:0;border:0}
+.fig b{font-family:var(--f-jp);font-weight:700;font-size:clamp(22px,4vw,34px);font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.fig span{font-size:var(--t-xs)}
+@media (max-width:560px){.trust dl{grid-template-columns:minmax(0,1fr);gap:2px}.trust dd{margin-bottom:var(--s3)}}
+
+/* ---------- 読み込み ---------- */
+.build{min-height:60vh}.build h2{font-size:var(--t-xl);font-weight:700;margin-top:var(--s4)}.build p{margin:var(--s2) 0 0;font-size:14px}
+.spin{display:inline-block;width:28px;height:28px;border-radius:50%;border:2.5px solid var(--line2);border-top-color:var(--ice);animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.spin{animation-duration:2.4s}*{scroll-behavior:auto!important}}
+
+/* ---------- 進み具合 ---------- */
+.stepbar{margin:0 0 var(--s6)}
+.stepbar ol{grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--s2)}
+.stepbar li>*::before{height:3px;border-radius:2px;background:var(--line)}
+.stepbar li.done>*::before,.stepbar li.on>*::before{background:var(--fg)}
+.stepbar li.on>*{color:var(--fg)}.stepbar li.done>*{color:var(--mute)}
+.stepbar b{font-size:var(--t-xs);font-weight:600;display:block;line-height:1.4}
+.stepbar i{font-family:var(--f-jp);margin-right:4px;color:var(--dim)}
+
+/* ---------- ② 整理と提案 ---------- */
+.gpick{max-width:760px;margin:0 auto;padding:var(--s6) 0 140px}
+.rq{display:flex;gap:var(--s3);align-items:flex-start;justify-content:space-between;padding-bottom:var(--s5);border-bottom:1px solid var(--line)}
+.rqb{min-width:0;display:grid;gap:2px}
+.rql{font-size:var(--t-xs);color:var(--dim)}
+.rqt{margin:0;font-size:var(--t-lg);font-weight:600;line-height:1.55;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.rq .glink{flex:none;margin-top:18px;white-space:nowrap}
+.rqf{padding:var(--s3) 0 0}
+.cond{padding:var(--s5) 0;border-bottom:1px solid var(--line);display:grid;gap:var(--s3)}
+.cdh{display:flex;align-items:baseline;justify-content:space-between;gap:var(--s3);flex-wrap:wrap}
+.cdh h2{font-size:15px;font-weight:700}
+.cdlg{display:flex;gap:var(--s2);flex-wrap:wrap}
+.cdl{margin:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 var(--s6)}
+.cdr{display:grid;grid-template-columns:5.5em minmax(0,1fr);gap:var(--s2);padding:9px 0;border-top:1px solid var(--line);align-items:baseline}
+.cdr:nth-child(-n+2){border-top:0}
+.cdr dt{font-size:var(--t-xs);color:var(--mute)}
+.cdr dd{margin:0;display:flex;gap:6px;align-items:baseline;justify-content:space-between;min-width:0}
+.cdv{font-size:14px;color:var(--fg);overflow-wrap:anywhere;min-width:0}
+.cdt{flex:none;font-size:10.5px;line-height:1;padding:4px 6px;border-radius:5px;white-space:nowrap;font-weight:600}
+.cdt.you{background:var(--fg);color:#fff}
+.cdt.est{background:transparent;color:var(--amber);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--amber) 45%,transparent)}
+.cdt.omk{background:var(--panel2);color:var(--fg2)}
+.cdt.none{background:transparent;color:var(--dim);box-shadow:inset 0 0 0 1px var(--line2)}
+.cdr:has(.cdt.none) .cdv{color:var(--dim)}
+.cdq>summary{cursor:pointer;list-style:none;display:flex;gap:var(--s2);align-items:baseline;flex-wrap:wrap;font-size:14px;font-weight:600;color:var(--ice);min-height:var(--tap);padding-top:10px}
+.cdq>summary::-webkit-details-marker{display:none}
+.cdq>summary::before{content:"";width:7px;height:7px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(-45deg);transition:transform .15s;align-self:center}
+.cdq[open]>summary::before{transform:rotate(45deg)}
+.cdq>summary small{font-weight:400;color:var(--mute);font-size:var(--t-xs)}
+.cdqb{display:grid;gap:var(--s4);padding:var(--s2) 0 var(--s2)}
+.cdqi p{margin:0 0 var(--s2);font-size:14px;font-weight:600}
+.cdch{display:flex;flex-wrap:wrap;gap:6px}
+.cdch button{min-height:38px;padding:6px 12px;border:1px solid var(--line2);border-radius:var(--r-pill);background:#fff;font-size:13px;color:var(--fg)}
+.cdch button:hover{border-color:var(--fg)}
+.cdch [data-cdu]{color:var(--mute);border-style:dashed}
+.cdn{margin:0;font-size:var(--t-xs);color:var(--dim);display:flex;gap:4px var(--s3);flex-wrap:wrap;align-items:baseline}
+.cdn .glink{font-size:var(--t-xs)}
+@media (max-width:560px){.cdl{grid-template-columns:minmax(0,1fr)}.cdr:nth-child(2){border-top:1px solid var(--line)}}
+.cohd{margin:var(--s8) 0 var(--s4);display:grid;gap:var(--s1)}
+.stepnow{margin:0;font-size:var(--t-xl);font-weight:700}
+.cosub{margin:0;font-size:var(--t-sm);color:var(--mute)}
+.dsnone{margin-top:var(--s6)}
+/* 送り先の切り替え */
+.dsto{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));background:var(--panel2);border-radius:var(--r);padding:3px;gap:2px;margin:0 0 var(--s4);border:0}
+.dsto button{min-height:38px;border-radius:9px;font-size:13px;color:var(--mute);border:0;background:none;font-weight:500}
+.dsto button[aria-pressed="true"]{background:#fff;color:var(--fg);box-shadow:var(--sh-1);font-weight:700}
+/* おすすめの箱（大きな青い枠はやめ、余白と文字で） */
+.rec{border:0;border-radius:0;padding:0;background:none;gap:var(--s3)}
+.rec .rtag{background:none;color:var(--fg);padding:0;font-size:var(--t-xs);font-weight:700;letter-spacing:.02em}
+.rec h3{font-size:var(--t-lg);font-weight:700;line-height:1.45}
+.rec .why{font-size:14px;color:var(--mute);line-height:1.7}
+.rwin{font-size:var(--t-sm);padding:var(--s3) 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.rwin .rwl{font-size:var(--t-xs);color:var(--dim);margin-right:2px}
+.rec .rsel{color:var(--mute);font-weight:500;font-size:var(--t-xs)}
+.rec .qrow{display:flex;gap:var(--s2) var(--s4);flex-wrap:wrap;align-items:center}
+.dsnext{display:none}
+.rec+.rec,.dsg+.rec,.rec.dsg+p+.rec{margin-top:var(--s10);padding-top:var(--s8);border-top:1px solid var(--line)}
+.whon{font-size:var(--t-sm);color:var(--mute)}
+/* 工程の並び */
+.stps{gap:var(--s3)}
+.stps .sph{color:var(--mute);font-size:var(--t-xs);font-weight:600;margin:var(--s3) 0 0}
+.stp{border:0;border-left:0;border-radius:0;padding:0;background:none;gap:var(--s2)}
+.stp .sth b{font-size:14px;font-weight:700}
+.stp .sn{background:var(--fg);font-size:11px;min-width:20px;height:20px;line-height:20px;padding:0 6px}
+.stp .sth small{font-size:var(--t-xs)}
+.pflow,.lgd{display:none}
+/* 会社のカード（ラジオ・チェック）。カード全体が押せる。選んだものは細い黒の枠と右上の印 */
+.opt{position:relative;display:grid;grid-template-columns:22px minmax(0,1fr);gap:var(--s3);align-items:start;padding:var(--s4);border:1px solid var(--line2);border-radius:var(--r-lg);background:#fff;cursor:pointer;transition:border-color .15s,box-shadow .15s}
+.opt:hover{border-color:color-mix(in srgb,var(--fg) 35%,transparent)}
+.opt.on{border-color:var(--ice);background:#fff;box-shadow:inset 0 0 0 1px var(--ice)}
+.opt input{width:20px;height:20px;margin:2px 0 0;accent-color:var(--ice)}
+.opt .ob{gap:6px}
+.opt .on1{gap:6px var(--s2)}
+.opt .on1 .cdot{display:none}
+.opt b{font-size:15px;font-weight:700;line-height:1.45}
+.opt .rk{background:var(--accent-bg);color:var(--ice);font-size:11px;font-weight:700;padding:2px 8px;border-radius:var(--r-pill)}
+.opt .ry{font-size:var(--t-sm);color:var(--fg2);line-height:1.65;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.opt .om{font-size:var(--t-xs);color:var(--mute)}
+.opt .om a{color:var(--mute)}
+.opt:not(.on) .grv{display:none}
+.alts{margin-top:var(--s1)}
+.alts>summary{display:flex;align-items:center;gap:6px;min-height:var(--tap);font-size:14px;font-weight:600;color:var(--ice);padding:0}
+.alts>summary::before{content:"";width:7px;height:7px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(-45deg);transition:transform .15s}
+.alts[open]>summary::before{content:"";transform:rotate(45deg)}
+.alts .altl{gap:var(--s2);margin-top:var(--s1)}
+/* 設計の相談先 */
+.dsg .dst{display:flex;gap:var(--s2);overflow-x:auto;flex-wrap:nowrap;scrollbar-width:none;margin:0 calc(-1*var(--s1));padding:2px var(--s1) var(--s1)}
+.dsg .dst::-webkit-scrollbar{display:none}
+.dsg .dst button{flex:none;min-height:var(--tap);padding:6px 14px;border:1px solid var(--line2);border-radius:var(--r);background:#fff;color:var(--fg2);font-size:13px}
+.dsg .dst button[aria-pressed=true]{background:var(--fg);border-color:var(--fg);color:#fff;font-weight:600}
+.dsg .dsg1{padding-top:var(--s1)}.dsg .dsg1 b{font-size:15px}
+.dsg .dsl li{grid-template-columns:auto;gap:2px}
+.dsg .dsl .btn.sm{background:#fff}
+.scb i{border-radius:4px}
+/* 数量 */
+.qbar{border:0;border-top:1px solid var(--line);border-radius:0;padding:var(--s5) 0 0;margin:var(--s8) 0 0;background:none}
+.qbar .qlab{font-size:var(--t-sm);font-weight:600;color:var(--fg)}
+.pillset{background:var(--panel2);border:0;border-radius:var(--r);padding:3px}
+.pillset button{height:34px;border-radius:9px;color:var(--mute)}
+.pillset button[aria-pressed="true"]{background:#fff;color:var(--fg);box-shadow:var(--sh-1);font-weight:600}
+.qn input{height:38px;border:1px solid var(--line2);border-radius:var(--r-sm);padding:0 10px;width:6em}
+.toimg{margin:var(--s4) 0 0;font-size:var(--t-sm)}
+.empty{border:0;background:var(--bg2);border-radius:var(--r);padding:var(--s4);font-size:var(--t-sm)}
+
+/* 添付 */
+.files{display:flex;flex-wrap:wrap;gap:var(--s2);padding:0 var(--s3) var(--s1)}
+.files:empty{display:none}
+.fchip{display:inline-flex;align-items:center;gap:var(--s2);max-width:100%;min-height:48px;padding:6px 4px 6px 8px;border:1px solid var(--line);border-radius:var(--r);background:var(--bg2);font-size:var(--t-xs)}
+.fchip.bad{border-color:color-mix(in srgb,var(--red) 40%,transparent);background:#fdf3f2}
+.fchip .fth{width:36px;height:36px;border-radius:6px;object-fit:cover;flex:none}
+.fchip .fic{flex:none;color:var(--fg2);margin:0 4px}
+.fchip .ft{display:grid;min-width:0;line-height:1.35}
+.fchip .n{font-size:13px;color:var(--fg);font-weight:500;max-width:min(220px,52vw);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fchip .m{font-size:11px;color:var(--mute);font-family:var(--f-jp)}
+.fchip .fst{font-size:11px;color:var(--mute)}.fchip .fst.bad{color:var(--red);font-weight:600}
+.fchip .fx{flex:none;width:36px;height:36px;display:grid;place-items:center;border-radius:var(--r-sm);color:var(--mute)}
+.fchip .fx:hover{background:#fff;color:var(--fg)}
+.fchip .k{display:none}
+.fundo{display:inline-flex;align-items:center;gap:6px;font-size:var(--t-xs);color:var(--mute);padding:0 6px;min-height:48px}
+.fnote{flex-basis:100%;font-size:11.5px;color:var(--dim);padding:2px 2px 0}
+.fstrip{border:1px solid var(--line);border-radius:var(--r-lg);background:#fff}
+
+/* ---------- 固定の下のバー（細く。必要な画面だけ） ---------- */
+.dock{background:rgba(255,255,255,.94);backdrop-filter:saturate(1.6) blur(14px);border-top:1px solid var(--line);padding-bottom:max(var(--s2),env(safe-area-inset-bottom,0px))}
+.dock .wrap{height:auto;min-height:60px;padding-top:var(--s2);gap:var(--s3);max-width:760px}
+.gdl b{font-size:14px;font-weight:700}
+.gdl small{font-size:var(--t-xs)}
+.dock .btn.pri{height:var(--tap);flex:none}
+@media (max-width:480px){.gdl small{display:none}.dock .wrap{min-height:56px}}
+@media (max-height:500px){.dock{position:static}}
+
+/* ---------- シート（確認して送る・会社の詳しい情報） ---------- */
+.scrim{background:rgba(12,13,16,.32);backdrop-filter:none}
+.sheet{background:#fff;border-left:1px solid var(--line);box-shadow:-24px 0 64px -24px rgba(12,13,16,.25);gap:var(--s5);padding:calc(var(--s5) + env(safe-area-inset-top,0px)) max(var(--s5),env(safe-area-inset-right,0px)) calc(var(--s8) + env(safe-area-inset-bottom,0px)) var(--s5)}
+.sh h2{font-size:var(--t-xl);font-weight:700}
+.sh .eyebrow{display:none}
+.x{width:var(--tap);height:var(--tap);border:0;border-radius:50%;background:var(--panel2);font-size:20px;color:var(--fg2)}
+.x:hover{background:var(--line)}
+.blk>h4{font-family:var(--f-jp);font-size:var(--t-xs);letter-spacing:.02em;color:var(--mute);font-weight:600;text-transform:none}
+.list li{border:0;background:var(--bg2);border-radius:var(--r);padding:var(--s3)}
+.form{gap:var(--s4)}
+.form label{font-size:var(--t-sm);color:var(--fg2);font-weight:500}
+.form input,.form textarea,.form select{background:#fff;border:1px solid var(--line2);border-radius:var(--r);padding:11px 12px;font-size:16px;min-height:var(--tap)}
+.form input:focus,.form textarea:focus,.form select:focus{border-color:var(--ice);box-shadow:0 0 0 3px rgba(35,80,200,.12)}
+.form .bad{border-color:var(--red)!important;box-shadow:0 0 0 3px rgba(179,38,30,.10)}
+.ferr{color:var(--red);font-size:var(--t-sm);font-weight:500}
+.ferr:empty{display:none}
+.chk{font-size:14px;gap:var(--s3)}.chk input{width:20px;height:20px;margin-top:3px;flex:none}
+.grp{border:1px solid var(--line);border-radius:var(--r-lg);background:#fff}
+.qkopt{min-height:var(--s12);border-radius:var(--r);border:1px solid var(--line2);font-weight:500}
+.qkopt[aria-pressed="true"]{border-color:var(--ice);box-shadow:inset 0 0 0 1px var(--ice);background:#fff;color:var(--fg)}
+.wzatt{border:0;background:var(--bg2);border-radius:var(--r-lg)}
+.ok:not(.mk){background:#f1f8f4;border:0;border-radius:var(--r-lg)}
+.tl li::before{border-color:var(--fg)}.tl li.now::before{background:var(--fg);box-shadow:none}
+#rf>button[type=submit],.sheet .btn.pri[type=submit]{width:100%;height:52px;font-size:16px;border-radius:14px}
+@media (max-width:560px){.sheet{border-left:0;box-shadow:none;animation:up .25s cubic-bezier(.2,.8,.2,1)}}
+@keyframes up{from{transform:translateY(24px);opacity:0}}
+@media (prefers-reduced-motion:reduce){.sheet,.scrim{animation:none}}
+
+/* 選んで探す（型が決まっているもの） */
+.modes{background:var(--panel2);border-radius:var(--r);padding:3px;gap:2px;margin:0 0 var(--s4)}
+.modes button{border:0;border-radius:10px;background:none;padding:10px 12px}
+.modes button small{display:none}
+.modes button[aria-selected="true"]{background:#fff;box-shadow:var(--sh-1)}
+.modes button[aria-selected="true"] b{color:var(--fg)}
+/* フッター（prod.py が足す） */
+.sfoot{border-top:1px solid var(--line);color:var(--mute)}
 </style>
 
 <nav class="nav gut"><div class="wrap">
@@ -892,11 +1187,11 @@ addEventListener('hashchange',route);
 
 /* ---------- 2ステップ（書く→選んで送る）。Nori 2026-11-15「ステップ2はもっとシンプルに。相談会社一覧もしくは見積もり依頼工場一覧が出てくる。あとは利用者がサブミットして終わり」。
    ②は図面が要る内容なら設計の相談先、作れる内容なら見積を頼む工場の一覧（★おすすめ選択済み）。製品イメージ案（#match）は任意の寄り道 ---------- */
-const STEPS=['書く','選んで送る'];
+const STEPS=['伝える','会社を選ぶ','確認して送る'];
 function stepBar(n){return `<nav class="stepbar" aria-label="進み具合"><ol>${STEPS.map((t,i)=>{const k=i+1,cls=k<n?'done':k===n?'on':'';const inner=`<b><i class="mono">${k}</i>${t}</b>`;
   return `<li class="${cls}"${k===n?' aria-current="step"':''}>${k<n?`<button type="button" data-stepgo="${k}">${inner}</button>`:`<span>${inner}</span>`}</li>`}).join('')}</ol></nav>`}
 function bindStepBar(root){(root||document).querySelectorAll('[data-stepgo]').forEach(b=>b.onclick=()=>{const k=+b.dataset.stepgo;track('step_back',{to:k});if($('#ov .sheet'))closeSheet();
-  if(k===1){S.mode='free';location.hash=''}else if(k===2)location.hash='co'})}
+  if(k===1){S.mode='free';location.hash=''}else if(k===2){if($('#ov .sheet'))closeSheet();location.hash='co'}})}
 /* 相談の続き: 外部のAIへ行って戻っても、書いた内容・答え・貼りかけの回答が消えないよう、この端末の sessionStorage に置く（どこにも送らない） */
 const SAVEK='katachi-flow';
 function saveFlow(){try{sessionStorage.setItem(SAVEK,JSON.stringify({idea:S.idea,qty:S.qty,chat:S.chat,cvar:S.cvar,folds:S.folds,tune:S.tune,aiAway:S.aiAway,aiDraft:S.aiDraft,ckind:S.ckind||null,sx:S.sx||null,dsFirst:!!S.dsFirst,lai:S.lai?{base:S.lai.base,log:S.lai.log.slice(-12),concept:S.lai.concept}:null,nfiles:(S.files||[]).length,t:Date.now()}))}catch(e){}try{mineSave()}catch(e){}}
@@ -966,57 +1261,69 @@ function bindFolds(){S.folds=S.folds||{};$$('details[data-fold]').forEach(d=>d.o
 const EX=[['collar','自社ブランドの犬用健康首輪'],['mimamori','介護向け見守りセンサー 100個'],['bike','自社商品の防水自転車ライト']];
 function renderHome(){
   $('#dock').innerHTML='';
+  const G=S.mode==='guided',DR=S.start==='draw';
+  const ARW='<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  const CLIP='<svg width="18" height="18" viewBox="0 0 16 16" aria-hidden="true"><path d="M10.5 4.5 5.8 9.2a1.5 1.5 0 0 0 2.1 2.1l5-5a3 3 0 0 0-4.2-4.2l-5 5a4.5 4.5 0 0 0 6.4 6.4l4.2-4.2" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>';
+  /* トップの主役は入力欄ひとつ（Nori 2026-11-15 全面リニューアル指示書「最初の画面でユーザーに求める行動は一つ」）。
+     図面がある人・会話を貼る・既製品をもとに・型が決まっているものは、入力欄の下の「ほかの始め方」にまとめる */
   $('#app').innerHTML=`
-  <section class="hero gut"><canvas id="field" aria-hidden="true"></canvas><div class="wrap">
-    <div class="eyebrow" style="margin-bottom:18px">AI × 町工場 × あなた</div>
-    <h1>アイデアを、<br>製品のかたちに。</h1>
-    <p class="sub">${S.start==='draw'&&S.mode!=='guided'?'図面・3Dデータ・仕様書を入れて、数と時期を答えるだけ。作れる工場は担当者が図面を見て探し、見積を集めます。':S.mode==='guided'?'設計部門がなくても大丈夫。つくりたいものを書くだけで、AIが作り方を工程に分け、全国と海外の工場から、それぞれを得意とする会社でチームを組みます。比べて、選ぶのはあなたです。':'何を作りたいか、ひとことで書いてください。写真だけでも始められます。設計部門や図面がなくても大丈夫です。'}</p>
-    ${S.mode==='guided'?modeTabs():''}
-    <div class="composer gw" id="gw" ${S.mode==='guided'?'':'hidden'}></div>
-    ${S.mode==='guided'?'':`<div class="start2" role="group" aria-label="はじめ方"><button type="button" data-start="idea" aria-pressed="${S.start!=='draw'}"><b>アイデアから</b><small>図面がなくても大丈夫。書くだけで、形と作り方を一緒に考えます</small></button><button type="button" data-start="draw" aria-pressed="${S.start==='draw'}"><b>図面・データがある</b><small>ファイルを入れて、数と時期を答えるだけ</small></button></div>`}
-    <form class="composer${S.start==='draw'?' drawm':''}" id="cmp" autocomplete="off" ${S.mode==='guided'?'hidden':''}>
+  <section class="hero gut"><div class="wrap">
+    <h1>${G?'選んで、<br>工場を探す。':'作りたいものを、<br>カタチに。'}</h1>
+    <p class="sub">${G?'ノベルティ・部品・袋物など、型が決まっているものは、選ぶだけで対応できる会社が見つかります。':DR?'図面・3Dデータ・仕様書を入れて、数と時期を伝えるだけ。担当者が図面を見て、作れる工場を探します。':'アイデアを伝えるだけで、ものづくりの第一歩が始まります。'}</p>
+    ${G?modeTabs():''}
+    <div class="composer gw" id="gw" ${G?'':'hidden'}></div>
+    <form class="composer${DR?' drawm':''}" id="cmp" autocomplete="off" ${G?'hidden':''}>
+      <label for="idea" class="clabel">${DR?'図面・データから見積を頼む':'どんなものを作りたいですか？'}</label>
       <button type="button" class="dpick" id="dPick">＋ 図面・3D・仕様書を入れる<small>PDF・DXF・STEP・STL・写真など。いくつでも</small></button>
-      <label for="idea" class="eyebrow" style="position:absolute;left:-9999px">つくりたいもの</label>
-      <textarea id="idea" rows="3" placeholder="${S.start==='draw'?'何の部品・製品ですか？（なくても大丈夫。例：アルミのブラケット）':'例：散歩中の犬の心拍を測れる首輪を、まず5個だけ試作したい'}">${esc(S.start==='draw'?'':S.idea)}</textarea>
-      <div class="files" id="files"></div>
-      <div class="paste" id="paste"><textarea id="pasteT" placeholder="ChatGPT・Gemini・Claude の共有リンクや会話の本文、YouTube・Instagram・TikTok などの動画のリンクを貼り付け"></textarea><div><button type="button" class="btn sm" id="pasteGo">取り込む</button></div>${aiHelp()}</div>
+      <textarea id="idea" rows="3" placeholder="${DR?'何の部品・製品ですか？（なくても大丈夫。例：アルミのブラケット）':'例：オリジナルの金属パーツを50個作りたい'}">${esc(DR?'':S.idea)}</textarea>
+      <div class="files" id="files" aria-live="polite"></div>
+      <div class="paste" id="paste"><textarea id="pasteT" aria-label="会話を貼る" placeholder="ChatGPT・Gemini・Claude の共有リンクや会話の本文、YouTube・Instagram・TikTok などの動画のリンクを貼り付け"></textarea><div><button type="button" class="btn sm" id="pasteGo">取り込む</button></div>${aiHelp()}</div>
       ${refPanel()}
       <div class="cbar">
-        <button type="button" class="clip cam" data-photo><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 5.5A1.5 1.5 0 0 1 3.5 4h1.6l1-1.5h3.8l1 1.5h1.6A1.5 1.5 0 0 1 14 5.5v6A1.5 1.5 0 0 1 12.5 13h-9A1.5 1.5 0 0 1 2 11.5z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><circle cx="8" cy="8.5" r="2.4" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>写真・動画を追加</button>
-        <button type="button" class="clip" id="pick" title="AIで作った仕様書・画像・3D/CAD・回路図・コードを取り込む"><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M10.5 4.5 5.8 9.2a1.5 1.5 0 0 0 2.1 2.1l5-5a3 3 0 0 0-4.2-4.2l-5 5a4.5 4.5 0 0 0 6.4 6.4l4.2-4.2" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>図面・ファイル</button>
-        <button type="button" class="clip" id="pasteBtn">会話を貼る</button>
-        <button type="button" class="clip ref" id="refBtn" aria-expanded="${!!(S.ref&&S.ref.on)}">既製品をもとに作る</button>
+        <button type="button" class="clip" id="pick" aria-label="写真・図面・ファイルを添付" title="写真・動画・図面・PDF・3Dデータ">${CLIP}<span>添付</span></button>
         <span class="sp"></span>
-        <div class="pillset" role="group" aria-label="数量">${[['proto','試作'],['small','小ロット'],['mass','量産']].map(([v,t])=>`<button type="button" data-qty="${v}" aria-pressed="${S.qty===v}">${t}</button>`).join('')}</div>
-        <button class="btn pri" type="submit">${S.start==='draw'?'見積を頼む':'はじめる'}<svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <button class="btn pri" type="submit">${DR?'見積を頼む':'相談を始める'}${ARW}</button>
       </div>
       <input type="file" id="fileIn" multiple hidden>
     </form>
+    ${G?'':`<p class="hint">${DR?'写真や手描きのスケッチでも受け付けます。':'図面がなくても大丈夫。まずはアイデアから。'}</p>
+    <div class="start2" role="group" aria-label="ほかの始め方"><span class="s2l">ほかの始め方</span>
+      <button type="button" data-start="${DR?'idea':'draw'}" aria-pressed="false">${DR?'アイデアから書く':'図面・データがある'}</button>
+      <button type="button" id="pasteBtn" aria-expanded="false">AIとの会話を貼る</button>
+      <button type="button" class="ref" id="refBtn" aria-expanded="${!!(S.ref&&S.ref.on)}">既製品をもとに作る</button>
+      <button type="button" data-mode="guided">型が決まっているもの</button>
+      <button type="button" id="toIdeas">作例から選ぶ</button>
+    </div>`}
     ${mineRow()}
     <p class="logn">入力した内容は、サービスの改善と傾向の分析のために保存します。メールアドレスや電話番号は書かないでください。</p>
-    ${S.mode==='guided'?'':`<ol class="nexts" aria-label="このあとの流れ">
-      <li><b><i>1</i>書く</b><span>作りたいものを一文で</span></li><li><b><i>2</i>選んで送る</b><span>設計の相談先か、見積を頼む工場の一覧から。無料</span></li></ol>
-    <div class="alt2"><button type="button" id="toIdeas"><b>思いつかないときは</b><small>業種から作例を選ぶ ↓</small></button><button type="button" data-mode="guided"><b>型が決まっているもの</b><small>ノベルティ・部品・袋物は「選んで探す」</small></button></div>
-    <div class="examples"><span>試す</span>${EX.map(([k,t])=>`<button class="ex" data-ex="${k}">${t}</button>`).join('')}</div>
-    <details class="aifold"><summary>まだ考えがまとまっていなければ、AIで相談</summary><div class="aihome">${['ChatGPT','Claude','Gemini'].map(n=>`<a data-haigo="${n}" href="${AI_HOME[n]}" target="_blank" rel="noopener">${AI_ICON}${n}で相談</a>`).join('')}</div></details>`}
   </div></section>
+  ${G?'':`<section class="gut how3"><div class="wrap">
+    <h2>依頼までの流れ</h2>
+    <ol class="steps4">
+      <li><i>1</i><b>作りたいものを伝える</b><span>ふだんの言葉で、ひとことから。写真や図面があれば添えて。</span></li>
+      <li><i>2</i><b>条件を整理する</b><span>書いた内容から、数量・大きさ・素材・設計が要るかを読み取ります。わからない点は「未定」のままで進めます。</span></li>
+      <li><i>3</i><b>対応できる会社を見つける</b><span>登録している会社の公開情報から、合う会社と、候補になった理由を出します。</span></li>
+      <li><i>4</i><b>依頼する</b><span>担当者が内容を確かめてから届けます。見積の依頼は無料です。</span></li>
+    </ol>
+    <details class="aifold"><summary>まだ考えがまとまっていなければ、お使いのAIで相談</summary><div class="aihome">${['ChatGPT','Claude','Gemini'].map(n=>`<a data-haigo="${n}" href="${AI_HOME[n]}" target="_blank" rel="noopener">${AI_ICON}${n}で相談</a>`).join('')}</div></details>
+  </div></section>`}
   <section class="gut"><div class="wrap ideas" id="ideas"></div></section>
-  <section class="gut"><div class="wrap rank" id="rank"></div></section>
-  <section class="gut"><div class="wrap figs">
-    <div class="fig"><b class="mono">${fmt(D.realCount)}</b><span>登録している実在の会社（公開情報・国の登録情報）</span></div>
-    <div class="fig"><b class="mono">${fmt(D.realAbroad)}</b><span>うち海外の工場</span></div>
-    <div class="fig"><b class="lat">1 → N</b><span>1社で無理なら、複数社を組み合わせる</span></div>
-  </div></section>
-  <section class="gut trust"><div class="wrap"><div class="box">
-    <div><div class="eyebrow">Trust</div><h2 style="margin-top:10px">確かなことと、AIの見立てを分けて見せます。</h2><p>情報には必ず印が付きます。印の形を見れば、どこまで確かめられているかがわかります。</p></div>
+  <section class="gut trust"><div class="wrap">
+    <h2>確かなことと、見立てを分けて見せます。</h2>
+    <p class="lead">会社の情報には、どこまで確かめられているかの印が付きます。見積や口コミを作り上げることはありません。</p>
     <dl>
-      <dt>${mk('ok','取引で確認')}</dt><dd>KATACHIでの見積・取引・検査で確かめたこと。口コミは取引した人だけが書けます。</dd>
       <dt>${mk('pub','公式サイトで確認')}</dt><dd>公式サイト・報道・企業自身の掲載ページに書かれていること。出典と確認日つき。</dd>
-      <dt>${mk('ai','AI推定')}</dt><dd>適合度や難所の見立てなど、AIの推定。判断材料のひとつです。</dd>
-      <dt>${mk('unk','要確認')}</dt><dd>まだわからないこと。減点せず、見積依頼で確かめます。</dd>
+      <dt>${mk('unk','国の登録情報のみ')}</dt><dd>gBizINFO（経済産業省）の登録情報だけの会社。受ける条件は見積の依頼で確かめます。</dd>
+      <dt>${mk('ai','推定')}</dt><dd>書いた内容からの読み取りや、似た製品からの目安。判断材料のひとつです。</dd>
+      <dt>${mk('unk','要確認')}</dt><dd>まだわからないこと。減点せず、見積の依頼で確かめます。</dd>
     </dl>
-  </div></div></section>`;
-  bindHome();field();mineBind();
+    <div class="figs">
+      <div class="fig"><b>${fmt(D.realCount)}</b><span>登録している実在の会社</span></div>
+      <div class="fig"><b>${fmt(D.realAbroad)}</b><span>うち海外の会社</span></div>
+      <div class="fig"><b>0円</b><span>見積の依頼にかかる費用</span></div>
+    </div>
+  </div></section>`;
+  bindHome();mineBind();
   $$('[data-mode]').forEach(b=>b.onclick=()=>{if(S.mode===b.dataset.mode)return;S.mode=b.dataset.mode;track('switch_mode',{to:S.mode});if(S.mode==='guided')loadGDB();renderHome()});
   if(S.mode==='guided'){renderGuided();loadGDB()}
   renderIdeas();renderRank();
@@ -1090,7 +1397,7 @@ function bindHome(){
   $('#pick').onclick=()=>$('#fileIn').click();$('#dPick')&&($('#dPick').onclick=()=>$('#fileIn').click());
   $$('[data-start]').forEach(b=>b.onclick=()=>{if(S.start===b.dataset.start)return;S.start=b.dataset.start;track('start_choice',{start:S.start});renderHome();const t=$('#idea');t&&t.focus({preventScroll:true})});
   $('#fileIn').onchange=e=>{[...e.target.files].forEach(addFile);e.target.value=''};
-  $('#pasteBtn').onclick=()=>{$('#paste').classList.toggle('on');$('#pasteT').focus()};
+  $('#pasteBtn')&&($('#pasteBtn').onclick=()=>{const on=$('#paste').classList.toggle('on');$('#pasteBtn').setAttribute('aria-expanded',on);if(on)$('#pasteT').focus()});
   wireRef();
   $('#pasteGo').onclick=pasteIn;wireAiHelp($('#paste'));
   ['dragenter','dragover'].forEach(t=>f.addEventListener(t,e=>{e.preventDefault();f.classList.add('drag')}));
@@ -1183,8 +1490,24 @@ function pasteIn(){const t=$('#pasteT').value.trim();if(!t)return;
   if(m){S.files.push({name:({'chatgpt.com':'ChatGPT','chat.openai.com':'ChatGPT','gemini.google.com':'Gemini','g.co':'Gemini','claude.ai':'Claude'}[m[1].toLowerCase()])+'の会話',k:'LINK',m:'',text:t.slice(0,20000)})}
   else{S.files.push({name:'貼り付けた会話',k:'会話',m:fmt(t.length)+'字',text:t.slice(0,200000)});const ta=$('#idea');if(!ta.value.trim()){ta.value=sumText(t);ta.oninput()}}
   $('#pasteT').value='';$('#paste').classList.remove('on');renderFiles()}
-function renderFiles(){$$('.files').forEach(el=>{el.innerHTML=S.files.map((f,i)=>`<span class="fchip">${f.thumb?`<img class="fth" src="${f.thumb}" alt="">`:''}<span class="k">${esc(f.k)}</span><span class="n">${esc(f.name)}</span>${f.m?`<span class="m mono">${esc(f.m)}</span>`:''}<button type="button" aria-label="${esc(f.name)}を外す" data-rf="${i}">×</button></span>`).join('')+(S.files.length?`<span class="fnote">${PHOTO_NOTE}</span>`:'')});
-  $$('[data-rf]').forEach(b=>b.onclick=()=>{S.files.splice(+b.dataset.rf,1);renderFiles();renderMedia();renderStrip()})}
+/* 添付の一覧：形式のアイコン・名前（拡張子は残して途中を省く）・大きさ・状態。外すと6秒は「元に戻す」で戻せる（誤って消さない） */
+const FICO={画像:'<path d="M2.5 3.5h11v9h-11z" fill="none" stroke="currentColor" stroke-width="1.3"/><circle cx="6" cy="6.5" r="1.2" fill="currentColor"/><path d="m3 12 3.5-3.5 2.5 2.5 2-2 2.5 3" fill="none" stroke="currentColor" stroke-width="1.3"/>',
+  動画:'<rect x="2" y="3.5" width="12" height="9" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M6.5 6v4l3.5-2z" fill="currentColor"/>',
+  '3D':'<path d="M8 2 13.5 5v6L8 14 2.5 11V5z M2.5 5 8 8l5.5-3M8 8v6" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/>',
+  CAD:'<path d="M2.5 13.5h11M3.5 12.5l5-9 5 9M5.5 9h6" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/>',
+  doc:'<path d="M4 1.8h5.5L12.5 5v9.2H4z M9.5 1.8V5h3M6 8h4.5M6 10.5h4.5" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/>',
+  link:'<path d="M6.8 9.2 9.2 6.8M7.5 4.5l1-1a2.5 2.5 0 0 1 3.5 3.5l-1 1M8.5 11.5l-1 1A2.5 2.5 0 0 1 4 9l1-1" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>'};
+const ficoOf=f=>f.url||f.k==='LINK'?'link':FICO[f.k]?f.k:'doc';
+const fsize=n=>!n?'':n<1024*1024?Math.max(1,Math.round(n/1024))+'KB':(n/1024/1024).toFixed(n<10*1024*1024?1:0)+'MB';
+const fshort=n=>{n=String(n||'');const m=n.match(/^(.*?)(\.[\w]{1,6})$/);const b=m?m[1]:n,e=m?m[2]:'';return b.length>22?b.slice(0,14)+'…'+b.slice(-5)+e:n};
+function renderFiles(){const big=f=>f.file&&typeof UP!=='undefined'&&f.size>UP.file&&!(f.frames&&f.frames.length);
+  $$('.files').forEach(el=>{el.innerHTML=S.files.map((f,i)=>{const bad=big(f),busy=f.m==='…';const st=bad?`<span class="fst bad"><span>${fsize(UP.file)}</span><span>を超えているため送れません</span></span>`:busy?'<span class="fst">読み込み中…</span>':'';
+    return `<span class="fchip${bad?' bad':''}" title="${esc(f.name)}">${f.thumb?`<img class="fth" src="${f.thumb}" alt="">`:`<svg class="fic" width="18" height="18" viewBox="0 0 16 16" aria-hidden="true">${FICO[ficoOf(f)]}</svg>`}<span class="ft"><span class="n" translate="no">${esc(fshort(f.name))}</span><span class="m">${esc([f.k,f.m&&f.m!=='…'?f.m:'',fsize(f.size)].filter(Boolean).join(' · '))}</span>${st}</span><button type="button" class="fx" aria-label="${esc(f.name)}を外す" data-rf="${i}"><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="m4 4 8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button></span>`}).join('')
+    +(S.fUndo?`<span class="fundo" role="status"><span>外しました：</span><span translate="no">${esc(fshort(S.fUndo.f.name))}</span><button type="button" class="glink" data-fundo>元に戻す</button></span>`:'')
+    +(S.files.length?`<span class="fnote">${PHOTO_NOTE}</span>`:'')});
+  $$('[data-rf]').forEach(b=>b.onclick=()=>{const i=+b.dataset.rf,f=S.files[i];if(!f)return;if(S.fUndo)clearTimeout(S.fUndo.tm);S.files.splice(i,1);
+    S.fUndo={f,i,tm:setTimeout(()=>{S.fUndo=null;renderFiles()},6000)};track('file_remove',{kind:f.k});renderFiles();renderMedia();renderStrip()});
+  $$('[data-fundo]').forEach(b=>b.onclick=()=>{const u=S.fUndo;if(!u)return;clearTimeout(u.tm);S.fUndo=null;S.files.splice(Math.min(u.i,S.files.length),0,u.f);renderFiles();renderMedia();renderStrip()})}
 /* 写真・動画の追加ボタン（どの画面からも同じ入れ物に入り、見積依頼までそのまま引き継ぐ）。スマホでは撮影も選べる */
 const PHOTO_NOTE='見積を頼むとき、そのまま添付されます。担当者・工場が写真を見て、形や大きさを確認します。';
 function photoInput(){let i=$('#photoG');if(!i){i=document.createElement('input');i.type='file';i.id='photoG';i.multiple=true;i.accept='image/*,video/*';i.hidden=true;document.body.appendChild(i);
@@ -2659,11 +2982,37 @@ function bindPlans(re){$$('[data-plan-pick]').forEach(b=>b.onclick=()=>{const k=
   const rows=k==='one'?P.oneRows:k==='combo'?P.combo:[...P.oneRows,...P.combo];S.gsel=[];S.gstep={};
   for(const x of rows){if(!x.r||S.gsel.includes(x.r[0])||S.gsel.length>=8)continue;S.gsel.push(x.r[0]);S.gstep[x.r[0]]=x.c?(CAPN[x.c]||x.c):'まとめて依頼'}
   S.planPick=k;track('choose_plan',{plan:k,companies:S.gsel.length});re().then?.(()=>{const el=$('#mCmp')||$('#mPlans');el&&el.scrollIntoView({block:'start'})})})}
+/* ---------- 整理した条件（Nori 2026-11-15 全面リニューアル「AIが依頼内容を整理する」＋「質問は任意にして」） ----------
+   書いた文章から読み取った条件を、一覧の上に1つの箱で出す。何を・数量・大きさ・素材・仕上げ・時期・設計が要るか。
+   確かさを印で分ける：あなたの入力（原文・回答）／推定（製品DB・参考品・図・似た製品の目安）／おまかせ（工場が提案）／未定。
+   質問はしない。未定の項目は、開いた人だけが選べる（「未定」「相談したい」も選べる）。答えは工場向け仕様書（fsAns）と同じ所に入り、会社の並びは変えない */
+const CD_LV=v=>!v||!v.v?'none':['原文','回答'].includes(v.lv)?'you':['製品DB','参考品','図','仮'].includes(v.lv)?'est':'none';
+function condRows(F,DS){if(!F)return [];const fa=fsAns(),rows=[];
+  for(const c of F.core||[]){const ks=c.keys||[];const v=ks.map(k=>F.V[k]).find(x=>x&&x.v);const a=ks.map(k=>fa[k]).find(x=>x);
+    let lv=a&&a.unk?'none':a&&!a.auto&&a.v?'you':v?CD_LV(v):'none',val=v&&v.v?v.v:'';
+    if(a&&a.v&&[].concat(a.v).includes(FSPEC.omakase)){lv=a.auto?'omk':'you';val=a.auto?'おまかせ（工場が提案）':FSPEC.omakase}
+    if(c.id==='what'&&(!val||String(ideaBase()).trim().startsWith(val)&&val.length>16))continue;
+    rows.push({id:c.id,t:c.t,val,lv,ask:lv==='none'?(c.ask||[])[0]:null,unk:!!(a&&a.unk)})}
+  {const it=(F.items||[]).find(i=>i.k==='purpose');if(it){const v=F.V.purpose,u=fa.purpose;const lv=u&&u.unk?'none':u&&u.v?'you':v?CD_LV(v):'none';rows.splice(1,0,{id:'purpose',t:'用途',val:v&&v.v?v.v:'',lv,ask:lv==='none'&&it.q&&it.ch?it:null,unk:!!(u&&u.unk)})}}
+  const need=DS?'要る（図面がないので、先に設計）':F.mode==='design'?'要る（図面がない）':(F.V.docs&&/図面|3Dデータ/.test(F.V.docs.v)?'要らない（図面・データあり）':'');
+  if(need)rows.push({id:'design',t:'設計',val:need,lv:'est'});
+  return rows}
+const CD_TAG={you:['you','あなたの入力'],est:['est','推定'],omk:['omk','おまかせ'],none:['none','未定']};
+function condBox(A,DS){let F=null;try{F=fsBuild(A)}catch(e){F=null}if(!F)return '';S.fs=F;const rows=condRows(F,DS);if(!rows.length)return '';
+  const open=rows.filter(r=>r.ask&&!r.unk);
+  return `<section class="cond" id="mCond" aria-labelledby="cdH"><div class="cdh"><h2 id="cdH">整理した条件</h2><span class="cdlg"><span class="cdt you">あなたの入力</span><span class="cdt est">推定</span><span class="cdt none">未定</span></span></div>
+    <dl class="cdl">${rows.map(r=>`<div class="cdr" data-cd="${r.id}"><dt>${esc(r.t)}</dt><dd><span class="cdv"${r.lv==='you'?' translate="no"':''}>${r.val?esc(r.val.length>60?r.val.slice(0,60)+'…':r.val):r.unk?'相談したい':'未定'}</span><span class="cdt ${CD_TAG[r.lv][0]}">${CD_TAG[r.lv][1]}</span></dd></div>`).join('')}</dl>
+    ${open.length?`<details class="cdq" ${S.folds.cdq?'open':''} data-fold="cdq"><summary><span>未定の点を決める</span><small><span>任意</span> · <span>${fmt(open.length)}件</span> · <span>決めなくても送れます</span></small></summary><div class="cdqb">${open.slice(0,4).map(r=>{const it=r.ask;return `<div class="cdqi" data-fk="${esc(it.k)}"><p>${esc(it.q||r.t)}</p><div class="cdch" role="group" aria-label="${esc(r.t)}">${(it.ch||[]).slice(0,6).map(c=>`<button type="button" data-cda="${esc(c)}">${esc(c)}</button>`).join('')}${r.omk?`<button type="button" data-cda="${esc(FSPEC.omakase)}">${esc(FSPEC.omakase)}</button>`:''}<button type="button" data-cdu>相談したい</button></div></div>`}).join('')}</div></details>`:''}
+    <p class="cdn">読み取りはキーワードと製品の分類による推定です。最終的な仕様は、依頼先の会社が確かめます。<button type="button" class="glink" data-toimg>仕様書と製品イメージを見る・直す</button></p></section>`}
+function wireCond(){const el=$('#mCond');if(!el)return;const fa=fsAns();
+  const keep=()=>{const y=el.getBoundingClientRect().top;renderMatch().then(()=>{const d=$('#mCond');if(d)window.scrollBy(0,d.getBoundingClientRect().top-y)})};
+  el.querySelectorAll('[data-cda]').forEach(b=>b.onclick=()=>{const k=b.closest('[data-fk]').dataset.fk;fa[k]={v:[b.dataset.cda]};fsSave();S.folds.cdq=true;track('fspec_answer',{answered:Object.keys(fa).length,place:'cond'});keep()});
+  el.querySelectorAll('[data-cdu]').forEach(b=>b.onclick=()=>{const k=b.closest('[data-fk]').dataset.fk;fa[k]={unk:1};fsSave();S.folds.cdq=true;track('fspec_answer',{answered:Object.keys(fa).length,unk:1,place:'cond'});keep()})}
 async function renderMatch(){
   $('#dock').innerHTML='';
   if(!S.idea){location.hash='';return}
   S.folds=S.folds||{};S.gf=S.gf||{area:'',proto:false};Object.assign(S.gf,{area:'',proto:false,lot:false,near:false,sort:''});S.gsel=S.gsel||[];S.gstep=S.gstep||{};S.gmore=S.gmore||{};
-  $('#app').innerHTML=`<section class="gut build"><div><div class="eyebrow">Building your team</div><h2 style="margin-top:10px">工程を読み取っています</h2></div></section>`;
+  $('#app').innerHTML=`<section class="gut build" aria-busy="true"><div><span class="spin" aria-hidden="true"></span><h2>条件を整理しています</h2><p class="muted">書いた内容から、作り方と合う会社を探しています。</p></div></section>`;
   const db=await loadGDB();
   if(!db){$('#app').innerHTML=`<section class="gut"><div class="wrap" style="padding:60px 0"><h2>会社の一覧を読み込めませんでした</h2><p class="muted">通信の状態を確かめて、もう一度お試しください。</p><button class="btn" onclick="location.reload()">再読み込み</button></div></section>`;return}
   await pdbLoad();
@@ -2691,6 +3040,7 @@ async function renderMatch(){
       <div class="gcount">${st===3?`<b class="mono">__WHON__</b><span>社に送ります</span>`:`<b class="mono">${fmt(total)}</b><span>${secs.length>=2?'社（工程ごとの候補の合計）':'社が候補'}</span>`}</div></div>`;
   const notices=A.notices.map(n=>`<div class="empty" style="margin-top:10px;border-color:var(--amber)"><b>KATACHIでは扱っていない工程があります</b>${esc(n)}</div>`).join('');
   const readout=A.fallback?`<div class="empty"><b>文章から工程を特定できませんでした</b>どんな製品でも最初に必要になる「設計・試作・組立」を受ける会社を出しています。下の「AIで相談」で仕様を詰めて読み直すか、そのまま見積を依頼すれば担当者が工程と会社を探します。型が決まっているもの（部品・ノベルティ・袋物など）なら「選んで探す」が早いです。<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn" id="mGuided">選んで探す</button></div></div>`:A.codes.length?`<div class="empty"><b>書いた内容から、必要な工程をキーワードで読み取りました</b>工程が足りない・違うと思ったら、下の「AIで相談」で仕様を詰めるか、そのまま見積を依頼してください。担当者があなたの文章を読んで、工程と会社を組み直してお届けします。</div>`:'';
+  const head3=`<div class="rq"><div class="rqb"><span class="rql">あなたの依頼</span><p class="rqt" translate="no">${(()=>{const t=String(S.idea).replace(/\nURL：\S+/g,'').split('\n\n【')[0];return esc(t.length>140?t.slice(0,140)+'…':t)})()}</p></div><button type="button" class="glink" id="mEdit">書き直す</button></div>`;
   let body;
   if(st===2){
     if(S.pendKz)kzPending(A);
@@ -2729,15 +3079,15 @@ async function renderMatch(){
     if(DS&&S.autoPick!==false){const isD=n=>S.gstep[n]==='設計（図面・3Dデータ）';if(dsTo==='ds'){const d=S.gsel.find(n=>/設計/.test(S.gstep[n]||''));if(d)S.gsel=[d]}else if(dsTo==='mk')S.gsel=S.gsel.filter(n=>!isD(n))}
     const toBar=DS?`<div class="dsto" role="group" aria-label="送り先">${[['ds','設計を相談'],['mk','工場に見積'],['both','両方']].map(([k,t])=>`<button type="button" data-dsto="${k}" aria-pressed="${dsTo===k}">${t}</button>`).join('')}</div>`:'';
     const imgL=A.concept?`<p class="toimg"><button type="button" class="glink" data-toimg>製品イメージ案（3D・寸法図）を見る・直す</button><small>任意</small></p>`:'';
-    body=`${stepBar(2)}${head}${blocked?notices+blockedNext(A):''}
-    ${A.codes.length?`${S.dsFirst&&!DS?(MKv?'<p class="dsnone"><b>この品は、専門のメーカーが設計から作ります</b><span>図面だけを先に頼む必要はありません。下のメーカーに、そのまま相談してください。</span></p>':'<p class="dsnone"><b>この品は、作る会社が配合・処方から考えます</b><span>図面だけを先に頼む必要はありません。下のおすすめの会社に、そのまま相談してください。</span></p>'):''}<h2 class="stepnow">${DS?{ds:'設計を相談する会社',mk:'見積を頼む工場',both:'設計と製作を頼む会社'}[dsTo]:MKv?'見積を頼むメーカー':'見積を頼む工場'}</h2>
+    body=`${stepBar(2)}${head3}${S.files.length?`<div class="files rqf">${''}</div>`:''}${blocked?notices+blockedNext(A):''}${A.codes.length&&A.concept?condBox(A,DS):''}
+    ${A.codes.length?`${S.dsFirst&&!DS?(MKv?'<p class="dsnone"><b>この品は、専門のメーカーが設計から作ります</b><span>図面だけを先に頼む必要はありません。下のメーカーに、そのまま相談してください。</span></p>':'<p class="dsnone"><b>この品は、作る会社が配合・処方から考えます</b><span>図面だけを先に頼む必要はありません。下のおすすめの会社に、そのまま相談してください。</span></p>'):''}<div class="cohd"><h2 class="stepnow">${DS?{ds:'設計を相談する会社',mk:'見積を頼む工場',both:'設計と製作を頼む会社'}[dsTo]:MKv?'見積を頼むメーカー':'見積を頼む工場'}</h2><p class="cosub">${DS?'図面がない依頼なので、まず設計を頼める会社をおすすめしています。作る工場にも送れます。':'書いた内容に合う会社を、確かめられた情報の多い順に選んであります。'}</p></div>
       ${toBar}${DS?(dsTo==='mk'?recH:dsTo==='both'?dsH+recH:dsH):recH}
       ${qBar()}${imgL}`
     :blocked?'':`<div class="empty" style="margin-top:16px"><b>文章から工程を読み取れませんでした</b>このまま見積を依頼すれば、担当者が内容を読んで工程と会社を探します。型が決まっているもの（部品・ノベルティ・袋物など）なら「選んで探す」が早いです。<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn" id="mGuided">選んで探す</button></div></div>${(()=>{const ts=textSearch(S.idea);return ts.length?`<section class="mstep" data-step="文章に近い会社"><div class="mhead"><span class="mono mno">?</span><h2>文章の言葉が会社の説明に出てくる会社</h2><span class="muted">${fmt(ts.length)}社</span></div><p class="muted" style="margin:0 0 12px;font-size:13px">工程は読み取れませんでしたが、書いた言葉が社名や説明に含まれる会社です。参考にしてください。</p><ol class="glist">${ts.slice(0,10).map(r=>coCard(r,[])).join('')}</ol></section>`:''})()}`}`;
   }
   body=body.split('__WHON__').join(fmt((S.gsel||[]).length));
   $('#app').innerHTML=`<section class="gut"><div class="wrap gpick">${body}</div></section>`;
-  bindStepBar($('#app'));bindFolds();
+  bindStepBar($('#app'));bindFolds();wireCond();renderFiles();
   S.lostFiles=0;saveFlow();S.mTotal=total;
   if(st===3){$$('[data-q3]').forEach(b=>b.onclick=()=>{S.qty=b.dataset.q3;S.qn=0;track('select_quantity',{quantity:S.qty,place:'companies'});S.gmore={};renderMatch()});
     const qn=$('#qN');if(qn)qn.onchange=()=>{const n=Math.max(0,Math.round(+qn.value||0));S.qn=n;if(n)S.qty=n<=10?'proto':n<=500?'small':'mass';track('select_quantity',{quantity:S.qty,place:'companies',typed:!!n});S.gmore={};renderMatch()};
@@ -3623,7 +3973,7 @@ function rfq(names){
   const G=S.scen==='guided';
   const roles=n=>G?(S.src==='guided'?(S.g.proc&&S.g.proc!==OMAKASE?S.g.proc:gCat()?.t||''):(S.gstep[n]==='まとめて依頼'?'まとめて（'+(S.anal?.codes||[]).map(c=>CAPN[c]||c).join('、')+'）':(S.gstep[n]||''))):Object.entries(S.assign).filter(([,v])=>v===n).map(([k])=>r.per_requirement.find(p=>p.requirement.id===k)?.requirement.purpose).filter(Boolean).join('、');
   const QK=S.src==='text';
-  sheet(`${head('Request for quote',QK&&S.dsOn&&(S.dsTo||'ds')==='ds'&&names.length?'相談を送る':'見積を依頼する')}${QK?stepBar(2)+'<p class="muted qklead" style="margin:0;font-size:13.5px">連絡先を入れて送るだけです。ほかの点は、相手の会社や担当者から確かめます。</p>':''}
+  sheet(`${head('Request for quote',QK&&S.dsOn&&(S.dsTo||'ds')==='ds'&&names.length?'相談を送る':'見積を依頼する')}${QK?stepBar(3)+'<p class="muted qklead" style="margin:0;font-size:13.5px">連絡先を入れて送るだけです。ほかの点は、相手の会社や担当者から確かめます。</p>':''}
     <p class="muted rflead" style="margin:0;font-size:13px">必須は、工場が見積を出すのに要る点と連絡先だけです。材料・仕上げは「おまかせ」でも大丈夫です（工場が提案します）。ほかは空けておけば「相談したい」として届きます。</p>
     <p class="muted rflead" style="margin:0;font-size:13px">製品の概要と「AIが補う」の欄は、入力した内容からAIが下書きしています。直してから送れます。</p>
     <form class="form" id="rf" novalidate>
@@ -3660,12 +4010,15 @@ function rfq(names){
     if(mailPick(true)){[['f-sname','送る人のお名前',2],['f-saddr','住所',6]].forEach(([id,l,n])=>{const el=$('#'+id),bad=el.value.trim().length<n;el.classList.toggle('bad',bad);if(bad)miss.push([id,l])})}
     if(miss.length){miss.forEach(([id])=>{const d=$('#'+id).closest('details');if(d)d.open=true});$('#rfErr').innerHTML='<span>入力してください</span>: '+miss.map(m=>'<span>'+m[1]+'</span>').join(', ');$('#'+miss[0][0]).focus();track('form_error',{reason:'rfq_required',fields:miss.length});return}
     const all=RFQ(r,qty).flatMap(g=>g[1]).filter(f=>f[3]!=='req');
-    const btn=e.submitter||$('#rf button[type=submit]');btn.disabled=true;
+    const fm=$('#rf');if(fm.dataset.busy)return;fm.dataset.busy=1;/* 二重送信を防ぐ */
+    const btn=e.submitter||$('#rf button[type=submit]');btn.disabled=true;const btnL=btn.innerHTML;btn.textContent='送信しています…';btn.setAttribute('aria-busy','true');
     const abroadOk=!!$('#f-abroad-ok')?.checked;
     const team=G?names.map(n=>({step:roles(n),company:n,country:D.companies[n]?.country||'JP'})):Object.entries(S.assign).map(([rid,n])=>({step:R().per_requirement.find(p=>p.requirement.id===rid)?.requirement.purpose||rid,company:n,country:D.companies[n]?.country||'JP'}));
     const ups=await upListD(),upKey=ups.list.length?rkey():'';
     const ok=await sendForm({type:'rfq',upload:upKey?{key:upKey,count:ups.list.length,bytes:ups.bytes}:undefined,lang:window.KATACHI_LANG?window.KATACHI_LANG():'ja',idea:S.idea||r.idea,matched:S.matched||'',scenario:S.scen,plan:R().teams[S.plan]?.profile||'',steps:G&&S.src==='text'?(S.anal?.codes||[]).map(c=>CAPN[c]||c):undefined,guided:G&&S.src==='guided'?{category:gCat()?.t,process:S.g.proc,material:S.g.mat,quantity:S.g.qty,drawing:S.g.draw,due:S.g.due,region:S.g.reg,caps:gCodes()}:undefined,fields:allVals(r,qty).concat(mediaVals()),team:team.filter(t=>abroadOk||!abroad(D.companies[t.company])),abroad_ok:abroadOk,files:S.files.map(f=>f.name),slot:slotOf(),mail:mailPick(abroadOk),mail_sender:mailSender(),page:location.href.split('#')[0]});
-    btn.disabled=false;if(ok)mineSent(names.map(n=>({n,role:roles(n)})),rfqVals(r,qty));
+    btn.disabled=false;btn.innerHTML=btnL;btn.removeAttribute('aria-busy');delete fm.dataset.busy;
+    if(!ok&&FORM_URL&&!/claude(usercontent)?\.(ai|com)$/.test(location.hostname)){$('#rfErr').textContent='送れませんでした。通信の状態を確かめて、もう一度「この内容で送る」を押してください。入力した内容は残っています。';$('#rfErr').scrollIntoView({block:'center'});track('form_error',{reason:'send_failed'});return}
+    if(ok)mineSent(names.map(n=>({n,role:roles(n)})),rfqVals(r,qty));
     track('generate_lead',{type:'rfq',sent:ok,requester:$('#f-who').selectedIndex?'individual':'company',companies:names.length,quantity:S.qty,files:S.files.length,material:$('#f-mat').selectedIndex,optional_filled:rfqVals(r,qty).length,optional_total:all.length,nda:$('#f-nda').selectedIndex,overseas_ok:$('#f-abr').selectedIndex===0});
     const ml=mailPick(abroadOk)||[];if(ok&&ml.length)track('mail_request',{companies:ml.length,of:names.length});
     const upr=ok&&upKey?await uploadWithUI(upKey,ups):null;done('見積の依頼を受け付けました',`<ol class="tl">${ml.length?`<li class="now"><span><b>今日</b> 届いた確認メールの「メールで送る」を押す → ${ml.length}社にすぐ届く</span></li>${names.length>ml.length?`<li><span><b>1〜3日</b> ほかの${names.length-ml.length}社へは担当者が打診</span></li>`:''}`:`<li class="now"><span><b>今日</b> 担当者が内容を確認</span></li><li><span><b>1〜3日</b> ${names.length}社へ打診</span></li>`}<li><span><b>1〜2週間</b> 見積が届き、表に金額と納期が並ぶ</span></li><li><span><b>あなたが決める</b> 発注先を選んで試作へ</span></li></ol>${lastSent?upNote(upr,ups):''}`)};
