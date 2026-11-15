@@ -884,7 +884,7 @@ p,li,dd,small,span{line-break:strict}
 .icard .btn.pri{background:#fff;color:var(--fg);border-color:var(--line2);box-shadow:none}
 .icard .btn.pri:hover{background:var(--hover)}
 
-@media (max-width:640px){.icards .icard:nth-child(n+7){display:none}}
+
 /* 信頼 */
 .trust{padding-block:var(--s12) var(--s16)}
 .trust .wrap{border-top:1px solid var(--line);padding-top:var(--s12);max-width:1240px}
@@ -1257,6 +1257,8 @@ body::before{background:#fff}
 }
 @media (max-width:340px){.qdl{grid-template-columns:minmax(0,1fr)}}
 #rf label.chk{display:flex;flex-direction:row;align-items:flex-start;gap:var(--s3)}
+/* 作例から選ぶ（#ideas） */
+.ideapg{max-width:1160px;padding:var(--s10) 0 var(--s16)}.ideapg .mback{margin:0 0 var(--s4)}.ideapg .ideas{padding-top:0}
 /* 最初の画面：図面の有無と、書き方のガイド（2026-11-15 Nori「ない場合のガイドがかなり重要」） */
 .hasdw{display:flex;align-items:center;justify-content:space-between;gap:var(--s3);flex-wrap:wrap;margin:0 0 var(--s6);padding-bottom:var(--s5);border-bottom:1px solid var(--line)}
 .hdq{font-size:var(--t-md);font-weight:700}
@@ -1395,7 +1397,7 @@ const ravg=r=>+(r.reduce((a,x)=>a+x.ax.reduce((p,c)=>p+c,0)/4,0)/r.length).toFix
 
 /* ---------- routing ---------- */
 addEventListener('toggle',e=>{const t=e.target;if(t&&t.classList&&t.classList.contains('cedf'))S.edOpen=t.open},true);
-function route(){const h=location.hash.slice(1);document.body.classList.toggle('m2',h==='match');if(h==='result'){renderResult();pageview('/result','チーム編成')}else if(h==='pick'){renderPick();pageview('/pick','候補の会社（選択式）')}else if(h==='match'){renderMatch();pageview('/match','2 イメージを確かめる')}else if(h==='co'){renderMatch();pageview('/companies','3 会社を選ぶ')}else{renderHome();pageview('/','トップ')}window.scrollTo(0,0)}
+function route(){const h=location.hash.slice(1);document.body.classList.toggle('m2',h==='match');if(h==='result'){renderResult();pageview('/result','チーム編成')}else if(h==='pick'){renderPick();pageview('/pick','候補の会社（選択式）')}else if(h==='match'){renderMatch();pageview('/match','2 イメージを確かめる')}else if(h==='co'){renderMatch();pageview('/companies','3 会社を選ぶ')}else if(h==='ideas'){renderIdeasPage();pageview('/ideas','作例から選ぶ')}else{renderHome();pageview('/','トップ')}window.scrollTo(0,0)}
 addEventListener('hashchange',route);
 
 /* ---------- 2ステップ（書く→選んで送る）。Nori 2026-11-15「ステップ2はもっとシンプルに。相談会社一覧もしくは見積もり依頼工場一覧が出てくる。あとは利用者がサブミットして終わり」。
@@ -1524,7 +1526,6 @@ function renderHome(){
     </ol>
     <details class="aifold"><summary>まだ考えがまとまっていなければ、お使いのAIで相談</summary><div class="aihome">${['ChatGPT','Claude','Gemini'].map(n=>`<a data-haigo="${n}" href="${AI_HOME[n]}" target="_blank" rel="noopener">${AI_ICON}${n}で相談</a>`).join('')}</div></details>
   </div></section>`}
-  <section class="gut"><div class="wrap ideas" id="ideas"></div></section>
   <section class="gut trust"><div class="wrap">
     <h2>確かなことと、見立てを分けて見せます。</h2>
     <p class="lead">会社の情報には、どこまで確かめられているかの印が付きます。見積や口コミを作り上げることはありません。</p>
@@ -1544,7 +1545,7 @@ function renderHome(){
   $$('[data-mode]').forEach(b=>b.onclick=()=>{if(S.mode===b.dataset.mode)return;S.mode=b.dataset.mode;track('switch_mode',{to:S.mode});if(S.mode==='guided')loadGDB();renderHome()});
   if(S.mode==='guided'){renderGuided();loadGDB()}
   renderIdeas();renderRank();
-  $('#toIdeas')&&($('#toIdeas').onclick=()=>{track('idea_jump',{});$('#ideas')?.scrollIntoView({behavior:'smooth',block:'start'})});
+  $('#toIdeas')&&($('#toIdeas').onclick=()=>{track('idea_jump',{});S.idea=$('#idea')?$('#idea').value:S.idea;location.hash='ideas'});
 }
 /* ランキング: 依頼の集計（stats.requests）ができたら「依頼の多いもの」、それまでは「登録している会社が多い分野」 */
 let STATS=null;
@@ -1570,6 +1571,10 @@ function ideaEst(x){const E=D.est||{};const out=[];
   if(!out.length){const db=(E.db||{})[x.code];
     if(db&&db.n>=3)out.push(`<li><span>最低ロット</span><b class="mono" data-r='${JSON.stringify([db.med,db.med,'pcs'])}'>${rngTxt(db.med,db.med,'pcs')}</b><small>掲載企業の最小ロットの中央値 · ${fmt(db.n)}社</small>${mk('pub','掲載ページ')}</li>`)}
   return out.length?`<ul class="iest">${out.join('')}</ul>`:`<p class="iest none">公開相場なし・見積が必要</p>`}
+/* 作例から選ぶ（#ideas）。トップとは別の画面（Nori 2026-11-15）。押すとその内容で会社を探す */
+function renderIdeasPage(){$('#dock').innerHTML='';
+  $('#app').innerHTML=`<section class="gut"><div class="wrap ideapg"><p class="mback"><button type="button" class="glink" data-ihome>← 入力に戻る</button></p><div class="ideas" id="ideas"></div></div></section>`;
+  $('[data-ihome]').onclick=()=>{track('step_back',{to:1,from:'ideas'});location.hash=''};renderIdeas()}
 async function renderIdeas(){const el=$('#ideas');if(!el)return;S.ind=S.ind||'pick';
   if(!STATS){try{STATS=await (await fetch('data/stats.json')).json()}catch(e){STATS=window.KATACHI_STATS||null}}
   if(!$('#ideas'))return;
@@ -1586,12 +1591,13 @@ async function renderIdeas(){const el=$('#ideas');if(!el)return;S.ind=S.ind||'pi
   {const r=el.querySelector('.inds'),c=r&&r.querySelector('[aria-selected="true"]');if(r&&c){const a=r.getBoundingClientRect(),z=c.getBoundingClientRect();r.scrollLeft+=z.left-a.left-(a.width-z.width)/2}}
   $$('[data-ind]').forEach(b=>b.onclick=()=>{S.ind=b.dataset.ind;track('idea_industry',{industry:S.ind});renderIdeas()});
   $$('[data-idea]').forEach(b=>b.onclick=()=>{const x=IDEAS.find(i=>i.k===b.dataset.idea);track('idea_click',{idea:x.k,industry:x.ind,picked_from:S.ind});S.qty=x.q;
-    if(x.ex){S.mode='free';const ta=$('#idea');if(ta)ta.value=D.scen[x.ex].idea;go(null);return}
-    S.mode='free';S.files=S.files||[];const ta=$('#idea');ta.value=x.idea;go(null)});
+    if(x.ex){S.mode='free';const ta=$('#idea');if(ta)ta.value=D.scen[x.ex].idea;else S.idea=D.scen[x.ex].idea;go(null);return}
+    S.mode='free';S.files=S.files||[];const ta=$('#idea');if(ta)ta.value=x.idea;else S.idea=x.idea;go(null)});
   $$('[data-iedit]').forEach(b=>b.onclick=()=>ideaEdit(b.dataset.iedit,'card'));
   $$('[data-imore]').forEach(a=>a.onclick=()=>track('idea_more',{idea:a.dataset.imore}));
 }
-function ideaEdit(k,place){const x=IDEAS.find(i=>i.k===k);if(!x)return;track('idea_edit',{idea:x.k,industry:x.ind,place});S.mode='free';S.qty=x.q;S.idea=x.idea;renderHome();
+function ideaEdit(k,place){const x=IDEAS.find(i=>i.k===k);if(!x)return;track('idea_edit',{idea:x.k,industry:x.ind,place});S.mode='free';S.qty=x.q;S.idea=x.idea;
+  if(location.hash){try{history.replaceState(null,'',location.pathname+location.search)}catch(e){}}renderHome();window.scrollTo(0,0);
   const ta=$('#idea');if(ta){ta.scrollIntoView({behavior:'smooth',block:'center'});ta.focus();ta.setSelectionRange(ta.value.length,ta.value.length);ta.oninput()}}
 /* 作例のページ（/idea/<k>/）から ?idea=<k>（&edit=1）で来たとき */
 /* AIエージェント（KATACHI API の katachi_url）から ?q=<作りたいもの>&qty=<数>&from=<AI名> で来たとき：入力を引き継いで探す */
@@ -3801,7 +3807,7 @@ function wireLai(c){const b=$('#mLai');if(!b)return;const inp=$('#mLaiIn');const
 /* ---------- GO / LOADING ---------- */
 function pick(text){for(const [k,re] of [['collar',/犬|猫|ペット|首輪|動物|心拍/],['mimamori',/見守|高齢|ドア|開閉|室温|部屋/],['bike',/自転車|ライト|ハンドル|バイク/]])if(re.test(text))return[k,'near'];return['collar','fallback']}
 function go(ex){
-  S.idea=$('#idea').value.trim()||S.files.map(f=>f.name).join('、');
+  S.idea=($('#idea')?$('#idea').value.trim():String(S.idea||'').trim())||S.files.map(f=>f.name).join('、');
   S.dsFirst=!ex&&!!S.dsGo;S.dsGo=false;
   if(!ex){const pv=mineGet(S.sid),hd=t=>mineLine(t).slice(0,10);if(!pv||pv.st==='sent'||hd(pv.idea)!==hd(S.idea))S.sid=null;S.aiAway=null;S.aiDraft='';S.autoPick=true;S.src='text';S.matched='text';S.gsel=[];S.gstep={};S.gmore={};S.planPick='';S.gf={area:'',proto:false,to:(S.gf||{}).to||''};loadGDB();const h='co';location.hash=h;if(location.hash==='#'+h)renderMatch();return}
   S.scen=ex;S.matched='example';S.src='example'
