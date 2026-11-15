@@ -5,6 +5,7 @@
 ## 公開のしくみ
 - GitHub Pages（main ブランチのルート）。`CNAME`・`.nojekyll` は消さない。DNS は `katachi CNAME nori-silver.github.io.`。
 - `index.html` は生成物。直すときは `tools/template.html`（画面）と `tools/i18n.py`（日英中の訳）を直し、`tools/README.md` の手順で作り直す。
+- ロゴ・アイコン（Nori 2026-11-15、黒地に白い立体のK）：ファビコン `favicon.ico`・`icon-32.png`（Kだけの丸型）、`apple-touch-icon.png`・`icon-192.png`・`icon-512.png`（角丸、`site.webmanifest`）、ヘッダーの `logo-mark.png`、丸型ロゴ `logo.png`。OGP画像のロゴは `tools/visuals.py` の `og_svg`。
 - 企業データとマッチング結果は、別の「企業DB・マッチングエンジン」（katachi-matching）から `tools/build.py` で取り込む。
 
 ## 守ること

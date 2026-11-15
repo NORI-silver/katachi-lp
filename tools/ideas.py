@@ -695,7 +695,7 @@ def page_html(x, root, guides_by):
             + '<p><a href="/idea/">作例をすべて見る</a></p>'
             '<p class="note">作例（モデルケース）で、実在の会社の事例や見積ではありません。目安は公開の料金表・記事、会社数はKATACHIの登録企業（公開情報）から出しています。</p>')
     url = f'{SITE}/idea/{x["k"]}/'
-    graph = [{"@type": "Organization", "@id": SITE + "/#org", "name": "KATACHI", "url": SITE + "/", "logo": SITE + "/apple-touch-icon.png"},
+    graph = [{"@type": "Organization", "@id": SITE + "/#org", "name": "KATACHI", "url": SITE + "/", "logo": SITE + "/icon-512.png"},
              {"@type": "Article", "headline": title, "description": desc, "dateModified": UPDATED, "datePublished": UPDATED, "inLanguage": "ja",
               "mainEntityOfPage": url, "author": {"@id": SITE + "/#org"}, "publisher": {"@id": SITE + "/#org"}, "image": SITE + "/og.png"},
              {"@type": "HowTo", "name": f'{t}の作り方の流れ', "step": [{"@type": "HowToStep", "position": i + 1, "text": s} for i, s in enumerate(p['steps'])]},
