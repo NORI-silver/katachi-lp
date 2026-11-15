@@ -65,6 +65,8 @@ function doPost(e) {
     if (p.type === 'specsave') return json_(specSave_(p));
     if (p.type === 'offer') return json_(offerView_(p));
     if (p.type === 'offerreply') return json_(offerReply_(p));
+    if (p.type === 'mailable') return json_(mailable_(p));
+    if (p.type === 'rfqsend') return json_(rfqSend_(p));
     if (!limit_()) return json_({ok: false, error: 'busy'});
     if (p.type !== 'rfq' && p.type !== 'consult') return json_({ok: false, error: 'type'});
     var f = {};
@@ -83,8 +85,10 @@ function doPost(e) {
     var sh = sheet_();
     sh.appendRow(row.map(safe_));
     if (p.type === 'rfq') { try { slotRequest_(id, p.slot, f); } catch (err) { console.error(err); } }
-    notifyAdmin_(id, row, sh);
-    replyUser_(id, email, p, f);
+    var ms = null;
+    if (p.type === 'rfq' && (p.mail || []).length) { try { ms = mailPrepare_(id, p, email); } catch (err) { console.error(err); } }
+    notifyAdmin_(id, row, sh, ms && ms.names.length ? 'メールで届ける予定（依頼者が確認メールのボタンを押すと送られます）: ' + ms.names.join('、') : '');
+    replyUser_(id, email, p, f, ms && ms.names.length ? ms : null);
     out = {ok: true, id: id};
   } catch (err) {
     console.error(err);
@@ -120,10 +124,10 @@ function logSheet_() {
 
 function doGet() { return json_({ok: true, service: CONFIG.SERVICE_NAME}); }
 
-function notifyAdmin_(id, row, sh) {
+function notifyAdmin_(id, row, sh, extra) {
   var to = CONFIG.ADMIN_EMAIL || Session.getEffectiveUser().getEmail();
   var body = HEAD.map(function (h, i) { return '■ ' + h + '\n' + (row[i] instanceof Date ? Utilities.formatDate(row[i], 'Asia/Tokyo', 'yyyy-MM-dd HH:mm') : row[i]); }).join('\n\n');
-  MailApp.sendEmail({to: to, subject: '[KATACHI] 新しい' + row[2] + ' ' + id, body: body + '\n\n一覧: ' + sh.getParent().getUrl()});
+  MailApp.sendEmail({to: to, subject: '[KATACHI] 新しい' + row[2] + ' ' + id, body: (extra ? '■ ' + extra + '\n\n' : '') + body + '\n\n一覧: ' + sh.getParent().getUrl()});
 }
 
 // ---------- 依頼した人への自動返信（HTMLメール＋テキスト版） ----------
@@ -139,6 +143,7 @@ var MAIL_TEXT = {
     att_h: '図面・写真・設計データはありますか？', att: 'このメールにそのまま返信して添付してください（合計20MBまで）。手描きのスケッチやスマホの写真でもかまいません。見積の精度が上がります。',
     att_up_h: '送っていただいたファイル', att_up: '{n}件のファイルをお預かりしました。担当者だけが見られる場所に保存し、見積を頼む会社にだけ渡します。あとから足したいファイルは、このメールへの返信で送れます。',
     note: 'まだ発注は決まっていません。見積や返事を見てから、依頼するかどうかをお決めください。工程の整理・会社の検索・見積の依頼は無料です。',
+    send_h: 'メールのわかる{n}社には、すぐ届けられます', send_t: '下のボタンを押すと、{names} に依頼の要点を KATACHI からメールで送ります。あなたのお名前・メール・電話は送りません（会社が受けると決まってからお伝えします）。', send_btn: '{n}社にメールで送る', send_note: '{d}日以内に押してください。押さなければメールは送られず、これまでどおり担当者が確かめてから打診します。', send_prev: '会社に届くメール（1社目の見本）',
     btn: 'KATACHI を開く', foot: 'このメールは KATACHI のフォームから送信された方にお送りしています。お心当たりがない場合は、このメールに返信してお知らせください。'
   },
   en: {
@@ -152,6 +157,7 @@ var MAIL_TEXT = {
     att_h: 'Do you have drawings, photos or design files?', att: 'Just reply to this email with them attached (up to 20 MB in total). Hand sketches and phone photos are fine, and they make quotes more accurate.',
     att_up_h: 'Files you sent', att_up: 'We received {n} file(s). They are stored where only our staff can see them, and are shared only with the companies we ask for quotes. To add more files later, just reply to this email.',
     note: 'Nothing has been ordered yet. You can decide whether to proceed after seeing the quotes. Organizing the process, searching companies and requesting quotes are free.',
+    send_h: '{n} companies can get it by email right away', send_t: 'Press the button below and KATACHI will email the key points of your request to {names}. Your name, email and phone number are not sent (we share them once a company agrees to take it on).', send_btn: 'Email {n} companies', send_note: 'Please press it within {d} days. If you do not, nothing is emailed and our staff will review and contact companies as usual.', send_prev: 'The email companies receive (sample for the first one, in Japanese)',
     btn: 'Open KATACHI', foot: 'You received this email because this address was entered in a KATACHI form. If this was not you, please reply and let us know.'
   },
   zh: {
@@ -165,6 +171,7 @@ var MAIL_TEXT = {
     att_h: '有图纸、照片或设计文件吗？', att: '请直接回复本邮件并附上（合计20MB以内）。手绘草图或手机照片也可以，能让报价更准确。',
     att_up_h: '您发送的文件', att_up: '已收到{n}个文件。文件保存在只有工作人员能查看的位置，只会提供给我们请求报价的公司。之后如需补充文件，请直接回复本邮件。',
     note: '目前尚未下单。看到报价或回复后，再决定是否委托即可。整理工序、搜索公司、委托报价均免费。',
+    send_h: '可立即通过邮件发送给{n}家公司', send_t: '点击下方按钮，KATACHI 会将委托要点通过邮件发送给 {names}。不会发送您的姓名、邮箱和电话（公司确定接单后再告知）。', send_btn: '通过邮件发送给{n}家公司', send_note: '请在{d}天内点击。如未点击，则不会发送邮件，仍由工作人员确认后联系。', send_prev: '公司收到的邮件（第1家的示例，日文）',
     btn: '打开 KATACHI', foot: '您收到此邮件是因为有人在 KATACHI 的表单中填写了此邮箱。如非本人操作，请回复告知我们。'
   }
 };
@@ -172,12 +179,12 @@ var MAIL_TEXT = {
 function esc_(v) { return String(v == null ? '' : v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/\n/g, '<br>'); }
 function clip_(v, n) { v = String(v || '').trim(); return v.length > n ? v.slice(0, n) + '…' : v; }
 
-function replyUser_(id, email, p, f) {
-  var mail = buildReplyMail_(id, p, f || {});
+function replyUser_(id, email, p, f, ms) {
+  var mail = buildReplyMail_(id, p, f || {}, ms);
   MailApp.sendEmail({to: email, subject: mail.subject, body: mail.text, htmlBody: mail.html, name: CONFIG.SERVICE_NAME});
 }
 
-function buildReplyMail_(id, p, f) {
+function buildReplyMail_(id, p, f, ms) {
   var L = MAIL_TEXT[p.lang] || MAIL_TEXT.ja, rfq = p.type !== 'consult';
   var C = {ink: '#0d1424', mute: '#566176', dim: '#8b94a7', line: '#e3e8f1', bg: '#f5f7fb', ice: '#2350c8', tint: '#eef3fd', mint: '#13845b'};
   var FONT = "-apple-system,BlinkMacSystemFont,'Hiragino Sans','Hiragino Kaku Gothic ProN','Noto Sans JP','Yu Gothic','PingFang SC','Microsoft YaHei',Meiryo,sans-serif";
@@ -235,6 +242,18 @@ function buildReplyMail_(id, p, f) {
     '<div style="font:700 15px/1.4 ' + FONT + ';color:' + C.ink + ';margin-bottom:6px;">' + esc_(L.sum_h) + '</div>' +
     '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">' + sumRows + '</table></td></tr>' : '';
 
+  // メールで届ける会社がある：送るボタン（押すと送られる）と、会社に届くメールの見本
+  var sendT = ms ? {h: L.send_h.replace('{n}', ms.names.length), t: L.send_t.replace('{names}', ms.names.join('、')), b: L.send_btn.replace('{n}', ms.names.length), note: L.send_note.replace('{d}', MAIL_CFG.KEY_DAYS)} : null;
+  var sendBlk = sendT ? '<tr><td style="padding:0 32px 24px;"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border:2px solid ' + C.ice + ';border-radius:10px;"><tr><td style="padding:18px 20px;">' +
+    '<div style="font:700 15px/1.5 ' + FONT + ';color:' + C.ink + ';">&#9993; ' + esc_(sendT.h) + '</div>' +
+    '<div style="margin-top:6px;font:13.5px/1.75 ' + FONT + ';color:' + C.ink + ';">' + esc_(sendT.t) + '</div>' +
+    '<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin-top:14px;"><tr><td style="background:' + C.ice + ';border-radius:8px;">' +
+    '<a href="' + esc_(ms.url) + '" style="display:inline-block;padding:13px 26px;font:700 15px/1 ' + FONT + ';color:#fff;text-decoration:none;">' + esc_(sendT.b) + ' &rarr;</a></td></tr></table>' +
+    '<div style="margin-top:10px;font:12px/1.6 ' + FONT + ';color:' + C.mute + ';">' + esc_(sendT.note) + '</div>' +
+    '<div style="margin-top:14px;font:700 12px/1.4 ' + FONT + ';color:' + C.mute + ';">' + esc_(L.send_prev) + '</div>' +
+    '<div style="margin-top:6px;padding:12px 14px;background:' + C.bg + ';border-radius:8px;font:12px/1.7 ' + FONT + ';color:' + C.ink + ';">' + esc_(ms.preview) + '</div>' +
+    '</td></tr></table></td></tr>' : '';
+
   var logo = '<table role="presentation" cellpadding="0" cellspacing="2" border="0" style="display:inline-table;vertical-align:middle;"><tr>' +
     '<td width="9" height="9" style="background:' + C.ice + ';font-size:0;line-height:0;">&nbsp;</td><td width="7" height="7" style="border:1px solid ' + C.ice + ';font-size:0;line-height:0;">&nbsp;</td></tr><tr>' +
     '<td width="7" height="7" style="border:1px dashed ' + C.ice + ';font-size:0;line-height:0;">&nbsp;</td><td width="9" height="9" style="background:#a7b9e9;font-size:0;line-height:0;">&nbsp;</td></tr></table>';
@@ -261,7 +280,7 @@ function buildReplyMail_(id, p, f) {
     '<div style="margin-top:4px;font:12px/1.4 ' + FONT + ';color:' + C.mute + ';">' + esc_(L.ref_note) + '</div></td></tr></table></td></tr>' +
     // ステップ
     '<tr><td style="padding:22px 28px 26px;"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>' + stepCells + '</tr></table></td></tr>' +
-    summary +
+    summary + sendBlk +
     // 添付のお願い
     '<tr><td style="padding:0 32px 24px;"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border:1.5px dashed ' + C.ice + ';border-radius:10px;"><tr><td style="padding:16px 20px;">' +
     '<div style="font:700 14px/1.5 ' + FONT + ';color:' + C.ink + ';">&#128206; ' + esc_(attH) + '</div>' +
@@ -283,6 +302,7 @@ function buildReplyMail_(id, p, f) {
     rows.length || team.length ? '■ ' + L.sum_h : '',
     rows.map(function (r) { return r[0] + ': ' + r[1]; }).join('\n'),
     team.length ? L.k_team + ':\n' + team.map(function (t) { return '  - ' + t.step + ': ' + t.company; }).join('\n') : '', '',
+    sendT ? '■ ' + sendT.h + '\n' + sendT.t + '\n' + sendT.b + ': ' + ms.url + '\n' + sendT.note + '\n\n' + L.send_prev + ':\n' + ms.preview : '', '',
     '■ ' + attH, attT, '', L.note, '', CONFIG.SITE_URL].filter(function (x, i, a) { return !(x === '' && a[i - 1] === ''); }).join('\n');
 
   return {subject: subject, html: html, text: text};
@@ -1103,6 +1123,7 @@ function offerReply_(p) {
   var f = offerFind_(p.k);
   if (!f) return {ok: false, error: 'key'};
   var a = String(p.answer || '');
+  if (a === 'stop') return mailStop_(f);
   if (!OFFER_STATE[a]) return {ok: false, error: 'answer'};
   var s = function (v, n) { return String(v == null ? '' : v).replace(/[\u0000-\u0008\u000b-\u001f]/g, '').slice(0, n); };
   var msg = s(p.msg, 3000), why = [].concat(p.reasons || []).map(function (x) { return s(x, 40); }).slice(0, 6);
@@ -1120,4 +1141,413 @@ function offerReply_(p) {
         '\n\n一覧（「工場への打診」タブ）: ' + f.sh.getParent().getUrl()});
   } catch (err) { console.error(err); }
   return {ok: true, state: a};
+}
+
+// ---------- 見積の依頼を工場へメールで届ける（Nori 2026-11-15「依頼をメールで出せるところは、依頼を出せる作りにしてほしい」） ----------
+// 1. 会社の公開メールを集める: 関数 setupMail を1回実行すると、collectMail が10分ごとに動き、サイトの data/companies.json の
+//    国内の会社の公式サイト（トップと「お問い合わせ」「会社概要」のページ）を読み、掲載されたメールアドレスを「工場のメール」タブに入れる。
+//    公式サイトと同じドメインか、フリーメール・プロバイダ（.ne.jp）のアドレスだけ使う。採用・個人情報の窓口などは使わない。
+//    「営業・広告のメールはお断り」のような表示があるページの会社には送らない（状態「営業お断りの表示」）。
+//    アドレスは公開リポジトリやサイトには載せない（このシートの中だけ）。状態を手で「送らない（手で止める）」にすれば送らない。
+// 2. 依頼者は見積の依頼で「メールのわかる会社にはKATACHIから届ける」を選んで送る（サイトは type:'mailable' で、届けられる会社名だけを聞く）。
+//    受付の確認メールに「◯社に送る」ボタン（サイトの ?send=鍵）が入り、押すと type:'rfqsend' でその会社に送る（本人のメールの確認と、送る意思の確認を兼ねる）。
+// 3. 工場に送るのは依頼の要点と打診リンク（/reply/）だけ。依頼者の名前・メール・電話・会社名・納品先は送らない（offerSummary_ と同じ）。
+//    送った記録は「メール送信」タブと「工場への打診」タブに入り、運営者に控えが届く。工場が配信停止を押すと、その会社には以後送らない。
+// 4. 特定電子メール法の表示のため、スクリプトのプロパティ SENDER_NAME（送信者の氏名・名称）と SENDER_ADDRESS（住所）が無いと送らない（サイトにも出さない）。
+//    止めたいときは MAIL_SEND を off にする。Gmail の1日の送信数（無料のアカウントは100通）を超えないよう、残りが少ないときは送らない。
+var MAIL_HEAD = ['会社名', '都道府県', '公式サイト', 'メール', '見つけたページ', '状態', '確認日', 'メモ'];
+var MAIL_OK = '送れる';
+var SEND_HEAD = ['受付番号', '会社名', '宛先', '状態', '確認の鍵', '作成日時', '送信日時', '打診リンク', 'メモ'];
+var MAIL_CFG = {
+  PER_REQUEST: 10,        // 1件の依頼でメールを送る会社の上限
+  DAILY: 60,              // 1日に工場へ送るメールの上限
+  PER_COMPANY_DAY: 2,     // 同じ会社に1日に送る上限
+  PER_REQUESTER_DAY: 3,   // 同じ依頼者（メール）が1日に送れる依頼の数
+  RESERVE: 20,            // Gmail の残り送信数がこれ以下なら送らない（受付・控えのメールのため）
+  KEY_DAYS: 7,            // 確認メールのボタンが使える日数
+  BATCH: 20,              // 集めるとき、一度に読むサイトの数
+  RUN_MS: 270000          // 1回の実行で使う時間（6分の上限より短く）
+};
+var MAIL_FREE = /(^|\.)(gmail\.com|googlemail\.com|yahoo\.co\.jp|ymail\.ne\.jp|icloud\.com|me\.com|outlook\.com|outlook\.jp|hotmail\.com|hotmail\.co\.jp|live\.jp|msn\.com|nifty\.com|ocn\.ne\.jp|biglobe\.ne\.jp|so-net\.ne\.jp|plala\.or\.jp|dion\.ne\.jp|ezweb\.ne\.jp|docomo\.ne\.jp|softbank\.ne\.jp|[a-z0-9-]+\.ne\.jp)$/i;
+var MAIL_BAD_LOCAL = /^(recruit|recruiting|saiyo|saiyou|jinji|career|careers|job|jobs|entry|privacy|kojinjoho|personal|noreply|no-reply|donotreply|do-not-reply|postmaster|abuse|mailer-daemon|ir|press|kouhou|koho|hr|newsletter|magazine|mag|unsubscribe|test|sample|example|xxx|yourname|name|email|mail-address)$/i;
+var MAIL_BAD_DOMAIN = /(^|\.)(example\.(com|jp|co\.jp|net|org)|sentry\.io|sentry-next\.wixpress\.com|wixpress\.com|domain\.com|xxx\.(com|jp|co\.jp)|sample\.(com|jp))$|\.(png|jpe?g|gif|webp|svg|css|js|ico)$/i;
+var MAIL_GOOD_LOCAL = /^(info|information|contact|contacts|sales|eigyo|eigyou|eigyoubu|otoiawase|toiawase|inquiry|inquiries|enquiry|mail|office|order|orders|support|shop|customer|soudan|webinfo|honsha|honbu|seisan|seizo|seizou|kojo|koujou|factory)\b/i;
+var MAIL_REFUSE = /((営業|広告|宣伝|セールス|勧誘|売り込み)(目的)?[^。\n<>]{0,25}(メール|ご連絡|連絡|お問い?合わ?せ|問合せ|電話)[^。\n<>]{0,25}(お断り|ご遠慮|遠慮|拒否|受け付けて(お|い)りません|お受けして(お|い)りません|控え)|特定電子メール[^。\n<>]{0,40}(拒否|お断り|同意しない)|未承諾広告)/;
+
+function mailHost_(u) { var m = String(u || '').match(/^https?:\/\/([^\/?#:]+)/i); return m ? m[1].toLowerCase().replace(/^www\d?\./, '') : ''; }
+function mailSameDomain_(dom, host) {
+  dom = String(dom || '').toLowerCase(); host = String(host || '').toLowerCase();
+  if (!dom || !host) return false;
+  if (dom === host || host.slice(-dom.length - 1) === '.' + dom || dom.slice(-host.length - 1) === '.' + host) return true;
+  // 「会社名.co.jp」と「会社名.jp」のように、名前の部分が同じ
+  var core = function (h) { var p = h.split('.'); var n = /^(co|or|ne|ac|go|lg|ed|gr)$/.test(p[p.length - 2] || '') && p.length >= 3 ? p[p.length - 3] : p[p.length - 2]; return n || ''; };
+  var a = core(dom), b = core(host);
+  return a.length >= 4 && a === b;
+}
+
+// ページの文字からメールアドレスを拾う。戻り値 [{email, score}]（よい順）
+function mailFind_(html, host, isContact) {
+  var s = String(html || '');
+  var t = s.replace(/<!--[\s\S]*?-->/g, ' ');
+  var raw = [];
+  (t.match(/mailto:([^"'?\s>]+)/gi) || []).forEach(function (m) { try { raw.push([decodeURIComponent(m.slice(7)), 2]); } catch (e) { raw.push([m.slice(7), 2]); } });
+  var txt = t.replace(/<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>/gi, ' ').replace(/<[^>]+>/g, ' ').replace(/&#64;|&#x40;|＠/g, '@').replace(/&nbsp;/g, ' ');
+  (txt.match(/[A-Za-z0-9._%+-]+\s?@\s?[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}/g) || []).forEach(function (m) { raw.push([m.replace(/\s/g, ''), 0]); });
+  var seen = {}, out = [];
+  raw.forEach(function (x) {
+    var e = String(x[0]).trim().replace(/^[.\-]+|[.\-]+$/g, '').toLowerCase();
+    var m = e.match(/^([a-z0-9._%+-]+)@([a-z0-9.-]+\.[a-z]{2,})$/);
+    if (!m || e.length > 80) return;
+    var local = m[1], dom = m[2];
+    if (MAIL_BAD_LOCAL.test(local) || MAIL_BAD_DOMAIN.test(dom)) return;
+    var same = mailSameDomain_(dom, host), free = !same && MAIL_FREE.test(dom);
+    if (!same && !free) return;
+    var sc = (same ? 4 : 1) + (MAIL_GOOD_LOCAL.test(local) ? 2 : 0) + (isContact ? 1 : 0) + x[1];
+    if (seen[e] == null || sc > out[seen[e]].score) { if (seen[e] == null) { seen[e] = out.length; out.push({email: e, score: sc}); } else out[seen[e]].score = sc; }
+  });
+  return out.sort(function (a, b) { return b.score - a.score; });
+}
+
+// 「営業メールお断り」のような表示があるか
+function mailRefuses_(html) {
+  var txt = String(html || '').replace(/<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>/gi, ' ').replace(/<[^>]+>/g, '').replace(/[\s　]+/g, '');
+  return MAIL_REFUSE.test(txt);
+}
+
+// 「お問い合わせ」「会社概要」のページのURL（同じサイトの中だけ、よい順に2つまで）
+function mailLinks_(html, base) {
+  var bm = String(base || '').match(/^(https?:\/\/[^\/?#]+)(\/[^?#]*)?/i);
+  if (!bm) return [];
+  var origin = bm[1], dir = (bm[2] || '/').replace(/[^\/]*$/, ''), host = mailHost_(base), list = [], seen = {};
+  var re = /<a\b[^>]*href\s*=\s*["']([^"']+)["'][^>]*>([\s\S]{0,300}?)<\/a>/gi, m;
+  while ((m = re.exec(String(html || ''))) && list.length < 200) {
+    var href = m[1].trim(), text = m[2].replace(/<[^>]+>/g, '').replace(/\s+/g, '') + ' ' + ((m[0].match(/alt\s*=\s*["']([^"']*)["']/i) || [])[1] || '');
+    if (/^(mailto:|tel:|javascript:|#)/i.test(href) || /\.(pdf|jpe?g|png|gif|zip|docx?|xlsx?)(\?|$)/i.test(href)) continue;
+    var u = /^https?:\/\//i.test(href) ? href : /^\/\//.test(href) ? 'https:' + href : href.charAt(0) === '/' ? origin + href : origin + dir + href.replace(/^\.\//, '');
+    u = u.replace(/#.*$/, '');
+    if (mailHost_(u) !== host || seen[u]) continue;
+    var key = (text + ' ' + href).toLowerCase(), sc = 0;
+    if (/お問い?合わ?せ|問合|問い合|contact|inquiry|enquiry|toiawase|otoiawase|ご相談/.test(key)) sc = 3;
+    else if (/会社概要|会社案内|企業情報|会社情報|company|about|corporate|profile|outline|gaiyou|gaiyo|アクセス|access/.test(key)) sc = 1;
+    if (!sc) continue;
+    seen[u] = 1; list.push([u, sc]);
+  }
+  return list.sort(function (a, b) { return b[1] - a[1]; }).slice(0, 2).map(function (x) { return x[0]; });
+}
+
+// 文字コード（Shift_JIS・EUC-JP のサイトも読む）
+function mailText_(res) {
+  var ct = String((res.getHeaders() || {})['Content-Type'] || (res.getHeaders() || {})['content-type'] || '');
+  var head = res.getContentText('ISO-8859-1').slice(0, 3000);
+  var cs = ((ct.match(/charset=([\w-]+)/i) || head.match(/charset=["']?([\w-]+)/i) || [])[1] || 'UTF-8').toLowerCase();
+  cs = /s(hift)?[-_]?jis|x-sjis|windows-31j|cp932|ms932/.test(cs) ? 'Shift_JIS' : /euc-?jp/.test(cs) ? 'EUC-JP' : /iso-2022-jp/.test(cs) ? 'ISO-2022-JP' : 'UTF-8';
+  try { return res.getContentText(cs); } catch (e) { return res.getContentText(); }
+}
+
+function mailFetch_(urls) {
+  var req = urls.map(function (u) { return {url: u, muteHttpExceptions: true, followRedirects: true, headers: {'User-Agent': 'Mozilla/5.0 (compatible; KATACHI-contact-check; +' + CONFIG.SITE_URL + ')'}}; });
+  var res;
+  try { res = UrlFetchApp.fetchAll(req); } catch (e) {
+    res = req.map(function (r) { try { return UrlFetchApp.fetch(r.url, r); } catch (err) { return null; } });
+  }
+  return res.map(function (r) {
+    if (!r || r.getResponseCode() >= 400) return null;
+    var ct = String((r.getHeaders() || {})['Content-Type'] || '');
+    if (ct && !/html|text/i.test(ct)) return null;
+    try { return mailText_(r).slice(0, 600000); } catch (e) { return null; }
+  });
+}
+
+// 1社ぶんの結果。pages = [{url, html, contact}]
+function mailDecide_(web, pages) {
+  var host = mailHost_(web), best = null, refuse = '', others = [];
+  pages.forEach(function (p) {
+    if (!p.html) return;
+    if (!refuse && mailRefuses_(p.html)) refuse = p.url;
+    mailFind_(p.html, host, p.contact).forEach(function (x) { if (!best || x.score > best.score) best = {email: x.email, score: x.score, page: p.url}; });
+    if (!best) (String(p.html).match(/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g) || []).slice(0, 2).forEach(function (e) { if (others.indexOf(e) < 0) others.push(e); });
+  });
+  if (!pages.some(function (p) { return p.html; })) return {state: '読めない', email: '', page: '', memo: ''};
+  if (!best) return {state: '見つからない', email: '', page: '', memo: others.length ? '別のドメインのアドレスだけ: ' + others.join(' ') : ''};
+  if (refuse) return {state: '営業お断りの表示', email: best.email, page: best.page, memo: '表示のあるページ: ' + refuse};
+  return {state: MAIL_OK, email: best.email, page: best.page, memo: ''};
+}
+
+function mailTab_() { return slotTab_('工場のメール', MAIL_HEAD); }
+function sendTab_() { return slotTab_('メール送信', SEND_HEAD); }
+
+// 10分ごとに集める（はじめの1回だけ実行する）。全部読み終わると止まり、運営者にメールが届く
+function setupMail() {
+  ScriptApp.getProjectTriggers().forEach(function (t) { if (t.getHandlerFunction() === 'collectMail') ScriptApp.deleteTrigger(t); });
+  ScriptApp.newTrigger('collectMail').timeBased().everyMinutes(10).create();
+  mailTab_(); sendTab_();
+  collectMail();
+}
+
+// もう一度はじめから集め直す（新しい会社が増えたとき。すでにある会社は上書きしない）
+function restartMail() { PropertiesService.getScriptProperties().setProperty('MAIL_CURSOR', '0'); setupMail(); }
+
+function collectMail() {
+  var lock = LockService.getScriptLock();
+  if (!lock.tryLock(1000)) return;
+  try {
+    var t0 = Date.now(), props = PropertiesService.getScriptProperties();
+    var data = JSON.parse(UrlFetchApp.fetch(CONFIG.SITE_URL + 'data/companies.json').getContentText());
+    var list = (data.c || []).filter(function (r) { return (r[1] || 'JP') === 'JP' && /^https?:\/\//i.test(String(r[4] || '')); });
+    var sh = mailTab_(), have = {};
+    if (sh.getLastRow() > 1) sh.getRange(2, 1, sh.getLastRow() - 1, 1).getValues().forEach(function (r) { have[String(r[0])] = 1; });
+    var cur = Number(props.getProperty('MAIL_CURSOR') || 0);
+    while (cur < list.length && Date.now() - t0 < MAIL_CFG.RUN_MS) {
+      var batch = list.slice(cur, cur + MAIL_CFG.BATCH).filter(function (r) { return !have[r[0]]; });
+      cur += MAIL_CFG.BATCH;
+      if (!batch.length) continue;
+      var tops = mailFetch_(batch.map(function (r) { return r[4]; }));
+      var next = [], owner = [];
+      batch.forEach(function (r, i) { if (tops[i]) mailLinks_(tops[i], r[4]).forEach(function (u) { next.push(u); owner.push(i); }); });
+      var subs = next.length ? mailFetch_(next) : [];
+      var today = Utilities.formatDate(new Date(), 'Asia/Tokyo', 'yyyy-MM-dd');
+      var rows = batch.map(function (r, i) {
+        var pages = [{url: r[4], html: tops[i], contact: false}];
+        next.forEach(function (u, j) { if (owner[j] === i) pages.push({url: u, html: subs[j], contact: true}); });
+        var d = mailDecide_(r[4], pages);
+        have[r[0]] = 1;
+        return [r[0], r[2] || '', r[4], d.email, d.page, d.state, today, d.memo];
+      });
+      sh.getRange(sh.getLastRow() + 1, 1, rows.length, MAIL_HEAD.length).setValues(rows.map(function (x) { return x.map(safe_); }));
+      props.setProperty('MAIL_CURSOR', String(cur));
+    }
+    if (cur >= list.length) {
+      ScriptApp.getProjectTriggers().forEach(function (t) { if (t.getHandlerFunction() === 'collectMail') ScriptApp.deleteTrigger(t); });
+      var n = {}; sh.getRange(2, 6, Math.max(sh.getLastRow() - 1, 1), 1).getValues().forEach(function (r) { n[r[0]] = (n[r[0]] || 0) + 1; });
+      MailApp.sendEmail({to: CONFIG.ADMIN_EMAIL || Session.getEffectiveUser().getEmail(), subject: '[KATACHI] 工場のメールを集め終わりました',
+        body: Object.keys(n).map(function (k) { return k + ': ' + n[k] + '社'; }).join('\n') + '\n\n「工場のメール」タブ: ' + sh.getParent().getUrl()});
+    }
+  } finally { lock.releaseLock(); }
+}
+
+// 送信者の表示（特定電子メール法）が入っていて、止めていないときだけ送る
+function mailOn_() { return !!(prop_('SENDER_NAME') && prop_('SENDER_ADDRESS')) && prop_('MAIL_SEND') !== 'off'; }
+
+// 会社名 → {row, email, state, page}
+function mailMap_() {
+  var sh = mailTab_(), n = sh.getLastRow() - 1, out = {};
+  if (n < 1) return out;
+  sh.getRange(2, 1, n, 6).getValues().forEach(function (r, i) { var k = String(r[0]); if (k && !out[k]) out[k] = {row: i + 2, email: String(r[3] || '').trim(), state: String(r[5] || ''), page: String(r[4] || '')}; });
+  return out;
+}
+function mailUsable_(m) { return !!(m && m.state === MAIL_OK && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(m.email)); }
+
+// サイトが「メールで届けられる会社」を聞く。アドレスは返さない
+function mailable_(p) {
+  if (!limit_('m', 3000)) return {ok: false, error: 'busy'};
+  if (!mailOn_()) return {ok: true, on: false, names: []};
+  var map = mailMap_();
+  var names = [].concat(p.names || []).slice(0, 40).map(function (x) { return String(x).slice(0, 120); }).filter(function (n) { return mailUsable_(map[n]); });
+  return {ok: true, on: true, names: names, max: MAIL_CFG.PER_REQUEST};
+}
+
+// 見積の依頼を受けたとき: メールで届ける会社を「メール送信」タブに「依頼者の確認待ち」で入れ、確認の鍵を返す
+function mailPrepare_(id, p, email) {
+  if (!mailOn_()) return null;
+  var team = {}; (p.team || []).forEach(function (t) { if (t && t.company && (!t.country || t.country === 'JP')) team[String(t.company)] = 1; });
+  var map = mailMap_(), names = [];
+  [].concat(p.mail || []).forEach(function (n) { n = String(n); if (team[n] && mailUsable_(map[n]) && names.indexOf(n) < 0) names.push(n); });
+  names = names.slice(0, MAIL_CFG.PER_REQUEST);
+  if (!names.length) return null;
+  if (!limit_('mr' + Utilities.base64EncodeWebSafe(Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, email.toLowerCase())).slice(0, 12), MAIL_CFG.PER_REQUESTER_DAY)) return {names: [], over: true};
+  var key = offerKey_(), now = new Date(), sh = sendTab_();
+  sh.getRange(sh.getLastRow() + 1, 1, names.length, SEND_HEAD.length).setValues(names.map(function (n) { return [id, n, map[n].email, '依頼者の確認待ち', key, now, '', '', ''].map(safe_); }));
+  return {key: key, names: names, url: CONFIG.SITE_URL + '?send=' + key, preview: factoryMail_(id, names[0], OFFER_URL + '（会社ごとのリンク）', CONFIG.SITE_URL + 'reply/?k=…&stop=1', map[names[0]].page).body};
+}
+
+// 工場に届くメール（日本の会社だけに送るので日本語）
+function factoryMail_(id, company, link, stop, page) {
+  var q = offerSummary_(id), L = [];
+  var add = function (k, v, n) { v = String(v || '').trim(); if (v) L.push(k + ': ' + clip_(v, n || 300)); };
+  add('製品の概要', q.summary, 600); add('段階と数量', q.qty); add('希望の時期', q.due);
+  if (q.steps && q.steps.length) add('工程', q.steps.join('、'));
+  add('材料', q.mat); if (q.flex) add('時期の幅', q.flex); if (q.from || q.to) add('受け取れる期間', (q.from || '') + ' 〜 ' + (q.to || ''));
+  var rest = 0;
+  (q.items || []).forEach(function (x) { if (rest < 2500 && !/^(製品の概要|段階と数量|希望の時期)$/.test(x[0])) { var line = x[0] + ': ' + clip_(x[1], 400); rest += line.length; L.push(line); } });
+  if (q.files) L.push('添付: 写真・図面などがあります（受けていただける場合にお送りします）');
+  var sum = clip_(String(q.summary || '').split('\n')[0], 30);
+  var body = [company + ' ご担当者さま', '',
+    'はじめてご連絡いたします。ものづくりの依頼先を探せるサイト「KATACHI」（' + CONFIG.SITE_URL + '）です。',
+    'KATACHI で貴社を依頼先に選んだ方から見積のご相談をお預かりしましたので、お届けします。', '',
+    '■ 依頼の要点（受付番号 ' + id + '）', L.join('\n'), '',
+    '■ お返事のお願い',
+    'お受けできそうか、下のページで「受ける・質問する・断る」をお選びください（1分ほど・登録は不要です）。',
+    link, 'このメールへの返信でもかまいません。', '',
+    '・依頼者のお名前とご連絡先は、受けていただけると決まってから KATACHI がお伝えします。',
+    '・まだ発注は決まっていません。見積をご覧になってから、依頼者が依頼先を決めます。', '',
+    '――――――――――',
+    'このメールは、貴社のウェブサイトに掲載されているメールアドレス宛てに、KATACHI の利用者の依頼を取り次いでお送りしています。' + (page ? '\n（掲載ページ: ' + page + '）' : ''),
+    '今後 KATACHI からの依頼のメールが不要な場合は、こちらからお知らせください。以後はお送りしません。', stop, '',
+    '送信者: ' + (prop_('SENDER_NAME') || '') + '（KATACHI）', '住所: ' + (prop_('SENDER_ADDRESS') || ''), 'お問い合わせ: このメールにご返信ください', CONFIG.SITE_URL].join('\n');
+  return {subject: '【KATACHI】見積のご相談' + (sum ? '：' + sum : '') + '（受付番号 ' + id + '）', body: body};
+}
+
+// 依頼者が確認メールのボタンを押したとき: 「依頼者の確認待ち」の会社にメールを送る
+function rfqSend_(p) {
+  if (!limit_('rs', 500)) return {ok: false, error: 'busy'};
+  var k = String(p.k || '');
+  if (!/^[A-Za-z0-9]{24}$/.test(k)) return {ok: false, error: 'key'};
+  var lock = LockService.getScriptLock();
+  if (!lock.tryLock(20000)) return {ok: false, error: 'busy'};
+  try {
+    var sh = sendTab_(), n = sh.getLastRow() - 1;
+    if (n < 1) return {ok: false, error: 'key'};
+    var v = sh.getRange(2, 1, n, SEND_HEAD.length).getValues(), rows = [];
+    v.forEach(function (r, i) { if (String(r[4]) === k) rows.push({i: i + 2, r: r}); });
+    if (!rows.length) return {ok: false, error: 'key'};
+    var id = String(rows[0].r[0]);
+    var done = rows.filter(function (x) { return x.r[3] === '送信済み'; }).map(function (x) { return String(x.r[1]); });
+    var wait = rows.filter(function (x) { return x.r[3] === '依頼者の確認待ち'; });
+    if (!wait.length) return {ok: true, id: id, sent: done, already: true, skipped: rows.filter(function (x) { return x.r[3] !== '送信済み'; }).map(function (x) { return String(x.r[1]); })};
+    if (!mailOn_()) return {ok: false, error: 'off'};
+    var made = rows[0].r[5] instanceof Date ? rows[0].r[5].getTime() : 0;
+    if (Date.now() - made > MAIL_CFG.KEY_DAYS * 864e5) return {ok: false, error: 'expired', id: id};
+    var map = mailMap_(), sent = [], skipped = [], now = new Date(), copy = [];
+    wait.forEach(function (x) {
+      var name = String(x.r[1]), m = map[name], why = '';
+      if (!mailUsable_(m)) why = '送れない：' + (m ? m.state : '工場のメールに無い');
+      else if (m.email !== String(x.r[2])) why = '送れない：アドレスが変わった';
+      else if (MailApp.getRemainingDailyQuota() <= MAIL_CFG.RESERVE) why = '送れない：今日のメールの上限';
+      else if (!limit_('md', MAIL_CFG.DAILY)) why = '送れない：今日の工場へのメールの上限';
+      else if (!limit_('mc' + Utilities.base64EncodeWebSafe(Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, name)).slice(0, 12), MAIL_CFG.PER_COMPANY_DAY)) why = '送れない：この会社に今日は送った';
+      if (why) { sh.getRange(x.i, 4).setValue(why); skipped.push(name); return; }
+      var link = offerEnsure_(id, name, ''), kk = link.split('k=')[1];
+      var mail = factoryMail_(id, name, link, CONFIG.SITE_URL + 'reply/?k=' + kk + '&stop=1', m.page);
+      try {
+        MailApp.sendEmail({to: m.email, subject: mail.subject, body: mail.body, name: CONFIG.SERVICE_NAME});
+        sh.getRange(x.i, 4, 1, 5).setValues([['送信済み', k, x.r[5], now, link]]);
+        offerNote_(kk, 'メールで送信 ' + Utilities.formatDate(now, 'Asia/Tokyo', 'MM-dd HH:mm') + '（' + m.email + '）');
+        sent.push(name); copy.push('・' + name + ' <' + m.email + '>\n  ' + link);
+        if (copy.length === 1) copy.unshift('---- 1社目に送った本文 ----\n件名: ' + mail.subject + '\n\n' + mail.body + '\n---- ここまで ----\n');
+      } catch (err) { console.error(err); sh.getRange(x.i, 4).setValue('送れない：' + String(err).slice(0, 80)); skipped.push(name); }
+    });
+    try {
+      MailApp.sendEmail({to: CONFIG.ADMIN_EMAIL || Session.getEffectiveUser().getEmail(), subject: '[KATACHI] 工場へメールで送りました ' + id + '（' + sent.length + '社）',
+        body: '受付 ' + id + ' の依頼者が確認メールのボタンを押し、次の会社にメールで依頼を送りました（控え）。\n\n' + copy.join('\n') +
+          (skipped.length ? '\n\n送れなかった会社（手で打診してください）: ' + skipped.join('、') : '') + '\n\n記録（「メール送信」「工場への打診」タブ）: ' + sh.getParent().getUrl()});
+    } catch (err) { console.error(err); }
+    return {ok: true, id: id, sent: done.concat(sent), skipped: skipped};
+  } finally { lock.releaseLock(); }
+}
+
+// 打診の行の「履歴」に書き足す
+function offerNote_(k, note) {
+  var f = offerFind_(k);
+  if (f) f.sh.getRange(f.row, 13).setValue(safe_((note + '\n' + String(f.v[12] || '')).slice(0, 5000)));
+}
+
+// 工場が「今後のメールは不要」を押したとき
+function mailStop_(f) {
+  var name = String(f.v[1]), map = mailMap_(), m = map[name], now = new Date();
+  if (m) { var sh = mailTab_(); sh.getRange(m.row, 6).setValue('送らない（配信停止）'); sh.getRange(m.row, 8).setValue('配信停止 ' + Utilities.formatDate(now, 'Asia/Tokyo', 'yyyy-MM-dd HH:mm')); }
+  offerNote_(String(f.v[11]), '配信停止 ' + Utilities.formatDate(now, 'Asia/Tokyo', 'MM-dd HH:mm'));
+  try {
+    MailApp.sendEmail({to: CONFIG.ADMIN_EMAIL || Session.getEffectiveUser().getEmail(), subject: '[KATACHI] 配信停止：' + name,
+      body: name + ' が、KATACHI からの依頼のメールの配信停止を選びました。以後この会社にはメールで送りません（「工場のメール」タブの状態を「送らない（配信停止）」にしました）。'});
+  } catch (err) { console.error(err); }
+  return {ok: true, state: 'stop'};
+}
+
+// ---------- 見積フォームの調査（Nori 2026-11-15「まずは、国内の工場から共通項見いだしてね」） ----------
+// 関数 setupSurvey を1回実行すると、surveyForms が5分ごとに動き、カテゴリごとに国内の会社（公式サイトのある会社から名前の順に依らず選ぶ）の
+// 「お見積り」「お問い合わせ」のページを読み、フォームの項目名・選択肢の文字を「見積フォーム調査」タブに入れる。読み終わると止まる。
+// 集計（何%のフォームが聞いているか）は、このタブを読んで別に行う。送信はしない（ページを読むだけ）。
+var SURVEY_CATS = [
+  ['金属切削', ['manufacturing.cnc']], ['板金・溶接', ['manufacturing.sheet_metal', 'manufacturing.welding']], ['金属製品・雑貨', ['crafts.metal_goods']],
+  ['樹脂成形', ['manufacturing.injection_molding']], ['シリコーン・ゴム', ['manufacturing.silicone_molding']], ['試作・3Dプリント', ['manufacturing.rapid_proto']],
+  ['電子・基板', ['electronics.pcba', 'electronics.pcb_design']], ['縫製・アパレル', ['apparel.garment_oem', 'manufacturing.textile', 'apparel.knit', 'apparel.leather']],
+  ['化粧品', ['cosmetics.oem']], ['食品・飲料', ['food.processed_oem', 'food.beverage_oem']], ['木工・家具', ['crafts.wood_furniture']],
+  ['印刷・パッケージ', ['packaging.label_print', 'packaging.box', 'packaging.container']], ['ノベルティ・雑貨', ['cosmetics.household']]
+];
+var SURVEY_PER_CAT = 60;
+var SURVEY_HEAD = ['会社名', 'カテゴリ', '公式サイト', '読んだページ', 'フォームの有無', 'フォームの文字（項目名・選択肢）', '外部フォーム', '日時'];
+
+function setupSurvey() {
+  ScriptApp.getProjectTriggers().forEach(function (t) { if (t.getHandlerFunction() === 'surveyForms') ScriptApp.deleteTrigger(t); });
+  ScriptApp.newTrigger('surveyForms').timeBased().everyMinutes(5).create();
+  surveyForms();
+}
+
+// 名前から決まる並び（毎回同じ順で選ぶ）
+function surveyHash_(s) { var h = 0; s = String(s); for (var i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0; return h; }
+
+function surveyList_(data) {
+  var caps = data.caps || [], out = [], used = {};
+  SURVEY_CATS.forEach(function (c) {
+    var rows = (data.c || []).filter(function (r) {
+      if ((r[1] || 'JP') !== 'JP' || !/^https?:\/\//i.test(String(r[4] || '')) || used[r[0]]) return false;
+      var first = caps[(r[5] || [])[0]];  // 主な工程がこのカテゴリの会社
+      return c[1].indexOf(first) >= 0;
+    }).sort(function (a, b) { return surveyHash_(a[0]) - surveyHash_(b[0]); }).slice(0, SURVEY_PER_CAT);
+    rows.forEach(function (r) { used[r[0]] = 1; out.push([r[0], c[0], r[4]]); });
+  });
+  return out;
+}
+
+// フォームの中の文字（ラベル・見出し・選択肢・入力欄の説明）を取り出す
+function surveyFormText_(html) {
+  var s = String(html || '').replace(/<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>|<!--[\s\S]*?-->/gi, ' ');
+  var forms = s.match(/<form\b[\s\S]*?<\/form>/gi) || [];
+  forms = forms.filter(function (f) { return /<(input|textarea|select)\b/i.test(f) && !/type\s*=\s*["']?search/i.test(f) || /<textarea\b/i.test(f); });
+  if (!forms.length) return '';
+  var f = forms.sort(function (a, b) { return b.length - a.length; })[0];
+  var ph = (f.match(/placeholder\s*=\s*["'][^"']{1,80}["']/gi) || []).map(function (x) { return '［例］' + x.replace(/^placeholder\s*=\s*["']|["']$/gi, ''); });
+  var txt = f.replace(/<(br|p|div|tr|li|dt|dd|th|td|label|option|h\d|span)\b[^>]*>/gi, '\n').replace(/<[^>]+>/g, ' ')
+    .replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/[ \t　]+/g, ' ');
+  var lines = txt.split('\n').map(function (x) { return x.trim(); }).filter(function (x) { return x && x.length <= 80; });
+  return lines.concat(ph).join(' | ').slice(0, 6000);
+}
+
+function surveyForms() {
+  var lock = LockService.getScriptLock();
+  if (!lock.tryLock(1000)) return;
+  try {
+    var t0 = Date.now(), props = PropertiesService.getScriptProperties();
+    var data = JSON.parse(UrlFetchApp.fetch(CONFIG.SITE_URL + 'data/companies.json').getContentText());
+    var list = surveyList_(data), sh = slotTab_('見積フォーム調査', SURVEY_HEAD);
+    var cur = Number(props.getProperty('SURVEY_CURSOR') || 0), B = 15;
+    while (cur < list.length && Date.now() - t0 < 240000) {
+      var batch = list.slice(cur, cur + B); cur += B;
+      var tops = mailFetch_(batch.map(function (r) { return r[2]; }));
+      var next = [], owner = [];
+      batch.forEach(function (r, i) {
+        if (!tops[i]) return;
+        // 見積のページを先に、なければお問い合わせ
+        var bm = String(r[2]).match(/^(https?:\/\/[^\/?#]+)(\/[^?#]*)?/i), origin = bm[1], dir = (bm[2] || '/').replace(/[^\/]*$/, ''), host = mailHost_(r[2]);
+        var re = /<a\b[^>]*href\s*=\s*["']([^"']+)["'][^>]*>([\s\S]{0,300}?)<\/a>/gi, m, best = [];
+        while ((m = re.exec(tops[i]))) {
+          var href = m[1].trim(), text = m[2].replace(/<[^>]+>/g, '').replace(/\s+/g, '') + ' ' + ((m[0].match(/alt\s*=\s*["']([^"']*)["']/i) || [])[1] || '');
+          if (/^(mailto:|tel:|javascript:|#)/i.test(href) || /\.(pdf|jpe?g|png|gif|zip|docx?|xlsx?)(\?|$)/i.test(href)) continue;
+          var u = (/^https?:\/\//i.test(href) ? href : /^\/\//.test(href) ? 'https:' + href : href.charAt(0) === '/' ? origin + href : origin + dir + href.replace(/^\.\//, '')).replace(/#.*$/, '');
+          if (mailHost_(u) !== host) continue;
+          var key = (text + ' ' + href).toLowerCase(), sc = /見積|estimate|mitsumori|quote|quotation/.test(key) ? 4 : /お問い?合わ?せ|問合|contact|inquiry|toiawase|ご相談|ご依頼/.test(key) ? 3 : 0;
+          if (sc && !best.some(function (b) { return b[0] === u; })) best.push([u, sc]);
+        }
+        best.sort(function (a, b) { return b[1] - a[1]; }).slice(0, 2).forEach(function (b) { next.push(b[0]); owner.push(i); });
+      });
+      var subs = next.length ? mailFetch_(next) : [];
+      var now = new Date();
+      var rows = batch.map(function (r, i) {
+        var pages = [[r[2], tops[i]]];
+        next.forEach(function (u, j) { if (owner[j] === i) pages.unshift([u, subs[j]]); });
+        var hit = null, ext = '';
+        pages.forEach(function (p) {
+          if (!p[1]) return;
+          var e = String(p[1]).match(/(docs\.google\.com\/forms|form\.run|formrun|formzu|formmailer|form-mailer|tayori|hubspot|mktoweb|pardot|kintone|jotform|questant|ssl\.form-mailer)/i);
+          if (e && !ext) ext = e[1];
+          if (!hit) { var t = surveyFormText_(p[1]); if (t) hit = [p[0], t]; }
+        });
+        if (!tops[i]) return [r[0], r[1], r[2], '', '読めない', '', '', now];
+        return [r[0], r[1], r[2], hit ? hit[0] : next.filter(function (u, j) { return owner[j] === i; }).join('\n'), hit ? 'あり' : 'なし', hit ? hit[1] : '', ext, now];
+      });
+      sh.getRange(sh.getLastRow() + 1, 1, rows.length, SURVEY_HEAD.length).setValues(rows.map(function (x) { return x.map(safe_); }));
+      props.setProperty('SURVEY_CURSOR', String(cur));
+    }
+    if (cur >= list.length) ScriptApp.getProjectTriggers().forEach(function (t) { if (t.getHandlerFunction() === 'surveyForms') ScriptApp.deleteTrigger(t); });
+  } finally { lock.releaseLock(); }
 }

@@ -3549,14 +3549,15 @@ function rfq(names){
       <label class="chk"><input type="checkbox" id="f-agree"><span>${TERMS_URL?`<a href="${TERMS_URL}" target="_blank" rel="noopener">利用規約</a>と<a href="${PRIVACY_URL}" target="_blank" rel="noopener">プライバシーポリシー</a>`:'利用規約とプライバシーポリシー'}に同意します<span class="req">必須</span></span></label>
       ${names.some(n=>abroad(D.companies[n]))?`<label class="chk"><input type="checkbox" id="f-abroad-ok"><span>海外の会社（${[...new Set(names.filter(n=>abroad(D.companies[n])).map(n=>CTRY[D.companies[n].country]||D.companies[n].country))].join('、')}）に依頼内容を渡すことに同意します<small>国外の会社に渡すときは、担当者が送る前にもう一度確認します。同意しない場合は、海外の会社には送りません。</small></span></label>`:''}
       <div class="ferr" id="rfErr" role="alert"></div>
-      <div class="blk"><h4>送り先 · ${names.length}社</h4>${names.length?'':'<p class="muted" style="margin:0;font-size:13px">会社は選ばれていません。担当者が候補から合いそうな会社を選んで打診します。</p>'}<ul class="list">${names.map(n=>`<li><span style="display:flex;gap:10px;align-items:center">${avatar(n)}<span style="flex:1;min-width:0"><b style="font-weight:600">${esc(n)}</b><span class="s" style="display:block">${esc(roles(n))}</span></span><span class="chip">${esc(dlvLang(D.companies[n]))}</span></span></li>`).join('')}</ul></div>
+      <div class="blk"><h4>送り先 · ${names.length}社</h4>${names.length?'':'<p class="muted" style="margin:0;font-size:13px">会社は選ばれていません。担当者が候補から合いそうな会社を選んで打診します。</p>'}<ul class="list">${names.map(n=>`<li data-co="${esc(n)}"><span style="display:flex;gap:10px;align-items:center">${avatar(n)}<span style="flex:1;min-width:0"><b style="font-weight:600">${esc(n)}</b><span class="s" style="display:block">${esc(roles(n))}</span></span><span class="chip">${esc(dlvLang(D.companies[n]))}</span></span></li>`).join('')}</ul></div>
       <div class="blk"><h4>届ける言語</h4><p class="muted" style="margin:0;font-size:13px">海外の会社には、依頼書を相手の言語に翻訳して届けます。返事はあなたの言語に翻訳して表示します。</p>
         ${window.claude?'<div><button type="button" class="btn sm" id="trPrev">翻訳を見る</button></div>':''}<div id="trOut" style="display:grid;gap:8px"></div></div>
-      <div class="empty"><b>送る前に、KATACHIの担当者が内容を確認します</b>伝わりにくい点や技術的に無理のある点がないかを人が見てから届けます。まだKATACHIに参加していない会社には、担当者から個別に打診します。</div>
+      <div id="mlBox"></div>
+      <div class="empty" id="rfStaff"><b>送る前に、KATACHIの担当者が内容を確認します</b>伝わりにくい点や技術的に無理のある点がないかを人が見てから届けます。まだKATACHIに参加していない会社には、担当者から個別に打診します。</div>
       <button class="btn pri" type="submit" style="height:48px">この内容で依頼する</button>
     </form>`);
   renderMedia();fsFormFill();{const F=fsNow(),ok=v=>v&&v.v&&CORE_OKL.includes(v.lv);if(F){if(ok(F.V.size)&&!$('#f-size').value)$('#f-size').value=F.V.size.v;if(ok(F.V.due)&&!$('#f-due').value)$('#f-due').value=F.V.due.v;if(ok(F.V.mat)&&$('#f-matl')&&!$('#f-matl').value)$('#f-matl').value=F.V.mat.v;const df=fsAns().dueflex,dv=df&&df.v?[].concat(df.v)[0]:(ok(F.V.dueflex)?F.V.dueflex.v:'');if(dv&&$('#f-fix')&&FLEX.includes(dv))$('#f-fix').value=dv}}renderReady();$('#f-fix')&&$('#f-fix').addEventListener('change',e=>{const fa=fsAns();if(e.target.value)fa.dueflex={v:[e.target.value]};else delete fa.dueflex;fsSave()});$('#rf').addEventListener('input',renderReady);$('#rf').addEventListener('change',e=>{const el=e.target.closest('[id^="fs-"]');if(el){fsFormSave(el);track('rfq_fs_answer',{item:el.id.slice(3)})}});
-  mineRfFill();rfqWizard();
+  mineRfFill();rfqWizard();mailOffer(names,()=>rfqVals(r,qty));
   $('#trPrev')&&($('#trPrev').onclick=async()=>{track('translate_preview',{});
     const langs=[...new Set(names.map(n=>dlvLang(D.companies[n])))];const out=$('#trOut');
     const want=langs.filter(l=>l!==({ja:'日本語',en:'英語',zh:'中国語'})[window.KATACHI_LANG()]);
@@ -3579,10 +3580,11 @@ function rfq(names){
     const abroadOk=!!$('#f-abroad-ok')?.checked;
     const team=G?names.map(n=>({step:roles(n),company:n,country:D.companies[n]?.country||'JP'})):Object.entries(S.assign).map(([rid,n])=>({step:R().per_requirement.find(p=>p.requirement.id===rid)?.requirement.purpose||rid,company:n,country:D.companies[n]?.country||'JP'}));
     const ups=await upListD(),upKey=ups.list.length?rkey():'';
-    const ok=await sendForm({type:'rfq',upload:upKey?{key:upKey,count:ups.list.length,bytes:ups.bytes}:undefined,lang:window.KATACHI_LANG?window.KATACHI_LANG():'ja',idea:S.idea||r.idea,matched:S.matched||'',scenario:S.scen,plan:R().teams[S.plan]?.profile||'',steps:G&&S.src==='text'?(S.anal?.codes||[]).map(c=>CAPN[c]||c):undefined,guided:G&&S.src==='guided'?{category:gCat()?.t,process:S.g.proc,material:S.g.mat,quantity:S.g.qty,drawing:S.g.draw,due:S.g.due,region:S.g.reg,caps:gCodes()}:undefined,fields:allVals(r,qty).concat(mediaVals()),team:team.filter(t=>abroadOk||!abroad(D.companies[t.company])),abroad_ok:abroadOk,files:S.files.map(f=>f.name),slot:slotOf(),page:location.href.split('#')[0]});
+    const ok=await sendForm({type:'rfq',upload:upKey?{key:upKey,count:ups.list.length,bytes:ups.bytes}:undefined,lang:window.KATACHI_LANG?window.KATACHI_LANG():'ja',idea:S.idea||r.idea,matched:S.matched||'',scenario:S.scen,plan:R().teams[S.plan]?.profile||'',steps:G&&S.src==='text'?(S.anal?.codes||[]).map(c=>CAPN[c]||c):undefined,guided:G&&S.src==='guided'?{category:gCat()?.t,process:S.g.proc,material:S.g.mat,quantity:S.g.qty,drawing:S.g.draw,due:S.g.due,region:S.g.reg,caps:gCodes()}:undefined,fields:allVals(r,qty).concat(mediaVals()),team:team.filter(t=>abroadOk||!abroad(D.companies[t.company])),abroad_ok:abroadOk,files:S.files.map(f=>f.name),slot:slotOf(),mail:mailPick(abroadOk),page:location.href.split('#')[0]});
     btn.disabled=false;if(ok)mineSent(names.map(n=>({n,role:roles(n)})),rfqVals(r,qty));
     track('generate_lead',{type:'rfq',sent:ok,requester:$('#f-who').selectedIndex?'individual':'company',companies:names.length,quantity:S.qty,files:S.files.length,material:$('#f-mat').selectedIndex,optional_filled:rfqVals(r,qty).length,optional_total:all.length,nda:$('#f-nda').selectedIndex,overseas_ok:$('#f-abr').selectedIndex===0});
-    const upr=ok&&upKey?await uploadWithUI(upKey,ups):null;done('見積の依頼を受け付けました',`<ol class="tl"><li class="now"><span><b>今日</b> 担当者が内容を確認</span></li><li><span><b>1〜3日</b> ${names.length}社へ打診</span></li><li><span><b>1〜2週間</b> 見積が届き、表に金額と納期が並ぶ</span></li><li><span><b>あなたが決める</b> 発注先を選んで試作へ</span></li></ol>${lastSent?upNote(upr,ups):''}`)};
+    const ml=mailPick(abroadOk)||[];if(ok&&ml.length)track('mail_request',{companies:ml.length,of:names.length});
+    const upr=ok&&upKey?await uploadWithUI(upKey,ups):null;done('見積の依頼を受け付けました',`<ol class="tl">${ml.length?`<li class="now"><span><b>今日</b> 届いた確認メールの「メールで送る」を押す → ${ml.length}社にすぐ届く</span></li>${names.length>ml.length?`<li><span><b>1〜3日</b> ほかの${names.length-ml.length}社へは担当者が打診</span></li>`:''}`:`<li class="now"><span><b>今日</b> 担当者が内容を確認</span></li><li><span><b>1〜3日</b> ${names.length}社へ打診</span></li>`}<li><span><b>1〜2週間</b> 見積が届き、表に金額と納期が並ぶ</span></li><li><span><b>あなたが決める</b> 発注先を選んで試作へ</span></li></ol>${lastSent?upNote(upr,ups):''}`)};
 }
 const TOPICS=['試作品の結果を見て直したい','材料や加工方法を決めたい','コストを下げたい','量産に向けて設計を見直したい','法規制・認証が必要か知りたい'];
 const EXPERTS=[['回路・電子設計','基板、電源、無線、部品選び'],['機構・筐体設計','形、強度、防水、装着のしかた'],['材料・加工方法','樹脂・金属・布の選び方、コストの下げ方'],['法規制・認証','技適、PSE、医療機器に当たるか']];
@@ -3621,6 +3623,43 @@ function consult(name){
     track('generate_lead',{type:'consult',sent:ok,topic:$('#c-t').selectedIndex,to_company:!!name,files:S.files.length});
     const upr=ok&&upKey?await uploadWithUI(upKey,ups):null;done('相談を受け付けました','<p class="muted" style="margin:0">担当者が内容を確認し、答えられる工場や専門家に届けます。返事はメールでお知らせします。</p>'+(lastSent?upNote(upr,ups):''))};
 }
+/* ---------- メールで工場へ直接届ける（Nori 2026-11-15「依頼をメールで出せるところは、依頼を出せる作りにしてほしい」） ----------
+   受付（forms.gs の type:'mailable'）に、送り先のうち公開メールで届けられる国内の会社を聞く（アドレスは返ってこない）。
+   届けられる会社があれば「メールですぐ届ける」を出す。送ると確認メールが届き、その「◯社にメールで送る」（?send=鍵）を押すと送られる。 */
+let ML=null;
+async function mailOffer(names,vals){ML=null;const box=$('#mlBox');if(!box||!FORM_URL)return;
+  const dom=names.filter(n=>!abroad(D.companies[n]));if(!dom.length)return;
+  let j=null;try{const ac=new AbortController(),tm=setTimeout(()=>ac.abort(),8000);const r=await fetch(FORM_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({type:'mailable',names:dom.slice(0,40)}),signal:ac.signal});clearTimeout(tm);j=await r.json()}catch(e){}
+  if(!j||!j.ok||!j.on||!(j.names||[]).length||!$('#mlBox'))return;
+  ML=j.names.slice(0,j.max||10);track('mail_offer',{companies:ML.length,of:names.length});
+  ML.forEach(n=>{const li=$(`#rf li[data-co="${CSS.escape(n)}"] .chip`);li&&li.insertAdjacentHTML('beforebegin','<span class="chip hi">メールで届く</span>')});
+  box.innerHTML=`<div class="blk"><h4>メールですぐ届ける · ${ML.length}社</h4>
+    <label class="chk"><input type="checkbox" id="f-mailsend" checked><span>公開メールがわかる会社には、KATACHIからすぐメールで届ける<small>${ML.map(esc).join('、')}</small><small>送るのは依頼の要点だけです。お名前・メール・電話は送りません（会社が受けると決まってからお伝えします）。依頼を送ったあとに届く確認メールの「メールで送る」を押すと送られます。</small></span></label>
+    <details id="mlPrev"><summary>会社に届くメールを見る</summary><div class="trbox" style="white-space:pre-wrap;font-size:12.5px" translate="no"></div></details></div>`;
+  const staff=$('#rfStaff');const upd=()=>{if(staff)staff.innerHTML=$('#f-mailsend').checked?'<b>メールのわかる会社には、確認メールのボタンを押すとすぐ届きます</b>ほかの会社には、KATACHIの担当者が内容を確かめてから打診します。会社の返事はKATACHIからメールでお知らせします。':'<b>送る前に、KATACHIの担当者が内容を確認します</b>伝わりにくい点や技術的に無理のある点がないかを人が見てから届けます。まだKATACHIに参加していない会社には、担当者から個別に打診します。'};
+  upd();$('#f-mailsend').addEventListener('change',e=>{upd();track('mail_toggle',{on:e.target.checked?1:0})});
+  $('#mlPrev').addEventListener('toggle',e=>{if(!e.target.open)return;track('mail_preview',{});
+    e.target.querySelector('.trbox').textContent=mailPreview(ML[0],vals())})}
+function mailPick(abroadOk){return ML&&ML.length&&$('#f-mailsend')?.checked?ML.filter(n=>abroadOk||!abroad(D.companies[n])):undefined}
+// 会社に届くメールの見本（本物は受付が作る。送る直前の内容は確認メールにも入る）
+const MAIL_OPEN=/おまかせ|わからない|未定/;
+function mailPreview(n,vals){const v=vals.filter(([,x])=>!MAIL_OPEN.test(x)),open=vals.filter(([,x])=>MAIL_OPEN.test(x)).map(([l])=>l);
+  return [n+' ご担当者さま','','ものづくりの依頼先を探せるサイト「KATACHI」です。KATACHI で貴社を依頼先に選んだ方から見積のご相談をお預かりしましたので、お届けします。','',
+    '■ 依頼の要点',...v.map(([l,x])=>l+': '+String(x).slice(0,300)),...(open.length?['','■ 決まっていない点（ご提案ください）',open.join('、')]:[]),'',
+    '■ お返事のお願い','下のページで「受ける・質問する・断る」をお選びください（1分ほど・登録は不要です）。','（返事のページのリンク）','',
+    '・依頼者のお名前とご連絡先は、受けていただけると決まってから KATACHI がお伝えします。','・まだ発注は決まっていません。','','――――――――――','（送信者の表示と、配信停止のリンク）'].join('\n')}
+// 確認メールの「◯社にメールで送る」から開いたとき
+async function mailSendFromUrl(){let k='';try{k=new URLSearchParams(location.search).get('send')||''}catch(e){}if(!/^[A-Za-z0-9]{24}$/.test(k))return false;
+  try{history.replaceState(null,'',location.pathname+location.hash)}catch(e){}
+  sheet(`${head('Send','会社にメールで送る')}<div class="ok"><b>送っています…</b><span class="mtstat"><i></i></span></div>`);
+  let j=null;try{const r=await fetch(FORM_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({type:'rfqsend',k})});j=await r.json()}catch(e){}
+  const li=a=>`<ul class="list">${a.map(n=>`<li><span style="display:flex;gap:10px;align-items:center">${avatar(n)}<b style="font-weight:600">${esc(n)}</b></span></li>`).join('')}</ul>`;
+  let body;
+  if(j&&j.ok){const sent=j.sent||[],sk=j.skipped||[];track('mail_send',{sent:sent.length,skipped:sk.length,again:j.already?1:0});
+    body=`<div class="ok"><b>${sent.length?(j.already?'もう送ってあります':'送りました')+'（'+sent.length+'社）':'メールでは送れませんでした'}</b><span class="muted" style="font-size:13.5px">${sent.length?'会社が「受ける・質問する・断る」を選ぶと、KATACHIからメールでお知らせします。ふつう数日〜1週間ほどで返事がそろいます。':'担当者が内容を確かめてから、会社に打診します。'}</span></div>${sent.length?li(sent):''}${sk.length?`<div class="blk"><h4>担当者から打診する会社 · ${sk.length}社</h4><p class="muted" style="margin:0;font-size:13px">メールで届けられなかった会社には、担当者が内容を確かめてから打診します。</p>${li(sk)}</div>`:''}`}
+  else{const e=j&&j.error;track('mail_send',{error:String(e||'net').slice(0,20)});
+    body=`<div class="ok"><b>${e==='expired'?'ボタンの期限（7日）が過ぎています':e==='key'?'このボタンは使えません':'いまは送れませんでした'}</b><span class="muted" style="font-size:13.5px">${e==='expired'||e==='key'||e==='off'?'担当者が内容を確かめてから、会社に打診します。そのままお待ちください。':'通信を確かめて、確認メールのボタンをもう一度押してください。'}</span></div>`}
+  const sh=$('#ov .sheet');if(sh){sh.innerHTML=`${head('Send','会社にメールで送る')}${body}<button class="btn" data-x>KATACHIを見る</button>`;$$('#ov [data-x]').forEach(b=>b.onclick=closeSheet)}return true}
 function done(t,body){
   $('#ov .sheet').innerHTML=`${head('Done',t)}${lastSent?'<div class="ok"><b>送信しました。</b><span class="muted" style="font-size:13.5px">確認のメールをお送りします。数分たっても届かないときは、迷惑メールのフォルダもご確認ください。このあとは次のように進みます。</span></div>':'<div class="ok"><b>このページからは送信されていません。</b><span class="muted" style="font-size:13.5px">katachi.shiokonbu.com から送ると、このあと次のように進みます。</span></div>'}${body}<button class="btn" data-x>結果に戻る</button>`;
   $$('#ov [data-x]').forEach(b=>b.onclick=closeSheet);
@@ -3692,7 +3731,7 @@ $$('[data-lang]').forEach(b=>b.onclick=()=>{track('lang_change',{to:b.dataset.la
 (async()=>{try{sampleFn=window.claude?await window.claude.use('sample'):null}catch(e){sampleFn=null}scheduleMT()})();
 window.KATACHI_LANG=()=>LANG;
 
-if(/[?&]kz=/.test(location.search))kzFromUrl();else if(!ideaFromUrl()){if(/^#(match|co)$/.test(location.hash)&&!S.idea)loadFlow();route()}
+if(/[?&]send=/.test(location.search)){route();mailSendFromUrl()}else if(/[?&]kz=/.test(location.search))kzFromUrl();else if(!ideaFromUrl()){if(/^#(match|co)$/.test(location.hash)&&!S.idea)loadFlow();route()}
 setLang(LANG,false);laiCheck();
 })();
 </script>
