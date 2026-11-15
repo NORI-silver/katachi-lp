@@ -1,13 +1,13 @@
 {
  "date": "2026-11-15",
  "note": "node tools/tests/match_eval.js --check の基準。精度が上がったら BASELINE=1 を付けて流し、書き直す",
- "ok": 125,
- "mid": 13,
+ "ok": 129,
+ "mid": 15,
  "ng": 0,
  "codeMiss": 0,
- "top5": 0.724,
+ "top5": 0.722,
  "recall": 0.913,
- "recall20": 0.599,
+ "recall20": 0.598,
  "verdicts": {
   "pool_slope": "○",
   "sofa_slope": "○",
@@ -121,7 +121,7 @@
   "f_kid_plush": "○",
   "f_canister": "○",
   "f_local_sweets": "○",
-  "f_garbage_door": "○",
+  "f_garbage_door": "△",
   "f_smart_lock": "○",
   "f_wedding_glass": "○",
   "f_putter_cover": "○",
@@ -146,6 +146,12 @@
   "fh_soap_kana": "○",
   "fh_shelf_bracket": "○",
   "fh_dog_raincoat": "○",
-  "fh_amazon_bottle": "○"
+  "fh_amazon_bottle": "○",
+  "deny_pool_slope_guide": "△",
+  "deny_shelf_guide": "○",
+  "deny_tote_guide": "○",
+  "deny_inline_battery": "○",
+  "prev_collar_then_slope": "○",
+  "guide_elec_yes": "○"
  }
 }

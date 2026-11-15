@@ -2064,7 +2064,7 @@ function specConcept(P,R,name){const base=CGEN.shapes.find(x=>x.id==='product');
   return {id:'spec',name:name||base.name,lead:P.purpose||base.lead,rows,fig:{k:'parts',p:p.join(' '),w:String(W),l:String(L),h:String(H),pet:!!R.pet&&deck},
     feats:P.parts.length?P.parts.slice(0,8):base.feats.slice(),check:P.open.length?P.open.slice(0,8):base.check.slice(),vars:base.vars,proto:base.proto,mass:base.mass}}
 const flowText=()=>S.idea+(S.files&&S.files.length?'\n\n【ファイル】 '+S.files.map(f=>f.name).join(' '):'');
-function pickConcept(text,A){if(!A||(A.notices.length&&!A.codes.length))return null;const t=String(text||'').toLowerCase();const R=readConds(t);
+function pickConcept(text,A){if(!A||(A.notices.length&&!A.codes.length))return null;text=denyStrip(text);const t=String(text||'').toLowerCase();const R=readConds(t);
   const[bo,memo]=splitAi(text),bt=bo.toLowerCase(),mt=memo.toLowerCase();
   const P=specRead(bo);
   const X=S.sx&&S.sx.t===splitAi(S.idea||'')[0].trim()?S.sx.d:null;if(X){if(!P.name&&sxv(X.product_name))P.name=sxv(X.product_name).slice(0,60);if(!P.purpose)P.purpose=sxv(X.purpose);
@@ -2975,7 +2975,15 @@ function gRfq(){
 /* 長い仕様文は、工程を読む文を絞る（Nori 2026-11-14 マッチング精度）。
    「将来の機能」「初期は不要」「オプション」の行は今回作るものではないので読まない。
    【見出し】が4つ以上ある長い仕様文は、製品名・構成・外観・寸法・材質・構造・電源・動力・機能の節だけで工程を読む（目的・使う場面の言葉で関係ない工程が出ないように） */
-function specCore(text){let t=String(text||'');
+/* 「使わない・なし・不要」と書いた物は読まない（Nori 2026-11-15「プールのスロープでジャイロとか位置情報っておかしくない？」）。
+   ガイドの「電子部品：使わない」や「電池は不要」「センサーなし」の語で、電子機器の工程・会社が出ていた。どの品目でも同じなので、読む前に否定した語を消す。
+   利用者が書いた文（S.idea）はそのまま残し、工程・会社を読むときだけ使う。テスト tools/tests/match_cases.json の deny_ 系 */
+const DENY_V='使わない|使いません|使用しない|使用しません|不使用|未使用|不要|いらない|要らない|いりません|入れない|入れません|付けない|付けません|つけない|つけません|無し|なし|ありません|ない';
+const DENY_LINE=new RegExp('^\\s*[^\\n:：]{1,20}[:：]\\s*(?:'+DENY_V+'|no|none|not needed|n\\/a|不需要|不用|没有|无)\\s*(?:[（(][^）)]*[）)])?\\s*[。.]?\\s*$','i');
+const DENY_IN=new RegExp('[^\\s、。，,．.！!？?・：:（）()「」\\n]{1,14}?(?:は|も|を)?(?:'+DENY_V.replace('|ない','')+')(?![ぁ-ん]*(?:と|では)(?:だめ|ダメ|困る|いけない))','g');
+function denyStrip(text){return String(text||'').split('\n').filter(l=>!DENY_LINE.test(l)).join('\n').replace(DENY_IN,' ')
+  .replace(/\b(?:no|without)\s+(?:electronics?|electronic parts|batter(?:y|ies)|sensors?|leds?|motors?|power)\b/gi,' ').replace(/(?:不需要|不用|不要|没有|无)(?:电子(?:元件|部件)?|电池|传感器|电机)/g,' ')}
+function specCore(text){let t=denyStrip(text);
   t=t.replace(/【[^】]*(将来|オプション|今後|いずれ)[^】]*】[^【]*/g,' ').split(/\n/).filter(l=>!/初期は不要|今回は不要|なくても(よい|いい)|なくてよい|将来(的に)?は|オプションで|あれば(よい|いい|うれしい)/.test(l)).join('\n');
   const H=t.match(/【[^】]{1,30}】/g)||[];if(H.length<4||t.length<1200)return t;
   const keep=/製品名|構成|外観|寸法|材質|素材|構造|電源|動力|機能|部品|仕様/;
@@ -3040,11 +3048,15 @@ function analyzeText(text){text=specCore(text);
   if(hit.includes('electronics.low_power')&&!hit.includes('testing.battery_safety'))hit.push('testing.battery_safety');
   // 何も読み取れないときも行き止まりにしない: どの製品でも最初に要る設計・試作・組立の会社を出す
   /* 工程の言葉がなくても、形の言葉（スロープ・箱・ベッド…、concepts_generic.py の caps）と材料の言葉から工程を読む（Nori 2026-11-14 最初の依頼：プール用スロープが「3Dプリント・EMS」になった） */
-  let byShape='';if(!hit.length&&!notices.length){const sh=CGEN.shapes.find(x=>x.caps&&x.caps.length&&rx(x.kw,t));
+  /* 「試作」「1個だけ」など、数や段階を言うだけの言葉で読めた試作（3Dプリント・簡易型）しかないときも、形の言葉・品名から作る工程を読む
+     （Nori 2026-11-15：ガイドの「数量：まず試作で1個」を足すと、プールのスロープが3Dプリントの会社だけになった。どの品でも同じ） */
+  const STAGE=/^(試作|試作品|プロトタイプ|1個だけ|一点もの)$/;
+  const weak=!notices.length&&hit.length===1&&hit[0]==='manufacturing.rapid_proto'&&keep.filter(h=>h[2]==='manufacturing.rapid_proto').every(h=>STAGE.test(h[3]));
+  let byShape='';if((!hit.length||weak)&&!notices.length){const sh=CGEN.shapes.find(x=>x.caps&&x.caps.length&&rx(x.kw,t));
     if(sh){hit=sh.caps.slice();byShape=sh.id;
       for(const[re,c]of[[/木製|木で|木の|天然木|無垢|合板|ウッド|wood/,'crafts.wood_furniture'],[/金属|アルミ|ステンレス|鉄|スチール|鋼|metal|alumin|steel/,'manufacturing.sheet_metal'],[/布|生地|帆布|ナイロン|ポリエステル|革|レザー|fabric|leather/,'manufacturing.textile'],[/樹脂|プラスチック|plastic/,'manufacturing.injection_molding'],[/シリコン|シリコーン|ゴム製|silicone|rubber/,'manufacturing.silicone_molding']])if(re.test(t)&&!hit.includes(c))hit.push(c)}}
   /* それでも読めないときは、製品仕様DB（日本標準商品分類など）で品名を当て、その品の工程を使う */
-  let byPdb='';if(!hit.length&&!notices.length&&PDB){const m=pdbMatch(t.replace(REL_CTX,' '));if(m&&m.proc&&m.proc.length){hit=m.proc.filter(c=>C.includes(c));byPdb=m.name}}
+  let byPdb='';if((!hit.length||weak&&!byShape)&&!notices.length&&PDB){const m=pdbMatch(t.replace(REL_CTX,' '));if(m&&m.proc&&m.proc.length){const pc=m.proc.filter(c=>C.includes(c));if(pc.length){hit=pc;byPdb=m.name}}}
   let fallback=false;if(!hit.length&&!notices.length){hit=['mechanical.enclosure_design','manufacturing.rapid_proto','manufacturing.assembly'];fallback=true}
   // 試作・設計・製造・試験の順に並べる
   const order=['sensing','electronics','mechanical','software','manufacturing','apparel','crafts','packaging','food','cosmetics','testing'];
@@ -3071,7 +3083,10 @@ const PREF_RX=new RegExp('('+REGION.flatMap(g=>g[1].split(' ')).map(p=>p.replace
 const RSTOP=/^(オリジナル|自社|ブランド|作成|製作|制作|製造|加工|対応|相談|依頼|小ロット|ロット|試作|量産|販売|商品|製品|お願い|個人|会社|全体|部分|必要|使用|予定|希望|場合|程度|以上|以下|前後|最大|最小|目安|想定|可能|不要|未定|将来|機能|仕様|製品名|用途|数量|予算|納期|時期|サイズ|重量|重さ|材質|素材|写真|図面|参考|資料|自分|ロゴ|入れ|作り|使い|置き|付け)$/;
 /* 入れる物・載せる物・行き先（「コーヒー豆を入れる」「ベッドに上がれる」「スマホ置き」）は、作る物ではないので近さの言葉にしない（Nori 2026-11-15 自由文） */
 const REL_CTX=/[一-龠々ァ-ヶー]+(?=を(入れる|入れて|入れられ|しまう|しまえ|収納|載せ|乗せ|置[くけ]|飾[るれ]|運[ぶべ]|持ち運)|に(上が|あが|登|のぼ|届)|を[^。、\n]{1,12}?ための|の?(ホルダー|置き|立て)(?![ァ-ヶ]))/g;
-function relTerms(text,name,kw){const T=String(text||'').normalize('NFKC').replace(REL_CTX,' ').replace(/【[^】]{0,20}】/g,' ').replace(PREF_RX,' ').replace(/[\d０-９]+(個|台|枚|本|着|袋|セット|点|kg|cm|mm|m|頭|人|年|月|日|円)/g,' ');
+/* 会社との近さの言葉には、ガイドで足した数量・大きさ・用途・時期の行と、項目名（「材料：」など）は使わない。否定した語も使わない（Nori 2026-11-15） */
+const GD_META=new RegExp('^\\s*('+GUIDE.filter(g=>['qty','size','use','due'].includes(g[0])).map(g=>g[1]).join('|')+')[:：].*$','gm');
+const GD_LAB=new RegExp('^\\s*('+GUIDE.map(g=>g[1]).join('|')+')[:：]','gm');
+function relTerms(text,name,kw){const T=denyStrip(text).replace(GD_META,' ').replace(GD_LAB,' ').normalize('NFKC').replace(REL_CTX,' ').replace(/【[^】]{0,20}】/g,' ').replace(PREF_RX,' ').replace(/[\d０-９]+(個|台|枚|本|着|袋|セット|点|kg|cm|mm|m|頭|人|年|月|日|円)/g,' ');
   const runs=[];const add=(s,w)=>{if(s&&!runs.some(x=>x[0]===s))runs.push([s,w])};
   const word=/[一-龠々ァ-ヶーA-Za-z]+(?:[ぁ-ゖ][一-龠々ァ-ヶー]+)*/g;
   for(const s of String(name||'').normalize('NFKC').match(word)||[])add(s,1.5);
@@ -3105,7 +3120,7 @@ const FAMS=['sensing','electronics','software','food','cosmetics','apparel'];
 /* 材料の種類：依頼と会社（公式サイトの材料）を同じ物差しで読む（中身は tools/profiles.py の MAT_FAM） */
 const MAT_FAM=__MATFAM__;const MAT_RX=Object.fromEntries(Object.entries(MAT_FAM).map(([k,v])=>[k,new RegExp(v,'i')]));
 const matsOf=t=>Object.keys(MAT_RX).filter(k=>MAT_RX[k].test(t));
-function mctxBuild(A,qmax){const t=String(S.idea||'');let p=null;try{p=PDB?pdbMatch(String((specRead(t).name)||t.slice(0,200)).replace(REL_CTX,' ')):null}catch(e){}
+function mctxBuild(A,qmax){const t=denyStrip(String(S.idea||''));let p=null;try{p=PDB?pdbMatch(String((specRead(t).name)||t.slice(0,200)).replace(REL_CTX,' ')):null}catch(e){}
   const m=t.normalize('NFKC').match(PREF_RX);const pref=m?(m[0]==='北海道'?'北海道':PREFS.find(x=>x.startsWith(m[1]))||''):'';
   const fam=new Set((A.codes||[]).map(c=>c.split('.')[0]));
   const one=qmax<=3||/1台|一台|1つだけ|ひとつだけ|1個だけ|体に合わせ|採寸|オーダーメイド|ワンオフ/.test(t);
@@ -3122,6 +3137,8 @@ function fitOf(r,M){if(!M)return 0;const[n,ct,pref,city,web,caps,proto,nodraw,ml
     if(pf.t&&M.R&&M.R.length&&M.tl){const h=pf.t.normalize('NFKC').toLowerCase(),has=x=>x.subs.some(([u])=>relHas(h,u));
       if(M.R.some(x=>x.subs.some(([u,w])=>u.length>=2&&w>=4&&M.tl.includes(u)&&relHas(h,u))))s+=1;
       else if(rel>0&&!M.R.slice(0,2).some(has))s-=1.5}}
+  /* 電子の無い依頼で、電子機器・基板を主に書いている会社は下げる（工程コードに電子が無くても。Nori 2026-11-15 プールのスロープに電子機器の組立会社が出た） */
+  if(M.fam&&!M.hw&&/電子機器|電子部品|電子基板|基板|EMS|エレクトロニクス|PCB|IoT/i.test(sum||''))s-=2.5;
   if(ACC_RX.test(txt))s+=1.5;if(lv==='unk')s+=1;
   const nm=(txt.match(new RegExp(NOTMK_RX.source,'g'))||[]).length;if(nm&&(!MK_RX.test(txt)||nm>=3))s-=5;
   if(x.em&&M.qmax<=1000){if(x.em>1000)s-=4;else if(x.em>300)s-=3}
@@ -3488,10 +3505,10 @@ function oneOf(secs,qmax){
       const k=S.gf.sort;one.push([cov*4+(k&&k!=='rec'?axOf(r,qmax)[k].s:(r[5].some(i=>INTEG.includes(i))?4:0)+(r[1]==='JP'?2:0)+(r[10]==='pub'?.3:0)+fitOf(r,S.mctx)),cov,r])}
     one.sort((a,b)=>b[0]-a[0]);one=one.slice(0,S.gmore.__one||5)}
   return one}
-function makersFor(A){const t=S.idea+' '+(S.files||[]).map(f=>f.name).join(' ');const codes=A.codes||[];
+function makersFor(A){const t=denyStrip(S.idea)+' '+(S.files||[]).map(f=>f.name).join(' ');const codes=A.codes||[];
   /* 工程コードで当てる種類（電子機器のODM）は、製品そのものが電子機器のときだけ。
      長い仕様文の「将来センサーを付けたい」などで電子の工程が読めただけのスロープ・リフト・基板実装だけの依頼には当てない */
-  const head=String(S.idea||'').split(/\n/).slice(0,3).join(' ')+' '+((S.mctx||{}).pname||'');
+  const head=denyStrip(String(S.idea||'')).split(/\n/).slice(0,3).join(' ')+' '+((S.mctx||{}).pname||'');
   const elec=ELEC_RX.test(head)&&!/実装|ガーバー|部品表|BOM/i.test(head);
   for(const k of MAKERS){const hit=k.kind==='codes'?elec&&codes.length>=3&&codes.some(c=>new RegExp(k.codes).test(c)):new RegExp(k.idea).test(k.head?head:t)&&!(k.not_codes&&codes.some(c=>new RegExp(k.not_codes).test(c)));
     if(!hit)continue;const re=new RegExp(k.db),need=k.db_need?new RegExp(k.db_need):null,ci=(k.caps_all||[]).map(c=>GDB.caps.indexOf(c)),ca=(k.caps_any||[]).map(c=>GDB.caps.indexOf(c)).filter(i=>i>=0),mkx=k.make?new RegExp(k.make):null;
@@ -3594,7 +3611,7 @@ function dsNeed(A){if(S.src==='draw')return false;if((S.files||[]).some(f=>f.k==
   if(/図面・データがあり|量産だけ/.test(sc))return false;
   if(/図面|3Dデータ|現物を送れる|型紙/.test(dv)&&!/設計から/.test(sc))return false;
   return true}
-function dsFeat(A,qmax){const t=String(ideaBase()).toLowerCase(),head=String(S.idea||'').split(/\n/).slice(0,3).join(' ')+' '+((S.mctx||{}).pname||''),codes=A.codes||[];
+function dsFeat(A,qmax){const t=denyStrip(ideaBase()).toLowerCase(),head=denyStrip(String(S.idea||'')).split(/\n/).slice(0,3).join(' ')+' '+((S.mctx||{}).pname||''),codes=A.codes||[];
   let cats=[];try{cats=fsCats(A,A.concept).map(k=>k.id)}catch(e){}
   const R=readConds(t),dim=Math.max(R.h||0,R.w||0,R.l||0,R.d||0,R.max||0);
   /* 文章から読んだ工程（codes）を主に使う。fsCats は質問を選ぶための当て方で広め（クリップ→電子・金属など）なので、食品・化粧品・服の判定にだけ1番目を使う */

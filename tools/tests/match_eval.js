@@ -22,6 +22,11 @@ async function one(b,cs){const c=await b.newContext({viewport:{width:1280,height
     body=body.replace('window.KATACHI_RL=()=>S.lastRL;','window.KATACHI_RL=()=>S.lastRL;window.__KM=()=>({S,GDB,makersFor,CAPN});');r.fulfill({response:resp,body})});
   const p=await c.newPage();const errs=[];p.on('pageerror',e=>errs.push(e.message));await p.goto(base);
   const text=cs.file?fs.readFileSync(path.join(__dirname,'specs',cs.file),'utf8'):cs.text;
+  /* prev: 先に別の依頼を出して②まで進め、トップに戻ってから本当の依頼を出す（前の依頼の残りが混ざらないかを見る。Nori 2026-11-15） */
+  if(cs.prev){await p.fill('#idea',cs.prev);await p.evaluate(()=>document.querySelector('#idea').form.requestSubmit());
+    await p.waitForSelector('#mFspec,#mNext,[data-gonext],#mPlans,.mstep,.stepnow',{timeout:30000}).catch(()=>{});await p.waitForTimeout(300);
+    await p.evaluate(()=>{location.hash='co'});await p.waitForSelector('#mPlans,.mstep',{timeout:30000,state:'attached'}).catch(()=>{});await p.waitForTimeout(400);
+    await p.evaluate(()=>{location.hash='home'});await p.waitForSelector('#idea',{timeout:30000});await p.waitForTimeout(300)}
   await p.fill('#idea',text);await p.evaluate(()=>document.querySelector('#idea').form.requestSubmit());
   await p.waitForSelector('#mFspec,#mNext,[data-gonext],#mPlans,.mstep,.stepnow',{timeout:30000}).catch(()=>{});await p.waitForTimeout(300);
   await p.evaluate(()=>{location.hash='co'});await p.waitForSelector('#mPlans,.mstep',{timeout:30000,state:'attached'}).catch(()=>{});await p.waitForTimeout(600);
