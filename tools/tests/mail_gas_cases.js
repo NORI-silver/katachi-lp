@@ -73,6 +73,15 @@ const r1=ctx.rfqSend_({k});
 ok('押すと送る',r1.ok&&JSON.stringify(r1.sent)==='["株式会社テスト縫製"]'&&sent.filter(m=>m.to==='info@t.jp').length===1,r1);
 ok('記録: 送信済み・打診リンク・打診タブ',tabs['メール送信'].rows[1][3]==='送信済み'&&/reply\/\?k=/.test(tabs['メール送信'].rows[1][7])&&tabs['工場への打診'].rows.length===2);
 ok('運営者に控え（本文つき）',sent.some(m=>m.to==='admin@x'&&/控え/.test(m.body)&&/1社目に送った本文/.test(m.body)));
+ok('差出人が無いときも名前は「KATACHI 見積窓口」',sent.find(m=>m.to==='info@t.jp').name==='KATACHI 見積窓口');
+{ // 差出人のアドレス（MAIL_FROM）: Gmail の別名にあれば GmailApp で from、無ければ返信先だけ
+  const gs=[];ctx.GmailApp={getAliases:()=>['factory@x.jp'],sendEmail:(to,su,bo,o)=>gs.push({to,o})};
+  props.MAIL_FROM='factory@x.jp';ctx.factorySend_('a@b.jp','s','b');
+  ok('別名にあれば差出人・返信先ともそのアドレス',gs.length===1&&gs[0].o.from==='factory@x.jp'&&gs[0].o.replyTo==='factory@x.jp'&&gs[0].o.name==='KATACHI 見積窓口');
+  ctx.GmailApp.getAliases=()=>[];const n0=sent.length;ctx.factorySend_('a@b.jp','s','b');
+  ok('別名に無ければ MailApp で返信先だけ',gs.length===1&&sent.length===n0+1&&sent[n0].replyTo==='factory@x.jp');
+  sent.pop();delete props.MAIL_FROM;delete ctx.GmailApp;
+}
 const r2=ctx.rfqSend_({k});
 ok('2回押しても送り直さない',r2.ok&&r2.already&&sent.filter(m=>m.to==='info@t.jp').length===1,r2);
 ok('知らない鍵',ctx.rfqSend_({k:'x'.repeat(24)}).error==='key'&&ctx.rfqSend_({k:'../'}).error==='key');

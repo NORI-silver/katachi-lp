@@ -1406,6 +1406,20 @@ function factoryMail_(id, company, link, stop, page, snd) {
   return {subject: '【KATACHI】見積のご相談' + (sum ? '：' + sum : '') + '（受付番号 ' + id + '）', body: body};
 }
 
+// 工場へのメールの差出人（Nori 2026-11-15「katachi.factoryのメールつくったよ、これ使って」）。
+// スクリプトのプロパティ MAIL_FROM に工場とのやり取り用のアドレスを入れる（リポジトリには書かない）。
+// そのアドレスを受付を動かすアカウントの Gmail に「別のアドレスから送信」で足してあれば、差出人も返信先もそのアドレスになる。
+// まだ足していないときは返信先だけそのアドレスにする。
+var MAIL_FROM_NAME = 'KATACHI 見積窓口';
+function factorySend_(to, subject, body) {
+  var from = String(prop_('MAIL_FROM') || '').trim(), alias = false;
+  if (from) { try { alias = GmailApp.getAliases().indexOf(from) >= 0; } catch (err) { console.error(err); } }
+  if (alias) return GmailApp.sendEmail(to, subject, body, {from: from, name: MAIL_FROM_NAME, replyTo: from});
+  var o = {to: to, subject: subject, body: body, name: MAIL_FROM_NAME};
+  if (from) o.replyTo = from;
+  return MailApp.sendEmail(o);
+}
+
 // 依頼者が確認メールのボタンを押したとき: 「依頼者の確認待ち」の会社にメールを送る
 function rfqSend_(p) {
   if (!limit_('rs', 500)) return {ok: false, error: 'busy'};
@@ -1439,7 +1453,7 @@ function rfqSend_(p) {
       var link = offerEnsure_(id, name, ''), kk = link.split('k=')[1];
       var mail = factoryMail_(id, name, link, CONFIG.SITE_URL + 'reply/?k=' + kk + '&stop=1', m.page, senderOf_(x.r[8]));
       try {
-        MailApp.sendEmail({to: m.email, subject: mail.subject, body: mail.body, name: CONFIG.SERVICE_NAME});
+        factorySend_(m.email, mail.subject, mail.body);
         sh.getRange(x.i, 4, 1, 5).setValues([['送信済み', k, x.r[5], now, link]]);
         offerNote_(kk, 'メールで送信 ' + Utilities.formatDate(now, 'Asia/Tokyo', 'MM-dd HH:mm') + '（' + m.email + '）');
         sent.push(name); copy.push('・' + name + ' <' + m.email + '>\n  ' + link);
