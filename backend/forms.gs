@@ -5,7 +5,7 @@
  *   1. サイトのフォーム → doPost で、スプレッドシート「KATACHI 受付」の「受付」タブに1行追加
  *   2. 運営者に「新しい受付」のメール
  *   3. 依頼した人に「受け付けました」のメール（受付番号つき）
- *   会社への打診は、担当者が内容を確認してから手で行う（自動では送らない）。
+ *   会社への打診は、担当者が内容を確認してから手で行う。公開メールのわかる国内の会社には、依頼者が確認メールのボタンを押すとメールで届く（下の「見積の依頼を工場へメールで届ける」）。
  *
  * 置き方（はじめの1回だけ）
  *   script.google.com → 新しいプロジェクト（名前は「KATACHI 受付」）→ このファイルの中身を貼って保存
@@ -1367,9 +1367,16 @@ function factoryMail_(id, company, link, stop, page) {
   add('製品の概要', q.summary, 600); add('段階と数量', q.qty); add('希望の時期', q.due);
   if (q.steps && q.steps.length) add('工程', q.steps.join('、'));
   add('材料', q.mat); if (q.flex) add('時期の幅', q.flex); if (q.from || q.to) add('受け取れる期間', (q.from || '') + ' 〜 ' + (q.to || ''));
-  var rest = 0;
-  (q.items || []).forEach(function (x) { if (rest < 2500 && !/^(製品の概要|段階と数量|希望の時期)$/.test(x[0])) { var line = x[0] + ': ' + clip_(x[1], 400); rest += line.length; L.push(line); } });
+  // 「おまかせ」「わからない」の項目は、要点から外して「ご提案ください」にまとめる
+  var rest = 0, open = [];
+  (q.items || []).forEach(function (x) {
+    if (/^(製品の概要|段階と数量|希望の時期)$/.test(x[0])) return;
+    if (/おまかせ|わからない|未定/.test(x[1]) && x[1].length < 40) { open.push(x[0].replace(/（.*?）$/, '')); return; }
+    var line = x[0] + ': ' + clip_(x[1], /仕様書/.test(x[0]) ? 1500 : 400);
+    if (rest < 4000) { rest += line.length; L.push(line); }
+  });
   if (q.files) L.push('添付: 写真・図面などがあります（受けていただける場合にお送りします）');
+  if (open.length) L.push('', '■ 決まっていない点（ご提案ください）', open.join('、'));
   var sum = clip_(String(q.summary || '').split('\n')[0], 30);
   var body = [company + ' ご担当者さま', '',
     'はじめてご連絡いたします。ものづくりの依頼先を探せるサイト「KATACHI」（' + CONFIG.SITE_URL + '）です。',
@@ -1510,8 +1517,8 @@ function surveyForms() {
     var t0 = Date.now(), props = PropertiesService.getScriptProperties();
     var data = JSON.parse(UrlFetchApp.fetch(CONFIG.SITE_URL + 'data/companies.json').getContentText());
     var list = surveyList_(data), sh = slotTab_('見積フォーム調査', SURVEY_HEAD);
-    var cur = Number(props.getProperty('SURVEY_CURSOR') || 0), B = 15;
-    while (cur < list.length && Date.now() - t0 < 240000) {
+    var cur = Number(props.getProperty('SURVEY_CURSOR') || 0), B = 40;
+    while (cur < list.length && Date.now() - t0 < 200000) {
       var batch = list.slice(cur, cur + B); cur += B;
       var tops = mailFetch_(batch.map(function (r) { return r[2]; }));
       var next = [], owner = [];

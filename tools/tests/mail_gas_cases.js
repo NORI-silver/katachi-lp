@@ -36,7 +36,7 @@ ok('別ドメインだけ→見つからない（メモに残す）',d3.state===
 // ---- 工場に届く本文・依頼者への確認メール ----
 const sheet=rows=>({rows,getLastRow:()=>rows.length,getLastColumn:()=>rows[0].length,getParent:()=>({getSheetByName:()=>null,getUrl:()=>'https://sheet'}),
   getRange:(r,c,n,m)=>({getValues:()=>rows.slice(r-1,r-1+(n||1)).map(x=>x.slice(c-1,c-1+(m||1))),setValue:v=>{rows[r-1][c-1]=v},setValues:vs=>{vs.forEach((v,i)=>{rows[r-1+i]=rows[r-1+i]||[];v.forEach((y,j)=>rows[r-1+i][c-1+j]=y)})}})});
-const other=['用途・使う人: 店頭での販売','納品先: 大阪府大阪市北区1-2-3','写真・動画・図面: logo.png'].join('\n');
+const other=['用途・使う人: 店頭での販売','材質（記号）: おまかせ（工場の提案で）','納品先: 大阪府大阪市北区1-2-3','写真・動画・図面: logo.png'].join('\n');
 const main=sheet([ctx.HEAD,['K1',new Date(),'見積の依頼','ja','a@example.com','山田商店 / 山田','個人','090-1111-2222','トートを作りたい','トートバッグ 綿 100個','100個','2027年3月まで','縫製: A社','',other,'logo.png','未対応','1件']]);
 ctx.sheet_=()=>main;
 const props={SENDER_NAME:'送信者テスト',SENDER_ADDRESS:'東京都テスト区1-1'};
@@ -45,6 +45,7 @@ const fm=ctx.factoryMail_('K1','株式会社テスト縫製','https://katachi.sh
 ok('本文に要点と打診リンク',/トートバッグ 綿 100個/.test(fm.body)&&/reply\/\?k=AAA\n/.test(fm.body)&&/用途・使う人: 店頭での販売/.test(fm.body),fm.body);
 ok('依頼者の名前・メール・電話・納品先・ファイル名は入らない',!/example\.com|090|山田|大阪府|logo\.png/.test(fm.body+fm.subject),fm.body);
 ok('送信者の名前・住所・配信停止・掲載ページ（特定電子メール法の表示）',/送信者: 送信者テスト/.test(fm.body)&&/住所: 東京都テスト区1-1/.test(fm.body)&&/stop=1/.test(fm.body)&&/t\.jp\/contact/.test(fm.body));
+ok('おまかせの項目は「ご提案ください」に',/決まっていない点（ご提案ください）\n材質/.test(fm.body)&&!/材質（記号）: おまかせ/.test(fm.body),fm.body);
 ok('件名に受付番号',/K1/.test(fm.subject)&&/^【KATACHI】見積のご相談/.test(fm.subject),fm.subject);
 const ms={names:['株式会社テスト縫製','B工業'],url:'https://katachi.shiokonbu.com/?send=XYZ',preview:fm.body};
 const rm=ctx.buildReplyMail_('K1',{type:'rfq',lang:'ja',team:[]},{'f-sum':'トート'},ms);
