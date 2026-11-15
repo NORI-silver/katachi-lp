@@ -19,3 +19,14 @@ writeFileSync(join(here, 'src/gen/pdb.js'),
   'let PDB=null;\nexport function setPDB(d){PDB=d}\n' + code + '\nexport {pdbMatch, jsccRow};\n');
 
 console.log('api/src/gen/pdb.js を作りました（' + code.length + '字）');
+
+// 会社の並べ方（依頼との近さ・受注の業態・分野・規模・所在地）も、サイトと同じ関数を取り出す（Nori 2026-11-15「マッチング精度が命」。サイトとAPIで同じ会社が上に来るように）
+const r0 = html.match(/^const REGION=.*$/m), r1 = html.match(/^const regionOf=.*$/m);
+const c = html.indexOf('const PREF_RX='), d = html.indexOf('function rankFor(');
+if (!r0 || !r1 || c < 0 || d < 0 || d < c) throw new Error('tools/template.html から会社の並べ方（PREF_RX〜fitOf）が見つかりません');
+const fit = html.slice(c, d).trim();
+for (const fn of ['function relBuild', 'function relOf', 'function fitOf']) if (!fit.includes(fn)) throw new Error(fn + ' がありません');
+writeFileSync(join(here, 'src/gen/fit.js'),
+  '// 自動生成（api/build.mjs）。直すときは tools/template.html の relTerms〜fitOf を直す\n' +
+  'let GDB=null;const S={gf:{}};export function setGDB(d){GDB=d}\n' + r0[0] + '\n' + fit + '\n' + r1[0] + '\nexport {relBuild, relOf, fitOf, PREF_RX, regionOf, REGION};\n');
+console.log('api/src/gen/fit.js を作りました（' + fit.length + '字）');
