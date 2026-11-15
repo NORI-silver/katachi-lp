@@ -337,6 +337,14 @@ function sheet_() {
 
 function prop_(k) { return PropertiesService.getScriptProperties().getProperty(k); }
 
+// 時間のかかる処理を同時に2つ動かさない目印（スクリプトの鍵を長く持つと、写真の受け取りやメール送信が「busy」になる）
+function runGuard_(name, sec) {
+  var c = CacheService.getScriptCache(), k = 'run_' + name, lock = LockService.getScriptLock();
+  if (!lock.tryLock(5000)) return null;
+  try { if (c.get(k)) return null; c.put(k, '1', sec); } finally { lock.releaseLock(); }
+  return {done: function () { c.remove(k); }};
+}
+
 function limit_(prefix, max) {
   var c = CacheService.getScriptCache();
   var k = (prefix || 'n') + Utilities.formatDate(new Date(), 'Asia/Tokyo', 'yyyyMMdd');
@@ -1289,8 +1297,8 @@ function setupMail() {
 function restartMail() { PropertiesService.getScriptProperties().setProperty('MAIL_CURSOR', '0'); setupMail(); }
 
 function collectMail() {
-  var lock = LockService.getScriptLock();
-  if (!lock.tryLock(1000)) return;
+  // 長く動くので、受付（写真の受け取り・メール送信）と同じ鍵は使わない。同時に2つ動かないようにだけする
+  var run = runGuard_('collectMail', 330); if (!run) return;
   try {
     var t0 = Date.now(), props = PropertiesService.getScriptProperties();
     var data = JSON.parse(UrlFetchApp.fetch(CONFIG.SITE_URL + 'data/companies.json').getContentText());
@@ -1323,7 +1331,7 @@ function collectMail() {
       MailApp.sendEmail({to: CONFIG.ADMIN_EMAIL || Session.getEffectiveUser().getEmail(), subject: '[KATACHI] 工場のメールを集め終わりました',
         body: Object.keys(n).map(function (k) { return k + ': ' + n[k] + '社'; }).join('\n') + '\n\n「工場のメール」タブ: ' + sh.getParent().getUrl()});
     }
-  } finally { lock.releaseLock(); }
+  } finally { run.done(); }
 }
 
 // 送信者の表示（特定電子メール法）が入っていて、止めていないときだけ送る
@@ -1538,8 +1546,8 @@ function surveyFormText_(html) {
 }
 
 function surveyForms() {
-  var lock = LockService.getScriptLock();
-  if (!lock.tryLock(1000)) return;
+  // 長く動くので、受付（写真の受け取り・メール送信）と同じ鍵は使わない。同時に2つ動かないようにだけする
+  var run = runGuard_('surveyForms', 330); if (!run) return;
   try {
     var t0 = Date.now(), props = PropertiesService.getScriptProperties();
     var data = JSON.parse(UrlFetchApp.fetch(CONFIG.SITE_URL + 'data/companies.json').getContentText());
@@ -1583,7 +1591,7 @@ function surveyForms() {
       props.setProperty('SURVEY_CURSOR', String(cur));
     }
     if (cur >= list.length) ScriptApp.getProjectTriggers().forEach(function (t) { if (t.getHandlerFunction() === 'surveyForms') ScriptApp.deleteTrigger(t); });
-  } finally { lock.releaseLock(); }
+  } finally { run.done(); }
 }
 
 // 「見積フォーム調査」の集計：フォームの文字に、どの項目が出てくるかを数え、「見積フォーム集計」タブにカテゴリごとの割合を書く（関数 surveyTally を実行）

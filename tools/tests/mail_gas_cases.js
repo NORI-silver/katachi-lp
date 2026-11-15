@@ -58,7 +58,7 @@ const tabs={'工場のメール':sheet([ctx.MAIL_HEAD,['株式会社テスト縫
   'メール送信':sheet([ctx.SEND_HEAD]),'工場への打診':sheet([ctx.OFFER_HEAD])};
 Object.values(tabs).forEach(t=>{t.appendRow=r=>t.rows.push(r)});
 ctx.slotTab_=n=>tabs[n];
-const cache={};ctx.CacheService={getScriptCache:()=>({get:k=>cache[k],put:(k,v)=>{cache[k]=v}})};
+const cache={};ctx.CacheService={getScriptCache:()=>({get:k=>cache[k],put:(k,v)=>{cache[k]=v},remove:k=>{delete cache[k]}})};
 ctx.Utilities={getUuid:()=>crypto.randomUUID(),formatDate:(d)=>d.toISOString().slice(0,16),base64EncodeWebSafe:b=>Buffer.from(b).toString('base64'),computeDigest:(a,s)=>[...crypto.createHash('md5').update(String(s)).digest()],DigestAlgorithm:{MD5:1}};
 ctx.LockService={getScriptLock:()=>({tryLock:()=>true,releaseLock:()=>{}})};
 ctx.Session={getEffectiveUser:()=>({getEmail:()=>'admin@x'})};
@@ -82,6 +82,8 @@ ok('差出人が無いときも名前は「KATACHI 見積窓口」',sent.find(m=
   ok('別名に無ければ MailApp で返信先だけ',gs.length===1&&sent.length===n0+1&&sent[n0].replyTo==='factory@x.jp');
   sent.pop();delete props.MAIL_FROM;delete ctx.GmailApp;
 }
+{ const g1=ctx.runGuard_('collectMail',330),g2=ctx.runGuard_('collectMail',330);g1.done();const g3=ctx.runGuard_('collectMail',330);
+  ok('アドレス集めは同時に2つ動かない・終われば次が動く（スクリプトの鍵は持ち続けない）',g1&&g2===null&&g3);g3.done(); }
 const r2=ctx.rfqSend_({k});
 ok('2回押しても送り直さない',r2.ok&&r2.already&&sent.filter(m=>m.to==='info@t.jp').length===1,r2);
 ok('知らない鍵',ctx.rfqSend_({k:'x'.repeat(24)}).error==='key'&&ctx.rfqSend_({k:'../'}).error==='key');
