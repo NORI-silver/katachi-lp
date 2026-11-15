@@ -10,7 +10,8 @@ ok('横スクロールなし '+w,await p.evaluate(()=>document.documentElement.s
 await p.click('[data-ind]:nth-child(3)');await p.waitForTimeout(300);
 await p.click('[data-ihome]');await p.waitForTimeout(400);ok('← 入力に戻ると書いた文が残る '+w,await p.inputValue('#idea')==='メモ');
 await p.goBack().catch(()=>{});await p.evaluate(()=>location.hash='ideas');await p.waitForSelector('#ideas .icard');
-await p.click('#ideas [data-idea]');await p.waitForSelector('.stepnow,.empty',{timeout:30000});ok('この内容で探す → 会社を選ぶ '+w,await p.evaluate(()=>location.hash==='#co'&&!!document.querySelector('#gRfq')));
+await p.click('#ideas [data-idea]');await p.waitForSelector('.stepnow,.empty',{timeout:30000});ok('この内容で探す → 会社を選ぶ（まず未定の点を聞く） '+w,await p.evaluate(()=>location.hash==='#co'&&!!document.querySelector('#mCq')&&!document.querySelector('#gRfq')));
+for(let i=0;i<10&&await p.$('#mCq');i++){await p.click('#mCq [data-cqu]');await p.waitForTimeout(300)}ok('答えると送るボタン '+w,await p.evaluate(()=>!!document.querySelector('#gRfq')));
 await p.evaluate(()=>location.hash='ideas');await p.waitForSelector('#ideas [data-iedit]');await p.click('#ideas [data-iedit]');await p.waitForTimeout(400);
 ok('書き換えて使う → トップの入力欄に入る '+w,await p.evaluate(()=>location.hash===''&&document.querySelector('#idea').value.length>10));
 ok('エラーなし '+w,!er.length,er);await c.close()}

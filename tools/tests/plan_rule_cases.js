@@ -20,7 +20,7 @@ const cases=[
     const p=await c.newPage();const errs=[];p.on('pageerror',e=>errs.push(e.message));await p.goto(base);
     await p.fill('#idea',cs.text);await p.evaluate(()=>document.querySelector('#idea').form.requestSubmit());
     await p.waitForSelector('#mFspec,#mNext,.stepnow',{timeout:20000});await p.waitForTimeout(300);
-    await p.evaluate(()=>{location.hash='co'});await p.waitForSelector('.stepnow',{timeout:20000});if(await p.$('[data-dsto=both]')){await p.click('[data-dsto=both]');await p.waitForTimeout(600)}/* 設計の相談先が出る内容は、両方を選ぶと工場の★も出る */await p.waitForSelector('#mPlans',{timeout:20000,state:'attached'});await p.waitForTimeout(500);
+    await p.evaluate(()=>{location.hash='co'});await p.waitForSelector('.stepnow',{timeout:20000});for(let i=0;i<10&&await p.$('#mCq');i++){await p.click('#mCq [data-cqu]');await p.waitForTimeout(250)}if(await p.$('[data-dsto=both]')){await p.click('[data-dsto=both]');await p.waitForTimeout(600)}/* 設計の相談先が出る内容は、両方を選ぶと工場の★も出る */await p.waitForSelector('#mPlans',{timeout:20000,state:'attached'});await p.waitForTimeout(500);
     const r=await p.evaluate(()=>{const R=window.KATACHI_RL&&window.KATACHI_RL();const box=document.querySelector('#mPlans');
       return {rl:R&&R.id,ask:R?R.ask:[],maker:!!document.querySelector('.mkr'),win:!!box.querySelector('.rwin'),cmp:!!document.querySelector('#mCmp'),title:(box.querySelector('h3')||{}).textContent}});
     const ok=(r.rl||null)===cs.want&&r.win&&(!cs.maker||r.maker)&&(!cs.ask||cs.ask.every(k=>r.ask.includes(k)))&&!errs.length;if(!ok)ng++;
