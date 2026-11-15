@@ -59,12 +59,13 @@ def apply(row, o):
         return row
     if o.get('proto') is True and row[6] is None:
         row[6] = 1
-    if row[7] is None and o.get('design') and NODRAW.search(o['design']):
+    if row[7] is None and isinstance(o.get('design'), str) and NODRAW.search(o['design']):
         row[7] = 1
     m = LOT.search(o.get('minlot') or '')
     if row[8] is None and m:
         row[8] = int(m.group(1).replace(',', ''))
-    t = '／'.join(o.get('items') or [])
+    # 品目が2つ以下のページは一部しか読めていないことが多いので、品目で上げ下げしない
+    t = '／'.join(o.get('items') or []) if len(o.get('items') or []) >= 3 else ''
     pf = {'t': t[:240], 'src': o.get('url'), 'd': o.get('checked')}
     f = fams(o.get('mats'))
     if f:
