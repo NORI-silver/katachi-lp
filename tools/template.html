@@ -1257,6 +1257,24 @@ body::before{background:#fff}
 }
 @media (max-width:340px){.qdl{grid-template-columns:minmax(0,1fr)}}
 #rf label.chk{display:flex;flex-direction:row;align-items:flex-start;gap:var(--s3)}
+/* 会社を選ぶ前の確認（1問ずつ） */
+.cq{background:#fff;border:1px solid var(--line);border-radius:var(--r-lg);padding:var(--s8);display:grid;grid-template-columns:minmax(0,1fr);gap:var(--s4);min-width:0}
+.cohd[hidden],.cqhold[hidden]{display:none!important}
+.cqtop{display:grid;gap:var(--s2)}
+.cqn{display:flex;justify-content:space-between;gap:var(--s3);font-size:var(--t-sm);color:var(--mute)}.cqn b{color:var(--fg)}
+.cqbar{height:4px;background:var(--panel2);border-radius:var(--r-pill);overflow:hidden}.cqbar i{display:block;height:100%;background:var(--ice);border-radius:inherit;min-width:4px}
+.cqk{margin:var(--s2) 0 0;font-size:var(--t-sm);font-weight:700;color:var(--mute)}
+.cq .stepnow{margin:0;font-size:28px;line-height:1.35;outline:0}
+.cqs{margin:0;font-size:var(--t-sm);color:var(--mute);display:flex;flex-wrap:wrap;gap:0 4px}
+.cqch{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:var(--s2);margin-top:var(--s2)}
+.cqch button{min-height:52px;padding:10px 16px;border:1px solid var(--line2);border-radius:var(--r);background:#fff;font-size:15px;color:var(--fg);text-align:left;line-height:1.4}
+.cqch button:hover{border-color:var(--ice);background:var(--accent-bg)}
+.cqch .cqu{color:var(--mute);border-style:dashed}
+.cqf{display:grid;gap:6px}.cqf label{font-size:var(--t-sm);font-weight:700}
+.cqfr{display:flex;gap:var(--s2)}.cqfr input{flex:1;min-width:0;width:100%;min-height:44px;padding:0 12px;border:1px solid var(--line2);border-radius:var(--r-sm);font-size:16px}
+.cqnav{margin:var(--s2) 0 0;display:flex;justify-content:space-between;align-items:center;gap:var(--s3);flex-wrap:wrap}.cqnav small{color:var(--mute);font-size:var(--t-xs)}
+@media (max-width:900px){.colay.cqon .coside{grid-row:auto}}
+@media (max-width:600px){.cq{padding:var(--s5)}.cq .stepnow{font-size:22px}.cqch{grid-template-columns:minmax(0,1fr)}.cqch button{min-height:48px}}
 /* 作例から選ぶ（#ideas） */
 .ideapg{max-width:1160px;padding:var(--s10) 0 var(--s16)}.ideapg .mback{margin:0 0 var(--s4)}.ideapg .ideas{padding-top:0}
 /* 最初の画面：図面の有無と、書き方のガイド（2026-11-15 Nori「ない場合のガイドがかなり重要」） */
@@ -3268,8 +3286,12 @@ function condRows(F,DS){if(!F)return [];const fa=fsAns(),rows=[];
     let lv=a&&a.unk?'none':a&&!a.auto&&a.v?'you':v?CD_LV(v):'none',val=v&&v.v?v.v:'';
     if(a&&a.v&&[].concat(a.v).includes(FSPEC.omakase)){lv=a.auto?'omk':'you';val=a.auto?'おまかせ（工場が提案）':FSPEC.omakase}
     if(c.id==='what'&&(!val||String(ideaBase()).trim().startsWith(val)&&val.length>16))continue;
-    rows.push({id:c.id,t:c.t,val,lv,ask:lv==='none'?(c.ask||[])[0]:null,unk:!!(a&&a.unk)})}
-  {const it=(F.items||[]).find(i=>i.k==='purpose');if(it){const v=F.V.purpose,u=fa.purpose;const lv=u&&u.unk?'none':u&&u.v?'you':v?CD_LV(v):'none';rows.splice(1,0,{id:'purpose',t:'用途',val:v&&v.v?v.v:'',lv,ask:lv==='none'&&it.q&&it.ch?it:null,unk:!!(u&&u.unk)})}}
+    if(lv==='you'&&a&&a.v&&!a.auto)val=[].concat(a.v).join('、');
+    let ask=lv==='none'?(c.ask||[])[0]:null,hint='';
+    if(lv!=='you'&&lv!=='omk'&&/^例[:：]/.test(val)){hint=val.replace(/^例[:：]\s*/,'');val='';lv='none';ask=(F.items||[]).find(i=>ks.includes(i.k)&&i.q&&i.ch)||null}
+    const chs=[FSPEC.omakase,...(F.items||[]).filter(i=>ks.includes(i.k)).flatMap(i=>i.ch||[])];
+    rows.push({id:c.id,t:c.t,val,lv,ask,hint,unk:!!(a&&a.unk),tr:lv==='you'&&!chs.includes(val)})}
+  {const it=(F.items||[]).find(i=>i.k==='purpose');if(it){const v=F.V.purpose,u=fa.purpose;const lv=u&&u.unk?'none':u&&u.v?'you':v?CD_LV(v):'none';rows.splice(1,0,{id:'purpose',t:'用途',val:lv==='you'&&u&&u.v?[].concat(u.v).join('、'):v&&v.v?v.v:'',lv,ask:lv==='none'&&it.q&&it.ch?it:null,unk:!!(u&&u.unk),tr:lv==='you'&&!(u&&u.v&&(it.ch||[]).includes([].concat(u.v).join('、')))})}}
   const need=DS?'要る（図面がないので、先に設計）':F.mode==='design'?'要る（図面がない）':(F.V.docs&&/図面|3Dデータ/.test(F.V.docs.v)?'要らない（図面・データあり）':'');
   if(need)rows.push({id:'design',t:'設計',val:need,lv:'est'});
   return rows}
@@ -3277,13 +3299,38 @@ const CD_TAG={you:['you','あなたの入力'],est:['est','推定'],omk:['omk','
 function condBox(A,DS){let F=null;try{F=fsBuild(A)}catch(e){F=null}if(!F)return '';S.fs=F;const rows=condRows(F,DS);if(!rows.length)return '';
   const open=rows.filter(r=>r.ask&&!r.unk);
   return `<section class="cond" id="mCond" aria-labelledby="cdH"><div class="cdh"><h2 id="cdH">整理した条件</h2><span class="cdlg"><span class="cdt you">あなたの入力</span><span class="cdt est">推定</span><span class="cdt none">未定</span></span></div>
-    <dl class="cdl">${rows.map(r=>`<div class="cdr" data-cd="${r.id}"><dt>${esc(r.t)}</dt><dd><span class="cdv"${r.lv==='you'?' translate="no"':''}>${r.val?esc(r.val.length>60?r.val.slice(0,60)+'…':r.val):r.unk?'相談したい':'未定'}</span><span class="cdt ${CD_TAG[r.lv][0]}">${CD_TAG[r.lv][1]}</span></dd></div>`).join('')}</dl>
+    <dl class="cdl">${rows.map(r=>`<div class="cdr" data-cd="${r.id}"><dt>${esc(r.t)}</dt><dd><span class="cdv"${r.tr?' translate="no"':''}>${r.val?esc(r.val.length>60?r.val.slice(0,60)+'…':r.val):r.unk?'相談したい':'未定'}</span><span class="cdt ${CD_TAG[r.lv][0]}">${CD_TAG[r.lv][1]}</span></dd></div>`).join('')}</dl>
     ${open.length?`<details class="cdq" ${S.folds.cdq?'open':''} data-fold="cdq"><summary><span>未定の点を決める</span><small><span>任意</span> · <span>${fmt(open.length)}件</span> · <span>決めなくても送れます</span></small></summary><div class="cdqb">${open.slice(0,4).map(r=>{const it=r.ask;return `<div class="cdqi" data-fk="${esc(it.k)}"><p>${esc(it.q||r.t)}</p><div class="cdch" role="group" aria-label="${esc(r.t)}">${(it.ch||[]).slice(0,6).map(c=>`<button type="button" data-cda="${esc(c)}">${esc(c)}</button>`).join('')}${r.omk?`<button type="button" data-cda="${esc(FSPEC.omakase)}">${esc(FSPEC.omakase)}</button>`:''}<button type="button" data-cdu>相談したい</button></div></div>`}).join('')}</div></details>`:''}
     <p class="cdn">読み取りはキーワードと製品の分類による推定です。最終的な仕様は、依頼先の会社が確かめます。<button type="button" class="glink" data-toimg>仕様書と製品イメージを見る・直す</button></p></section>`}
 function wireCond(){const el=$('#mCond');if(!el)return;const fa=fsAns();
   const keep=()=>{const y=el.getBoundingClientRect().top;renderMatch().then(()=>{const d=$('#mCond');if(d)window.scrollBy(0,d.getBoundingClientRect().top-y)})};
   el.querySelectorAll('[data-cda]').forEach(b=>b.onclick=()=>{const k=b.closest('[data-fk]').dataset.fk;fa[k]={v:[b.dataset.cda]};fsSave();S.folds.cdq=true;track('fspec_answer',{answered:Object.keys(fa).length,place:'cond'});keep()});
   el.querySelectorAll('[data-cdu]').forEach(b=>b.onclick=()=>{const k=b.closest('[data-fk]').dataset.fk;fa[k]={unk:1};fsSave();S.folds.cdq=true;track('fspec_answer',{answered:Object.keys(fa).length,unk:1,place:'cond'});keep()})}
+/* ---------- 会社を選ぶ前の確認（Nori 2026-11-15「フリーいれて次に進んだら、必要なことはちゃんと入力するようにUIUX組まないと」）----------
+   整理した条件で未定の点（品目ごとに FSPEC.core と用途が決める。大きさが「例：」の目安しかないときも）を、1問ずつ聞く。
+   選択肢＋「わからない・相談したい」、数量と大きさは数字でも書ける。全部答える（わからないも可）と、会社の候補と送る画面に進む。
+   答えは工場向け仕様書（fsAns）に入る。会社の並びは変えない（候補は裏で先に作っておく） */
+function cqBox(A,DS){let F=null;try{F=fsBuild(A)}catch(e){F=null}if(!F)return '';const fa=fsAns();
+  const L=condRows(F,DS).filter(r=>r.ask),pend=L.filter(r=>!fa[r.ask.k]);if(!pend.length)return '';
+  if(!S.cq||S.cq.k!==ideaBase())S.cq={k:ideaBase(),h:[]};S.cq.h=S.cq.h.filter(k=>fa[k]);
+  const h=S.cq.h,r=pend[0],it=r.ask,n=h.length+pend.length,i=h.length+1,free=['qf','qs','size'].includes(it.k);
+  return `<section class="cq" id="mCq" data-fk="${esc(it.k)}" aria-labelledby="cqH">
+    <div class="cqtop"><span class="cqn"><span>会社を選ぶ前に確認</span><b class="mono">${i} / ${n}</b></span><span class="cqbar" aria-hidden="true"><i style="width:${Math.round((i-1)/n*100)}%"></i></span></div>
+    <p class="cqk">${esc(r.t)}</p>
+    <h2 class="stepnow" id="cqH" tabindex="-1">${esc(it.q||r.t)}</h2>
+    <p class="cqs">${r.hint?`<span>よくある大きさ：</span><span>${esc(r.hint)}</span>`:'<span>会社選びと見積に使います。決まっていなければ「わからない」を選んでください。</span>'}</p>
+    <div class="cqch" role="group" aria-labelledby="cqH">${(it.ch||[]).slice(0,7).map(c=>`<button type="button" data-cqa="${esc(c)}">${esc(c)}</button>`).join('')}<button type="button" class="cqu" data-cqu>わからない・相談したい</button></div>
+    ${free?`<form class="cqf" data-cqf novalidate><label for="cqIn">${it.k==='size'?'寸法を書く（だいたいで大丈夫）':'数を書く'}</label><div class="cqfr"><input id="cqIn" type="text" inputmode="${it.k==='size'?'text':'numeric'}" placeholder="${it.k==='size'?'例：横10 × 縦7 × 厚さ3cm':'例：300個'}" autocomplete="off"><button type="submit" class="btn sm">これで決める</button></div></form>`:''}
+    <p class="cqnav">${h.length?'<button type="button" class="glink" data-cqb>← ひとつ前の質問</button>':'<button type="button" class="glink" data-stepgo="1">← 入力内容に戻る</button>'}<small>答えると、合う会社の候補が出ます</small></p>
+  </section>`}
+function wireCq(){const el=$('#mCq');if(!el)return;const fa=fsAns(),k=el.dataset.fk;
+  const go=()=>renderMatch().then(()=>{window.scrollTo(0,0);const h=$('#cqH');h&&h.focus({preventScroll:true})});
+  const done=(v,unk)=>{fa[k]=unk?{unk:1}:{v:[v]};fsSave();S.cq.h.push(k);track('fspec_answer',{answered:Object.keys(fa).length,unk:unk?1:0,place:'wizard'});
+    go()};
+  el.querySelectorAll('[data-cqa]').forEach(b=>b.onclick=()=>done(b.dataset.cqa));
+  const u=el.querySelector('[data-cqu]');u&&(u.onclick=()=>done('',1));
+  const f=el.querySelector('[data-cqf]');f&&(f.onsubmit=e=>{e.preventDefault();const v=$('#cqIn').value.trim();if(v)done(v);else $('#cqIn').focus()});
+  const bk=el.querySelector('[data-cqb]');bk&&(bk.onclick=()=>{const p=S.cq.h.pop();if(p){delete fa[p];fsSave()}track('step_back',{to:'question',from:'question'});go()})}
 async function renderMatch(){
   $('#dock').innerHTML='';
   if(!S.idea){location.hash='';return}
@@ -3356,16 +3403,17 @@ async function renderMatch(){
     const toBar=DS?`<div class="dsto" role="group" aria-label="送り先">${[['ds','設計を相談'],['mk','工場に見積'],['both','両方']].map(([k,t])=>`<button type="button" data-dsto="${k}" aria-pressed="${dsTo===k}">${t}</button>`).join('')}</div>`:'';
     const imgL=A.concept?`<p class="toimg"><button type="button" class="glink" data-toimg>製品イメージ案（3D・寸法図）を見る・直す</button><small>任意</small></p>`:'';
     /* 画面2：左に会社の候補、右（スマホでは上）に「あなたの依頼」と「整理した条件」（2026-11-15 ChatGPTのデザイン案） */
+    const cqW=A.codes.length&&A.concept?cqBox(A,DS):'';
     const side=`<aside class="coside">${head3}${S.files.length?`<div class="files rqf">${''}</div>`:''}${A.codes.length&&A.concept?condBox(A,DS):''}</aside>`;
     body=`${stepBar(2)}${blocked?notices+blockedNext(A):''}
-    ${A.codes.length?`<div class="cohd"><h2 class="stepnow">${DS?{ds:'設計を相談する会社',mk:'見積を頼む工場',both:'設計と製作を頼む会社'}[dsTo]:MKv?'見積を頼むメーカー':'見積を頼む工場'}</h2><p class="cosub">${DS?'図面がない依頼なので、まず設計を頼める会社をおすすめしています。作る工場にも送れます。':'書いた内容に合う会社を、確かめられた情報の多い順に選んであります。'}</p></div><div class="colay"><div class="comain">${S.dsFirst&&!DS?(MKv?'<p class="dsnone"><b>この品は、専門のメーカーが設計から作ります</b><span>図面だけを先に頼む必要はありません。下のメーカーに、そのまま相談してください。</span></p>':'<p class="dsnone"><b>この品は、作る会社が配合・処方から考えます</b><span>図面だけを先に頼む必要はありません。下のおすすめの会社に、そのまま相談してください。</span></p>'):''}
+    ${A.codes.length?`<div class="cohd"${cqW?' hidden':''}><h2 class="${cqW?'cohd2':'stepnow'}">${DS?{ds:'設計を相談する会社',mk:'見積を頼む工場',both:'設計と製作を頼む会社'}[dsTo]:MKv?'見積を頼むメーカー':'見積を頼む工場'}</h2><p class="cosub">${DS?'図面がない依頼なので、まず設計を頼める会社をおすすめしています。作る工場にも送れます。':'書いた内容に合う会社を、確かめられた情報の多い順に選んであります。'}</p></div><div class="colay${cqW?' cqon':''}"><div class="comain">${cqW}<div class="cqhold"${cqW?' hidden':''}>${S.dsFirst&&!DS?(MKv?'<p class="dsnone"><b>この品は、専門のメーカーが設計から作ります</b><span>図面だけを先に頼む必要はありません。下のメーカーに、そのまま相談してください。</span></p>':'<p class="dsnone"><b>この品は、作る会社が配合・処方から考えます</b><span>図面だけを先に頼む必要はありません。下のおすすめの会社に、そのまま相談してください。</span></p>'):''}
       ${toBar}${DS?(dsTo==='mk'?recH:dsTo==='both'?dsH+recH:dsH):recH}
-      ${qBar()}${imgL}<p class="coback"><button type="button" class="glink" data-stepgo="1">← 入力内容に戻る</button></p></div>${side}</div>`
+      ${qBar()}${imgL}<p class="coback"><button type="button" class="glink" data-stepgo="1">← 入力内容に戻る</button></p></div></div>${side}</div>`
     :blocked?side:`${side}<div class="empty" style="margin-top:16px"><b>文章から工程を読み取れませんでした</b>このまま見積を依頼すれば、担当者が内容を読んで工程と会社を探します。型が決まっているもの（部品・ノベルティ・袋物など）なら「選んで探す」が早いです。<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn" id="mGuided">選んで探す</button></div></div>${(()=>{const ts=textSearch(S.idea);return ts.length?`<section class="mstep" data-step="文章に近い会社"><div class="mhead"><span class="mono mno">?</span><h2>文章の言葉が会社の説明に出てくる会社</h2><span class="muted">${fmt(ts.length)}社</span></div><p class="muted" style="margin:0 0 12px;font-size:13px">工程は読み取れませんでしたが、書いた言葉が社名や説明に含まれる会社です。参考にしてください。</p><ol class="glist">${ts.slice(0,10).map(r=>coCard(r,[])).join('')}</ol></section>`:''})()}`}`;
   }
   body=body.split('__WHON__').join(fmt((S.gsel||[]).length));
   $('#app').innerHTML=`<section class="gut"><div class="wrap gpick">${body}</div></section>`;
-  bindStepBar($('#app'));bindFolds();wireCond();renderFiles();
+  bindStepBar($('#app'));bindFolds();wireCond();wireCq();renderFiles();
   S.lostFiles=0;saveFlow();S.mTotal=total;
   if(st===3){$$('[data-q3]').forEach(b=>b.onclick=()=>{S.qty=b.dataset.q3;S.qn=0;track('select_quantity',{quantity:S.qty,place:'companies'});S.gmore={};renderMatch()});
     const qn=$('#qN');if(qn)qn.onchange=()=>{const n=Math.max(0,Math.round(+qn.value||0));S.qn=n;if(n)S.qty=n<=10?'proto':n<=500?'small':'mass';track('select_quantity',{quantity:S.qty,place:'companies',typed:!!n});S.gmore={};renderMatch()};
@@ -3391,7 +3439,7 @@ async function renderMatch(){
     $$('[data-recall]').forEach(b=>b.onclick=()=>{S.folds.all=true;const d=$('details[data-fold=all]');if(d){d.open=true;d.scrollIntoView({behavior:'smooth',block:'start'})}else{const l=$('.mstep');l&&l.scrollIntoView({behavior:'smooth',block:'start'})}})}
   $$('[data-backco]').forEach(b=>b.onclick=()=>{S.aiAway=null;saveFlow();location.hash='co'});
   if(st===2){if(!blocked)renderMatchDock();wireTune(A);if(S.aiAway&&Date.now()-S.aiAway.t>1500)setTimeout(gotoAiPaste,200)}
-  else pickDock();
+  else if(!$('#mCq'))pickDock();
   bindPicks();wireAiConsult(A);wireConcept(A);wireFspec(A);wireShape(A);if(st===2&&A.concept&&S.loggedConcept!==S.idea){S.loggedConcept=S.idea;track('concept_show',{concept:A.concept.id})}
   $$('[data-alt]').forEach(b=>b.onclick=()=>{track('blocked_alt',{alt:b.dataset.altk});S.idea=b.dataset.alt;S.loggedIdea='';S.gsel=[];S.gstep={};S.gmore={};renderMatch().then(()=>window.scrollTo({top:0,behavior:'smooth'}))});
   if($('#mEst')&&typeof window.KATACHI_EST_CARD==='function'){try{$('#mEst').innerHTML=window.KATACHI_EST_CARD(A.codes,qmax,+((S.idea.match(/(\d[\d,]*)\s*(個|台|枚|本|着|セット|pcs|units)/i)||[])[1]||'').replace(/,/g,''))||''}catch(e){}}
@@ -4196,7 +4244,7 @@ function rfqQuick(f){f.dataset.wz=1;const sh=f.closest('.sheet');sh&&sh.classLis
   const wrap=id=>{const el=f.querySelector('#'+id);if(!el)return null;let w=el;while(w.parentElement&&!w.parentElement.classList.contains('in'))w=w.parentElement;return w.parentElement?w:(el.closest('label')||el)};
   /* 画面3は1枚のページ：相談する内容 → 送り先 → あなたの連絡先 → 相手に届くもの（2026-11-15 ChatGPTのデザイン案） */
   const sum=document.createElement('section');sum.className='qpn qsum';{let F=null;try{F=fsNow()}catch(e){}const rows=F?condRows(F,S.dsOn&&(S.dsTo||'ds')!=='mk'):[];const t=String(ideaBase()||'').trim();
-    sum.innerHTML=`<div class="qph"><h3>相談する内容</h3><button type="button" class="glink" data-qedit>内容を直す</button></div><dl class="qdl"><div class="w"><dt>あなたの依頼</dt><dd translate="no">${esc(t.length>140?t.slice(0,140)+'…':t)}</dd></div>${rows.map(r=>`<div><dt>${esc(r.t)}</dt><dd>${r.val?`<span${r.lv==='you'?' translate="no"':''}>${esc(r.val.length>60?r.val.slice(0,60)+'…':r.val)}</span>`:`<span class="pend">${r.unk?'相談したい':'未定・相談したい'}</span>`}</dd></div>`).join('')}</dl>`}
+    sum.innerHTML=`<div class="qph"><h3>相談する内容</h3><button type="button" class="glink" data-qedit>内容を直す</button></div><dl class="qdl"><div class="w"><dt>あなたの依頼</dt><dd translate="no">${esc(t.length>140?t.slice(0,140)+'…':t)}</dd></div>${rows.map(r=>`<div><dt>${esc(r.t)}</dt><dd>${r.val?`<span${r.tr?' translate="no"':''}>${esc(r.val.length>60?r.val.slice(0,60)+'…':r.val)}</span>`:`<span class="pend">${r.unk?'相談したい':'未定・相談したい'}</span>`}</dd></div>`).join('')}</dl>`}
   const toP=document.createElement('section');toP.className='qpn qto';
   const to=f.querySelector('#rfTo');if(to){toP.appendChild(to);const h=to.querySelector('h4');h&&h.insertAdjacentHTML('afterend','<button type="button" class="glink qreco" data-qback>会社を選び直す</button>')}
   const top=document.createElement('section');top.className='qk qpn';top.innerHTML='<div class="qph"><h3>あなたの連絡先</h3></div>';

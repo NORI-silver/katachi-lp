@@ -39,20 +39,27 @@ const [base='http://localhost:8765/',shots]=process.argv.slice(2);
     // 2. 書いて進む → 整理した条件と会社
     await p.fill('#idea','店のロゴを入れたトートバッグを綿で100個作りたい');await p.click('#cmp button.pri');
     await p.waitForSelector('.stepnow',{timeout:30000});await p.waitForTimeout(300);
+    // 2a. 会社の候補の前に、未定の点を1問ずつ聞く（Nori 2026-11-15「必要なことはちゃんと入力するように」）
+    const q0=await p.evaluate(()=>({hash:location.hash,step:document.querySelector('.stepbar li.on')?.textContent,cq:!!document.querySelector('#mCq'),n:document.querySelector('#mCq .cqn b')?.textContent,
+      h:document.querySelector('#cqH')?.textContent,unk:!!document.querySelector('#mCq [data-cqu]'),dock:!!document.querySelector('#gRfq'),list:!!document.querySelector('.cqhold[hidden]'),
+      ex:[...document.querySelectorAll('#mCond .cdv')].some(x=>/^例[:：]/.test(x.textContent))}));
+    ok('②は #co、進み具合は「会社を選ぶ」',q0.hash==='#co'&&/会社を選ぶ/.test(q0.step),q0);
+    ok('会社の前に、未定の点を1問ずつ聞く（「わからない」あり・送るボタンはまだ出ない）',q0.cq&&/^1 \/ \d/.test(q0.n)&&q0.unk&&!q0.dock&&q0.list,q0);
+    ok('整理した条件に「例：」の大きさを推定として出さない',!q0.ex,q0);
+    ok('横スクロールなし（②の質問 375）',await hs(p)<=0,await hs(p));
+    const h1=q0.h;await p.click('#mCq [data-cqa]');await p.waitForTimeout(400);
+    const q1=await p.evaluate(()=>({n:document.querySelector('#mCq .cqn b')?.textContent,h:document.querySelector('#cqH')?.textContent,back:!!document.querySelector('#mCq [data-cqb]')}));
+    ok('答えると次の質問に進み、ひとつ前に戻れる',q1.n&&/^2 /.test(q1.n)&&q1.h!==h1&&q1.back,q1);
+    await p.click('#mCq [data-cqb]');await p.waitForTimeout(400);ok('ひとつ前に戻ると同じ質問',await p.$eval('#cqH',x=>x.textContent)===h1);
+    await p.click('#mCq [data-cqa]');await p.waitForTimeout(400);
+    for(let i=0;i<10&&await p.$('#mCq');i++){await p.click('#mCq [data-cqu]');await p.waitForTimeout(300)}
     const m=await p.evaluate(()=>{const rows=[...document.querySelectorAll('#mCond .cdr')].map(r=>[r.querySelector('dt').textContent,r.querySelector('.cdt').textContent]);
-      return {hash:location.hash,rows,step:document.querySelector('.stepbar li.on')?.textContent,sel:(window.KATACHI_SEL?window.KATACHI_SEL():null),q:!!document.querySelector('#mCond .cdq'),files:document.querySelectorAll('.rqf .fchip').length,dock:!!document.querySelector('#gRfq')}});
-    ok('②は #co、進み具合は「会社を選ぶ」',m.hash==='#co'&&/会社を選ぶ/.test(m.step),m);
+      return {cq:!!document.querySelector('#mCq'),rows,files:document.querySelectorAll('.rqf .fchip').length,dock:!!document.querySelector('#gRfq'),h:[...document.querySelectorAll('.stepnow')].filter(e=>e.offsetParent).map(e=>e.textContent)}});
+    ok('全部答える（わからないも可）と、会社の候補と送るボタンが出る',!m.cq&&m.dock&&m.h.length===1,m);
     ok('整理した条件：数量・材料は「あなたの入力」',m.rows.some(([t,l])=>t==='数量'&&l==='あなたの入力')&&m.rows.some(([t,l])=>t==='材料'&&l==='あなたの入力'),m.rows);
-    ok('整理した条件：未定の項目は「未定」',m.rows.some(([,l])=>l==='未定'),m.rows);
-    ok('未定の点は畳んだ任意の質問（開かなくても送れる）',m.q&&await p.$eval('#mCond .cdq',d=>!d.open),m);
-    ok('②に添付が引き継がれる',m.files===1,m);ok('下のバーに送るボタン',m.dock,m);
+    ok('「わからない」と答えた項目は「相談したい」',await p.$$eval('#mCond .cdv',a=>a.some(x=>x.textContent==='相談したい')));
+    ok('②に添付が引き継がれる',m.files===1,m);
     ok('横スクロールなし（② 375）',await hs(p)<=0,await hs(p));
-    // 任意の質問に答えても、選んだ会社は変わらない
-    const before=await p.$eval('#dock .gdl small',x=>x.textContent);
-    await p.evaluate(()=>{const d=document.querySelector('#mCond .cdq');d.open=true});await p.click('#mCond [data-cdu]');await p.waitForTimeout(400);
-    const after=await p.$eval('#dock .gdl small',x=>x.textContent);
-    ok('「相談したい」を選ぶと、その項目は「相談したい」になる',await p.$$eval('#mCond .cdv',a=>a.some(x=>x.textContent==='相談したい')));
-    ok('任意の質問に答えても、選んだ会社は変わらない',before===after,{before,after});
     if(shots)await p.screenshot({path:path.join(shots,'ui_list.png'),fullPage:true});
     // 3. 確認して送る
     await p.click('#gRfq');await p.waitForSelector('#rf',{timeout:10000});
@@ -83,6 +90,9 @@ const [base='http://localhost:8765/',shots]=process.argv.slice(2);
   for(const lang of ['ja','en','zh'])for(const [w,h] of [[320,640],[375,812],[1280,860]]){const c=await ctx(w,h,lang);await c.route(/script\.google\.com|googletagmanager/,r=>r.fulfill({status:200,body:'{}'}));
     const p=await c.newPage();const errs=[];p.on('pageerror',e=>errs.push(e.message));await p.goto(base);await p.waitForTimeout(300);const h1=await hs(p);
     await p.fill('#idea',{ja:'ステンレスの折りたたみ焚き火台を200個つくりたい',en:'I want to make 200 folding stainless fire pits',zh:'想做200个不锈钢折叠篝火台'}[lang]);await p.click('#cmp button.pri');await p.waitForSelector('.stepnow,.empty',{timeout:30000}).catch(()=>{});await p.waitForTimeout(300);const h2=await hs(p);
+    const kana=lang==='ja'?'':await p.evaluate(()=>{const q=document.querySelector('#mCq');if(!q)return 'no question';const t=[...q.querySelectorAll('#cqH,.cqk,.cqn,.cqch button,.cqnav')].map(e=>e.textContent).join(' ');return /[ぁ-んァ-ヶ]/.test(t)?t:''});
+    for(let i=0;i<10&&await p.$('#mCq');i++){await p.click('#mCq [data-cqu]');await p.waitForTimeout(300)}const h2b=await hs(p);
     await p.click('#gRfq').catch(()=>{});await p.waitForTimeout(500);const h3=await hs(p);
-    ok(`横スクロールなし・エラーなし（${lang} ${w}px：トップ/②/送る）`,h1<=0&&h2<=0&&h3<=0&&!errs.length,{h1,h2,h3,errs});await c.close()}
+    ok(`横スクロールなし・エラーなし（${lang} ${w}px：トップ/②の質問/②/送る）`,h1<=0&&h2<=0&&h2b<=0&&h3<=0&&!errs.length,{h1,h2,h2b,h3,errs});
+    if(lang!=='ja'&&w===375)ok(`②の質問が訳されている（${lang}）`,!kana,kana);await c.close()}
   await b.close();console.log(ng?ng+'件 NG':'すべてOK');process.exit(ng?1:0)})();

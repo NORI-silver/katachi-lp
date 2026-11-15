@@ -1258,3 +1258,27 @@ T.update({
 "図面のとおり": ("As drawn", "按图纸"),
 })
 T.update({"← 入力に戻る": ("← Back to your request", "← 返回填写")})
+# 会社を選ぶ前の確認（1問ずつ、2026-11-15）
+T.update({
+"会社を選ぶ前に確認": ("Before choosing companies", "选择公司前确认"),
+"よくある大きさ：": ("Typical size: ", "常见尺寸："),
+"会社選びと見積に使います。決まっていなければ「わからない」を選んでください。": ("Used to pick companies and for quotes. If it isn't decided, choose \"Not sure\".", "用于挑选公司和报价。还没定的话，请选「不清楚」。"),
+"わからない・相談したい": ("Not sure / want to discuss", "不清楚・想商量"),
+"寸法を書く（だいたいで大丈夫）": ("Type the size (rough is fine)", "填写尺寸（大概即可）"),
+"数を書く": ("Type a number", "填写数量"),
+"例：横10 × 縦7 × 厚さ3cm": ("e.g. 10 × 7 × 3 cm", "例：长10 × 宽7 × 厚3cm"),
+"例：300個": ("e.g. 300 pcs", "例：300个"),
+"これで決める": ("Use this", "就这样"),
+"← ひとつ前の質問": ("← Previous question", "← 上一个问题"),
+"答えると、合う会社の候補が出ます": ("Answer to see matching companies", "回答后会显示合适的公司"),
+"〜100個": ("Up to 100", "100个以内"),
+"〜500個": ("Up to 500", "500个以内"),
+"〜3,000個": ("Up to 3,000", "3,000个以内"),
+"それ以上": ("More than that", "更多"),
+"まだ決めていない": ("Not decided yet", "还没决定"),
+"1か月以内": ("Within 1 month", "1个月内"),
+"3か月以内": ("Within 3 months", "3个月内"),
+"半年以内": ("Within 6 months", "半年内"),
+"1年以内": ("Within 1 year", "1年内"),
+"決まっていない": ("Not decided", "未定"),
+})
