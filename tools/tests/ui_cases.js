@@ -24,7 +24,17 @@ const [base='http://localhost:8765/',shots]=process.argv.slice(2);
     ok('外すと「元に戻す」が出る',f.n===0&&f.u,f);await p.click('[data-fundo]');
     ok('「元に戻す」で戻る',await p.evaluate(()=>document.querySelectorAll('#files .fchip').length)===1);
     // ほかの始め方
-    ok('ほかの始め方に「図面・データがある」',await p.$$eval('.start2 [data-start="draw"]',x=>x.length)===1);
+    ok('入力欄の上で図面の「ある／ない」を選べる',await p.$$eval('.hasdw [data-start]',x=>x.length)===2);
+    // 図面がない人のガイド：押すと入力欄に1行足し、書いた点に ✓ が付く。押し直すと同じ行を置き換える
+    await p.fill('#idea','');await p.click('[data-gadd="qty"]:nth-child(3)');await p.click('[data-gadd="qty"]:nth-child(2)');await p.click('[data-gadd="mat"]:nth-child(3)');
+    let g=await p.evaluate(()=>({v:document.querySelector('#idea').value,ok:[...document.querySelectorAll('#gde li.gdok')].map(l=>l.dataset.gk),n:document.querySelectorAll('#gde [data-gk]').length}));
+    ok('ガイドは7項目（何を・数量・大きさ・材料・用途・電子部品・時期）',g.n===7,g);
+    ok('押すと入力欄に足し、同じ項目は置き換える',g.v==='数量：10個くらい\n材料：布',g.v);
+    ok('書いた点に ✓ が付く',g.ok.includes('qty')&&g.ok.includes('mat')&&!g.ok.includes('size'),g.ok);
+    ok('ガイドに写真・似た製品のURL・例文',await p.$$eval('#gde [data-gpick],#gde [data-gref],#gde [data-gex]',x=>x.length)===3);
+    await p.fill('#idea','アルミの部品');await p.click('.hasdw [data-start="draw"]');
+    ok('「ある」に切り替えても書いた文は残り、図面の添付が出る',await p.inputValue('#idea')==='アルミの部品'&&await p.$$eval('#dPick',x=>x.length)===1);
+    await p.click('.hasdw [data-start="idea"]');await p.fill('#idea','');
     if(shots)await p.screenshot({path:path.join(shots,'ui_top.png')});
     // 2. 書いて進む → 整理した条件と会社
     await p.fill('#idea','店のロゴを入れたトートバッグを綿で100個作りたい');await p.click('#cmp button.pri');
