@@ -1207,3 +1207,18 @@ T.update({
 "送信しています…": ("Sending…", "发送中…"),
 "送れませんでした。通信の状態を確かめて、もう一度「この内容で送る」を押してください。入力した内容は残っています。": ("Couldn't send. Check your connection and press \"Send\" again. Your entries are kept.", "发送失败。请检查网络后再次点击“按此内容发送”。已输入的内容会保留。"),
 })
+# デザイン案の取り込み（2026-11-15 ChatGPTのデザイン案）
+T.update({
+"ものづくりを、もっと身近に。": ("Making things, made approachable.", "让制造更贴近你。"),
+"図面がなくても大丈夫。形・大きさ・素材・使い方・数量など、わかる範囲で書いてください。": ("No drawings needed. Describe the shape, size, material, use and quantity, as far as you know.", "没有图纸也没关系。形状、尺寸、材料、用途、数量等，写你知道的即可。"),
+"こんなことからでも始められます": ("You can also start from", "也可以从这里开始"),
+"書いた内容から、工場に相談しやすい条件に整理します。まだ決まっていないことは、あとから選べます。": ("We sort what you write into conditions that are easy to discuss with factories. Anything undecided can be chosen later.", "我们会把你写的内容整理成便于和工厂沟通的条件。尚未确定的内容可以之后再选。"),
+"← 入力内容に戻る": ("← Back to your request", "← 返回填写内容"),
+"内容を確認して送る": ("Review and send", "确认并发送"),
+"相談する内容": ("What you're asking about", "咨询内容"),
+"内容を直す": ("Edit", "修改内容"),
+"未定・相談したい": ("Undecided – to discuss", "未定・想咨询"),
+"会社を選び直す": ("Change companies", "重新选择公司"),
+"あなたの連絡先": ("Your contact details", "你的联系方式"),
+"← 会社の選択に戻る": ("← Back to choosing companies", "← 返回选择公司"),
+})
