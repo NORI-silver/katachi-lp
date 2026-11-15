@@ -24,6 +24,19 @@ ok('www は外して比べる',ctx.mailHost_('https://www.kaneso.co.jp/about/')=
 const L=ctx.mailLinks_('<a href="/company/">会社概要</a><a href="contact.html">お問い合わせ</a><a href="https://other.com/contact">他社</a><a href="mailto:a@b.jp">メール</a><a href="/news/">お知らせ</a><a href="/files/a.pdf">お問い合わせ票</a>','https://www.a-kogyo.jp/index.html');
 ok('お問い合わせ→会社概要の順、同じサイトだけ',JSON.stringify(L)===JSON.stringify(['https://www.a-kogyo.jp/contact.html','https://www.a-kogyo.jp/company/']),L);
 
+// ---- フォームと連絡手段 ----
+{ const form='<form action="/send"><dl><dt>会社名</dt><dd><input name="co"></dd><dt>お名前</dt><dd><input name="n"></dd><dt>メールアドレス</dt><dd><input name="m"></dd><dt>数量</dt><dd><input name="q"></dd><dt>お問い合わせ内容</dt><dd><textarea></textarea></dd></dl></form>';
+  const f1=ctx.mailForm_([{url:'https://a.jp/',html:'<p>top</p>'},{url:'https://a.jp/contact/',html:form,contact:true}]);
+  ok('フォーム: お問い合わせのページと項目',f1.form==='あり'&&f1.page==='https://a.jp/contact/'&&/会社名/.test(f1.items)&&/数量・ロット/.test(f1.items)&&/自由記述/.test(f1.items),f1);
+  const f2=ctx.mailForm_([{url:'https://a.jp/',html:'<form role="search"><input type="search" name="s"></form>'}]);
+  ok('サイト内検索はフォームに数えない',f2.form==='なし',f2);
+  const f3=ctx.mailForm_([{url:'https://a.jp/contact/',html:'<iframe src="https://docs.google.com/forms/d/e/x/viewform"></iframe>',contact:true}]);
+  ok('Googleフォームなど外部のフォームも「あり」',f3.form==='あり'&&f3.ext==='docs.google.com/forms'&&/外部/.test(f3.items),f3);
+  ok('読めないサイト',ctx.mailForm_([{url:'https://a.jp/',html:null}]).form==='');
+  ok('連絡手段の分け方',ctx.contactKind_('送れる','あり')==='両方'&&ctx.contactKind_('送れる','なし')==='メールのみ'&&ctx.contactKind_('見つからない','あり')==='フォームのみ'&&ctx.contactKind_('営業お断りの表示','あり')==='フォームのみ'&&ctx.contactKind_('見つからない','なし')==='どちらも見つからない'&&ctx.contactKind_('読めない','')==='読めない');
+  ok('見積のページを先に読む',ctx.mailLinks_('<a href="/contact/">お問い合わせ</a><a href="/estimate/">お見積り</a>','https://a.jp/')[0]==='https://a.jp/estimate/');
+}
+
 // ---- 1社ぶんの判断 ----
 const d1=ctx.mailDecide_('https://a-kogyo.jp/',[{url:'https://a-kogyo.jp/',html:'<p>tanaka@a-kogyo.jp</p>'},{url:'https://a-kogyo.jp/contact/',html:'<a href="mailto:info@a-kogyo.jp">mail</a>',contact:true}]);
 ok('送れる・お問い合わせの info を選ぶ',d1.state==='送れる'&&d1.email==='info@a-kogyo.jp'&&d1.page==='https://a-kogyo.jp/contact/',d1);
@@ -100,4 +113,15 @@ const p2=ctx.mailPrepare_('K3',{mail:['C製作所'],team:[{company:'C製作所',
 tabs['工場のメール'].rows[3][5]='送らない（手で止める）';
 const r3=ctx.rfqSend_({k:p2.key});
 ok('確認待ちの間に止めた会社には送らない',r3.ok&&!r3.sent.length&&r3.skipped[0]==='C製作所'&&!sent.some(m=>m.to==='info@c.jp'),r3);
+// ---- 連絡手段まとめ ----
+{ const H=ctx.MAIL_HEAD,row=(n,st,f,it,k,c)=>[n,'東京都','https://'+n+'.jp/','','',st,'2026-11-15','',f,'',it,'',k,c];
+  const mt=sheet([H,row('a','送れる','あり','会社名、お名前、数量・ロット','両方','金属切削'),row('b','送れる','なし','','メールのみ','金属切削'),row('c','見つからない','あり','お名前、自由記述','フォームのみ','化粧品'),
+    row('d','見つからない','あり','（外部のフォームのため項目は読めない）','フォームのみ','化粧品'),row('e','読めない','','','読めない','化粧品'),row('f','送れる','なし','','','金属切削')]);
+  const out=sheet([['x']]);out.clear=()=>{out.rows.length=0};
+  const keep=ctx.slotTab_;ctx.slotTab_=n=>n==='工場のメール'?mt:out;
+  const sum=ctx.contactTally();ctx.slotTab_=keep;
+  const col=out.rows[0].indexOf('全体'),get=k=>(out.rows.find(r=>r[0]===k)||[])[col];
+  ok('まとめ: 連絡手段ごとの件数（まだ見ていない行は数えない）',get('読んだ会社')===5&&get('両方')===1&&get('メールのみ')===1&&get('フォームのみ')===2&&get('読めない')===1&&/フォームのみ: 2社/.test(sum),out.rows);
+  ok('まとめ: 項目の割合は項目を読めたフォームで割る（外部は別に数える）',get('項目を読めたフォーム')===2&&get('外部サービスのフォーム（項目は読めない）')===1&&get('お名前')===100&&get('数量・ロット')===50,out.rows);
+}
 console.log(ng?ng+' NG':'all OK');process.exit(ng?1:0);
