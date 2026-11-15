@@ -12,7 +12,7 @@ const [base='http://localhost:8765/',shots]=process.argv.slice(2);
     return r.fulfill({status:200,contentType:'application/json',body:'{"ok":true}'})});
   const p=await c.newPage();const errs=[];p.on('pageerror',e=>errs.push(e.message));await p.goto(base);
   await p.fill('#idea','店のロゴを入れたトートバッグを綿で100個作りたい。');await p.evaluate(()=>document.querySelector('#idea').form.requestSubmit());
-  await p.waitForSelector('#mFspec',{timeout:20000});await p.waitForTimeout(400);
+  await p.waitForSelector('#mFspec,.stepnow',{timeout:20000});await p.waitForTimeout(400);
   // 国内の会社2社と海外1社を送り先にする
   const names=await p.evaluate(()=>{const D=window.KATACHI_DATA;const all=Object.entries(D.companies);const jp=all.filter(([,v])=>(v.country||'JP')==='JP').slice(0,2).map(x=>x[0]);const ab=all.filter(([,v])=>v.country&&v.country!=='JP').slice(0,1).map(x=>x[0]);return jp.concat(ab)});
   await p.evaluate(n=>window.KATACHI_RFQ(n),names);await p.waitForSelector('#rf',{timeout:10000});
@@ -24,7 +24,7 @@ const [base='http://localhost:8765/',shots]=process.argv.slice(2);
   ok('担当者の箱の文言が変わる',/確認メールのボタンを押すとすぐ届きます/.test(await p.$eval('#rfStaff',x=>x.textContent)));
   await p.evaluate(()=>{const r=document.querySelector('#wzRest');if(r)r.hidden=false;document.querySelectorAll('#rf details').forEach(d=>d.open=true)});
   // 必須を埋める
-  await p.evaluate(()=>{const f=document.querySelector('#rf');f.querySelectorAll('.cks').forEach(x=>{const i=x.querySelector('input');if(i&&!x.querySelector('input:checked'))i.checked=true});
+  await p.evaluate(()=>{const f=document.querySelector('#rf');f.dataset.who=1;f.querySelectorAll('.cks').forEach(x=>{const i=x.querySelector('input');if(i&&!x.querySelector('input:checked'))i.checked=true});
     f.querySelectorAll('select').forEach(s=>{if(!s.value&&s.options.length>1)s.selectedIndex=1});
     ['f-sum','f-qty','f-size','f-due'].forEach(id=>{const e=document.getElementById(id);if(e&&!e.value)e.value='テスト 100個'});
     document.getElementById('f-mail').value='a@example.com';document.getElementById('f-name')&&(document.getElementById('f-name').value='山田');document.getElementById('f-agree').checked=true});

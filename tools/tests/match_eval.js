@@ -23,8 +23,8 @@ async function one(b,cs){const c=await b.newContext({viewport:{width:1280,height
   const p=await c.newPage();const errs=[];p.on('pageerror',e=>errs.push(e.message));await p.goto(base);
   const text=cs.file?fs.readFileSync(path.join(__dirname,'specs',cs.file),'utf8'):cs.text;
   await p.fill('#idea',text);await p.evaluate(()=>document.querySelector('#idea').form.requestSubmit());
-  await p.waitForSelector('#mFspec,#mNext,[data-gonext]',{timeout:30000}).catch(()=>{});await p.waitForTimeout(300);
-  await p.evaluate(()=>{location.hash='co'});await p.waitForSelector('#mPlans,.mstep',{timeout:30000}).catch(()=>{});await p.waitForTimeout(600);
+  await p.waitForSelector('#mFspec,#mNext,[data-gonext],#mPlans,.mstep,.stepnow',{timeout:30000}).catch(()=>{});await p.waitForTimeout(300);
+  await p.evaluate(()=>{location.hash='co'});await p.waitForSelector('#mPlans,.mstep',{timeout:30000,state:'attached'}).catch(()=>{});await p.waitForTimeout(600);
   const r=await p.evaluate(gold=>{const {S,GDB,makersFor,CAPN}=window.__KM();const row=x=>x&&{n:x[0],pref:x[1]==='JP'?x[2]:x[1],lv:x[10],sum:x[11]||'',caps:(x[5]||[]).map(i=>GDB.caps[i])};
     const byN=new Map(GDB.c.map(x=>[x[0],x]));
     const A=S.anal||{};const mkOn=!!document.querySelector('.mkr');const MK=mkOn&&A.codes&&A.codes.length?makersFor(A):null;
@@ -37,7 +37,7 @@ async function one(b,cs){const c=await b.newContext({viewport:{width:1280,height
         missed:gs.filter(x=>!rank.has(x[0])).slice(0,8).map(x=>x[0]+'｜'+(x[11]||'').slice(0,40)+'｜'+(x[5]||[]).map(i=>GDB.caps[i]).join(','))}}
     return {concept:A.concept?(A.concept.id||'')+'/'+(A.concept.name||''):'',codes:A.codes||[],plan:S.planPick||'',rule:(S.lastRL||{}).id||'',
       maker:MK?{k:MK.k,rows:MK.rows.map(row)}:null,
-      picked:(S.gsel||[]).map(n=>({step:(S.gstep||{})[n]||'',...(row(byN.get(n))||{n})})),
+      picked:(S.recSel||S.gsel||[]).map(n=>({step:(S.gstep||{})[n]||'',...(row(byN.get(n))||{n})})),
       secs:secs.map(({all,...s})=>s),gold:G}},cs.gold||'');
   r.id=cs.id;r.errs=errs;return r}finally{await c.close()}}
 (async()=>{const b=await chromium.launch();const res=new Array(cases.length);let next=0;

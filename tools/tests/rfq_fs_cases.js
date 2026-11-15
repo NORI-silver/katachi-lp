@@ -14,7 +14,7 @@ const cases=[
     await c.route(/script\.google\.com/,r=>r.fulfill({status:200,contentType:'application/json',body:'{"ok":false}'}));
     const p=await c.newPage();const errs=[];p.on('pageerror',e=>errs.push(e.message));await p.goto(base);
     await p.fill('#idea',cs.text);await p.evaluate(()=>document.querySelector('#idea').form.requestSubmit());
-    await p.waitForSelector('#mFspec',{timeout:20000});await p.waitForTimeout(400);
+    await p.waitForSelector('#mFspec,.stepnow',{timeout:20000});await p.waitForTimeout(400);
     await p.evaluate(()=>window.KATACHI_RFQ([]));await p.waitForSelector('#rf',{timeout:10000});await p.waitForTimeout(300);
     // 依頼は1問ずつ（rfqWizard）。任意の項目は最後の画面の「もっと詳しく伝える」に畳まれているので、開いてから確かめる
     await p.evaluate(()=>{const r=document.querySelector('#wzRest');if(r)r.hidden=false;document.querySelectorAll('#rf details').forEach(d=>d.open=true)});
