@@ -31,6 +31,13 @@ await t('製品: 犬の首輪（工程と法規制まで、リンクで締める
 await t('製品: 分類から（ボールベアリング）', async () => { const {j} = await call('/v1/products?q=' + encodeURIComponent('ボールベアリング')); assert.match(j.product.name, /軸受/); });
 await t('製品ID', async () => { const {j} = await call('/v1/products/c_pet_leash'); assert.equal(j.product.id, 'c_pet_leash'); });
 await t('製品: 扱わない分野', async () => { const {status, j} = await call('/v1/products?q=' + encodeURIComponent('日本酒を造りたい')); assert.equal(status, 422); assert.match(j.error.message, /酒/); });
+await t('会社: サイトと同じ並べ方（品の言葉が説明にある会社が上に）', async () => {
+  const {searchCompanies} = await import('../src/core.js');
+  for (const [p, re] of [['財布', /財布|革/], ['ピンバッジ', /バッジ|徽章|記章/], ['焼き菓子', /菓子|クッキー/], ['靴下', /靴下|ソックス/]]) {
+    const top = searchCompanies({product: p, quantity: 100}).companies.slice(0, 3);
+    assert.ok(top.filter(c => re.test(c.name + ' ' + (c.description || ''))).length >= 2, p + ': ' + top.map(c => c.name).join(','));
+  }
+});
 await t('会社: 上位3社の名前と理由だけ', async () => {
   const {j} = await call('/v1/companies?product=' + encodeURIComponent('アクリルスタンド') + '&quantity=50');
   assert.ok(j.top.length > 0 && j.top.length <= 3); assert.ok(j.candidates_total >= j.top.length);

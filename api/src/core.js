@@ -6,6 +6,7 @@ import F0 from '../../data/fspec.json' with {type: 'json'};
 const parse = x => typeof x === 'string' ? JSON.parse(x) : x;
 const products = parse(P0), companiesRaw = parse(C0), fspec = parse(F0);
 import {setPDB, pdbMatch} from './gen/pdb.js';
+import {setGDB, relBuild, fitOf, REGION} from './gen/fit.js';
 
 export const VERSION = '1.0.0';
 export const SITE = 'https://katachi.shiokonbu.com';
@@ -32,6 +33,9 @@ const canOrder = r => {
 };
 const seen = new Set();
 const ROWS = C.c.filter(r => canOrder(r) && !seen.has(r[0]) && seen.add(r[0]));
+// サイトと同じ並べ方（fitOf）を使うための会社一覧
+setGDB({c: ROWS, caps: C.caps});
+const PREF_ALL = REGION.flatMap(g => g[1].split(' '));
 const LV = {pub: '公開情報（公式サイト・報道）で確認', unk: '掲載ページのみ（要確認）', gov: '国の登録情報のみ（gBizINFO、要確認）'};
 const LV_RANK = {pub: 0, unk: 1, gov: 2};
 const GBIZ = '出典: Gビズインフォ（経済産業省）をもとにKATACHI作成';
@@ -154,6 +158,10 @@ export function searchCompanies({process: proc, product, q, area, prototype, no_
   }
   if (!idx.length && !kw) throw new ApiError(400, 'invalid_input', 'process（工程）・product（製品名）・q（キーワード）のどれかを指定してください。一覧の取得はできません');
   const kwl = kw.toLowerCase(), out = [];
+  // 依頼との近さ・受注の業態・分野・規模・所在地を、サイトの③と同じ関数で足す（tools/template.html の fitOf）
+  const fams = new Set(idx.map(i => C.caps[i].split('.')[0]));
+  const M = (product || kw) ? {R: relBuild([product, kw].filter(Boolean).join(' '), prod && prod.name, prod && prod.kw), fam: fams,
+    pref: PREF_ALL.find(p => ar && (p === ar || p.replace(/[都府県]$/, '') === ar)) || '', one: !!qty && qty <= 3, qmax: qty || 500} : null;
   for (const r of ROWS) {
     const caps = r[5], m = caps.filter(i => idx.includes(i));
     if (idx.length && !m.length) continue;
@@ -165,7 +173,7 @@ export function searchCompanies({process: proc, product, q, area, prototype, no_
     if (no_drawing && !r[7]) continue;
     const ml = r[8];
     const s = m.length * 2 + (r[10] === 'pub' ? 3 : 0) + (r[6] && qty && qty <= 10 ? 1.5 : 0) + (r[7] && no_drawing ? 1 : 0)
-      + (ml != null && qty && ml <= qty ? 1 : 0) - (ml != null && qty && ml > qty ? 3 : 0) + (r[1] === 'JP' ? 2 : 0);
+      + (ml != null && qty && ml <= qty ? 1 : 0) - (ml != null && qty && ml > qty ? 3 : 0) + (r[1] === 'JP' ? 2 : 0) + (M ? fitOf(r, M) : 0);
     out.push([s, LV_RANK[r[10]] ?? 1, r, m]);
   }
   out.sort((a, b) => b[0] - a[0] || a[1] - b[1]);
