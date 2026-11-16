@@ -25,6 +25,10 @@ const cases=[
   {id:'wheelchair_spec',file:'dog_wheelchair_spec.md',nocats:['elec'],noask:['power','comm']},
   {id:'tote_spec',file:'tote_spec.md',nocats:['elec'],noask:['power','comm']},
   {id:'sign_spec',file:'metal_sign_spec.md',nocats:['elec'],noask:['power','comm']},
+  // 中身の品（食品・化粧品）は作る物そのものでないと聞かない
+  {id:'salon_shelf',text:'美容室に置く、シャンプーのボトルを並べる木の棚を1台。',cats:['wood'],nocats:['cosme','food','elec']},
+  {id:'tumbler',text:'ステンレスの保冷タンブラーにロゴを入れて300個。コーヒーやお茶を入れて使う。',nocats:['food','cosme','elec']},
+  {id:'cake_box',text:'ケーキ屋さんで使う、ロゴ入りの紙の箱を500個作りたい。',nocats:['food','elec']},
   {id:'guide_noel',text:'犬用のプールのスロープ\n数量：まず試作で1個\n材料：金属\n電子部品：使わない',nocats:['elec'],noask:['power','comm']},
 ];
 const MAXQ=6;

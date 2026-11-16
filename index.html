@@ -2636,7 +2636,9 @@ function fsSpecCats(A,c,t){t=t==null?ideaBase():t;/* 工程 cosmetics.household 
   const hit=(k,codes)=>codes.findIndex(x=>k.proc.some(p=>x===p||x.startsWith(p+'.')));
   /* 電子の項目（電源・通信など）は、工程と同じ関門（EL_POS）を通ったときだけ。見出し・否定・将来の節の言葉では聞かない（Nori 2026-11-16 スロープの設計書で電源・通信を聞いていた） */
   const elOk=EL_POS.test(tl);
-  const sc=FSPEC.cats.filter(k=>k.id!=='elec'||elOk).map((k,n)=>{const pi=hit(k,pc);const tx=new RegExp(k.re,'i').test(tl);return {k,n,tx,pi:pi<0?99:pi,s:(pi>=0||ind&&k.ind.includes(ind)?3:0)+(tx?2:0)+(hit(k,ac)>=0?1:0)}}).filter(x=>x.s>0).sort((a,b)=>b.s-a.s||a.pi-b.pi||a.n-b.n);
+  /* 食品・化粧品の項目も工程と同じく、作る物そのものとして読めたとき（工程・製品DBに出たとき）だけ。「シャンプーのボトルを並べる棚」に容量・容器を聞かない */
+  const CONT_CAT=['food','cosme'];
+  const sc=FSPEC.cats.filter(k=>(k.id!=='elec'||elOk)&&(!CONT_CAT.includes(k.id)||!ac.length||hit(k,ac)>=0)).map((k,n)=>{const pi=hit(k,pc);const tx=new RegExp(k.re,'i').test(tl);return {k,n,tx,pi:pi<0?99:pi,s:(pi>=0||ind&&k.ind.includes(ind)?3:0)+(tx?2:0)+(hit(k,ac)>=0?1:0)}}).filter(x=>x.s>0).sort((a,b)=>b.s-a.s||a.pi-b.pi||a.n-b.n);
   /* 電子（電池・通信・センサー）は文章に書いてあれば、作り方の品目の枠とは別に必ず入れる（置き時計→木工・金属でも、電池・表示の質問が要る） */
   const ov=x=>FS_OVER.includes(x.k.id)&&x.s>=2||x.k.id==='elec'&&x.tx;const over=sc.filter(ov),m0=sc.filter(x=>!ov(x));
   let main=m0.filter(x=>x.s>=2).slice(0,over.length?1:2);if(!main.length&&!over.length)main=m0.slice(0,1);
