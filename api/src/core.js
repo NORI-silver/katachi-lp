@@ -277,7 +277,8 @@ export function checkSpec({spec, source_text}) {
     if (f.why && f.why.startsWith('根拠')) issues.push({key: def.k, type: 'no_basis', message: `「${def.t}」${f.why}`});
   };
   for (const d of fspec.common) push(d, d.req);
-  for (const c of cs) for (const d of c.items) push(d, d.key, c.id);
+  // 品目の項目の必須は、定義表（tools/fspec.py の NEED）の need: 'must'（サイトの fsBuild と同じ）
+  for (const c of cs) for (const d of c.items) push(d, d.need ? d.need === 'must' : d.key, c.id);
 
   // 矛盾の検査
   const val = k => (items.find(i => i.key === k)?.value || '');

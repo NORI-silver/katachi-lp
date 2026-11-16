@@ -56,9 +56,9 @@ COMMON = [
     dict(k='docs', t=('手元の資料', 'What you have', '手头资料'), req=1, multi=1, sx='docs',
          q=('手元にある資料はどれですか（いくつでも）', 'Which of these do you have? (choose any)', '手头有哪些资料？（可多选）'),
          ch=[('図面', 'Drawings', '图纸'), ('3Dデータ', '3D data', '3D数据'), ('手書きのスケッチ', 'Hand sketch', '手绘草图'),
-             ('写真', 'Photos', '照片'), ('現物を送れる', 'A physical sample I can send', '可寄送实物'),
+             ('写真', 'Photos', '照片'), ('現物を送れる', 'A physical sample I can send', '可寄送实物'), ('ない', 'Nothing yet', '没有'),
              ('型紙・パターン', 'Sewing pattern', '纸样'), ('配合・レシピ', 'Formula / recipe', '配方'),
-             ('入稿データ（ロゴ・デザイン）', 'Print-ready artwork (logo, design)', '印刷数据（标志、设计）'), ('ない', 'Nothing yet', '没有')]),
+             ('入稿データ（ロゴ・デザイン）', 'Print-ready artwork (logo, design)', '印刷数据（标志、设计）')]),
     dict(k='qs', t=('試作・サンプルの数', 'Prototype / sample quantity', '试制・样品数量'), req=1, sx='quantity_proto',
          q=('試作・サンプルは何個ほしいですか', 'How many prototypes or samples do you want?', '需要多少个试制品、样品？'),
          ch=[('1個', '1', '1个'), ('2〜5個', '2–5', '2～5个'), ('6〜20個', '6–20', '6～20个'), ('試作はいらない', 'No prototype needed', '不需要试制')],
@@ -232,7 +232,112 @@ CATS = [
                 dict(k='gwt', t=('中に入れる物の重さ（箱・袋）', 'Weight of contents (boxes / bags)', '内容物重量（盒・袋）'), key=0, q=('箱や袋なら、中に入れる物の重さは', 'For boxes or bags, how heavy are the contents?', '如果是盒子或袋子，内容物有多重？'),
                      ch=[('箱・袋ではない', 'Not a box or bag', '不是盒子或袋子'), ('〜100g', 'Up to 100 g', '100g以内'), ('〜1kg', 'Up to 1 kg', '1kg以内'), ('1kgより重い', 'Over 1 kg', '超过1kg')])],
          asks=[('種類ごとの最小数と、使う日（イベント日）に間に合う日程かを教えてください。', 'What is the minimum per design, and can you meet the event date?', '请告诉我们每款的最小数量，以及能否赶上使用日（活动日）。')]),
+    # 大きな物・据え付け（台・スロープ・架台など）。重さがかかる・置く場所・設置まで頼むかで、作り方と見積が大きく変わる（Nori の実依頼で分かり、どの大型品にも効くので足した 2026-11-16）
+    dict(id='struct', t=('大きな物・据え付け', 'Large / installed items', '大型・安装类'), proc=[], ind=[],
+         re=r'スロープ|架台|台車|リフト|昇降|ステージ|手すり|手摺|柵|フェンス|小屋|ゲート|門扉|デッキ|乗る|乗せ|載せ|耐荷重|体重',
+         items=[dict(k='load', t=('載せる重さ', 'Load it must carry', '承重'), key=1, q=('人・動物・物が乗りますか。重さはどのくらいですか', 'Will people, animals or things go on it? How heavy?', '会有人、动物或物品放在上面吗？多重？'),
+                     ch=[('乗らない（重さはかからない）', 'Nothing goes on it', '不承重'), ('〜20kg', 'Up to 20 kg', '20kg以内'), ('〜100kg', 'Up to 100 kg', '100kg以内'), ('100kgより重い', 'Over 100 kg', '超过100kg')],
+                     fq=('載せる重さと使い方（毎日使う・人や動物が乗るなど）から、必要な強さと安全の考え方を提案してください。', 'From the load and how it is used (daily use, people or animals on it), please propose the strength and safety approach.', '请根据承重和使用方式（每天使用、人或动物站上去等），提出所需强度和安全方面的方案。')),
+                dict(k='where', t=('置く場所', 'Where it stands', '放置场所'), key=1, q=('どこに置きますか', 'Where will it stand?', '放在哪里？'),
+                     ch=[('屋内', 'Indoors', '室内'), ('屋外（雨が当たる）', 'Outdoors (in the rain)', '室外（会淋雨）'), ('水の中・水まわり', 'In or near water', '水中・用水处')]),
+                dict(k='inst', t=('据え付け・設置', 'Installation', '安装'), key=1, q=('設置まで頼みますか', 'Do you need it installed?', '需要安装吗？'),
+                     ch=[('届けるだけでよい（自分で置く）', 'Delivery only (I will set it up)', '只需送达（自己摆放）'), ('組み立て・設置まで', 'Assembly and placement', '组装・摆放'), ('取り付け工事まで（壁・床・車など）', 'Fixing work (wall, floor, vehicle, etc.)', '包括固定施工（墙、地面、车辆等）')])],
+         asks=[('大きさの上限（置く場所・運ぶ道・車に積めるか）と、分割して運ぶ必要があるかを教えてください。', 'What size limits apply (site, delivery route, vehicle), and does it need to be split for transport?', '请告诉我们尺寸上限（放置场所、搬运路线、能否装车），以及是否需要分体运输。')]),
 ]
+
+# ---------------------------------------------------------------------------
+# 工場に依頼するときの必要情報の定義表（Nori 2026-11-16「何が必要情報かを整理できてない」）
+#   need: must    = 見積・受けるかの判断に要る。文章に無ければ②の前に1問ずつ聞く（わからない・おまかせも可）
+#         factory = 工場が決めてよい（素人には決めにくい）。聞かずに「ご提案ください」として工場に渡す
+#         nice    = あると見積が正確になる。聞かない。書いてあれば工場に渡し、無ければ依頼文に出さない
+#   rx: 文章から読む言葉 [選択肢の番号, 正規表現]（multi の項目は当たった選択肢を全部）。rv: rx が当たらないとき、値をそのまま抜く正規表現
+#   根拠: 比較ビズの公開案件 約250件（2026-11-14）、各社の見積フォーム13件と国内の工場780社の問い合わせフォーム（2026-11-15、
+#   katachi-research/quote-form-items.md）。画面の読み取り（fsBuild）・質問（cqBox）・工場向けの依頼文（fsText）が全部この表で動く。
+# ---------------------------------------------------------------------------
+NEED = {
+    # 共通
+    # 共通の項目の多くは、template.html の fsBuild に専用の読み方がある（rd=1。数字・寸法・時期など、選択肢に当てるより抜き出すほうがよいもの）
+    'name': dict(need='must', rd=1), 'purpose': dict(need='must', rd=1), 'size': dict(need='must', rd=1), 'mat': dict(need='must', rd=1),
+    'fin': dict(need='factory', rd=1), 'parts': dict(need='nice', rd=1), 'scope': dict(need='must', rd=1), 'fit': dict(need='nice', rd=1),
+    'docs': dict(need='must', rd=1), 'qs': dict(need='must', rd=1), 'qf': dict(need='must', rd=1), 'qc': dict(need='nice'),
+    'due': dict(need='must', rd=1), 'dueflex': dict(need='nice', rd=1), 'budget': dict(need='nice', rd=1), 'sure': dict(need='nice'),
+    'reg': dict(need='nice', rd=1), 'env': dict(need='nice', rd=1),
+    # 電子・基板
+    'escope': dict(need='factory', rx=[[0, r'回路(の)?設計'], [1, r'基板'], [2, r'ファーム|プログラム|ソフト'], [3, r'ケース|筐体|ハウジング'], [4, r'アプリ']]),
+    'power': dict(need='must', rx=[[0, r'乾電池|単[1-4１-４]電池|ボタン電池|コイン電池'], [1, r'充電|バッテリー|リチウム|USB.?給電'], [2, r'コンセント|AC電源|100V|家庭用電源'], [0, r'電池']]),  # ただの「電池」は乾電池として読む（充電・コンセントが先に当たる）
+    'comm': dict(need='must', rx=[[0, r'通信(は|を)?(使わない|不要|しない|なし)|オフライン|単体で動く'], [1, r'bluetooth|(?<![a-z])ble(?![a-z])|ブルートゥース|スマホ(と|に)(つな|連携|接続)'], [2, r'wi-?fi|無線LAN'], [3, r'(?<![a-z])lte(?![a-z])|(?<![a-z0-9])[45]g(?![a-z])|sim|携帯回線|セルラー'], [4, r'gps|位置情報|居場所']],
+                 rv=r'スマホ(に|へ|で|から)[^。\n、]{0,8}?(知らせる|通知する|通知|知らせ|見られる|見る|確認する|確認|操作する|操作)|アプリで[^。\n、]{0,8}?(見る|確認|操作|通知)|遠隔で[^。\n、]{0,8}?(見る|確認|操作)'),  # 方式が書いていなければ、書いた言葉のまま渡す（方式は工場の提案）
+    'have': dict(need='nice', rx=[[0, r'試作品(が|は)?(ある|あります|できて)|自作(した|の)|手作りの試作']]),
+    'edata': dict(need='nice', rx=[[0, r'回路図|ガーバー|gerber|(?<![a-z])bom(?![a-z])|部品表']]),
+    'psup': dict(need='nice', rx=[[1, r'部品(は|を)?(一部)?(支給|持ち込|用意します)']]),
+    # 金属
+    'grade': dict(need='factory', rx=[[0, r'ステンレス|sus\d*'], [1, r'アルミ|a5052|a6061'], [2, r'(?<![a-z])鉄|ss400|スチール']]),
+    'tol': dict(need='factory', rx=[[1, r'公差|±\s*0[.．]\d|高精度']]),
+    'surf': dict(need='factory', rx=[[0, r'無処理|素地のまま'], [1, r'アルマイト'], [2, r'塗装|粉体'], [3, r'メッキ|めっき'], [4, r'研磨|鏡面|ヘアライン']]),
+    'supply': dict(need='nice', rx=[[1, r'材料(は|を)?(支給|持ち込|用意します)']]),
+    'insp': dict(need='nice', rx=[[1, r'検査表|測定(結果|データ)'], [2, r'ミルシート|材料証明']]),
+    # 樹脂
+    'rgrade': dict(need='factory', rx=[[0, r'(?<![a-z])abs(?![a-z])'], [1, r'(?<![a-z])pp(?![a-z])|ポリプロピレン'], [2, r'(?<![a-z])pc(?![a-z])|ポリカ'], [3, r'アクリル|pmma'], [4, r'(?<![a-z])pom(?![a-z])|ジュラコン'], [5, r'シリコ']]),
+    'color': dict(need='nice', rx=[[0, r'透明|クリア'], [2, r'多色|複数の色|カラフル|[2-9２-９]色']]),
+    'finish': dict(need='factory', rx=[[1, r'塗装'], [2, r'メッキ|めっき'], [3, r'ロゴ|印刷|刻印']]),
+    'method': dict(need='factory', rx=[[0, r'3d.?プリ|削り出し|切削'], [1, r'金型|射出成形']]),
+    'look': dict(need='must', rx=[[0, r'内部(の)?部品|見えない(部品|ところ)|中に入る部品'], [2, r'外観部品|見た目(が|を)?(大事|重視|きれい)|高級感|商品の顔']]),
+    # 布・縫製
+    'fabric': dict(need='must', rx=[[0, r'綿|コットン'], [1, r'ポリエステル|ドライ素材'], [2, r'ナイロン'], [3, r'ウール'], [4, r'革|レザー']]),
+    'weave': dict(need='factory', rx=[[0, r't\s*シャツ|ｔシャツ|ニット|スウェット|パーカー|ポロ'], [1, r'(?<![tｔ])(?<![tｔ]\s)シャツ|ブラウス|ジャケット|ワンピース']]),
+    'sizes': dict(need='must', rx=[[0, r'フリーサイズ|ワンサイズ|1サイズ|１サイズ'], [1, r's\s*[・/〜~-]\s*m\s*[・/〜~-]\s*l(?![a-z])|3サイズ|３サイズ'], [2, r'(?<![a-z])xs(?![a-z])|xxl|(?<![0-9])[34]l(?![a-z])|[5-9]サイズ|s\s*[〜~-]\s*xl']]),
+    'deco': dict(need='must', rx=[[0, r'無地|プリント(は)?なし'], [1, r'プリント|シルク|転写|印刷'], [2, r'刺繍|ししゅう']]),
+    'tag': dict(need='nice', rx=[[1, r'下げ札'], [2, r'織りネーム|ネームタグ|ブランドタグ']]),
+    'fsup': dict(need='nice', rx=[[1, r'生地(は|を)?(支給|持ち込|用意します)']]),
+    # ペット
+    'target': dict(need='must', rx=[[0, r'小型犬|チワワ|トイプードル|ダックス|ポメラニアン|(?<![0-9])[1-9]\s*kgの犬'], [1, r'中型犬|柴犬|コーギー|[12]\d\s*kgの犬'], [2, r'大型犬|ゴールデン|ラブラドール|セントバーナード|シェパード|ハスキー|(?:[3-9]\d|1\d\d)\s*kgの犬'], [3, r'猫|ねこ|ネコ']]),
+    'psize': dict(need='nice', rx=[[0, r'1サイズ|ワンサイズ'], [1, r'サイズ展開|複数(の)?サイズ|s\s*[・/]\s*m\s*[・/]\s*l']]),
+    'wash': dict(need='nice', rx=[[0, r'洗える|洗濯|丸洗い']]),
+    'chew': dict(need='nice', rx=[[0, r'誤飲|かじ|噛']]),
+    # 食品
+    'recipe': dict(need='must', rx=[[0, r'レシピ(が|は)?(ある|あります|決まって)|自家製|配合(が|は)?(ある|決まって)|自分のレシピ|うちの味|店の味|今(売って|出して)いる'], [1, r'レシピ(が|は)?(ない|ありません)|レシピ(から|も)(作|考)|開発から|一緒に(作|考)']]),
+    'form': dict(need='must', rx=[[0, r'常温'], [1, r'冷蔵|チルド'], [2, r'冷凍'], [3, r'レトルト'], [4, r'乾燥|粉末|パウダー|フリーズドライ|グラノーラ|クッキー|焼き菓子|せんべい']]),
+    'raw': dict(need='nice', rx=[[0, r'原料(は|を)?(持ち込|支給|用意します)|(自家|うちの)(畑|農園)']]),
+    'sales': dict(need='nice', rx=[[0, r'通販|(?<![a-z])ec(?![a-z])|ネット(で)?販売'], [1, r'ふるさと納税'], [2, r'店舗|お店で売|店頭|道の駅'], [3, r'イベント|マルシェ']]),
+    'fuse': dict(need='nice', rx=[[0, r'販売|売る|売りたい|通販'], [1, r'業務用|店で使う|店舗で使う']]),
+    'shelf': dict(need='nice'),
+    'fpack': dict(need='nice', rx=[[0, r'袋|パウチ'], [1, r'(?<![a-z])箱'], [2, r'瓶|缶'], [3, r'ボトル'], [4, r'個包装|小分け']]),
+    # 化粧品
+    'ctype': dict(need='must', rx=[[0, r'化粧水|美容液|乳液|クリーム|洗顔|スキンケア|美容オイル|フェイス'], [1, r'シャンプー|トリートメント|ヘア'], [2, r'ボディ|石けん|せっけん|石鹸|ハンドクリーム'], [3, r'リップ|ファンデ|メイク|アイシャドウ|口紅']]),
+    'vol': dict(need='must', rv=r'\d+(?:[.．]\d+)?\s*(?:ml|mL|ｍｌ|ミリリットル|g(?![a-z]))'),
+    'box': dict(need='must', rx=[[0, r'既製(品)?(の)?容器|既存の容器|容器は(何でも|おまかせ)'], [1, r'オリジナル(の)?(容器|ボトル)|容器から'], [2, r'箱も|化粧箱']]),
+    'cuse': dict(need='nice', rx=[[0, r'販売|売る|売りたい|店販'], [1, r'業務用|サロンで使|施術']]),
+    'cref': dict(need='nice'), 'csup': dict(need='nice', rx=[[1, r'容器(は|を)?(支給|持ち込)'], [2, r'ラベル(は|を)?(支給|持ち込)']]),
+    # 木工・家具
+    'wood': dict(need='factory', rx=[[0, r'パイン'], [1, r'ナラ|オーク'], [2, r'ウォールナット'], [3, r'合板|ベニヤ']]),
+    'paint': dict(need='factory', rx=[[0, r'無塗装'], [1, r'オイル(仕上げ)?'], [2, r'ウレタン'], [3, r'着色|ステイン']]),
+    'kd': dict(need='nice', rx=[[0, r'組み立て式|組立式|ノックダウン'], [1, r'完成品(で|の)(納品|届)']]),
+    'place': dict(need='must', rx=[[0, r'家庭|自宅|家で|リビング|部屋'], [1, r'店|カフェ|ショップ|サロン|売り場'], [2, r'施設|ホテル|病院|オフィス|学校|事務所'], [3, r'子ども|子供|キッズ']]),
+    'carry': dict(need='nice', rx=[[1, r'階段'], [2, r'エレベーター']]),
+    'inst': dict(need='must', rx=[[0, r'配送だけ|届けるだけ|自分で(置|組み立て|取り付け|設置)'], [1, r'組み立て(て|まで)|設置(して|まで)'], [2, r'取り付け工事|(壁|床|車)に(固定|取り付け|付けて)']]),  # 木工・家具と大きな物で共通
+    # 雑貨・ノベルティ
+    'colors': dict(need='must', rx=[[0, r'1色|１色|単色|一色'], [1, r'[23２３]色'], [2, r'フルカラー|カラー印刷|写真']]),
+    'art': dict(need='must', rx=[[0, r'(デザイン|ロゴ|入稿)(の)?データ(が|は)?(ある|あります)|入稿|aiデータ|イラストレーター|デザインは(決まって|でき)'], [1, r'デザインから|デザイン(して|を作って|も頼|もお願い)']]),
+    'indiv': dict(need='nice', rx=[[1, r'opp|個包装'], [2, r'台紙']]),
+    'kinds': dict(need='nice', rx=[[0, r'1種類|１種類'], [1, r'[2-5２-５]種類'], [2, r'([6-9]|\d\d)種類']]),
+    'gdeco': dict(need='factory', rx=[[1, r'箔押し|箔'], [2, r'エンボス'], [3, r'窓']]),
+    'gwt': dict(need='nice'),
+    # 大きな物・据え付け
+    'load': dict(need='must', rv=r'(?:\d+(?:[.．]\d+)?\s*(?:kg|キロ))(?:[^。\n]{0,6}(?:犬|人|物|荷物))?', rx=[[0, r'(人|物|何も)(は|が)?乗らない|乗せない']]),
+    'where': dict(need='must', rx=[[0, r'室内|屋内|店内|部屋'], [1, r'屋外|庭|ベランダ|外に置|雨'], [2, r'プール|水中|水辺|浴室|水まわり|水回り|川|海']]),
+}
+
+
+def _need():
+    for d in COMMON + [i for c in CATS for i in c['items']]:
+        o = NEED.get(d['k'])
+        assert o, ('NEED に無い項目', d['k'])
+        d.update(o)
+        for n, _ in d.get('rx', []):
+            assert 0 <= n < len(d.get('ch', [])), ('rx の番号が選択肢の外', d['k'], n)
+
+
+_need()
 
 # 画面の文言（日英中）
 # 工場が見積を出すのに最低限要る6点（図面なしで聞く核）。keys のどれかがそろえばよい（all=1 は全部）。cat で品目ごとに置き換え、skip で外す
@@ -484,15 +589,42 @@ def _pairs():
             for x in o: walk(x)
         elif isinstance(o, dict):
             for k, v in o.items():
-                if k not in ('k', 'id', 'proc', 'ind', 're', 'sx', 'keys', 'cat', 'skip'): walk(v)
+                if k not in ('k', 'id', 'proc', 'ind', 're', 'sx', 'keys', 'cat', 'skip', 'need', 'rx', 'rv', 'rd'): walk(v)
     walk(COMMON); walk(CATS); walk(CORE); out += UI
     return out
 
 
 T_FSPEC = {ja: (en, zh) for ja, en, zh in _pairs()}
 
+def md():
+    """必要情報の一覧（docs/factory-request-items.md）。定義表から作るので、手で直さない"""
+    L = ['# 工場に依頼するときの必要情報（定義表 `tools/fspec.py` から自動で作る）', '',
+         '画面の読み取り（文章から読む）・②の前の質問（1問ずつ、多くても6問）・工場に届く依頼の要点は、すべてこの表で動く。',
+         '- **必須**：見積・受けるかの判断に要る。文章に無ければ聞く（「わからない」も可。そのときは工場に「まだ決まっていない点」として渡す）',
+         '- **工場に任せる**：素人には決めにくい。聞かずに「ご提案ください」として工場に渡す',
+         '- **あると良い**：聞かない。書いてあれば工場に渡し、無ければ依頼文に出さない', '',
+         '根拠：比較ビズの公開案件 約250件（2026-11-14）、各社の見積フォーム13件と国内の工場780社の問い合わせフォーム（2026-11-15、`katachi-research/quote-form-items.md`）。', '']
+    lab = {'must': '必須', 'factory': '工場に任せる', 'nice': 'あると良い'}
+    def rows(items):
+        out = ['| 項目 | 区分 | 文章から読むか | 選択肢 |', '|---|---|---|---|']
+        for d in items:
+            how = '読む' if d.get('rx') or d.get('rv') or d.get('rd') else ''
+            out.append('| %s | %s | %s | %s |' % (_j(d['t']), lab[d['need']], how, ' / '.join(_j(c) for c in d.get('ch', [])) or '（自由に書く）'))
+        return out
+    L += ['## どの製品でも共通', ''] + rows(COMMON) + ['']
+    L += ['見積に最低限要る6点（工場が見積を出すのに要る核）：' + '、'.join(_j(c['t']) for c in CORE) + '（食品は配合・形態、化粧品は品目・容量・容器に置き換え）', '']
+    for c in CATS:
+        L += ['## ' + _j(c['t']), ''] + rows(c['items'])
+        if c.get('asks'):
+            L += ['', '工場に必ず聞くこと：'] + ['- ' + _j(a) for a in c['asks']]
+        L.append('')
+    return '\n'.join(L)
+
+
 if __name__ == '__main__':
     root = sys.argv[1] if len(sys.argv) > 1 else '.'
     os.makedirs(root + '/data', exist_ok=True)
     json.dump(data(), open(root + '/data/fspec.json', 'w'), ensure_ascii=False, indent=1)
+    os.makedirs(root + '/docs', exist_ok=True)
+    open(root + '/docs/factory-request-items.md', 'w').write(md())
     print('data/fspec.json', len(COMMON), 'common', len(CATS), 'cats', len(T_FSPEC), 'strings')
