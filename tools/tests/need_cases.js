@@ -19,6 +19,13 @@ const cases=[
   {id:'nobat',text:'ステンレスで植木鉢を置くスタンドを作りたい。電池やセンサーは使わない',cats:['metal'],nocats:['elec','goods']},
   {id:'plant',text:'観葉植物の土が乾いたらスマホに知らせるセンサーを作りたい。電池で動かしたい。自社の商品として100個売りたい。',cats:['elec'],v:{power:'乾電池',comm:'スマホに知らせる',qf:'100個'},noask:['power','comm','qf']},
   {id:'shelf',text:'カフェに置く木の陳列棚を2台作りたい',cats:['wood'],v:{place:'店舗'},ask:['inst']},
+  // 電子部品の無い長い設計書・依頼書で、電源・通信を聞かない（Nori 2026-11-16「これもうなんかいもやってるからいい加減やめて」。見出し・否定・将来の節の言葉は証拠にしない）
+  {id:'slope_spec',file:'pool_slope_spec.md',nocats:['elec'],noask:['power','comm']},
+  {id:'bench_spec',file:'wood_bench_spec.md',nocats:['elec'],noask:['power','comm']},
+  {id:'wheelchair_spec',file:'dog_wheelchair_spec.md',nocats:['elec'],noask:['power','comm']},
+  {id:'tote_spec',file:'tote_spec.md',nocats:['elec'],noask:['power','comm']},
+  {id:'sign_spec',file:'metal_sign_spec.md',nocats:['elec'],noask:['power','comm']},
+  {id:'guide_noel',text:'犬用のプールのスロープ\n数量：まず試作で1個\n材料：金属\n電子部品：使わない',nocats:['elec'],noask:['power','comm']},
 ];
 const MAXQ=6;
 (async()=>{const b=await chromium.launch();let ng=0;
@@ -28,6 +35,7 @@ const MAXQ=6;
     await c.route(u=>/\/(index\.html)?$/.test(new URL(u).pathname),async r=>{const resp=await r.fetch();let body=await resp.text();
       body=body.replace('window.KATACHI_RL=()=>S.lastRL;','window.KATACHI_RL=()=>S.lastRL;window.__FS=()=>({S,fsBuild,fsText});');r.fulfill({response:resp,body})});
     const p=await c.newPage();const errs=[];p.on('pageerror',e=>errs.push(e.message));await p.goto(base);
+    if(cs.file)cs.text=require('fs').readFileSync(require('path').join(__dirname,'specs',cs.file),'utf8');
     await p.fill('#idea',cs.text);await p.evaluate(()=>document.querySelector('#idea').form.requestSubmit());
     await p.waitForSelector('#mCq,#mPlans,.mstep',{timeout:30000}).catch(()=>{});await p.waitForTimeout(300);
     const r0=await p.evaluate(()=>{const {S,fsBuild}=window.__FS();const F=fsBuild(S.anal);const V={};for(const k in F.V)V[k]=F.V[k].v;return {cats:F.cats.map(k=>k.id),V}});
