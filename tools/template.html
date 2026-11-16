@@ -3050,10 +3050,13 @@ const DENY_IN=new RegExp('[^\\s、。，,．.！!？?・：:（）()「」\\n]{1
 function denyStrip(text){return String(text||'').split('\n').filter(l=>!DENY_LINE.test(l)).join('\n').replace(DENY_IN,' ')
   .replace(/\b(?:no|without)\s+(?:electronics?|electronic parts|batter(?:y|ies)|sensors?|leds?|motors?|power)\b/gi,' ').replace(/(?:不需要|不用|不要|没有|无)(?:电子(?:元件|部件)?|电池|传感器|电机)/g,' ')}
 function specCore(text){let t=denyStrip(text);
+  /* Markdown の見出し（### 1. 設計目的）も【見出し】と同じに扱う。最初の見出しは製品名なので本文に残す（Nori 2026-11-16：設計書の「### 9. 将来の追加（今回は不要）」の水温センサーで電子の工程が出た） */
+  {let first=true;t=t.split('\n').map(l=>{const m=l.match(/^\s*#{1,6}\s+(.+?)\s*#*\s*$/);if(!m)return l;const h=m[1].replace(/\\(?=[.\-*_#()])/g,'').replace(/[【】]/g,'');if(first){first=false;return h}return '【'+h.slice(0,30)+'】'}).join('\n')}
   t=t.replace(/【[^】]*(将来|オプション|今後|いずれ)[^】]*】[^【]*/g,' ').split(/\n/).filter(l=>!/初期は不要|今回は不要|なくても(よい|いい)|なくてよい|将来(的に)?は|オプションで|あれば(よい|いい|うれしい)/.test(l)).join('\n');
   const H=t.match(/【[^】]{1,30}】/g)||[];if(H.length<4||t.length<1200)return t;
   const keep=/製品名|構成|外観|寸法|材質|素材|構造|電源|動力|機能|部品|仕様/;
   return t.split(/(?=【[^】]{1,30}】)/).filter(b=>{const h=(b.match(/^【([^】]*)】/)||[])[1];return !h||keep.test(h)}).join('\n')}
+const EL_POS=/スマホ(で|から|と|に|を使って)|遠隔|センサ|電池|バッテリ|充電|基板|回路|電子|電気で|電気の|電源|コンセント|usb|bluetooth|ble(?![a-z])|wi-?fi|無線|通信|アプリ|iot|gps|gnss|led|ライト|照明|ランプ|モーター|モータ|電動|ロボ|ドローン|スピーカー|イヤホン|マイク|カメラ|ディスプレイ|液晶|画面|スマート|ウェアラブル|トラッカー|家電|ヒーター|扇風機|リモコン|自動で|自動化|自動的|通知|知らせ|見える化|測る|測れ|計測器|温度計|心拍|脈拍|活動量|歩数|加速度|ジャイロ|imu|ブザー|スイッチ|ガジェット|デバイス|electronic|sensor|battery|电子|电池|传感/i;
 function analyzeText(text){text=specCore(text);
   // 電子機器ではないのに電子系の語を含む言い方（スマホケース等）は、先に取り除いてから読む
   const t=String(text||'').toLowerCase().replace(/スマホ(ケース|スタンド|カバー|ホルダー|リング|ストラップ|置き|立て|ポーチ|ショルダー)|ペット用シャンプー|車のアクセサリー|自転車のパーツ/g,m=>m==='ペット用シャンプー'?'シャンプー':' '+m.replace('スマホ','')+' ').replace(/車(椅子|いす)/g,' 車イス ').replace(/スマート(グラス|ウォッチ|リング|メガネ|眼鏡)/g,(m,k)=>' 装着 デバイス 電子 '+({グラス:'眼鏡',ウォッチ:'腕時計',リング:'指輪'}[k]||'眼鏡')+' ').replace(/ウェアラブル/g,' 装着 デバイス '),C=GDB.caps;
@@ -3073,6 +3076,19 @@ function analyzeText(text){text=specCore(text);
   /* 入れる物・載せる物・置く場所は、作る物ではない（「コーヒー豆を入れるキャニスター」「ドリンクホルダー」「パターのカバー」「犬を乗せるカート」） */
   const HOLD=/^[一-龠々ァ-ヶー]{0,2}?(の)?(ホルダー|ケース|スタンド|置き|立て|入れ(?![るたてらまとな])|カバー|ラック|ポーチ|トレー|トレイ|ハンガー|フック|キャニスター|ストッカー)|^[一-龠々ァ-ヶー]{0,2}?を(入れる|入れて|入れられ|入れておけ|しまう|しまえ|しまって|収納|載せ|乗せ|置[くけ]|飾[るれ]|運[ぶべ]|持ち運)|^[一-龠々ァ-ヶー]{0,2}?に(上が|あが|登|のぼ|届)|^[一-龠々ァ-ヶー]{0,2}?を[^。、\n]{1,12}?ための/;
   keep=keep.filter(h=>MATK.test(h[3])||!HOLD.test(t.slice(h[1])));
+  /* ★中身の品（食品・飲み物・化粧品）の関門（Nori 2026-11-16「他のどんなフリーなインプットに対しても同様のことがおこらないようにして」）。
+     「コーヒーを入れるタンブラー」「シャンプーのボトルを並べる棚」「ケーキ屋さんの箱」「パン屋で売るバッグ」のように、中身の品は作る物の説明に出てくるだけのことが多い。
+     ほかに作る物（器・箱・袋・布・木・金属…）が読めているときは、中身の品が「◯◯を作る／◯◯を300個／◯◯のOEM」のように作る物そのものとして書かれているときだけ使う */
+  {const CONT=/^(food|cosmetics\.oem$|cosmetics$|packaging\.container$)/;const MAKEV=/作|つく|製造|開発|販売|売り|商品化|OEM|ODM|焙煎|詰め|加工|仕込|レシピ|ほしい|欲しい|\d+\s*(個|袋|本|箱|缶|瓶|枚|kg|g|ml|セット|食|杯|パック)/i;
+    const asProduct=h=>{const rest=t.slice(h[1]);const m=rest.match(/^[^。！？\n]{0,30}/)[0];const m2=m.replace(/^[ァ-ヶー一-龠々]{0,3}?[\s）)」』\]]*(?=を|は|も|の?\s*(oem|odm|製造|開発|商品|ブランド|試作|レシピ)|など|や)/i,'');
+      return /^(を|は|も|の?\s*(oem|odm|製造|開発|商品|ブランド|試作|レシピ)|など|や[^。\n]{0,12}を)/i.test(m2)&&MAKEV.test(m2.replace(/^(を|は|も)/,'').split('を')[0])};
+    if(keep.some(h=>CONT.test(h[2]))&&keep.some(h=>!CONT.test(h[2])&&/^(manufacturing|crafts|apparel|packaging)/.test(h[2])&&!MATK.test(h[3])||/^(crafts|apparel)/.test(h[2]))){
+      const prod=keep.filter(h=>CONT.test(h[2])&&asProduct(h));
+      if(!prod.length)keep=keep.filter(h=>!CONT.test(h[2]))}}
+  /* 使う人・乗る人を言う言葉（「車椅子の人が通るスロープ」「赤ちゃんを乗せる」）は作る物ではない */
+  keep=keep.filter(h=>!/^\s*(の人|の方|を使う人|を使っている人|に乗った人|に乗る人|の利用者|ユーザー|利用者)/.test(t.slice(h[1])));
+  /* 「美容室」「歯科医院」「カフェ店」のように、場所・お店の種類を言う言葉は作る物ではない（「美容室の待合のベンチ」に化粧品OEMを付けない） */
+  keep=keep.filter(h=>!/^(food|cosmetics)/.test(h[2])||!/^(室|院|店|サロン|教室|クリニック|の待合|の店|のお店|のお客)/.test(t.slice(h[1])));
   /* カタカナの言葉のすぐ後に別の工程のカタカナの言葉が続くときは、前は飾りの言葉（「デスクライト」の「デスク」） */
   const KT=/[ァ-ヶー]/;keep=keep.filter(h=>MATK.test(h[3])||!KT.test(t[h[1]-1]||'')||!keep.some(o=>o[0]===h[1]&&KT.test(t[o[0]])&&o[2]!==h[2]));
   /* 材料・加工をはっきり書いたら、形だけの言葉（カバー・ケース・キャップ・容器など）から読んだ別の工程は使わない（「革でカバー」は革製品、「ステンレスでボトル」は金属） */
@@ -3085,6 +3101,12 @@ function analyzeText(text){text=specCore(text);
   /* 「1個だけ」「一点もの」だけで読めた試作（3Dプリント・簡易型）は、布・食品・化粧品・器などの品には付けない */
   if(keep.some(h=>h[2]==='manufacturing.rapid_proto')&&keep.filter(h=>h[2]==='manufacturing.rapid_proto').every(h=>/^(1個だけ|一点もの)$/.test(h[3]))&&keep.some(h=>/^(manufacturing\.textile|apparel|food|cosmetics\.oem|crafts)/.test(h[2])))keep=keep.filter(h=>h[2]!=='manufacturing.rapid_proto');
   let hit=[...new Set(keep.map(h=>h[2]))];
+  /* ★電子部品の関門（Nori 2026-11-16「これもうなんかいもやってるからいい加減やめて」）。
+     センサー・GPS・回路・基板などの電子の工程は、電子部品が入るとはっきりわかる言葉（EL_POS）が、否定・将来・オプションを除いた文にあるときだけ使う。
+     「設置位置」「犬の姿勢」「温度」「測定」「安全」のような、ふだんの文にも出る言葉だけでは電子機器にしない。どの品でも同じ関門を通す。
+     過去の誤り（ガイドの「電子部品：使わない」、文中の「電池は不要」、設計書の「将来の追加」、見出しの言葉）は tools/tests/match_cases.json の el_ 系で確かめる */
+  /* 見出し（【電子部品】など）は項目の名前で、中身ではないので証拠にしない */
+  if(!EL_POS.test(t.replace(/【[^】]*】/g,' ')))hit=hit.filter(c=>!/^(sensing|electronics|software)/.test(c));
   /* 「ロゴ入り」「名入れ」「プリント」だけで読めたプリント・刺繍の工程は、布の物のときだけ（紙袋・マグ・タンブラーは、その品を作る会社が入れる） */
   /* 「キャンプ」「アウトドア」「ゴルフ」などの使う場面の言葉だけで読めた雑貨の工程は、ほかに作る工程（金属・木・布など）が読めたら外す
      （ステンレスの焚き火台に、ボールペンなどの雑貨の会社が付かないように） */
@@ -3106,6 +3128,20 @@ function analyzeText(text){text=specCore(text);
     if(/電動|バッテリー|充電|電池|ドローン|ロボ|自走/.test(t)&&!hit.includes('electronics.low_power'))hit.push('electronics.low_power')}
   const hw=hit.some(c=>/^(sensing|electronics)/.test(c));
   if(!hw)hit=hit.filter(c=>!['testing.animal_trial','mechanical.wearable_fit','testing.human_trial'].includes(c));
+  /* 「安全」だけで読めた電池・製品安全試験は、電子機器のときだけ */
+  if(!hw&&!keep.some(h=>h[2]==='testing.battery_safety'&&h[3]!=='安全'))hit=hit.filter(c=>c!=='testing.battery_safety');
+  /* 「落下を防ぐ」「耐久性」のような言葉で読めた環境・耐久試験は、電子機器・機械のときだけ（試験所に頼むのは機器の認証・評価） */
+  if(!hw&&!mach&&!keep.some(h=>h[2]==='testing.environmental'&&/防水試験|温湿度/.test(h[3])))hit=hit.filter(c=>c!=='testing.environmental');
+  /* 1台・1個だけの物で、「樹脂」「プラスチック」の材料の言葉だけで読めた射出成形は、ほかに作る工程（板金・切削・木工…）があれば外す。
+     金型を作る射出成形は数を作るときの作り方で、1台の物の樹脂の部品は本体を作る工場が手配する（Nori 2026-11-16 設計書の「樹脂の滑り止め」「樹脂キャップ」で眼鏡フレームの会社が出た） */
+  if(hit.includes('manufacturing.injection_molding')&&/(^|[^\d０-９])[1-3１-３一二三]\s*(台|個|点|基|セット|式)(?![\d０-９])|1台だけ|ワンオフ|一点もの|1個だけ/.test(t)
+    &&keep.filter(h=>h[2]==='manufacturing.injection_molding').every(h=>/^(樹脂|プラスチック|キャップ|カバー|フタ|ケース)$/.test(h[3]))
+    &&hit.some(c=>c!=='manufacturing.injection_molding'&&/^(manufacturing\.(sheet_metal|cnc|textile|welding)|crafts\.)/.test(c)))hit=hit.filter(c=>c!=='manufacturing.injection_molding');
+  /* 見出しが4つ以上ある長い仕様文・設計書では、題名の品（スロープ・棚・ベッド…）の形から作る工程を必ず入れ、
+     本文の部品の言葉（脚の先のキャップ、滑り止めのマット、カバー）だけで読めた別の工程は使わない（Nori 2026-11-16 設計書） */
+  if((t.match(/【[^】]{1,30}】/g)||[]).length>=4){const ttl=t.split('\n').find(l=>l.trim())||'';const sh=CGEN.shapes.find(x=>x.caps&&x.caps.length&&rx(x.kw,ttl));
+    if(sh){const part=new Set(keep.filter(h=>SHK.test(h[3])&&!ttl.includes(h[3])).map(h=>h[2]));
+      hit=hit.filter(c=>!part.has(c)||keep.some(h=>h[2]===c&&!SHK.test(h[3])));for(const c of sh.caps)if(!hit.includes(c))hit.push(c)}}
   /* 回路図・部品表・ガーバーがあって「実装」を頼むときは、設計は済んでいる。設計・試作の工程は足さない */
   const implOnly=/実装/.test(t)&&/回路図|ガーバー|部品表|bom|設計データ/.test(t);
   if(implOnly)hit=hit.filter(c=>!['electronics.pcb_design','electronics.firmware','electronics.low_power','mechanical.enclosure_design','manufacturing.rapid_proto'].includes(c)||false);
@@ -3128,7 +3164,7 @@ function analyzeText(text){text=specCore(text);
   const order=['sensing','electronics','mechanical','software','manufacturing','apparel','crafts','packaging','food','cosmetics','testing'];
   hit.sort((a,b)=>order.indexOf(a.split('.')[0])-order.indexOf(b.split('.')[0]));
   const regs=(GDB.regs||[]).filter(([kws])=>kws.some(k=>t.includes(k.toLowerCase()))).map(x=>x[1]);
-  return {codes:hit,regs,notices:[...new Set(notices)],fallback,mach,byShape,byPdb};
+  return {codes:hit,regs,notices:[...new Set(notices)],fallback,mach,byShape,byPdb,words:keep.map(h=>h[3]+'→'+h[2])};
 }
 /* 工程が読み取れないときの手がかり: 入力の言葉を、会社名・会社の説明文から探す */
 const STOP=/^(オリジナル|自社|ブランド|作りたい|つくりたい|作る|つくる|作成|製作|制作|製造|依頼|相談|お願い|したい|ほしい|欲しい|小ロット|ロット|個|本|枚|探して|探している|のOEM|OEM|ODM)$/i;
@@ -3612,7 +3648,7 @@ function makersFor(A){const t=denyStrip(S.idea)+' '+(S.files||[]).map(f=>f.name)
   /* 工程コードで当てる種類（電子機器のODM）は、製品そのものが電子機器のときだけ。
      長い仕様文の「将来センサーを付けたい」などで電子の工程が読めただけのスロープ・リフト・基板実装だけの依頼には当てない */
   const head=denyStrip(String(S.idea||'')).split(/\n/).slice(0,3).join(' ')+' '+((S.mctx||{}).pname||'');
-  const elec=ELEC_RX.test(head)&&!/実装|ガーバー|部品表|BOM/i.test(head);
+  const elec=ELEC_RX.test(head)&&codes.some(c=>/^(sensing|electronics)/.test(c))&&!/実装|ガーバー|部品表|BOM/i.test(head);
   for(const k of MAKERS){const hit=k.kind==='codes'?elec&&codes.length>=3&&codes.some(c=>new RegExp(k.codes).test(c)):new RegExp(k.idea).test(k.head?head:t)&&!(k.not_codes&&codes.some(c=>new RegExp(k.not_codes).test(c)));
     if(!hit)continue;const re=new RegExp(k.db),need=k.db_need?new RegExp(k.db_need):null,ci=(k.caps_all||[]).map(c=>GDB.caps.indexOf(c)),ca=(k.caps_any||[]).map(c=>GDB.caps.indexOf(c)).filter(i=>i>=0),mkx=k.make?new RegExp(k.make):null;
     /* 設計の工程（caps_all）は必ず。作る工程は caps_any のどれか、または概要に「製造」「自社工場」など（make）があればよい */

@@ -16,8 +16,10 @@ function judgeCase(cs,r){const ok=cs.ok?new RegExp(cs.ok):null,ng=cs.ng?new RegE
   // 上位5社の適合率：完成品メーカーの案ならその一覧、ほかは作る工程ごとの上位5社
   const lists=r.maker?[r.maker.rows]:(r.secs||[]).filter(s=>!SKIP.test(s.name||'')||MAKE.test(s.name||'')).map(s=>s.top);
   let t5=0,t5ok=0;for(const L of lists)for(const x of (L||[]).slice(0,5)){t5++;if(ok&&ok.test(txt(x))&&!(ng&&ng.test(txt(x))))t5ok++}
-  const codeMiss=cs.code?!(r.codes||[]).some(c=>new RegExp(cs.code).test(c)):false;
-  return {id:cs.id,v,plan:r.plan||'',picks,t5,t5ok,codeMiss,gold:r.gold||null,err:r.error||((r.errs||[]).length?r.errs[0]:'')}}
+  // codeNg: 読み取った工程に入ってはいけない工程（正規表現）。関係ない工程が1つでも出たら読み違い（Nori 2026-11-16「他のどんなフリーなインプットに対しても」）
+  const codeBad=cs.codeNg?(r.codes||[]).filter(c=>new RegExp(cs.codeNg).test(c)):[];
+  const codeMiss=(cs.code?!(r.codes||[]).some(c=>new RegExp(cs.code).test(c)):false)||codeBad.length>0;
+  return {id:cs.id,v,plan:r.plan||'',picks,t5,t5ok,codeMiss,codeBad,gold:r.gold||null,err:r.error||((r.errs||[]).length?r.errs[0]:'')}}
 function run(cases,res){const C=cases.map((cs,i)=>judgeCase(cs,res[i]||{}));
   const s={n:C.length,ok:0,mid:0,ng:0,codeMiss:0,t5:0,t5ok:0,goldN:0,goldIn:0,gold20:0,goldCases:0,r20:0,errors:0,verdicts:{}};
   for(const x of C){s[{'○':'ok','△':'mid','×':'ng'}[x.v]]++;s.verdicts[x.id]=x.v;if(x.codeMiss)s.codeMiss++;s.t5+=x.t5;s.t5ok+=x.t5ok;if(x.err)s.errors++;
