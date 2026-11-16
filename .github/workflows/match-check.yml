@@ -1,5 +1,5 @@
 # マッチング精度の回帰テスト（Nori 2026-11-15「マッチング精度が命」）。
-# 依頼88件をサイトの画面で流し、③に出る会社を「正解の基準」（tools/tests/match_cases.json）で採点して、
+# 依頼176件をサイトの画面で流し、③に出る会社を「正解の基準」（tools/tests/match_cases.json）で採点して、
 # 基準（tools/tests/match_baseline.json）より悪くなったら失敗にする。AI経由（API・MCP）の上位3社がサイトの★と違っても失敗。公開リポジトリなのでお金はかかりません。
 name: Matching check
 
@@ -27,7 +27,7 @@ permissions:
 jobs:
   match:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 35
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -42,7 +42,7 @@ jobs:
           node api/build.mjs
           python3 -m http.server 8765 >/dev/null 2>&1 &
           sleep 2
-          NODE_PATH=/tmp/pw/node_modules node tools/tests/match_eval.js http://localhost:8765/ match_result.json --check
+          PAR=6 NODE_PATH=/tmp/pw/node_modules node tools/tests/match_eval.js http://localhost:8765/ match_result.json --check
       - uses: actions/upload-artifact@v4
         if: always()
         with:
