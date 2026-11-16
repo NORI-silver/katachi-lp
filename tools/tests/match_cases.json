@@ -5,7 +5,8 @@
   "note": "Nori実依頼。期待: 金属の溶接・製缶でワンオフを受ける会社（例 結城工業 船橋、DB未収録）",
   "ok": "溶接|製缶|ワンオフ|特注|オーダー|架台|手すり|ステンレス|アルミ.*(加工|製品)|金属製品|スロープ|鉄工|板金",
   "ng": "電子|IoT|基板|食品|化粧品|縫製|自動車部品|超電導",
-  "code": "sheet_metal|metal_goods"
+  "code": "sheet_metal|metal_goods",
+  "codeNg": "^(sensing|electronics|software|testing\\.(radio|battery))|^food|^cosmetics(\\.oem)?$"
  },
  {
   "id": "sofa_slope",
@@ -13,7 +14,8 @@
   "note": "小型犬のソファ用スロープ（将来の機能に電子の語がある仕様文）",
   "ok": "スロープ|家具|木工|木製|ペット(用品|家具)|犬用ベッド|縫製|クッション|ウレタン",
   "ng": "電子|IoT|基板|GPS|食品|化粧品",
-  "code": "wood|textile|injection|sheet"
+  "code": "wood|textile|injection|sheet",
+  "codeNg": "^(sensing|electronics|software|testing\\.(radio|battery))|^food|^cosmetics(\\.oem)?$"
  },
  {
   "id": "dog_car_lift",
@@ -1107,7 +1109,8 @@
   "note": "Nori 2026-11-15 本番：ガイドの「電子部品：使わない」「数量：まず試作で1個」を足すと、首輪センサー（ジャイロ・GPS）や3Dプリントの会社が出た",
   "ok": "溶接|製缶|ワンオフ|特注|オーダー|架台|手すり|ステンレス|アルミ.*(加工|製品)|金属製品|スロープ|鉄工|板金",
   "ng": "電子|IoT|基板|GPS|センサ|食品|化粧品|縫製|自動車部品|超電導",
-  "code": "sheet_metal|metal_goods"
+  "code": "sheet_metal|metal_goods",
+  "codeNg": "^(sensing|electronics|software|testing\\.(radio|battery))|^food|^cosmetics(\\.oem)?$"
  },
  {
   "id": "deny_shelf_guide",
@@ -1115,7 +1118,8 @@
   "note": "ガイドの行（試作・電子部品：使わない）で家具が3Dプリント・電子にならない",
   "ok": "家具|木工|木製|インテリア|什器|木材|[Ww]ood|木の",
   "ng": "電子|IoT|基板|センサ|食品|化粧品|3Dプリント",
-  "code": "wood"
+  "code": "wood",
+  "codeNg": "^(sensing|electronics|software|testing\\.(radio|battery))|^food|^cosmetics(\\.oem)?$"
  },
  {
   "id": "deny_tote_guide",
@@ -1123,7 +1127,8 @@
   "note": "布の品にガイドの「電子部品：使わない」",
   "ok": "縫製|バッグ|鞄|かばん|帆布|布|トート|袋物|OEM",
   "ng": "電子|IoT|基板|センサ|食品|化粧品",
-  "code": "textile|garment|print"
+  "code": "textile|garment|print",
+  "codeNg": "^(sensing|electronics|software|testing\\.(radio|battery))|^food|^cosmetics(\\.oem)?$"
  },
  {
   "id": "deny_inline_battery",
@@ -1131,7 +1136,8 @@
   "note": "文の中の「〜は使わない」",
   "ok": "ステンレス|金属|板金|溶接|製缶|鉄工|金物|架台",
   "ng": "電子|IoT|基板|センサ|食品|化粧品",
-  "code": "sheet_metal|metal_goods"
+  "code": "sheet_metal|metal_goods",
+  "codeNg": "^(sensing|electronics|software|testing\\.(radio|battery))|^food|^cosmetics(\\.oem)?$"
  },
  {
   "id": "prev_collar_then_slope",
@@ -1140,7 +1146,8 @@
   "note": "前の依頼（首輪センサー）を出したあとトップに戻ってスロープを出す。前の依頼の工程・会社が残らない",
   "ok": "溶接|製缶|ワンオフ|特注|オーダー|架台|手すり|ステンレス|アルミ.*(加工|製品)|金属製品|スロープ|鉄工|板金",
   "ng": "電子|IoT|基板|GPS|センサ|食品|化粧品|縫製|自動車部品|超電導",
-  "code": "sheet_metal|metal_goods"
+  "code": "sheet_metal|metal_goods",
+  "codeNg": "^(sensing|electronics|software|testing\\.(radio|battery))|^food|^cosmetics(\\.oem)?$"
  },
  {
   "id": "guide_elec_yes",
@@ -1149,5 +1156,242 @@
   "ok": "電子|IoT|基板|センサ|回路|EMS|ペット|首輪|ウェアラブル|筐体",
   "ng": "食品|化粧品|縫製",
   "code": "electronics|sensing"
+ },
+ {
+  "id": "pool_slope_spec",
+  "file": "pool_slope_spec.md",
+  "note": "Nori 2026-11-16 本番：Markdown の設計書（### 見出し）。「設置位置」「犬の姿勢」と「将来の追加（今回は不要）」の水温センサーで、ジャイロ・GPS・回路設計の会社が出た",
+  "ok": "溶接|製缶|ワンオフ|特注|オーダー|架台|手すり|ステンレス|アルミ.*(加工|製品)|金属製品|スロープ|鉄工|板金",
+  "ng": "電子|IoT|基板|GPS|センサ|食品|化粧品|縫製|眼鏡|超電導",
+  "code": "sheet_metal|metal_goods",
+  "codeNg": "^(sensing|electronics|software|testing\\.(radio|battery))|^food|^cosmetics(\\.oem)?$"
+ },
+ {
+  "id": "el_wood_bench_spec",
+  "file": "wood_bench_spec.md",
+  "note": "電子部品なしの長い仕様書（位置・姿勢・安全・将来のUSB）",
+  "ok": "家具|木工|木製|インテリア|什器|木材|[Ww]ood|椅子|ベンチ|スチール|金属|鉄工",
+  "ng": "電子|IoT|基板|GPS|センサ|EMS|回路|食品|化粧品",
+  "code": "wood|sheet_metal|metal_goods",
+  "codeNg": "^(sensing|electronics|software|testing\\.(radio|battery))|^food|^cosmetics(\\.oem)?$"
+ },
+ {
+  "id": "el_dog_wheelchair_spec",
+  "file": "dog_wheelchair_spec.md",
+  "note": "電子部品なしの長い設計メモ（腰の位置・姿勢・体温・電子部品：使わない）",
+  "ok": "車椅子|車いす|車イス|歩行|介護|ペット|犬|アルミ|パイプ|溶接|金属|オーダー|縫製",
+  "ng": "電子|IoT|基板|GPS|センサ|EMS|回路|食品|化粧品",
+  "code": "textile|sheet_metal|metal_goods|cnc",
+  "codeNg": "^(sensing|electronics|software|testing\\.(radio|battery))|^food|^cosmetics(\\.oem)?$"
+ },
+ {
+  "id": "el_tote_spec",
+  "file": "tote_spec.md",
+  "note": "電子部品なしの依頼書（位置・測定・オプションのLEDライト）",
+  "ok": "縫製|バッグ|鞄|かばん|帆布|布|トート|袋物|OEM|プリント|シルク",
+  "ng": "電子|IoT|基板|GPS|センサ|EMS|回路|食品|化粧品",
+  "code": "textile|garment|print",
+  "codeNg": "^(sensing|electronics|software|testing\\.(radio|battery))|^food|^cosmetics(\\.oem)?$"
+ },
+ {
+  "id": "el_metal_sign_spec",
+  "file": "metal_sign_spec.md",
+  "note": "電子部品なしの見積依頼書（取り付け位置・温度・照明なし）",
+  "ok": "看板|サイン|ステンレス|金属|板金|切り文字|レーザー|溶接|鉄工|金物|工事",
+  "ng": "電子|IoT|基板|GPS|センサ|EMS|回路|食品|化粧品",
+  "code": "sheet_metal|metal_goods|sign",
+  "codeNg": "^(sensing|electronics|software|testing\\.(radio|battery))|^food|^cosmetics(\\.oem)?$"
+ },
+ {
+  "id": "el_slope_position",
+  "text": "庭に置く大型犬用の木のスロープ。ソファの横の位置に置く。犬の姿勢が崩れないよう、段差をなくしたい。1台",
+  "note": "ふだんの言葉（位置・姿勢）だけで電子にしない",
+  "ok": "スロープ|家具|木工|木製|ペット|オーダー|[Ww]ood|木の",
+  "ng": "電子|IoT|基板|GPS|センサ|EMS|回路|食品|化粧品",
+  "code": "wood",
+  "codeNg": "^(sensing|electronics|software|testing\\.(radio|battery))|^food|^cosmetics(\\.oem)?$"
+ },
+ {
+  "id": "el_shelf_temp",
+  "text": "ガレージに置くスチールの棚。温度の変化に強く、重いタイヤ4本を測定して載せられる強さ。2台",
+  "note": "温度・測定だけで電子にしない（スチールの棚が木工になる点は別の課題）",
+  "ok": "スチール|金属|板金|棚|ラック|鉄工|溶接|製缶|什器|金物",
+  "ng": "電子|IoT|基板|GPS|センサ|EMS|回路|食品|化粧品",
+  "codeNg": "^(sensing|electronics|software|testing\\.(radio|battery))|^food|^cosmetics(\\.oem)?$"
+ },
+ {
+  "id": "fx_cake_box",
+  "text": "ケーキ屋さんで使う、ロゴ入りの紙の箱を500個作りたい。冷蔵庫に入る大きさ。",
+  "codeNg": "^(sensing|electronics|software|testing\\.(radio|battery))|^food|^cosmetics(\\.oem)?$|^(apparel|manufacturing\\.textile)",
+  "note": "関係ない工程が出ないか（Nori 2026-11-16「他のどんなフリーなインプットに対しても同様のことがおこらないようにして」）",
+  "ok": "箱|紙器|パッケージ|印刷|段ボール|包装"
+ },
+ {
+  "id": "fx_cafe_apron",
+  "text": "カフェのスタッフ用に、ロゴを刺繍したデニムのエプロンを20枚。コーヒーのしみが目立たない色。",
+  "codeNg": "^(sensing|electronics|software|testing\\.(radio|battery))|^food|^cosmetics(\\.oem)?$",
+  "note": "関係ない工程が出ないか（Nori 2026-11-16「他のどんなフリーなインプットに対しても同様のことがおこらないようにして」）",
+  "ok": "縫製|エプロン|刺繍|ユニフォーム|制服|布|OEM|アパレル"
+ },
+ {
+  "id": "fx_salon_shelf",
+  "text": "美容室に置く、シャンプーのボトルを並べる木の棚を1台。",
+  "codeNg": "^(sensing|electronics|software|testing\\.(radio|battery))|^food|^cosmetics(\\.oem)?$|^(apparel|manufacturing\\.textile)|^packaging",
+  "note": "関係ない工程が出ないか（Nori 2026-11-16「他のどんなフリーなインプットに対しても同様のことがおこらないようにして」）",
+  "ok": "家具|木工|木製|[Ww]ood|什器|棚|木の"
+ },
+ {
+  "id": "fx_dog_bowl",
+  "text": "大型犬用のステンレスの食器スタンド。高さを変えられる。ドッグフードを入れる器は市販品を使う。1台",
+  "codeNg": "^(sensing|electronics|software|testing\\.(radio|battery))|^food|^cosmetics(\\.oem)?$|^(apparel|manufacturing\\.textile)|^testing\\.(animal|human|environmental)",
+  "note": "関係ない工程が出ないか（Nori 2026-11-16「他のどんなフリーなインプットに対しても同様のことがおこらないようにして」）",
+  "ok": "ステンレス|金属|板金|溶接|金物|ペット|食器|鉄工"
+ },
+ {
+  "id": "fx_garden_bench",
+  "text": "庭に置くアルミのベンチ。雨や温度の変化に強く、座る位置を2つに分ける。3台",
+  "codeNg": "^(sensing|electronics|software|testing\\.(radio|battery))|^food|^cosmetics(\\.oem)?$|^(apparel|manufacturing\\.textile)",
+  "note": "関係ない工程が出ないか（Nori 2026-11-16「他のどんなフリーなインプットに対しても同様のことがおこらないようにして」）",
+  "ok": "アルミ|金属|板金|溶接|ベンチ|家具|エクステリア|鉄工|木工"
+ },
+ {
+  "id": "fx_phone_stand_wood",
+  "text": "スマホを立てる木のスタンドを100個。名入れしてノベルティで配る。",
+  "codeNg": "^(sensing|electronics|software|testing\\.(radio|battery))|^food|^cosmetics(\\.oem)?$|^(apparel|manufacturing\\.textile)",
+  "note": "関係ない工程が出ないか（Nori 2026-11-16「他のどんなフリーなインプットに対しても同様のことがおこらないようにして」）",
+  "ok": "木工|木製|[Ww]ood|木の|ノベルティ|名入れ|雑貨|家具"
+ },
+ {
+  "id": "fx_cat_tower",
+  "text": "猫が登るキャットタワー（木とカーペット）を1台。将来はカメラを付けたいが今回は不要。",
+  "codeNg": "^(sensing|electronics|software|testing\\.(radio|battery))|^food|^cosmetics(\\.oem)?$",
+  "note": "関係ない工程が出ないか（Nori 2026-11-16「他のどんなフリーなインプットに対しても同様のことがおこらないようにして」）",
+  "ok": "木工|木製|[Ww]ood|家具|ペット|キャット|木の"
+ },
+ {
+  "id": "fx_signboard",
+  "text": "お店の入口に置くA型の立て看板を2台。照明は付けない。雨に強い素材。",
+  "codeNg": "^(sensing|electronics|software|testing\\.(radio|battery))|^food|^cosmetics(\\.oem)?$|^(apparel|manufacturing\\.textile)",
+  "note": "関係ない工程が出ないか（Nori 2026-11-16「他のどんなフリーなインプットに対しても同様のことがおこらないようにして」）",
+  "ok": "看板|サイン|板金|金属|印刷|ディスプレイ|什器"
+ },
+ {
+  "id": "fx_tumbler",
+  "text": "ステンレスの保冷タンブラーにロゴを入れて300個。コーヒーやお茶を入れて使う。",
+  "codeNg": "^(sensing|electronics|software|testing\\.(radio|battery))|^food|^cosmetics(\\.oem)?$|^(apparel|manufacturing\\.textile)",
+  "note": "関係ない工程が出ないか（Nori 2026-11-16「他のどんなフリーなインプットに対しても同様のことがおこらないようにして」）",
+  "ok": "タンブラー|ステンレス|ボトル|ノベルティ|名入れ|雑貨|金属|販促"
+ },
+ {
+  "id": "fx_soap_tray",
+  "text": "石けんを置くための陶器のソープディッシュを50個。",
+  "codeNg": "^(sensing|electronics|software|testing\\.(radio|battery))|^food|^cosmetics(\\.oem)?$|^(apparel|manufacturing\\.textile)",
+  "note": "関係ない工程が出ないか（Nori 2026-11-16「他のどんなフリーなインプットに対しても同様のことがおこらないようにして」）",
+  "ok": "陶|焼|磁器|器|ガラス|窯"
+ },
+ {
+  "id": "fx_tote_long",
+  "text": "## パン屋のオリジナル エコバッグ 依頼書\n## 概要\nパン屋で売るエコバッグ。食パンが2斤入る大きさ。\n## 仕様\n- 素材：綿のキャンバス\n- 大きさ：幅35cm×高さ40cm×マチ15cm\n- ロゴ：1色のプリント\n## 数量\n- 200個\n## 将来（今回は不要）\n- 保冷用のアルミの内張り、温度を測るタグ",
+  "codeNg": "^(sensing|electronics|software|testing\\.(radio|battery))|^food|^cosmetics(\\.oem)?$",
+  "note": "関係ない工程が出ないか（Nori 2026-11-16「他のどんなフリーなインプットに対しても同様のことがおこらないようにして」）",
+  "ok": "縫製|バッグ|鞄|かばん|帆布|布|トート|袋物|プリント|エコバッグ|OEM"
+ },
+ {
+  "id": "fx_wheel_ramp",
+  "text": "車椅子の人がお店の段差を越えるためのアルミのスロープを1台。段差は15cm、幅80cm。",
+  "codeNg": "^(sensing|electronics|software|testing\\.(radio|battery))|^food|^cosmetics(\\.oem)?$|^(apparel|manufacturing\\.textile)|^testing\\.(animal|human|environmental)",
+  "note": "関係ない工程が出ないか（Nori 2026-11-16「他のどんなフリーなインプットに対しても同様のことがおこらないようにして」）",
+  "ok": "スロープ|アルミ|金属|板金|溶接|切削|加工|鉄工|福祉"
+ },
+ {
+  "id": "fx_horse_blanket",
+  "text": "馬に着せる防寒の馬着を5枚。キルティングの布で、腹帯付き。",
+  "codeNg": "^(sensing|electronics|software|testing\\.(radio|battery))|^food|^cosmetics(\\.oem)?$|^testing",
+  "note": "関係ない工程が出ないか（Nori 2026-11-16「他のどんなフリーなインプットに対しても同様のことがおこらないようにして」）",
+  "ok": "縫製|キルト|キルティング|布|馬|OEM"
+ },
+ {
+  "id": "fx_baby_chair",
+  "text": "子ども用の木の椅子を10脚。保育園で使う。角は丸く、塗装は食品にふれても安全なもの。",
+  "codeNg": "^(sensing|electronics|software|testing\\.(radio|battery))|^food|^cosmetics(\\.oem)?$|^(apparel|manufacturing\\.textile)",
+  "note": "関係ない工程が出ないか（Nori 2026-11-16「他のどんなフリーなインプットに対しても同様のことがおこらないようにして」）",
+  "ok": "家具|木工|木製|[Ww]ood|椅子|木の"
+ },
+ {
+  "id": "fx_pet_gate",
+  "text": "犬が台所に入らないようにする、置くだけのペットゲート（木製）を1台。高さ80cm、幅120cm。",
+  "codeNg": "^(sensing|electronics|software|testing\\.(radio|battery))|^food|^cosmetics(\\.oem)?$|^(apparel|manufacturing\\.textile)|^testing\\.(animal|human|environmental)",
+  "note": "関係ない工程が出ないか（Nori 2026-11-16「他のどんなフリーなインプットに対しても同様のことがおこらないようにして」）",
+  "ok": "家具|木工|木製|[Ww]ood|ペット|木の"
+ },
+ {
+  "id": "fx_spice_rack",
+  "text": "スパイスの瓶を並べるアイアンの壁掛けラックを30個。お店で売る。",
+  "codeNg": "^(sensing|electronics|software|testing\\.(radio|battery))|^food|^cosmetics(\\.oem)?$|^(apparel|manufacturing\\.textile)|^packaging",
+  "note": "関係ない工程が出ないか（Nori 2026-11-16「他のどんなフリーなインプットに対しても同様のことがおこらないようにして」）",
+  "ok": "アイアン|鉄|金属|板金|溶接|金物|鉄工|ラック"
+ },
+ {
+  "id": "fx_mask_case",
+  "text": "布マスクを入れるケースを100個、ポリエステルの布で。",
+  "codeNg": "^(sensing|electronics|software|testing\\.(radio|battery))|^food|^cosmetics(\\.oem)?$",
+  "note": "関係ない工程が出ないか（Nori 2026-11-16「他のどんなフリーなインプットに対しても同様のことがおこらないようにして」）",
+  "ok": "縫製|布|ケース|ポーチ|OEM|樹脂|成形"
+ },
+ {
+  "id": "fx_knife_stand",
+  "text": "包丁を立てる木のスタンド。レストランの厨房で使う。5台。",
+  "codeNg": "^(sensing|electronics|software|testing\\.(radio|battery))|^food|^cosmetics(\\.oem)?$|^(apparel|manufacturing\\.textile)",
+  "note": "関係ない工程が出ないか（Nori 2026-11-16「他のどんなフリーなインプットに対しても同様のことがおこらないようにして」）",
+  "ok": "家具|木工|木製|[Ww]ood|木の|刃物|金物"
+ },
+ {
+  "id": "fx_photo_frame",
+  "text": "写真を飾るアクリルのフォトフレーム。結婚式のギフト用に80個。",
+  "codeNg": "^(sensing|electronics|software|testing\\.(radio|battery))|^food|^cosmetics(\\.oem)?$|^(apparel|manufacturing\\.textile)",
+  "note": "関係ない工程が出ないか（Nori 2026-11-16「他のどんなフリーなインプットに対しても同様のことがおこらないようにして」）",
+  "ok": "アクリル|フレーム|額|樹脂|レーザー|雑貨|ギフト|加工"
+ },
+ {
+  "id": "fx_bike_rack",
+  "text": "自転車を3台止められるスチールのスタンド。カフェの前に置く。",
+  "codeNg": "^(sensing|electronics|software|testing\\.(radio|battery))|^food|^cosmetics(\\.oem)?$|^(apparel|manufacturing\\.textile)",
+  "note": "関係ない工程が出ないか（Nori 2026-11-16「他のどんなフリーなインプットに対しても同様のことがおこらないようにして」）",
+  "ok": "スチール|金属|板金|溶接|鉄工|製缶|スタンド|金物"
+ },
+ {
+  "id": "fx_slope_neg",
+  "text": "犬用のスロープ。電気は使わない。センサーも不要。木で1台。",
+  "codeNg": "^(sensing|electronics|software|testing\\.(radio|battery))|^food|^cosmetics(\\.oem)?$|^(apparel|manufacturing\\.textile)",
+  "note": "関係ない工程が出ないか（Nori 2026-11-16「他のどんなフリーなインプットに対しても同様のことがおこらないようにして」）",
+  "ok": "家具|木工|木製|[Ww]ood|スロープ|ペット|木の"
+ },
+ {
+  "id": "fx_desk_long",
+  "text": "### 在宅ワーク用 昇降しないデスク 仕様書\n### 1. 目的\n自宅で使う、天板の広い木のデスクを1台作りたい。\n### 2. 寸法\n- 幅1600mm×奥行700mm×高さ720mm\n- モニターを置く位置を奥に、配線を通す穴（直径60mm）を2つ\n### 3. 材質\n- 天板：ウォールナットの無垢材\n- 脚：スチール、黒\n### 4. 備考\n- 電動の昇降はいらない\n- 姿勢が楽な高さにしたい",
+  "codeNg": "^(sensing|electronics|software|testing\\.(radio|battery))|^food|^cosmetics(\\.oem)?$|^(apparel|manufacturing\\.textile)",
+  "note": "関係ない工程が出ないか（Nori 2026-11-16「他のどんなフリーなインプットに対しても同様のことがおこらないようにして」）",
+  "ok": "家具|木工|木製|[Ww]ood|デスク|机|木の|スチール"
+ },
+ {
+  "id": "fx_ok_lamp",
+  "text": "木のデスクライトを作りたい。LEDで、USBで充電できる。50個。",
+  "codeNg": "^(food|cosmetics|apparel)",
+  "note": "関係ない工程が出ないか（Nori 2026-11-16「他のどんなフリーなインプットに対しても同様のことがおこらないようにして」）",
+  "ok": "照明|ライト|LED|電子|木工|EMS|基板"
+ },
+ {
+  "id": "fx_ok_jerky",
+  "text": "犬用の鹿肉ジャーキーをオリジナルの袋で500袋作りたい。",
+  "codeNg": "^(sensing|electronics|cosmetics|apparel)",
+  "note": "関係ない工程が出ないか（Nori 2026-11-16「他のどんなフリーなインプットに対しても同様のことがおこらないようにして」）",
+  "ok": "ペットフード|ジャーキー|おやつ|食品|OEM"
+ },
+ {
+  "id": "fx_ok_lotion",
+  "text": "オーガニックのハンドクリームを自社ブランドで300個。",
+  "codeNg": "^(sensing|electronics|food|apparel)",
+  "note": "関係ない工程が出ないか（Nori 2026-11-16「他のどんなフリーなインプットに対しても同様のことがおこらないようにして」）",
+  "ok": "化粧品|コスメ|OEM|クリーム|スキンケア"
  }
 ]
