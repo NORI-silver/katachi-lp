@@ -14,11 +14,11 @@ const lines = readFileSync(join(root, 'index.html'), 'utf8').split('\n');
 // 画面の JS のうち、文章の読み取り（analyzeText）・製品DB（pdbMatch）・会社の並べ方（rankFor・fitOf）・
 // 一社案（oneOf）・完成品メーカー（makersFor）・★の案（siteTop・recOf）と、それらが使う宣言。
 // 足りない名前があると下の確かめで「〜 is not defined」になるので、ここに足す（定数は使われる順に並べる）
-const NAMES = ['cm', 'shapeConcept', 'DS_WHY', 'MPHASE', 'mphaseOf', 'dsRows', 'DESIGNERS', 'MEMO', 'ideaBase', 'dsFeat', 'dsNeed', 'dsPlan',
+const NAMES = ['EL_POS', 'DENY_V', 'DENY_LINE', 'DENY_IN', 'denyStrip', 'GUIDE', 'GD_META', 'GD_LAB', 'cm', 'shapeConcept', 'DS_WHY', 'MPHASE', 'mphaseOf', 'dsRows', 'DESIGNERS', 'MEMO', 'ideaBase', 'dsFeat', 'dsNeed', 'dsPlan',
   'winOf', 'RL_WHY', 'planRule', 'planOf', 'recOf', 'MAKERS', 'ELEC_RX', 'makersFor', 'capCovers', 'MK_RX', 'axPass', 'axSort', 'FAMS',
   'NOTMK_RX', 'ACC_RX', 'relOf', 'fitOf', 'rankFor', 'KTK', 'relHas', 'RSTOP', 'relTerms', 'relIndex', 'relBuild', 'REGION', 'PREF_RX',
   'CONCEPTS', 'headSegs', 'conceptKind', 'specRead', 'AIMEMO', 'splitAi', 'readConds', 'pdbRx', 'REL_CTX', 'rx', 'CGEN', 'specCore',
-  'fillCAPN', 'DOMESTIC_ONLY', 'USER_CT', 'F0', 'S', 'analyzeText', 'pickConcept', 'flowText', 'mctxBuild', 'secsOf', 'oneOf', 'siteTop',
+  'fillCAPN', 'DOMESTIC_ONLY', 'USER_CT', 'F0', 'S', 'MAT_FAM', 'MAT_RX', 'matsOf', 'relText', 'analyzeText', 'pickConcept', 'flowText', 'mctxBuild', 'secsOf', 'oneOf', 'siteTop',
   'stepAssign', 'pdbMatch', 'jsccRow', 'canOrder', 'useGDB', 'regionOf', 'PREFS', 'kindById', 'specConcept', 'mmc', 'integOf', 'axOf', 'OEM_CAPS'];
 const START = /^(async function|function|const|let|var)\s+([A-Za-z_$][\w$]*)/;
 const TOP = /^(async function|function|const|let|var|\/\*|\/\/|window\.|document\.|if|for|try|addEventListener|\(|<\/script>|[A-Za-z_$][\w$.]*\()/;

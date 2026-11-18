@@ -14,6 +14,8 @@ LVK = ['pub', 'pub', 'pub', 'unk']  # gov: 国の登録情報（gBizINFO）の�
 from company_signals import load_gbiz, signals
 from capwords import infer_caps
 GB, SUB = load_gbiz(root)
+import profiles
+PF = profiles.load(root)  # 公式サイトから集めた会社ごとの品目・材料・条件（tools/profiles.py）
 rows = []
 for x in csv.DictReader(open(src, encoding='utf-8-sig')):
     caps = []
@@ -36,6 +38,7 @@ for x in csv.DictReader(open(src, encoding='utf-8-sig')):
                  int(ml) if ml.isdigit() else None,
                  {'工場が手配': 'factory', 'どちらも可': 'both', '自分で用意': 'customer'}.get(x['材料調達']),
                  'gov' if gov else LVK[lv], x['概要'][:70], x['出典URL'], x['確認日'], signals(x, GB, SUB)])
+    profiles.apply(rows[-1], PF.get(x['社名']))
 from katachi.taxonomy import REGULATION_HINTS, DEFERRED, DEFERRED_KEYWORDS
 # 文章入力の読み取り用に、taxonomy のキーワードを補う（サイト側だけで使う。本来は taxonomy.py に足す）
 EXTRA_KW = {

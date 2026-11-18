@@ -30,26 +30,26 @@ const cases=[
     await c.route(/script\.google\.com|googletagmanager|google-analytics/,r=>r.fulfill({status:200,contentType:'application/json',body:'{"ok":false}'}));
     const p=await c.newPage();const errs=[];p.on('pageerror',e=>errs.push(e.message));await p.goto(base);
     await p.fill('#idea',text);await p.evaluate(()=>document.querySelector('#idea').form.requestSubmit());
-    await p.waitForSelector('#mFspec,#mNext,[data-gonext]',{timeout:30000}).catch(()=>{});await p.waitForTimeout(300);
-    await p.evaluate(()=>{location.hash='co'});await p.waitForSelector('#mPlans,.mstep,.empty',{timeout:30000}).catch(()=>{});await p.waitForTimeout(500);
+    await p.waitForSelector('#mFspec,#mNext,[data-gonext],.stepnow',{timeout:30000}).catch(()=>{});await p.waitForTimeout(300);
+    await p.evaluate(()=>{location.hash='co'});await p.waitForSelector('#mPlans,.mstep,.empty',{timeout:30000,state:'attached'}).catch(()=>{});await p.waitForTimeout(500);
     const r=await p.evaluate(()=>{const on=document.querySelector('#mDesign [data-dst][aria-pressed=true]');const all=[...document.querySelectorAll('#mDesign [data-dst]')].map(x=>x.dataset.dst);
       const co=document.querySelector('#mDesign input[data-dsn]:checked');const dbg=window.KATACHI_DS&&window.KATACHI_DS();return {dbg:dbg&&{...dbg.f,codes:dbg.codes},got:on?on.dataset.dst:null,all,co:co?co.dataset.dsn:'',steps:[...document.querySelectorAll('#mPlans .stp .sth b')].map(x=>x.textContent)}});
     const pass=r.got===exp&&(!has||r.all.includes(has));if(pass)ok++;rows.push([pass?'○':'×',name,exp,r.got,r.all.join(' '),r.co,errs.join(' | ')]);
     console.log(`${pass?'○':'×'} ${name}: 期待=${exp} 結果=${r.got} [${r.all.join(' ')}] ${r.co}${errs.length?' ERR '+errs.join(' | '):''}`);if(!pass||process.env.V)console.log('   ',JSON.stringify(r.dbg));
     await c.close()}
-  /* トップの「アイデアから」で書いて「設計の相談先を見る」を押すと、③の「まず設計」に直行する（Nori 2026-11-14） */
+  /* トップの「アイデアから」で書いて「はじめる」を押すと、②に設計の相談先か、見積を頼む工場の一覧が出る（Nori 2026-11-15「相談会社一覧 もしくは 見積もり依頼工場一覧が出てくる」） */
   const top=[['ボタン：スロープ','家庭用プールに犬が入れるスロープを1台作りたい。大型犬2頭が乗る','fab'],['ボタン：クッキー（設計の箱は出さず、ひとこと）','オリジナルのクッキーを1000個つくりたい','none'],['ボタン：犬の車椅子（メーカーが設計から）','老犬の車椅子を1台作りたい','none']];
   for(const [name,text,exp] of top){const c=await b.newContext({viewport:{width:390,height:844}});
     await c.addInitScript(()=>localStorage.setItem('katachi-lang',JSON.stringify({lang:'ja'})));
     await c.route(/script\.google\.com|googletagmanager|google-analytics/,r=>r.fulfill({status:200,contentType:'application/json',body:'{"ok":false}'}));
     const p=await c.newPage();const errs=[];p.on('pageerror',e=>errs.push(e.message));await p.goto(base);
-    await p.fill('#idea',text);await p.click('#cmp [data-dsgo]');
-    await p.waitForSelector('#mDesign,.dsnone',{timeout:30000}).catch(()=>{});await p.waitForTimeout(400);
-    const r=await p.evaluate(()=>{const on=document.querySelector('#mDesign [data-dst][aria-pressed=true]');return {hash:location.hash,got:on?on.dataset.dst:document.querySelector('.dsnone')?'none':null}});
+    await p.fill('#idea',text);await p.click('#cmp button.pri');
+    await p.waitForSelector('.stepnow',{timeout:30000}).catch(()=>{});await p.waitForTimeout(400);
+    const r=await p.evaluate(()=>{const on=document.querySelector('#mDesign [data-dst][aria-pressed=true]');const h=document.querySelector('.stepnow');return {hash:location.hash,got:on?on.dataset.dst:h&&!/設計/.test(h.textContent)?'none':null}});
     const pass=r.hash==='#co'&&r.got===exp&&!errs.length;if(pass)ok++;
     console.log(`${pass?'○':'×'} ${name}: 期待=${exp} 結果=${r.got} ${r.hash}${errs.length?' ERR '+errs.join(' | '):''}`);await c.close()}
   {const c=await b.newContext({viewport:{width:390,height:844}});await c.addInitScript(()=>localStorage.setItem('katachi-lang',JSON.stringify({lang:'ja'})));
     await c.route(/script\.google\.com|googletagmanager|google-analytics/,r=>r.fulfill({status:200,contentType:'application/json',body:'{"ok":false}'}));
-    const p=await c.newPage();await p.goto(base);const n=await p.$$eval('.start2 [data-start]',x=>x.length);await p.fill('#idea','家庭用プールに犬が入れるスロープを1台作りたい');await p.click('#cmp button.pri');await p.waitForTimeout(800);
-    const h=await p.evaluate(()=>location.hash);const pass=n===2&&h==='#match';if(pass)ok++;console.log(`${pass?'○':'×'} 入口は2つ・「はじめる」は②へ: 入口=${n} ${h}`);await c.close()}
+    const p=await c.newPage();await p.goto(base);const n=await p.$$eval('.hasdw [data-start="draw"]',x=>x.length)+await p.$$eval('#cmp',x=>x.length);await p.fill('#idea','家庭用プールに犬が入れるスロープを1台作りたい');await p.click('#cmp button.pri');await p.waitForTimeout(800);
+    const h=await p.evaluate(()=>location.hash);const pass=n===2&&h==='#co';if(pass)ok++;console.log(`${pass?'○':'×'} 入口は入力欄＋図面の「ある／ない」・「相談を始める」は②（一覧）へ: 入口=${n} ${h}`);await c.close()}
   await b.close();const all=cases.length+top.length+1;console.log(`\n${ok}/${all}`);process.exit(ok===all?0:1)})();

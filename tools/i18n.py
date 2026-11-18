@@ -1105,3 +1105,188 @@ T['送る人のお名前（会社名・屋号でも可）'] = ('Sender name (com
 T['住所（市区町村まで）'] = ('Address (at least city / ward)', '地址（至少写到市区町村）')
 T['送る人のお名前'] = ('Sender name', '发送人姓名')
 T['例：東京都千代田区'] = ('e.g. Chiyoda, Tokyo', '例：东京都千代田区')
+# ---- 2ステップ（書く→選んで送る）（2026-11-15）
+T['選んで送る'] = ('Pick & send', '选择并发送')
+T['設計の相談先か、見積を頼む工場の一覧から。無料'] = ('From a list of design partners or factories to quote. Free', '从设计咨询方或报价工厂的列表中选择。免费')
+T['← 会社の一覧に戻る'] = ('← Back to the company list', '← 返回公司列表')
+T['社に送ります'] = ('companies will receive it', '家公司将收到')
+T['製品イメージ案（3D・寸法図）を見る・直す'] = ('View or edit the product concept (3D / dimensions)', '查看・修改产品构想（3D・尺寸图）')
+T['見積を頼むメーカー'] = ('Manufacturers to quote', '询价的制造商')
+T['見積を頼む工場'] = ('Factories to quote', '询价的工厂')
+T['作る工場の候補も見る（任意）'] = ('Also see factories that can make it (optional)', '也查看可制造的工厂（选填）')
+T['作る工場にも、同時に見積を頼む'] = ('Also request quotes from these factories', '同时向这些工厂询价')
+T['直した内容で、一覧を作り直します'] = ('The list will be rebuilt with your changes', '将按修改后的内容重新生成列表')
+T['ここは任意です'] = ('This step is optional', '此步骤为选填')
+T['会社の一覧に戻る'] = ('Back to the company list', '返回公司列表')
+T['連絡先を入れて送るだけです。ほかの点は、相手の会社や担当者から確かめます。'] = ('Just enter your contact details and send. The company or our staff will confirm anything else.', '只需填写联系方式并发送。其他事项由对方公司或我们的负责人确认。')
+T['どちらとして頼みますか'] = ('Are you requesting as a company or an individual?', '您以哪种身份委托？')
+T['相手に届くもの'] = ('What they will receive', '对方将收到')
+T['あなたが書いた内容'] = ('What you wrote', '您填写的内容')
+T['仕様書（KATACHIが整理したたたき台）'] = ('Spec sheet (a draft organized by KATACHI)', '规格书（KATACHI 整理的草案）')
+T['法人か個人か'] = ('Company or individual', '法人还是个人')
+T['この内容で送る'] = ('Send this request', '按此内容发送')
+T['図面から作ってもらう'] = ('Have it designed', '请对方出图')
+T['作る工場'] = ('Factories', '制造工厂')
+T['見積をもらう'] = ('Get quotes', '获取报价')
+T['両方'] = ('Both', '两者')
+T['まとめて送る'] = ('Send to all', '一起发送')
+T['送り先を選ぶ'] = ('Choose where to send', '选择发送对象')
+T['設計を相談'] = ('Design', '设计咨询')
+T['工場に見積'] = ('Factory quote', '工厂报价')
+T['設計を相談する会社'] = ('Companies to consult on design', '设计咨询公司')
+T['設計と製作を頼む会社'] = ('Companies for design and manufacturing', '设计与制造公司')
+
+# ---- 2026-11 全面リニューアル（トップ・整理した条件・添付・3ステップ）
+T.update({
+"作りたいものを、": ("Turn what you want to make", "把想做的东西，"),
+"カタチに。": ("into reality.", "变成现实。"),
+"選んで、": ("Choose,", "选择，"),
+"工場を探す。": ("and find a factory.", "找到工厂。"),
+"ノベルティ・部品・袋物など、型が決まっているものは、選ぶだけで対応できる会社が見つかります。": ("For standard items like novelties, parts and bags, just choose options to find companies that can make them.", "赠品、零件、袋类等形式固定的产品，只需选择即可找到可对应的公司。"),
+"図面・3Dデータ・仕様書を入れて、数と時期を伝えるだけ。担当者が図面を見て、作れる工場を探します。": ("Add drawings, 3D data or specs and tell us the quantity and timing. Our staff review the drawings and find factories that can make it.", "上传图纸、3D数据或规格书，告诉我们数量和时间即可。负责人会查看图纸，寻找能生产的工厂。"),
+"アイデアを伝えるだけで、ものづくりの第一歩が始まります。": ("Just share your idea — that's the first step to making it.", "只需说出你的想法，制造的第一步就开始了。"),
+"図面・データから見積を頼む": ("Request quotes from drawings or data", "根据图纸・数据申请报价"),
+"どんなものを作りたいですか？": ("What would you like to make?", "你想做什么？"),
+"例：オリジナルの金属パーツを50個作りたい": ("e.g. I want to make 50 custom metal parts", "例：想做50个原创金属零件"),
+"写真・図面・ファイルを添付": ("Attach photos, drawings or files", "附加照片、图纸或文件"),
+"写真・動画・図面・PDF・3Dデータ": ("Photos, videos, drawings, PDF, 3D data", "照片、视频、图纸、PDF、3D数据"),
+"添付": ("Attach", "附件"),
+"相談を始める": ("Get started", "开始咨询"),
+"写真や手描きのスケッチでも受け付けます。": ("Photos and hand-drawn sketches are fine too.", "照片或手绘草图也可以。"),
+"図面がなくても大丈夫。まずはアイデアから。": ("No drawings needed. Start with your idea.", "没有图纸也没关系，从想法开始。"),
+"ほかの始め方": ("Other ways to start", "其他开始方式"),
+"アイデアから書く": ("Start from an idea", "从想法开始写"),
+"AIとの会話を貼る": ("Paste an AI chat", "粘贴与AI的对话"),
+"型が決まっているもの": ("Standard items", "形式固定的产品"),
+"作例から選ぶ": ("Pick from examples", "从示例中选择"),
+"依頼までの流れ": ("How it works", "委托流程"),
+"作りたいものを伝える": ("Tell us what you want to make", "说出你想做的东西"),
+"ふだんの言葉で、ひとことから。写真や図面があれば添えて。": ("In everyday words, even one line. Add photos or drawings if you have them.", "用日常语言，一句话也行。有照片或图纸可以附上。"),
+"条件を整理する": ("Organize the conditions", "整理条件"),
+"書いた内容から、数量・大きさ・素材・設計が要るかを読み取ります。わからない点は「未定」のままで進めます。": ("We read quantity, size, material and whether design is needed from what you wrote. Anything unclear stays \"Not decided\" and you can still go ahead.", "从你写的内容读取数量、尺寸、材料以及是否需要设计。不清楚的地方保持“未定”也可以继续。"),
+"対応できる会社を見つける": ("Find companies that can do it", "找到可对应的公司"),
+"登録している会社の公開情報から、合う会社と、候補になった理由を出します。": ("From public information on registered companies, we show matching companies and why each was suggested.", "根据已登录公司的公开信息，列出合适的公司及其成为候选的理由。"),
+"依頼する": ("Send your request", "发出委托"),
+"担当者が内容を確かめてから届けます。見積の依頼は無料です。": ("Our staff check the request before it is delivered. Requesting quotes is free.", "负责人确认内容后再发送。询价免费。"),
+"まだ考えがまとまっていなければ、お使いのAIで相談": ("Not sure yet? Think it through with your own AI", "还没想好？用你常用的AI商量"),
+"確かなことと、見立てを分けて見せます。": ("We separate what's confirmed from what's estimated.", "我们把确认的信息和推测分开显示。"),
+"会社の情報には、どこまで確かめられているかの印が付きます。見積や口コミを作り上げることはありません。": ("Company information is marked by how far it has been verified. We never make up quotes or reviews.", "公司信息标有确认程度的标记。我们不会编造报价或评价。"),
+"gBizINFO（経済産業省）の登録情報だけの会社。受ける条件は見積の依頼で確かめます。": ("Companies known only from gBizINFO (METI) registration. Their terms are confirmed through the quote request.", "仅有gBizINFO（经济产业省）登记信息的公司。接单条件通过询价确认。"),
+"書いた内容からの読み取りや、似た製品からの目安。判断材料のひとつです。": ("Read from what you wrote, or a guide based on similar products. One input to your decision.", "从你写的内容读取的信息或参考类似产品的估计，仅供参考。"),
+"推定": ("Estimated", "推测"),
+"登録している実在の会社": ("real companies registered", "已登录的真实公司"),
+"うち海外の会社": ("of which overseas", "其中海外公司"),
+"0円": ("¥0", "0日元"),
+"見積の依頼にかかる費用": ("to request quotes", "询价费用"),
+"条件を整理しています": ("Organizing your conditions", "正在整理条件"),
+"書いた内容から、作り方と合う会社を探しています。": ("Working out how it's made and finding matching companies.", "正在根据你写的内容寻找制造方法和合适的公司。"),
+"を超えているため送れません": (" limit exceeded — can't be sent", "超出上限，无法发送"),
+"読み込み中…": ("Loading…", "读取中…"),
+"外しました：": ("Removed:", "已移除："),
+"伝える": ("Describe", "描述"),
+"確認して送る": ("Review & send", "确认并发送"),
+"あなたの依頼": ("Your request", "你的委托"),
+"整理した条件": ("Organized conditions", "整理后的条件"),
+"あなたの入力": ("You entered", "你输入的"),
+"未定": ("Not decided", "未定"),
+"用途": ("Use", "用途"),
+"相談したい": ("Want to discuss", "想商量"),
+"未定の点を決める": ("Decide the open points", "确定未定事项"),
+"決めなくても送れます": ("you can send without deciding", "不决定也可以发送"),
+"読み取りはキーワードと製品の分類による推定です。最終的な仕様は、依頼先の会社が確かめます。": ("These are estimates from keywords and product categories. The company you contact confirms the final specs.", "读取结果是基于关键词和产品分类的推测。最终规格由委托的公司确认。"),
+"仕様書と製品イメージを見る・直す": ("View or edit the spec and product concept", "查看・修改规格书和产品构想"),
+"要る（図面がないので、先に設計）": ("Needed (no drawings, so design first)", "需要（没有图纸，先设计）"),
+"要る（図面がない）": ("Needed (no drawings)", "需要（没有图纸）"),
+"要らない（図面・データあり）": ("Not needed (drawings/data available)", "不需要（有图纸・数据）"),
+"おまかせ（工場が提案）": ("Leave it to the factory (they propose)", "交给工厂（由工厂提议）"),
+"おまかせ": ("Leave to them", "交给对方"),
+"図面がない依頼なので、まず設計を頼める会社をおすすめしています。作る工場にも送れます。": ("There are no drawings, so we suggest companies that can design it first. You can also send to factories.", "因为没有图纸，我们先推荐可以设计的公司。也可以发给生产工厂。"),
+"書いた内容に合う会社を、確かめられた情報の多い順に選んであります。": ("Companies matching your request are pre-selected, those with the most verified information first.", "已按确认信息多少的顺序选好与你的内容相符的公司。"),
+})
+T.update({
+"送信しています…": ("Sending…", "发送中…"),
+"送れませんでした。通信の状態を確かめて、もう一度「この内容で送る」を押してください。入力した内容は残っています。": ("Couldn't send. Check your connection and press \"Send\" again. Your entries are kept.", "发送失败。请检查网络后再次点击“按此内容发送”。已输入的内容会保留。"),
+})
+# デザイン案の取り込み（2026-11-15 ChatGPTのデザイン案）
+T.update({
+"ものづくりを、もっと身近に。": ("Making things, made approachable.", "让制造更贴近你。"),
+"図面がなくても大丈夫。形・大きさ・素材・使い方・数量など、わかる範囲で書いてください。": ("No drawings needed. Describe the shape, size, material, use and quantity, as far as you know.", "没有图纸也没关系。形状、尺寸、材料、用途、数量等，写你知道的即可。"),
+"こんなことからでも始められます": ("You can also start from", "也可以从这里开始"),
+"書いた内容から、工場に相談しやすい条件に整理します。まだ決まっていないことは、あとから選べます。": ("We sort what you write into conditions that are easy to discuss with factories. Anything undecided can be chosen later.", "我们会把你写的内容整理成便于和工厂沟通的条件。尚未确定的内容可以之后再选。"),
+"← 入力内容に戻る": ("← Back to your request", "← 返回填写内容"),
+"内容を確認して送る": ("Review and send", "确认并发送"),
+"相談する内容": ("What you're asking about", "咨询内容"),
+"内容を直す": ("Edit", "修改内容"),
+"未定・相談したい": ("Undecided – to discuss", "未定・想咨询"),
+"会社を選び直す": ("Change companies", "重新选择公司"),
+"あなたの連絡先": ("Your contact details", "你的联系方式"),
+"← 会社の選択に戻る": ("← Back to choosing companies", "← 返回选择公司"),
+})
+# 最初の画面のガイド（2026-11-15 Nori「ない場合のガイドがかなり重要」）
+T.update({
+"図面や3Dデータはありますか？": ("Do you have drawings or 3D data?", "有图纸或3D数据吗？"),
+"ない": ("No", "没有"), "ある": ("Yes", "有"), "電子部品": ("Electronics", "电子元件"),
+"何の部品・製品ですか？": ("What part or product is it?", "是什么零件或产品？"),
+"例：アルミのブラケット。図面のとおりに100個": ("e.g. Aluminum bracket, 100 pcs as drawn", "例：铝支架，按图纸做100个"),
+"図面・3Dデータ・仕様書を上から入れてください（いくつでも）。数と時期は、下から足せます。": ("Add drawings, 3D data or specs above (as many as you like). Quantity and timing can be added below.", "请在上方添加图纸、3D数据或规格书（数量不限）。数量和时间可在下方补充。"),
+"図面がなくても大丈夫。下の項目を押すと、入力欄に足せます。": ("No drawings needed. Tap the items below to add them to your text.", "没有图纸也没关系。点击下方项目即可添加到输入框。"),
+"合う会社が見つかりやすくなる書き方": ("How to write so we find the right companies", "更容易找到合适公司的写法"),
+"図面のほかに伝えること": ("Besides the drawings", "图纸以外需要说明的"),
+"わかる点だけで大丈夫です。押すと入力欄に足せます。": ("Only what you know. Tap to add to your text.", "只写你知道的即可。点击即可添加到输入框。"),
+"わかる点だけで大丈夫です。押すと入力欄に足せます。決まっていない点は、空けたままで送れます。": ("Only what you know. Tap to add to your text. You can send with anything undecided left blank.", "只写你知道的即可。点击即可添加到输入框。未定的内容可以留空发送。"),
+"何を作るか": ("What to make", "做什么"),
+"何に使う、どんな物か（例：犬の首輪につけるケース）": ("What it is and what it's for (e.g. a case that attaches to a dog collar)", "是什么、用来做什么（例：装在狗项圈上的外壳）"),
+"まず試作で1個": ("1 prototype first", "先做1个样品"),
+"10個くらい": ("About 10", "约10个"), "100個くらい": ("About 100", "约100个"), "1000個以上": ("1,000 or more", "1000个以上"),
+"手のひらくらい（約10cm）": ("Palm-sized (about 10 cm)", "手掌大小（约10cm）"),
+"A4くらい（約30cm）": ("About A4 (about 30 cm)", "A4左右（约30cm）"),
+"机くらい（約1m）": ("Desk-sized (about 1 m)", "桌子大小（约1m）"),
+"人が乗れるくらい大きい": ("Big enough for a person to ride", "大到可以坐人"),
+"プラスチック（樹脂）": ("Plastic (resin)", "塑料（树脂）"),
+"おまかせ（相談したい）": ("Leave it to them (want advice)", "交给对方（想咨询）"),
+"自分で使う": ("For my own use", "自己用"), "お店・ネットで売る": ("To sell in a shop or online", "在店铺或网上销售"), "会社で使う・配る": ("For my company / to give away", "公司使用・分发"),
+"使う（センサー・電池など）": ("Yes (sensors, batteries, etc.)", "使用（传感器、电池等）"),
+"使わない": ("No", "不使用"),
+"希望の時期": ("Timing", "希望时间"),
+"1か月以内": ("Within 1 month", "1个月内"), "3か月以内": ("Within 3 months", "3个月内"), "急がない": ("No rush", "不着急"),
+"形を伝えるコツ": ("Tips for showing the shape", "传达形状的诀窍"),
+"写真・手描きのスケッチ・似た製品のページがあると、言葉より早く伝わります。寸法は「だいたい」で大丈夫です。": ("Photos, hand sketches or a page of a similar product say more than words. Rough sizes are fine.", "照片、手绘草图或类似产品的页面比文字更直观。尺寸写个大概即可。"),
+"写真・スケッチを添付": ("Attach photos or sketches", "添加照片・草图"),
+"似た製品のURLを入れる": ("Add a similar product's URL", "填写类似产品的网址"),
+"書き方の例を入れる": ("Fill in an example", "填入示例"),
+"書いた文を例で置き換える（もう一度押す）": ("Replace your text with the example (tap again)", "用示例替换已写内容（再点一次）"),
+"図面のとおり": ("As drawn", "按图纸"),
+})
+T.update({"← 入力に戻る": ("← Back to your request", "← 返回填写")})
+# 会社を選ぶ前の確認（1問ずつ、2026-11-15）
+T.update({
+"会社を選ぶ前に確認": ("Before choosing companies", "选择公司前确认"),
+"よくある大きさ：": ("Typical size: ", "常见尺寸："),
+"会社選びと見積に使います。決まっていなければ「わからない」を選んでください。": ("Used to pick companies and for quotes. If it isn't decided, choose \"Not sure\".", "用于挑选公司和报价。还没定的话，请选「不清楚」。"),
+"わからない・相談したい": ("Not sure / want to discuss", "不清楚・想商量"),
+"寸法を書く（だいたいで大丈夫）": ("Type the size (rough is fine)", "填写尺寸（大概即可）"),
+"数を書く": ("Type a number", "填写数量"),
+"例：横10 × 縦7 × 厚さ3cm": ("e.g. 10 × 7 × 3 cm", "例：长10 × 宽7 × 厚3cm"),
+"例：300個": ("e.g. 300 pcs", "例：300个"),
+"これで決める": ("Use this", "就这样"),
+"← ひとつ前の質問": ("← Previous question", "← 上一个问题"),
+"答えると、合う会社の候補が出ます": ("Answer to see matching companies", "回答后会显示合适的公司"),
+"〜100個": ("Up to 100", "100个以内"),
+"〜500個": ("Up to 500", "500个以内"),
+"〜3,000個": ("Up to 3,000", "3,000个以内"),
+"それ以上": ("More than that", "更多"),
+"まだ決めていない": ("Not decided yet", "还没决定"),
+"1か月以内": ("Within 1 month", "1个月内"),
+"3か月以内": ("Within 3 months", "3个月内"),
+"半年以内": ("Within 6 months", "半年内"),
+"1年以内": ("Within 1 year", "1年内"),
+"決まっていない": ("Not decided", "未定"),
+})
+# 工場に依頼するときの必要情報（品目ごとの必須を1問ずつ、2026-11-16）
+T.update({
+"重さを書く": ("Type the weight", "填写重量"),
+"容量を書く": ("Type the volume", "填写容量"),
+"例：50kgの犬が乗る": ("e.g. a 50 kg dog stands on it", "例：50kg的狗会站上去"),
+"例：50mL": ("e.g. 50 mL", "例：50mL"),
+"例：3個": ("e.g. 3 pcs", "例：3个"),
+})

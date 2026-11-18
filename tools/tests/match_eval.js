@@ -22,9 +22,14 @@ async function one(b,cs){const c=await b.newContext({viewport:{width:1280,height
     body=body.replace('window.KATACHI_RL=()=>S.lastRL;','window.KATACHI_RL=()=>S.lastRL;window.__KM=()=>({S,GDB,makersFor,CAPN});');r.fulfill({response:resp,body})});
   const p=await c.newPage();const errs=[];p.on('pageerror',e=>errs.push(e.message));await p.goto(base);
   const text=cs.file?fs.readFileSync(path.join(__dirname,'specs',cs.file),'utf8'):cs.text;
+  /* prev: 先に別の依頼を出して②まで進め、トップに戻ってから本当の依頼を出す（前の依頼の残りが混ざらないかを見る。Nori 2026-11-15） */
+  if(cs.prev){await p.fill('#idea',cs.prev);await p.evaluate(()=>document.querySelector('#idea').form.requestSubmit());
+    await p.waitForSelector('#mFspec,#mNext,[data-gonext],#mPlans,.mstep,.stepnow',{timeout:30000}).catch(()=>{});await p.waitForTimeout(300);
+    await p.evaluate(()=>{location.hash='co'});await p.waitForSelector('#mPlans,.mstep',{timeout:30000,state:'attached'}).catch(()=>{});await p.waitForTimeout(400);
+    await p.evaluate(()=>{location.hash='home'});await p.waitForSelector('#idea',{timeout:30000});await p.waitForTimeout(300)}
   await p.fill('#idea',text);await p.evaluate(()=>document.querySelector('#idea').form.requestSubmit());
-  await p.waitForSelector('#mFspec,#mNext,[data-gonext]',{timeout:30000}).catch(()=>{});await p.waitForTimeout(300);
-  await p.evaluate(()=>{location.hash='co'});await p.waitForSelector('#mPlans,.mstep',{timeout:30000}).catch(()=>{});await p.waitForTimeout(600);
+  await p.waitForSelector('#mFspec,#mNext,[data-gonext],#mPlans,.mstep,.stepnow',{timeout:30000}).catch(()=>{});await p.waitForTimeout(300);
+  await p.evaluate(()=>{location.hash='co'});await p.waitForSelector('#mPlans,.mstep',{timeout:30000,state:'attached'}).catch(()=>{});await p.waitForTimeout(600);
   const r=await p.evaluate(gold=>{const {S,GDB,makersFor,CAPN}=window.__KM();const row=x=>x&&{n:x[0],pref:x[1]==='JP'?x[2]:x[1],lv:x[10],sum:x[11]||'',caps:(x[5]||[]).map(i=>GDB.caps[i])};
     const byN=new Map(GDB.c.map(x=>[x[0],x]));
     const A=S.anal||{};const mkOn=!!document.querySelector('.mkr');const MK=mkOn&&A.codes&&A.codes.length?makersFor(A):null;
@@ -35,9 +40,9 @@ async function one(b,cs){const c=await b.newContext({viewport:{width:1280,height
       secs.forEach(s=>s.all.forEach((x,i)=>put(x[0],i)));(MK?MK.rows:[]).forEach((x,i)=>put(x[0],i));
       G={n:gs.length,inList:gs.filter(x=>rank.has(x[0])).length,top20:gs.filter(x=>rank.has(x[0])&&rank.get(x[0])<20).length,
         missed:gs.filter(x=>!rank.has(x[0])).slice(0,8).map(x=>x[0]+'｜'+(x[11]||'').slice(0,40)+'｜'+(x[5]||[]).map(i=>GDB.caps[i]).join(','))}}
-    return {concept:A.concept?(A.concept.id||'')+'/'+(A.concept.name||''):'',codes:A.codes||[],plan:S.planPick||'',rule:(S.lastRL||{}).id||'',
+    return {concept:A.concept?(A.concept.id||'')+'/'+(A.concept.name||''):'',codes:A.codes||[],words:A.words||[],plan:S.planPick||'',rule:(S.lastRL||{}).id||'',
       maker:MK?{k:MK.k,rows:MK.rows.map(row)}:null,
-      picked:(S.gsel||[]).map(n=>({step:(S.gstep||{})[n]||'',...(row(byN.get(n))||{n})})),
+      picked:(S.recSel||S.gsel||[]).map(n=>({step:(S.gstep||{})[n]||'',...(row(byN.get(n))||{n})})),
       secs:secs.map(({all,...s})=>s),gold:G}},cs.gold||'');
   r.id=cs.id;r.errs=errs;return r}finally{await c.close()}}
 (async()=>{const b=await chromium.launch();const res=new Array(cases.length);let next=0;
@@ -46,8 +51,8 @@ async function one(b,cs){const c=await b.newContext({viewport:{width:1280,height
     try{res[i]=await one(b,cases[i])}catch(e){res[i]={id:cases[i].id,error:String(e).slice(0,200),picked:[],secs:[],codes:[]}}}}));
   await b.close();
   const J=judge.run(cases,res);
-  for(const x of J.cases)console.log(`${x.v} ${x.id.padEnd(18)} ${x.plan.padEnd(5)} ${x.picks.map(p=>(p.ok?'○':p.ng?'×':'△')+p.n).join(' / ')}${x.codeMiss?'  ［工程の読み違い］':''}${x.gold?`  正解社 ${x.gold.top20}/${x.gold.n}`:''}`);
-  if(process.env.TEXT){const r=res[0];console.log(`工程: ${(r.codes||[]).join(', ')}\n案: ${r.plan}`);for(const p of r.picked)console.log(`★ ${p.step} | ${p.n}（${p.pref||''}）${p.sum||''}`);
+  for(const x of J.cases)console.log(`${x.v} ${x.id.padEnd(18)} ${x.plan.padEnd(5)} ${x.picks.map(p=>(p.ok?'○':p.ng?'×':'△')+p.n).join(' / ')}${x.codeMiss?'  ［工程の読み違い'+(x.codeBad&&x.codeBad.length?'：関係ない工程 '+x.codeBad.join(','):'')+'］':''}${x.gold?`  正解社 ${x.gold.top20}/${x.gold.n}`:''}`);
+  if(process.env.TEXT){const r=res[0];console.log(`工程: ${(r.codes||[]).join(', ')}\n読んだ言葉: ${(r.words||[]).join(' ')}\n案: ${r.plan}`);for(const p of r.picked)console.log(`★ ${p.step} | ${p.n}（${p.pref||''}）${p.sum||''}`);
     if(r.maker)console.log('完成品メーカー: '+r.maker.rows.slice(0,8).map(x=>x.n).join('、'));for(const s of r.secs)console.log(`${s.name}（${s.n}社）: `+s.top.slice(0,5).map(x=>x.n).join('、'));return}
   console.log('\n'+judge.summaryText(J.sum));
   // AI経由（API・MCP の search_companies）の上位が、サイトの③の★と同じ会社か（Nori 2026-11-15「MCPの候補がサイトの★と一致しない」）。

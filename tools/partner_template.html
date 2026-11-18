@@ -193,7 +193,7 @@ pre{margin:0;background:var(--panel);border:1px solid var(--line);border-radius:
 
 <nav class="nav"><div class="wrap gut">
   <a class="brand" href="/" aria-label="KATACHI">
-    <svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><path d="M3 3h7v7H3z" fill="#2350c8"/><path d="M12 3h7v7h-7z" fill="none" stroke="#2350c8" stroke-width="1.5"/><path d="M3 12h7v7H3z" fill="none" stroke="#2350c8" stroke-width="1.5" stroke-dasharray="2 2"/><path d="M12 12h7v7h-7z" fill="#2350c8" opacity=".45"/></svg>
+    <img src="/logo-mark.png" width="24" height="24" alt="" style="display:block;border-radius:50%">
     <b>KATACHI</b></a>
   <span class="sp"></span>
   <span class="tag">FOR FACTORIES</span>
@@ -333,6 +333,8 @@ pre{margin:0;background:var(--panel);border:1px solid var(--line);border-radius:
       </div></details>
       <details class="grp" data-g="pref"><summary><span>受けたい案件・受けない案件</span><span class="why">合わない案件が届くのを防ぎます</span><small></small></summary><div class="gb">
         <div class="grid2">
+          <div class="f"><label for="items">作れる品目・製品の例</label><textarea id="items" placeholder="トートバッグ、ポーチ、ペット用ハーネス など"></textarea></div>
+          <div class="f"><label for="quoteNeeds">見積に必要なもの</label><textarea id="quoteNeeds" placeholder="図面かイメージ写真、数量、材料、希望納期 など"></textarea></div>
           <div class="f"><label for="wantJobs">受けたい案件</label><textarea id="wantJobs" placeholder="小型の樹脂筐体、防水が必要なもの など"></textarea></div>
           <div class="f"><label for="avoidJobs">受けない案件</label><textarea id="avoidJobs" placeholder="意匠面の鏡面仕上げ、1個だけの修理 など"></textarea></div>
         </div>
@@ -465,6 +467,7 @@ const Q=[
  ["prototype","試作1個から受ける",""],
  ["joint_dev","他社と工程を分けて担当する","筐体は御社、基板は別の会社、のような分業"],
  ["individual","個人からの依頼を受ける",""],
+ ["install","設置・取り付けの工事も行う","店舗什器・看板・設備など、現地での据付"],
 ];
 const seg=(id,opts)=>`<div class="seg" role="radiogroup">${opts.map(([v,l],i)=>`<label><input type="radio" name="${id}" value="${v}"${i===opts.length-1?" checked":""}><span>${l}</span></label>`).join("")}</div>`;
 const YN=[["1","受ける"],["0","受けない"],["","相談次第"]];
@@ -553,7 +556,7 @@ const GROUPS={
  deal:[()=>$("#leadMass").value.trim(),()=>$("#minOrder").value,()=>rv("quoteDays"),()=>rvs("pay").length,()=>rv("nda")],
  lang:[()=>rvs("langs").length,()=>rvs("incoterms").length,()=>$("#exportTo").value.trim()],
  work:[()=>$("#photos").files.length,()=>rvs("industries").length,()=>$("#patents").value.trim()],
- pref:[()=>$("#wantJobs").value.trim(),()=>$("#avoidJobs").value.trim(),()=>$("#reqCap").value],
+ pref:[()=>$("#items").value.trim(),()=>$("#quoteNeeds").value.trim(),()=>$("#wantJobs").value.trim(),()=>$("#avoidJobs").value.trim(),()=>$("#reqCap").value],
 };
 function richness(){let done=0,all=0;
   for(const [g,fs] of Object.entries(GROUPS)){const n=fs.filter(f=>!!f()).length;done+=n;all+=fs.length;
@@ -637,7 +640,7 @@ function record(){
     capabilities:[...document.querySelectorAll('.chip:not([data-s="0"])')].map(b=>({code:b.dataset.code,level:b.dataset.s==="2"?"specialty":"capable",confidence:0.6,evidence:"企業の自己申告"})),
     solved_problems:[...document.querySelectorAll(".case")].map(c=>{const [p,x]=c.querySelectorAll("input");return {problem:p.value.trim(),approach:c.querySelector("textarea").value.trim()||null,example_product:x.value.trim()||null,tags:[],capability_codes:[],confidence:0.6}}).filter(s=>s.problem),
     terms:{
-      accepts_no_drawing:yn("no_drawing"),accepts_prototype:yn("prototype"),accepts_joint_dev:yn("joint_dev"),accepts_individual:yn("individual"),
+      accepts_no_drawing:yn("no_drawing"),accepts_prototype:yn("prototype"),accepts_joint_dev:yn("joint_dev"),accepts_individual:yn("individual"),does_install:yn("install"),
       min_lot:int($("#minlot").value),lead_time_note:$("#lead").value.trim()||null,regions_served:$("#region").value.trim()?[$("#region").value.trim()]:null,
       material_procurement:rv("material")||null,
       design_consultation:consult===""?null:(consult==="no"?0:1),consultation_fee:["paid","free","both"].includes(consult)?consult:null,
@@ -660,7 +663,7 @@ function record(){
       quote_days:rv("quoteDays")?+rv("quoteDays"):null,payment_terms:rvs("pay"),nda:rv("nda")||null,
       languages:rvs("langs"),incoterms:rvs("incoterms"),trade_countries:$("#exportTo").value.trim()||null,
       photos:fileNames("#photos"),industries:rvs("industries"),patents_awards:$("#patents").value.trim()||null,
-      wants:$("#wantJobs").value.trim()||null,avoids:$("#avoidJobs").value.trim()||null,monthly_request_cap:int($("#reqCap").value),
+      items:$("#items").value.trim()||null,quote_needs:$("#quoteNeeds").value.trim()||null,wants:$("#wantJobs").value.trim()||null,avoids:$("#avoidJobs").value.trim()||null,monthly_request_cap:int($("#reqCap").value),
       completeness:richness()
     },
     contact:{person:$("#person").value.trim(),role:$("#role").value.trim()||null,email:$("#email").value.trim(),tel:$("#tel").value.trim()||null},

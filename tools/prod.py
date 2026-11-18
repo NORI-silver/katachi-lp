@@ -25,7 +25,7 @@ ld = {"@context": "https://schema.org", "@graph": [
   {"@type": "Service", "name": "KATACHI 工場チームのマッチング", "url": SITE, "serviceType": "製造委託先・試作先のマッチング", "areaServed": ["JP", "CN", "TW", "VN"],
    "provider": {"@id": SITE + "#org"}, "description": DESC,
    "offers": {"@type": "Offer", "price": "0", "priceCurrency": "JPY", "description": "工程の整理・会社の検索・見積の依頼は無料"}},
-  {"@type": "Organization", "@id": SITE + "#org", "name": "KATACHI", "url": SITE, "logo": SITE + "apple-touch-icon.png"},
+  {"@type": "Organization", "@id": SITE + "#org", "name": "KATACHI", "url": SITE, "logo": SITE + "icon-512.png"},
   {"@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": q, "acceptedAnswer": {"@type": "Answer", "text": a}} for q, a in FAQ]}]}
 head = f'''<!doctype html>
 <html lang="ja">
@@ -38,8 +38,10 @@ head = f'''<!doctype html>
 <meta name="google-site-verification" content="MmM3OGz9LIPxBOmE4jR8GdP4vACP_FrchZwBLT3W0sM" />  <!-- Search Console（URLプレフィックス）の確認。消さない -->
 <link rel="alternate" hreflang="ja" href="{SITE}">
 <meta name="theme-color" content="#ffffff">
-<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" href="/icon-32.png" type="image/png" sizes="32x32">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="KATACHI">
 <meta property="og:title" content="{TITLE}">
@@ -57,7 +59,8 @@ rep('<span class="tag">PROTOTYPE</span>', '<span class="tag">BETA</span>')
 FAQ_HTML = '\n'.join(f'<dt>{q}</dt><dd>{a}</dd>' for q, a in FAQ)
 # 検索エンジン・AI向けに、JSが動く前から読める本文（描画で置き換わる）
 static = f'''<main id="app"><section style="max-width:760px;margin:40px auto;padding:0 20px;line-height:1.8">
-<h1>アイデアを、製品のかたちに。</h1>
+<h1>作りたいものを、カタチに。</h1>
+<p>アイデアを伝えるだけで、ものづくりの第一歩が始まります。図面がなくても大丈夫です。</p>
 <p>KATACHI（カタチ）は、設計部門や図面がない中小企業でも、自社製品の試作・製造を頼める会社を見つけられるサービスです。つくりたいものを文章で書くと、AIが作り方を工程（センサー、回路、筐体、成形、縫製、アプリ、試験など）に分け、国内外{N:,}社（うち海外{NA:,}社）の中から工程ごとに得意な会社を選んで「チーム」を組みます。</p>
 <h2>できること</h2>
 <ul><li>図面なし・試作1個から・小ロットで相談できる会社を探す</li><li>工程ごとに会社を入れ替えて、料金・最小ロット・材料の手配・相談の可否・品質の裏付けを表で比べる</li><li>見積の依頼と、試作後の改良の相談（無料）</li><li>ChatGPT・Gemini・Claude などで作った仕様書・画像・3Dデータの取り込み</li></ul>

@@ -8,13 +8,13 @@ header a{color:var(--fg);text-decoration:none;font-weight:700;letter-spacing:.18
 main{padding-top:28px;padding-bottom:40px}h1{font-size:26px;line-height:1.4;margin:10px 0 6px}h2{font-size:18px;margin:34px 0 8px;padding-top:12px;border-top:1px solid var(--line)}
 p,li,dd{color:#1f2a40}ol,ul{padding-left:1.4em}a{color:var(--ice)}.lead{color:var(--mute)}dt{font-weight:600;margin-top:12px}dd{margin:2px 0 0}
 footer{border-top:1px solid var(--line);padding:22px 20px 40px;font-size:12.5px;color:var(--mute);display:flex;gap:18px;flex-wrap:wrap}footer a{color:var(--mute)}"""
-LOGO = '<svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><path d="M3 3h7v7H3z" fill="#2350c8"/><path d="M12 3h7v7h-7z" fill="none" stroke="#2350c8" stroke-width="1.5"/><path d="M3 12h7v7H3z" fill="none" stroke="#2350c8" stroke-width="1.5" stroke-dasharray="2 2"/><path d="M12 12h7v7h-7z" fill="#2350c8" opacity=".45"/></svg>'
+LOGO = '<img src="/logo-mark.png" width="24" height="24" alt="" style="display:block;border-radius:50%">'
 def page(OUT, path, title, desc, body, noindex=False, head='', full_title=False):
     html = f'''<!doctype html>
 <html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{title if full_title else title + '｜KATACHI'}</title><meta name="description" content="{desc}">
 {'<meta name="robots" content="noindex">' if noindex else f'<link rel="canonical" href="https://katachi.shiokonbu.com{path}">'}
-<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon.ico" sizes="any"><link rel="icon" href="/icon-32.png" type="image/png" sizes="32x32"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="manifest" href="/site.webmanifest">
 <script async src="https://www.googletagmanager.com/gtag/js?id={GA[0]}"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){{dataLayer.push(arguments)}}gtag("js",new Date());{''.join(f'gtag("config","{g}");' for g in GA)}</script>
 <style>{CSS}</style>{head}</head><body>

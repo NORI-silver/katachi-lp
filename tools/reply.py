@@ -21,7 +21,7 @@ head = f'''<!doctype html>
 <html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>依頼へのお返事｜KATACHI</title><meta name="description" content="KATACHIから工場・開発企業へ届いた依頼のご相談に、受ける・質問する・断るで返事をするページです。">
 <meta name="robots" content="noindex"><meta name="referrer" content="no-referrer">
-<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon.ico" sizes="any"><link rel="icon" href="/icon-32.png" type="image/png" sizes="32x32"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="manifest" href="/site.webmanifest">
 <script async src="https://www.googletagmanager.com/gtag/js?id={GA[0]}"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){{dataLayer.push(arguments)}}gtag("js",new Date());{''.join(f'gtag("config","{g}",{{page_location:location.origin+location.pathname}});' for g in GA)}</script>
 </head><body>

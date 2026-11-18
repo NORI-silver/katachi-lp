@@ -18,7 +18,7 @@ import factory_pages as F
 OUT = sys.argv[1] if len(sys.argv) > 1 else "."
 SITE = "https://katachi.shiokonbu.com"
 STATIC = [("/", "2026-11-12"), ("/terms/", "2026-11-12"), ("/privacy/", "2026-11-13"), ("/partner/", "2026-11-13")]
-ORG = {"@type": "Organization", "@id": SITE + "/#org", "name": "KATACHI", "url": SITE + "/", "logo": SITE + "/apple-touch-icon.png"}
+ORG = {"@type": "Organization", "@id": SITE + "/#org", "name": "KATACHI", "url": SITE + "/", "logo": SITE + "/icon-512.png"}
 
 CSS = """<style>.crumb{font-size:12.5px;color:var(--mute);margin:0}.crumb a{color:var(--mute)}.upd{font-size:12.5px;color:var(--mute);margin:4px 0 18px}
 .points{background:#f3f6fd;border:1px solid var(--line);border-radius:10px;padding:14px 18px;margin:18px 0}.points b{display:block;margin-bottom:4px}

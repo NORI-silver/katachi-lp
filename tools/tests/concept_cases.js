@@ -11,7 +11,7 @@ const cases=JSON.parse(fs.readFileSync(path.join(dir,'cases.json'),'utf8'));
     const p=await c.newPage();const errs=[];p.on('pageerror',e=>errs.push(e.message));await p.goto(base);
     const text=cs.text||fs.readFileSync(path.join(dir,cs.file),'utf8');
     await p.fill('#idea',text);await p.evaluate(()=>document.querySelector('#idea').form.requestSubmit());
-    await p.waitForSelector('#mConcept',{timeout:20000});await p.waitForTimeout(600);
+    /* 2ステップ化（PR #117）からは、はじめると会社の一覧（#co）に出る。製品イメージ案・仕様書は #match */await p.waitForSelector('.stepnow,.empty',{timeout:30000}).catch(()=>{});await p.evaluate(()=>{location.hash='match'});await p.waitForSelector('#mConcept',{timeout:20000});await p.waitForTimeout(600);
     const r=await p.evaluate(()=>({name:document.querySelector('#mConcept .cname').textContent,k:JSON.parse(document.querySelector('#mConcept .cview').dataset.v3f).k}));
     const ok=r.k===cs.k&&(!cs.name||r.name===cs.name)&&!errs.length;if(!ok)ng++;
     console.log(ok?'OK':'NG',cs.file||cs.text,'→',r.k,r.name,errs.join(';'));

@@ -19,15 +19,15 @@ const cases=[
     await c.route(/script\.google\.com/,r=>r.fulfill({status:200,contentType:'application/json',body:'{"ok":false}'}));
     const p=await c.newPage();const errs=[];p.on('pageerror',e=>errs.push(e.message));await p.goto(base);
     await p.fill('#idea',cs.text);await p.evaluate(()=>document.querySelector('#idea').form.requestSubmit());
-    await p.waitForSelector('#mFspec,#mNext',{timeout:20000});await p.waitForTimeout(300);
-    await p.evaluate(()=>{location.hash='co'});await p.waitForSelector('#mPlans',{timeout:20000});await p.waitForTimeout(500);
+    await p.waitForSelector('#mFspec,#mNext,.stepnow',{timeout:20000});await p.waitForTimeout(300);
+    await p.evaluate(()=>{location.hash='co'});await p.waitForSelector('.stepnow',{timeout:20000});for(let i=0;i<10&&await p.$('#mCq');i++){await p.click('#mCq [data-cqu]');await p.waitForTimeout(250)}if(await p.$('[data-dsto=both]')){await p.click('[data-dsto=both]');await p.waitForTimeout(600)}/* 設計の相談先が出る内容は、両方を選ぶと工場の★も出る */await p.waitForSelector('#mPlans',{timeout:20000,state:'attached'});await p.waitForTimeout(500);
     const r=await p.evaluate(()=>{const R=window.KATACHI_RL&&window.KATACHI_RL();const box=document.querySelector('#mPlans');
       return {rl:R&&R.id,ask:R?R.ask:[],maker:!!document.querySelector('.mkr'),win:!!box.querySelector('.rwin'),cmp:!!document.querySelector('#mCmp'),title:(box.querySelector('h3')||{}).textContent}});
     const ok=(r.rl||null)===cs.want&&r.win&&(!cs.maker||r.maker)&&(!cs.ask||cs.ask.every(k=>r.ask.includes(k)))&&!errs.length;if(!ok)ng++;
     console.log(ok?'OK':'NG',cs.text.slice(0,24),JSON.stringify(r),errs.join(';'));
     if(shots){await p.evaluate(()=>{const d=document.querySelector('#mPlans');d.scrollIntoView();window.scrollBy(0,-90)});await p.waitForTimeout(300);await p.screenshot({path:path.join(shots,'plan'+i+'.png'),fullPage:false})}
     // 試作の例：「図面・3Dデータがある」と答えると、試作の一社案から外れる
-    if(cs.want==='proto'&&!cs.maker){await p.click('[data-rl="docs"][data-rlv="0"]');await p.waitForTimeout(600);const r2=await p.evaluate(()=>window.KATACHI_RL().id);
+    if(cs.want==='proto'&&!cs.maker){if(await p.$('[data-dsto=both]')){await p.click('[data-dsto=both]');await p.waitForTimeout(600)}await p.click('[data-rl="docs"][data-rlv="0"]');await p.waitForTimeout(600);const r2=await p.evaluate(()=>window.KATACHI_RL().id);
       const ok2=r2!=='proto';if(!ok2)ng++;console.log(ok2?'OK':'NG','  図面ありと答えたあと',r2)}
     await c.close()}
   await b.close();console.log(ng?`NG ${ng}件`:'すべてOK');process.exit(ng?1:0)})();
