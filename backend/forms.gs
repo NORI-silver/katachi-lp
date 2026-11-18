@@ -1267,7 +1267,8 @@ function mailFetch_(urls) {
     if (!r || r.getResponseCode() >= 400) return null;
     var ct = String((r.getHeaders() || {})['Content-Type'] || '');
     if (ct && !/html|text/i.test(ct)) return null;
-    try { return mailText_(r).slice(0, 600000); } catch (e) { return null; }
+    // 埋め込み画像（data:）や長い符号の並びは読む前に外す（正規表現が長く止まらないように）
+    try { return mailText_(r).slice(0, 400000).replace(/data:[^"'\s)]{80,}/g, 'data:').replace(/[A-Za-z0-9+\/=_%.-]{300,}/g, ' '); } catch (e) { return null; }
   });
 }
 
@@ -1358,19 +1359,27 @@ function collectMail() {
         return [r[0], r[2] || '', r[4], d.email, d.page, d.state, today, d.memo, f.form, f.page, f.items, f.ext, contactKind_(d.state, f.form), contactCat_(data, r)].map(safe_);
       });
     };
+    // 前の実行が同じまとまりの途中で時間切れになっていたら、そのまとまりは「読めない（時間切れ）」にして先へ進む（同じ所で止まり続けないように）
+    var stuck = props.getProperty('MAIL_INFLIGHT') || '', stuckRow = function (x) {
+      var r = x.r; return [r[0], r[2] || '', r[4], '', '', '読めない', Utilities.formatDate(new Date(), 'Asia/Tokyo', 'yyyy-MM-dd'), '時間切れ（サイトが重い）', '', '', '', '', '読めない', contactCat_(data, r)].map(safe_);
+    };
     while (redo.length && Date.now() - t0 < MAIL_CFG.RUN_MS) {
-      var part = redo.splice(0, MAIL_CFG.BATCH), rows = readOne(part);
+      var part = redo.splice(0, MAIL_CFG.BATCH), tag = 'r' + part[0].row;
+      var rows = stuck === tag ? part.map(stuckRow) : (props.setProperty('MAIL_INFLIGHT', tag), readOne(part));
       part.forEach(function (x, i) { sh.getRange(x.row, 1, 1, MAIL_HEAD.length).setValues([rows[i]]); });
+      props.deleteProperty('MAIL_INFLIGHT'); stuck = '';
     }
     while (!redo.length && cur < list.length && Date.now() - t0 < MAIL_CFG.RUN_MS) {
       var batch = list.slice(cur, cur + MAIL_CFG.BATCH).filter(function (r) { return !have[r[0]]; }).map(function (r) { return {r: r}; });
       cur += MAIL_CFG.BATCH;
       if (batch.length) {
         batch.forEach(function (x) { have[x.r[0]] = 1; });
-        var add = readOne(batch);
+        var tg = 'c' + (cur - MAIL_CFG.BATCH);
+        var add = stuck === tg ? batch.map(stuckRow) : (props.setProperty('MAIL_INFLIGHT', tg), readOne(batch));
         sh.getRange(sh.getLastRow() + 1, 1, add.length, MAIL_HEAD.length).setValues(add);
       }
       props.setProperty('MAIL_CURSOR', String(cur));
+      props.deleteProperty('MAIL_INFLIGHT'); stuck = '';
     }
     if (!redo.length && cur >= list.length) {
       ScriptApp.getProjectTriggers().forEach(function (t) { if (t.getHandlerFunction() === 'collectMail') ScriptApp.deleteTrigger(t); });
