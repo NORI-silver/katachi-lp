@@ -1,0 +1,8 @@
+{
+ "name": "KATACHI",
+ "owner": "Nori",
+ "site": "katachi.shiokonbu.com",
+ "sign": "KATACHI|塩田",
+ "sender": "工場とのやり取り用のアドレス（受付の MAIL_FROM）",
+ "ban": []
+}
