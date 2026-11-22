@@ -1,5 +1,7 @@
 # KATACHI サイト（katachi.shiokonbu.com）
 
+> どのAI（Claude・ChatGPT・Codex・Gemini・Muse）も、作業の前に `docs/ai/README.md` を読み、終わりに `docs/ai/handoff.md` へ1行残します。`GEMINI.md` もこのファイルを読み込みます。
+
 このリポジトリの共通ルール（Claude・Codex など、どのAIでも同じ）。
 
 ## 公開のしくみ
