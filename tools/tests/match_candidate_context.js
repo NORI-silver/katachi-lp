@@ -37,3 +37,38 @@ for(const k of ['案件ごとの確認','依頼文から抜粋した確認条件
  assert.ok(dict[k]?.length===2&&dict[k].every(x=>x&&x!==k),k+' missing en/zh');
 }
 console.log('PASS: 3 synthetic RFQs keep case-specific conditions separate from candidate reasons; JP/EN/ZH copy, escaping, no transport claims.');
+// Distinct lines must not disappear merely because the requirement has no engineering unit.
+for(const items of [
+ ['個人からの依頼です','図面はありません','予算は3万円までです','2027年3月末までに納品希望です','屋外で使います','試作は1点です'],
+ ['食器に直接触れます','食品に触れる部分に使います','食洗機にかけます','幅160mmです'],
+]){
+ const text=items.map(x=>x+'。').join('\n'),picked=ctx.rfqCheckLines(text);
+ assert.deepEqual(Array.from(picked),items);
+ assert.match(ctx.rfqCheckBox(text),items.length>4?/<details>/:/<ul>/);
+}
+const excluded='図面なし：<svg onload=alert(1)>。\n連絡先：条件は 09000000000。\nhttps://example.test/roof\n予算3万円。sample@example.test に連絡してください。\n【将来のオプション】\n屋外で使います。\n【現在の仕様】\n食洗機に対応。\n【参考品のページから読み取った内容】\n予算は50万円。';
+const protectedBox=ctx.rfqCheckBox(excluded);
+assert.match(protectedBox,/&lt;svg/);
+assert.match(protectedBox,/食洗機に対応/);
+assert.doesNotMatch(protectedBox,/<svg|09000000000|https:|sample@example|屋外で使います|50万円/);
+// Exercise the actual multi-company renderer with synthetic companies only.
+Object.assign(ctx,{S:{folds:{}},COCOL:['#000','#111'],MPHASE:[['工程',/./]],mphaseOf:()=>0,phIcon:()=>'',fmt:String,CTRY:{},gmapA:()=>''});
+vm.runInContext(range('function recWhy(r,qmax,multi)','function recBox(R3,secs,qmax)'),ctx);
+const fake=(name)=>[name,'JP','千葉県','千葉市','',[],null,null,null,null,'gov'];
+const asm=fake('架空の組立会社 <img>'),parts=fake('架空の部品会社');
+const mkStep=(c,name,r,integ)=>({c,name,r,integ,cmp:r?[r]:[],def:r,n:r?1:0});
+const opts=[mkStep('parts','加工',parts,false),mkStep('assembly','組立',asm,true)];
+const team=ctx.whoBox(opts,1);
+assert.equal(ctx.S.whoN,2);
+assert.match(team,/取りまとめ役の候補/);
+assert.match(team,/組立・検査・品質管理をどこまで任せられるかは、会社の回答で確認します/);
+assert.match(team,/架空の組立会社 &lt;img&gt;/);
+assert.match(team,/架空の部品会社/);
+assert.doesNotMatch(team,/<img|責任を持つ会社です|会社が責任を持ち/);
+const missing=ctx.whoBox([mkStep('parts','加工',parts,false),mkStep('finish','仕上げ',asm,false),mkStep('assembly','組立',null,true)],1);
+assert.match(missing,/取りまとめ役は未選定/);
+assert.doesNotMatch(missing,/取りまとめ役の候補<\/b>/);
+for(const k of ['取りまとめ役の候補','取りまとめ役は未選定','組立・検査・品質管理をどこまで任せられるかは、会社の回答で確認します。']){
+ assert.ok(dict[k]?.length===2&&dict[k].every(x=>x&&x!==k),k+' missing en/zh');
+}
+console.log('PASS: standalone quote/use constraints, sensitive-text exclusions, and both assigned and missing integration roles.');

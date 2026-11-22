@@ -1,6 +1,12 @@
 # ja -> (en, zh-Hans)
 T = {
 # ---- case-level confirmation
+"工程の順に、見積を頼む候補を1社ずつ選びます。★がおすすめです。ほかの候補を選ぶと見積の送り先も変わります。取りまとめ役の対応範囲は、会社の回答で確認します。": ("Select one candidate per step for a quote. ★ marks our recommendation. Changing the candidate also changes the recipient of the quote request. Confirm the lead supplier’s scope with the company.", "按工序为每一步选择一家询价候选。★为推荐。更换候选也会改变询价对象。统筹方负责哪些工作，以公司回复为准。"),
+"一括依頼の候補です。完成まで頼めるかは、会社の回答で確認します。": ("This is a potential single supplier. Confirm whether it can deliver the finished product.", "这是可考虑的一站式供应商。能否交付成品，以公司回复为准。"),
+"組立・検査・品質管理をどこまで任せられるかは、会社の回答で確認します。": ("Confirm with the company what it can take on for assembly, inspection and quality control.", "能负责哪些组装、检验和质量管理工作，以公司回复为准。"),
+"取りまとめ役の候補": ("Potential lead supplier", "统筹方候选"),
+"取りまとめ役は未選定": ("No lead supplier selected", "尚未选定统筹方"),
+"組立や品質確認を任せられる会社は、まだ決まっていません。": ("No company has yet been selected to handle assembly and quality checks.", "尚未确定负责组装和质量检查的公司。"),
 "社名・掲載説明の言葉": ("Words in the name or listing", "公司名称或介绍中的用词"),
 "案件ごとの確認": ('What to verify for this request', '本次委托需确认的事项'),
 "候補にした理由は、工場の掲載情報や工程の分類です。今回の依頼に対応できるかは、会社の回答で確かめます。": ('These suggestions use company listings and process categories. Ask the company whether it can take this specific request.', '候选依据是公司公开资料和工序分类。本次委托能否承接，以公司的回复为准。'),
