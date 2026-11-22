@@ -1,5 +1,21 @@
 # ja -> (en, zh-Hans)
 T = {
+# ---- case-level confirmation
+"社名・掲載説明の言葉": ("Words in the name or listing", "公司名称或介绍中的用词"),
+"案件ごとの確認": ('What to verify for this request', '本次委托需确认的事项'),
+"候補にした理由は、工場の掲載情報や工程の分類です。今回の依頼に対応できるかは、会社の回答で確かめます。": ('These suggestions use company listings and process categories. Ask the company whether it can take this specific request.', '候选依据是公司公开资料和工序分类。本次委托能否承接，以公司的回复为准。'),
+"ほかの条件を見る": ("Show more requirements", "查看其余条件"),
+"依頼文から抜粋した確認条件": ('Requirements from your request to check with the company', '从委托说明中提取的待确认条件'),
+"候補にした理由：": ('Why this candidate:', '入选原因：'),
+"工程の分類": ('Process category', '工序类别'),
+"製品分野の分類": ('Product category', '产品类别'),
+"設計相談の分類": ('Design consultation category', '设计咨询类别'),
+"掲載上の最小ロットが目安以下": ('Listed minimum order is within the search range', '公开的最小起订量在搜索范围内'),
+"複数の工程の候補": ('Candidate for multiple processes', '多个工序的候选'),
+"今回の条件は会社の回答で確認": ('Confirm these requirements with the company', '本次条件须由公司确认'),
+"（一括依頼の候補です。設計から完成まで頼めるかは会社の回答で確認します）": ('(A potential single supplier. Confirm whether it can handle design through completion.)', '（一站式委托的候选。能否负责从设计到完成的全过程，须由公司确认。）'),
+"（一括依頼の候補です。完成まで頼めるかは会社の回答で確認します）": ('(A potential single supplier. Confirm whether it can deliver the finished product.)', '（一站式委托的候选。能否交付成品，须由公司确认。）'),
+"（取りまとめ役の候補。組み立てや品質確認を任せられるかは会社の回答で確認します）": ('(A potential lead supplier. Confirm whether it can oversee assembly and quality checks.)', '（统筹方的候选。能否负责组装和质量检查，须由公司确认。）'),
 # ---- nav / home
 "KATACHI トップ": ("KATACHI home", "KATACHI 首页"),
 "AI × 町工場 × あなた": ("AI × local factories × you", "AI × 工厂 × 你"),
