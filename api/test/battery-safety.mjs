@@ -24,3 +24,16 @@ for(const [name,s,want,required=[]] of tests){
  for(const code of required)assert.ok(codes.includes(code),name+': '+code);
 }
 console.log(`PASS ${tests.length}/${tests.length} anonymized scenarios/controls`);
+
+// Available category tags alone are not a one-stop integration offer for an
+// outdoor machine with mechanical, control and completed-equipment testing scope.
+const outdoorMachine=siteMatch('斜面の草を刈る自走式の草刈機を作りたい');
+assert.equal(outdoorMachine.plan,'combo');
+assert.ok(outdoorMachine.A.codes.includes('testing.environmental'));
+assert.ok(outdoorMachine.A.codes.includes('manufacturing.assembly'));
+assert.ok(outdoorMachine.A.codes.includes('electronics.firmware'));
+assert.ok(!outdoorMachine.A.codes.includes('testing.battery_safety'));
+const indoorOneOff=siteMatch('アルミの板金カバーを設計し、試作1台');
+assert.equal(indoorOneOff.plan,'one');
+assert.ok(!indoorOneOff.A.codes.includes('testing.battery_safety'));
+console.log('PASS 2/2 paired routing controls');

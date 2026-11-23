@@ -3616,7 +3616,11 @@ function planRule(A,secs,P,qmax){let F=null;try{F=A&&A.concept?fsBuild(A):null}c
   const docsKnown=!!dv||f3,hasDocs=f3||/図面|3Dデータ|現物を送れる|型紙/.test(dv);
   const cats=F?F.cats.map(k=>k.id):[];const fill=cats.some(k=>k==='cosme'||k==='food')||codes.some(c=>/^(cosmetics\.oem|food)/.test(c));
   const ask=[];if(fit===null)ask.push('fit');if(!docsKnown)ask.push('docs');
-  let id;if(fit===1)id='fit';else if(fill)id='fill';else if(qmax<=10&&!hasDocs)id='proto';else if(P&&P.full)id='full';else if(hasDocs||qmax>=100)id='docs';else id='other';
+  /* 屋外環境で機構・制御を組み上げて評価する案件は、工程の一致だけでは完成機の評価・取りまとめを裏づけない。
+     この一覧には用途を含む一貫受託の確認欄がないため、タグ一致による一社への昇格だけを止める。 */
+  const needsIntegratedEvidence=codes.includes('testing.environmental')&&codes.some(c=>/^electronics\.(firmware|pcb_design|pcba)$/.test(c))
+    &&codes.includes('manufacturing.assembly')&&codes.some(c=>/^manufacturing\.(cnc|sheet_metal)$/.test(c));
+  let id;if(fit===1)id='fit';else if(fill)id='fill';else if(qmax<=10&&!hasDocs)id='proto';else if(P&&P.full&&!needsIntegratedEvidence)id='full';else if(hasDocs||qmax>=100)id='docs';else id='other';
   return {id,kind:['fit','fill','proto','full'].includes(id)?'one':'combo',ask:id==='fit'||id==='fill'?[]:ask,fit,hasDocs}}
 /* 窓口（取りまとめ役）：一社案はその会社、組み合わせ案は組立を受ける会社（いなければ組立の候補の先頭）、それもなければKATACHIの担当者 */
 function winOf(kind,P){if(!P)return null;if(kind==='one')return P.top||null;
