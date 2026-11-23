@@ -3182,8 +3182,12 @@ function analyzeText(text){const currentText=String(text||'');text=specCore(text
   if(!hw)hit=hit.filter(c=>!['mechanical.wearable_fit','testing.human_trial'].includes(c));
   /* 動物は利用対象になり得る。試験を明記したときだけ実証工程にする。 */
   if(animalTrialEvidence){if(!hit.includes('testing.animal_trial'))hit.push('testing.animal_trial')}else hit=hit.filter(c=>c!=='testing.animal_trial');
-  /* 「安全」だけで読めた電池・製品安全試験は、電子機器のときだけ */
-  if(batteryExcluded||!hw&&!keep.some(h=>h[2]==='testing.battery_safety'&&h[3]!=='安全'))hit=hit.filter(c=>c!=='testing.battery_safety');
+  /* 低消費電力・充電式・製品全体の安全と、電池そのものの試験委託を区別する。 */
+  const batterySafetyEvidence=electronicText.split(/[。！？；;\n]/).some(part=>{
+    const m=part.match(/(?:電池|バッテリ[ー]?)(?:パック)?(?:の|についての?)?\s*(?:(?:安全性?|電池安全)の?(?:試験|評価|認証)|(?:試験|認証))|\bbatter(?:y|ies)[ -](?:safety[ -])?(?:test(?:ing|s)?|certification)\b|电池(?:包)?(?:的)?(?:安全(?:性)?(?:测试|试验|认证)|测试|试验|认证)|\bun\s*38[.．]3\b|\biec\s*(?:62133|62619)(?:-\d+)?\b/i);
+    return m&&!/(?:不要|なし|対象外|しない|しません|省略|not\s+(?:required|needed|requested)|not\s+in\s+scope|不需要|不做)/i.test(part.slice(m.index+m[0].length,m.index+m[0].length+18))&&!/\b(?:no|without)\s*$/i.test(part.slice(Math.max(0,m.index-12),m.index));
+  });
+  if(batteryExcluded||!batterySafetyEvidence)hit=hit.filter(c=>c!=='testing.battery_safety');
   /* 「落下を防ぐ」「耐久性」のような言葉で読めた環境・耐久試験は、電子機器・機械のときだけ（試験所に頼むのは機器の認証・評価） */
   if(!hw&&!mach&&!keep.some(h=>h[2]==='testing.environmental'&&/防水試験|温湿度/.test(h[3])))hit=hit.filter(c=>c!=='testing.environmental');
   /* 1台・1個だけの物で、「樹脂」「プラスチック」の材料の言葉だけで読めた射出成形は、ほかに作る工程（板金・切削・木工…）があれば外す。
@@ -3201,7 +3205,7 @@ function analyzeText(text){const currentText=String(text||'');text=specCore(text
   if(implOnly)hit=hit.filter(c=>!['electronics.pcb_design','electronics.firmware','electronics.low_power','mechanical.enclosure_design','manufacturing.rapid_proto'].includes(c)||false);
   if(hw)for(const c of (implOnly?['electronics.pcba','manufacturing.assembly']:['electronics.pcb_design','electronics.firmware','electronics.low_power','mechanical.enclosure_design','manufacturing.rapid_proto','electronics.pcba','manufacturing.assembly']))if(!hit.includes(c))hit.push(c);
   if(hit.includes('electronics.wireless')&&!hit.includes('testing.radio_cert'))hit.push('testing.radio_cert');
-  if(!batteryExcluded&&hit.includes('electronics.low_power')&&!hit.includes('testing.battery_safety'))hit.push('testing.battery_safety');
+  if(!batteryExcluded&&batterySafetyEvidence&&!hit.includes('testing.battery_safety'))hit.push('testing.battery_safety');
   // 何も読み取れないときも行き止まりにしない: どの製品でも最初に要る設計・試作・組立の会社を出す
   /* 工程の言葉がなくても、形の言葉（スロープ・箱・ベッド…、concepts_generic.py の caps）と材料の言葉から工程を読む（Nori 2026-11-14 最初の依頼：プール用スロープが「3Dプリント・EMS」になった） */
   /* 「試作」「1個だけ」など、数や段階を言うだけの言葉で読めた試作（3Dプリント・簡易型）しかないときも、形の言葉・品名から作る工程を読む

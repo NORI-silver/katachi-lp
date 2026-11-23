@@ -134,4 +134,5 @@ await t('需要の記録: 受付に送る（個人情報は伏せる）', async 
   const l = sent.slice(before).find(x => x.type === 'idea');
   assert.ok(l); assert.equal(l.mode, 'api'); assert.match(l.note, /AI: claude \/ lookup_product/); assert.ok(!/example\.com|1234/.test(l.text), l.text);
 });
+await import('./battery-safety.mjs');
 console.log(`すべてOK（${n}件）`);
