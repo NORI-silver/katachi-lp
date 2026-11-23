@@ -3100,7 +3100,7 @@ function specCore(text){let t=denyStrip(text);
   const keep=/製品名|構成|外観|寸法|材質|素材|構造|電源|動力|機能|部品|仕様/;
   return t.split(/(?=【[^】]{1,30}】)/).filter(b=>{const h=(b.match(/^【([^】]*)】/)||[])[1];return !h||keep.test(h)}).join('\n')}
 const EL_POS=/スマホ(で|から|と|に|を使って)|遠隔|センサ|電池|バッテリ|充電|基板|回路|電子|電気で|電気の|電源|コンセント|usb|bluetooth|ble(?![a-z])|wi-?fi|無線|通信|アプリ|iot|gps|gnss|led|ライト|照明|ランプ|モーター|モータ|電動|ロボ|ドローン|スピーカー|イヤホン|マイク|カメラ|ディスプレイ|液晶|画面|スマート|ウェアラブル|トラッカー|家電|ヒーター|扇風機|リモコン|自動で|自動化|自動的|通知|知らせ|見える化|測る|測れ|計測器|温度計|心拍|脈拍|活動量|歩数|加速度|ジャイロ|imu|ブザー|スイッチ|ガジェット|デバイス|electronic|sensor|battery|电子|电池|传感/i;
-function analyzeText(text){text=specCore(text);
+function analyzeText(text){const currentText=String(text||'');text=specCore(text);
   // 電子機器ではないのに電子系の語を含む言い方（スマホケース等）は、先に取り除いてから読む
   const t=String(text||'').toLowerCase().replace(/スマホ(ケース|スタンド|カバー|ホルダー|リング|ストラップ|置き|立て|ポーチ|ショルダー)|ペット用シャンプー|車のアクセサリー|自転車のパーツ/g,m=>m==='ペット用シャンプー'?'シャンプー':' '+m.replace('スマホ','')+' ').replace(/車(椅子|いす)/g,' 車イス ').replace(/スマート(グラス|ウォッチ|リング|メガネ|眼鏡)/g,(m,k)=>' 装着 デバイス 電子 '+({グラス:'眼鏡',ウォッチ:'腕時計',リング:'指輪'}[k]||'眼鏡')+' ').replace(/ウェアラブル/g,' 装着 デバイス '),C=GDB.caps;
   const leaf=c=>!C.some(o=>o.startsWith(c+'.'));
@@ -3149,7 +3149,14 @@ function analyzeText(text){text=specCore(text);
      「設置位置」「犬の姿勢」「温度」「測定」「安全」のような、ふだんの文にも出る言葉だけでは電子機器にしない。どの品でも同じ関門を通す。
      過去の誤り（ガイドの「電子部品：使わない」、文中の「電池は不要」、設計書の「将来の追加」、見出しの言葉）は tools/tests/match_cases.json の el_ 系で確かめる */
   /* 見出し（【電子部品】など）は項目の名前で、中身ではないので証拠にしない */
-  if(!EL_POS.test(t.replace(/【[^】]*】/g,' ')))hit=hit.filter(c=>!/^(sensing|electronics|software)/.test(c));
+  const electronicText=t.replace(/【[^】]*】/g,' ');
+  /* 自走や時刻を合図に本体が動く依頼は、部品名がなくても制御の根拠になる。 */
+  const controlEvidence=/自走式|自律走行|(?:時間|時刻)になったら[^。！？\n]{0,30}(?:機械|装置|ロボット)|(?:時間|時刻)(?:に|で)[^。！？\n]{0,24}自動(?:で|的に)/.test(electronicText);
+  const elEvidence=EL_POS.test(electronicText)||controlEvidence;
+  const batteryEvidence=/電池|バッテリ|蓄電池|電池パック|充電(?:式|する|器|ポート)|\bbatter(?:y|ies)\b|电池/i.test(electronicText);
+  const batteryExcluded=!batteryEvidence&&/(?:電池|バッテリ[ー]?|蓄電池)(?:は|を|も)?\s*(?:使わない|使いません|使用しない|使用しません|不使用|未使用|不要|いらない|要らない|なし)|\b(?:no|without)\s+batter(?:y|ies)\b|(?:不需要|不用|不要|没有|无)电池/i.test(currentText);
+  const animalTrialEvidence=/動物(?:での|を使った|を用いた|対象の)?(?:試験|実験|実証)|(?:犬|猫|ペット)(?:での|を使った|を用いた|対象の)(?:試験|実証)|\banimal (?:trial|test|study)s?\b/i.test(electronicText);
+  if(!elEvidence)hit=hit.filter(c=>!/^(sensing|electronics|software)/.test(c));
   /* 「ロゴ入り」「名入れ」「プリント」だけで読めたプリント・刺繍の工程は、布の物のときだけ（紙袋・マグ・タンブラーは、その品を作る会社が入れる） */
   /* 「キャンプ」「アウトドア」「ゴルフ」などの使う場面の言葉だけで読めた雑貨の工程は、ほかに作る工程（金属・木・布など）が読めたら外す
      （ステンレスの焚き火台に、ボールペンなどの雑貨の会社が付かないように） */
@@ -3165,14 +3172,18 @@ function analyzeText(text){text=specCore(text);
   const MACH=/機械|装置|ロボ|自動化|自走|自律|電動|台車|草刈|芝刈|除草|モーター|モータ|農機|農業機|搬送|コンベア|ドローン|マシン|アクチュエータ|駆動|エンジン|[一-龠ァ-ヶー]機(?![器能会嫌関構種内])/;
   /* 「機械を載せる架台」「装置のカバー」のように、機械が置き場所・相手として出てくるだけなら、機械そのものを作る依頼ではない */
   const mach=MACH.test(t.replace(/(機械|装置|ロボット|ロボ|モーター|モータ|マシン|エンジン)(を|に|の|用の?)(載せる|乗せる|置く|入れる|守る|囲う|据える|固定する)?[^。、\n]{0,6}?(架台|台座|台|カバー|ケース|部品|パーツ|フレーム|ベース|囲い|棚)/g,' '));
-  if(mach){for(const c of ['mechanical.enclosure_design','manufacturing.sheet_metal','manufacturing.cnc','electronics.pcb_design','electronics.firmware','electronics.pcba','manufacturing.rapid_proto','manufacturing.assembly'])if(!hit.includes(c))hit.push(c);
+  if(mach){for(const c of ['mechanical.enclosure_design','manufacturing.sheet_metal','manufacturing.cnc','manufacturing.rapid_proto','manufacturing.assembly'])if(!hit.includes(c))hit.push(c);
+    /* 「装置」などで機械工程を足す場合も、電子工程は同じ証拠の関門を通す。 */
+    if(elEvidence)for(const c of ['electronics.pcb_design','electronics.firmware','electronics.pcba'])if(!hit.includes(c))hit.push(c);
     if(/屋外|法面|斜面|農|畑|田|庭|雨|野外|山/.test(t)){for(const c of ['mechanical.waterproof','testing.environmental'])if(!hit.includes(c))hit.push(c)}
-    if(/自動|自律|ロボ|センサ|ドローン|自走/.test(t)&&!hit.includes('sensing.algorithm'))hit.push('sensing.algorithm');
-    if(/電動|バッテリー|充電|電池|ドローン|ロボ|自走/.test(t)&&!hit.includes('electronics.low_power'))hit.push('electronics.low_power')}
+    if(elEvidence&&/自動|自律|ロボ|センサ|ドローン|自走/.test(t)&&!hit.includes('sensing.algorithm'))hit.push('sensing.algorithm');
+    if(elEvidence&&/電動|バッテリー|充電|電池|ドローン|ロボ|自走/.test(t)&&!hit.includes('electronics.low_power'))hit.push('electronics.low_power')}
   const hw=hit.some(c=>/^(sensing|electronics)/.test(c));
-  if(!hw)hit=hit.filter(c=>!['testing.animal_trial','mechanical.wearable_fit','testing.human_trial'].includes(c));
+  if(!hw)hit=hit.filter(c=>!['mechanical.wearable_fit','testing.human_trial'].includes(c));
+  /* 動物は利用対象になり得る。試験を明記したときだけ実証工程にする。 */
+  if(animalTrialEvidence){if(!hit.includes('testing.animal_trial'))hit.push('testing.animal_trial')}else hit=hit.filter(c=>c!=='testing.animal_trial');
   /* 「安全」だけで読めた電池・製品安全試験は、電子機器のときだけ */
-  if(!hw&&!keep.some(h=>h[2]==='testing.battery_safety'&&h[3]!=='安全'))hit=hit.filter(c=>c!=='testing.battery_safety');
+  if(batteryExcluded||!hw&&!keep.some(h=>h[2]==='testing.battery_safety'&&h[3]!=='安全'))hit=hit.filter(c=>c!=='testing.battery_safety');
   /* 「落下を防ぐ」「耐久性」のような言葉で読めた環境・耐久試験は、電子機器・機械のときだけ（試験所に頼むのは機器の認証・評価） */
   if(!hw&&!mach&&!keep.some(h=>h[2]==='testing.environmental'&&/防水試験|温湿度/.test(h[3])))hit=hit.filter(c=>c!=='testing.environmental');
   /* 1台・1個だけの物で、「樹脂」「プラスチック」の材料の言葉だけで読めた射出成形は、ほかに作る工程（板金・切削・木工…）があれば外す。
@@ -3190,7 +3201,7 @@ function analyzeText(text){text=specCore(text);
   if(implOnly)hit=hit.filter(c=>!['electronics.pcb_design','electronics.firmware','electronics.low_power','mechanical.enclosure_design','manufacturing.rapid_proto'].includes(c)||false);
   if(hw)for(const c of (implOnly?['electronics.pcba','manufacturing.assembly']:['electronics.pcb_design','electronics.firmware','electronics.low_power','mechanical.enclosure_design','manufacturing.rapid_proto','electronics.pcba','manufacturing.assembly']))if(!hit.includes(c))hit.push(c);
   if(hit.includes('electronics.wireless')&&!hit.includes('testing.radio_cert'))hit.push('testing.radio_cert');
-  if(hit.includes('electronics.low_power')&&!hit.includes('testing.battery_safety'))hit.push('testing.battery_safety');
+  if(!batteryExcluded&&hit.includes('electronics.low_power')&&!hit.includes('testing.battery_safety'))hit.push('testing.battery_safety');
   // 何も読み取れないときも行き止まりにしない: どの製品でも最初に要る設計・試作・組立の会社を出す
   /* 工程の言葉がなくても、形の言葉（スロープ・箱・ベッド…、concepts_generic.py の caps）と材料の言葉から工程を読む（Nori 2026-11-14 最初の依頼：プール用スロープが「3Dプリント・EMS」になった） */
   /* 「試作」「1個だけ」など、数や段階を言うだけの言葉で読めた試作（3Dプリント・簡易型）しかないときも、形の言葉・品名から作る工程を読む
