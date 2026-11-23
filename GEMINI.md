@@ -1,3 +1,5 @@
-@AGENTS.md
+@./AGENTS.md
+@./docs/ai/README.md
 
-共通の決まりは `AGENTS.md`（AI-KIT の節もふくむ）。ルールを足すときは `AGENTS.md` を直す。
+このリポジトリの共通ルールは `AGENTS.md`（AI-KIT の節もふくむ）、AIごとの始め方は `docs/ai/README.md` にまとめています（Claude・ChatGPT・Gemini・Muse で同じルール）。ルールを足すときは `AGENTS.md` のほうを直してください。
+Gemini のブランチは `gemini/…` にします。

@@ -38,6 +38,7 @@ Nori さんに言われたことは、直すだけでなく `docs/ai/feedback.js
 外への送信・お金・本番データの削除・マージは Nori さんの「やって」を待つ。秘密（トークン・鍵・個人のメール・率）は公開のリポジトリに書かない。
 <!-- AI-KIT:END -->
 
+> どのAI（Claude・ChatGPT・Codex・Gemini・Muse）も、作業の前に `docs/ai/README.md` を読み、終わりに `docs/ai/handoff.md` へ1行残します。`GEMINI.md` もこのファイルを読み込みます。
 
 このリポジトリの共通ルール（Claude・Codex など、どのAIでも同じ）。
 
