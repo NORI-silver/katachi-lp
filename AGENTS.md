@@ -39,6 +39,7 @@ Nori さんに言われたことは、直すだけでなく `docs/ai/feedback.js
 <!-- AI-KIT:END -->
 
 > どのAI（Claude・ChatGPT・Codex・Gemini・Muse）も、作業の前に `docs/ai/README.md` を読み、終わりに `docs/ai/handoff.md` へ1行残します。`GEMINI.md` もこのファイルを読み込みます。
+> いちばん先に `docs/ai/vision.md`（Nori さんのビジョンと共通方針。2026-11-22 の原文のまま、全事業共通）を読み、すべての判断の土台にします。決まりにない場面は、この方針から考えます。
 
 このリポジトリの共通ルール（Claude・Codex など、どのAIでも同じ）。
 

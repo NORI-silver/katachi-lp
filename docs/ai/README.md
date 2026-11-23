@@ -4,6 +4,8 @@ KATACHI（katachi.shiokonbu.com） の作業を、どのAIが受けても同じ�
 
 ## 1. 作業の前に読む（この順）
 
+まず `docs/ai/vision.md`（Nori さんのビジョンと共通方針。全事業共通・原文のまま）を読みます。すべての判断の土台です。
+
 1. `AGENTS.md`（このリポジトリの全部の決まり）。
 2. 非公開のリポジトリ `NORI-silver/katachi-data` の `docs/ai-memory/MEMORY.md`（Nori さんの方針と進行中のこと。まだなければ飛ばす）
 3. `docs/ai/handoff.md`（ほかのAIの直近の引き継ぎ）。
