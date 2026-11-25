@@ -44,6 +44,19 @@ await t('会社: 製品の文章ではサイトの③の★（完成品メーカ
   const names = JSON.stringify(j.result).match(/株式会社アレクソン|株式会社Braveridge|BlueGraphy株式会社/g) || [];
   assert.ok(new Set(names).size === 3, JSON.stringify(j.result).slice(0, 400));
 });
+await t('会社: 電池と電子制御の一括除外を別工程として読まない', async () => {
+  const lift = '作業用の手動リフト、試作1台、設計図なし、耐荷重50kg';
+  const query = async text => {
+    const {status, j} = await call('/v1/companies?product=' + encodeURIComponent(text));
+    assert.equal(status, 200);
+    assert.ok(j.top.length > 0);
+    return [j.top.map(x => x.name), j.candidates_total];
+  };
+  const base = await query(lift);
+  for (const suffix of ['、電池・電子制御なし', '、電池・電子制御は使わない']) {
+    assert.deepEqual(await query(lift + suffix), base, suffix);
+  }
+});
 await t('会社: 上位3社の名前と理由だけ', async () => {
   const {j} = await call('/v1/companies?product=' + encodeURIComponent('アクリルスタンド') + '&quantity=50');
   assert.ok(j.top.length > 0 && j.top.length <= 3); assert.ok(j.candidates_total >= j.top.length);
