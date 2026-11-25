@@ -3090,7 +3090,11 @@ function gRfq(){
 const DENY_V='使わない|使いません|使用しない|使用しません|不使用|未使用|不要|いらない|要らない|いりません|入れない|入れません|付けない|付けません|つけない|つけません|無し|なし|ありません|ない';
 const DENY_LINE=new RegExp('^\\s*[^\\n:：]{1,20}[:：]\\s*(?:'+DENY_V+'|no|none|not needed|n\\/a|不需要|不用|没有|无)\\s*(?:[（(][^）)]*[）)])?\\s*[。.]?\\s*$','i');
 const DENY_IN=new RegExp('[^\\s、。，,．.！!？?・：:（）()「」\\n]{1,14}?(?:は|も|を)?(?:'+DENY_V.replace('|ない','')+')(?![ぁ-ん]*(?:と|では)(?:だめ|ダメ|困る|いけない))','g');
-function denyStrip(text){return String(text||'').split('\n').filter(l=>!DENY_LINE.test(l)).join('\n').replace(DENY_IN,' ')
+function denyStrip(text){
+  // A trailing negation covers a list of named electronic parts, not just the last item.
+  const ep='電池|バッテリ[ー]?|蓄電池|電子制御|電子部品|制御基板|基板|回路|センサ[ー]?|マイコン';
+  const list=new RegExp('(?:'+ep+')(?:\\s*(?:・|と|および|及び|ならびに|並びに|[／/])\\s*(?:'+ep+')){1,7}\\s*(?:は|を|も)?\\s*(?:'+DENY_V+')(?![ぁ-ん]*(?:と|では)(?:だめ|ダメ|困る|いけない))','g');
+  return String(text||'').split('\n').filter(l=>!DENY_LINE.test(l)).join('\n').replace(list,' ').replace(DENY_IN,' ')
   .replace(/\b(?:no|without)\s+(?:electronics?|electronic parts|batter(?:y|ies)|sensors?|leds?|motors?|power)\b/gi,' ').replace(/(?:不需要|不用|不要|没有|无)(?:电子(?:元件|部件)?|电池|传感器|电机)/g,' ')}
 function specCore(text){let t=denyStrip(text);
   /* Markdown の見出し（### 1. 設計目的）も【見出し】と同じに扱う。最初の見出しは製品名なので本文に残す（Nori 2026-11-16：設計書の「### 9. 将来の追加（今回は不要）」の水温センサーで電子の工程が出た） */

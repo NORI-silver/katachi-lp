@@ -9,6 +9,8 @@ const tests=[
  ['warehouse-transfer','荷物を手動で棚へ段階移乗する装置。完全には吊り上げない。試作1台。',false],
  ['wearable-sensor','設備の振動を測る装着型センサー。基板・ファームウェア・筐体の試作1台。',false,['electronics.pcb_design','electronics.firmware']],
  ['mains','商用電源の電動モーターで作業する。電池は使わない。',false],
+ ['paired-short','手動式の装置を試作する。電池・電子制御なし。',false],
+ ['paired-verb','手動式の装置を試作する。電池・電子制御は使わない。',false],
  ['low-power','低消費電力の基板と充電式バッテリーを使用。装置全体の落下安全性を確認。',false],
  ['battery-tests-ja','リチウムイオン電池の安全試験を委託したい。',true],
  ['battery-tests-en','Battery safety testing is required.',true],

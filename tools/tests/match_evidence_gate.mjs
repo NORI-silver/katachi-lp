@@ -1,4 +1,5 @@
 // Private synthetic regression contract; no user RFQ text or network.
+import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import {pathToFileURL} from 'node:url';
@@ -21,6 +22,14 @@ const tests=[
  ['timing-is-not-control','装置を1台。納品時刻になったら担当者が受け取ります。',[],c=>electronic(c)||battery(c)||animal(c)],
  ['battery-positive','リチウムイオン電池の安全試験が必要。',['testing.battery_safety'],animal],
 ];
+const lift='作業用の手動リフト、試作1台、設計図なし';
+const base=siteMatch(lift);
+for(const suffix of ['、電池なし','、電子制御なし','、電池・電子制御なし','、電池・電子制御は使わない']){
+ const candidate=siteMatch(lift+suffix);
+ for(const key of ['plan','one','maker']) assert.deepEqual(candidate[key],base[key],suffix+' '+key);
+ assert.deepEqual(candidate.A.codes,base.A.codes,suffix+' capabilities');
+}
+console.log('PASS paired exclusions preserve engineering scope and candidate ranking');
 let failed=0;
 for (const [id,t,required,exclude] of tests){
  const a=siteMatch(t).A, bad=a.codes.filter(exclude), missed=required.filter(c=>!a.codes.includes(c));
