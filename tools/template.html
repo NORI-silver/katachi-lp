@@ -3263,11 +3263,29 @@ function rankFor(codes,opts){const idx=codes.map(c=>GDB.caps.indexOf(c)).filter(
     const s=(lv==='pub'?3:0)+(proto&&qmax<=10?1.5:0)+(nodraw?1:0)+(ml!=null&&ml<=qmax?1:0)-(ml!=null&&ml>qmax?3:0)+(ct==='JP'?2:0)+(opts.bonus?opts.bonus(r):0)+(opts.noFit?0:fitOf(r,S.mctx));
     out.push([s,r])}
   return axSort(out.sort((a,b)=>b[0]-a[0]).map(x=>x[1]).filter(r=>axPass(r,qmax)),qmax)}
+/* 候補にした理由と、まだ依頼ごとに確かめる条件を分ける。会社への送信や順位は変えない。 */
+function rfqCheckLines(text){
+  const src=String(text||'').split(/【参考にした既製品】|【参考品のページから読み取った内容】|【AIの回答】/)[0];
+  const signal=/(?:\d[\d.,]*(?:\s*[-–〜～]\s*\d[\d.,]*)?\s*(?:kg|cm|mm|m(?=\s|$)|個|台|本|枚|着|人|点|公[斤分尺]|米)|個人(?:から|で|の依頼|発注|注文)|法人(?:から|で|の依頼|発注|注文)|図面|写真(?:だけ|のみ|あり|しか)|スケッチ|現物(?:だけ|のみ|あり|しか)|予算|[0-9０-９万千百]+\s*円|納期|納品|希望日|屋外|屋内|試作|一点|一個|食器|食洗機|食器洗い|(?:食品|食料|飲食物|口)(?:に直接|に|と|への|との)(?:触|接触)|耐荷重|設置|転倒|滑り|固定|ずれ|収納|積み込|移乗|昇降|計測|測定|測れる|測れ|適合|必須|不可|できない|使わない|持ち上げ|条件|compatible|without|must|(?:measur|carry|stor|mount|load)\w+|必须|不得|不能|测量|测得|载重|适用|安装)/iu;
+  const privateLine=/(?:^|[\s、,])(?:メール(?:アドレス)?|電話(?:番号)?|住所|氏名|連絡先|e-?mail|phone|address|contact)\s*[:：]|https?:\/\/|[\w.+-]+@[\w.-]+\.[a-z]{2,}|(?<![\d.])(?:0\d{9,10}|0\d{1,4}[-‐‑–－]\d{1,4}[-‐‑–－]\d{4})(?![\d.])/iu;
+  const seen=new Set(),out=[];let optional=false,section=false;
+  for(const raw of src.split(/[\n。！？!?；;]+/)){const v=raw.trim().replace(/^[ \t・\-*]+/,'');if(!v)continue;
+    if(/^(?:【[^】]+】|\d+[.)]\s+\S.{0,28})$/.test(v)){optional=/将来|オプション|任意|future|optional|后续|可选/i.test(v);section=/対応車両|対応機種|対応環境|互換|compatibility|compatible models|兼容|适用型号/i.test(v);continue}
+    if(optional||/^(?:将来|オプション|参考例|参考事例|future|optional)/i.test(v)||privateLine.test(v.normalize('NFKC'))||!/[\p{L}\p{N}]/u.test(v)||!(section||signal.test(v.normalize('NFKC')))||seen.has(v))continue;
+    seen.add(v);out.push(v.length>180?v.slice(0,180)+'…':v);if(out.length===24)break;
+  }return out}
+function rfqCheckBox(text){const list=rfqCheckLines(text),lis=xs=>'<ul>'+xs.map(v=>'<li style="overflow-wrap:anywhere" translate="no">'+esc(v)+'</li>').join('')+'</ul>';
+  return '<section class="cond" aria-label="案件ごとの確認"><p class="muted"><b>案件ごとの確認</b><br><span>候補にした理由は、工場の掲載情報や工程の分類です。今回の依頼に対応できるかは、会社の回答で確かめます。</span></p>'+
+    (list.length?'<div><b>依頼文から抜粋した確認条件</b>'+lis(list.slice(0,4))+(list.length>4?'<details><summary>ほかの条件を見る</summary>'+lis(list.slice(4))+'</details>':'')+'</div>':'')+'</section>'}
+function rfqCandidateBasis(kind,label){
+  const key={process:'工程の分類',maker:'製品分野の分類',design:'設計相談の分類',text:'社名・掲載説明の言葉'}[kind];
+  return '<small class="ry"><span>候補にした理由：</span><span>'+key+'</span>'+(label?' · <span>'+esc(label)+'</span>':'')+'</small>'}
 function coCard(r,chipCodes){const[n,ct,pref,city,web,caps,proto,nodraw,ml,mat,lv,sum,src]=r;const on=S.gsel.includes(n);
   return `<li class="gco ${on?'on':''}"><label class="gsel"><input type="checkbox" data-pick="${esc(n)}" ${on?'checked':''} aria-label="${esc(n)}"></label>
     <div class="gbody"><div class="gname"><b translate="no">${esc(n)}</b>${lv==='pub'?mk('pub','公式サイト等で確認'):lv==='gov'?mk('unk','国の登録情報のみ',LV.gov[2]):mk('unk','要確認')}</div>
     <div class="gmeta">${esc(ct==='JP'?[pref,city].filter(Boolean).join(' ')||'国内':(CTRY[ct]||ct))}${proto?' · <span>試作に対応</span>':''}${nodraw?' · <span>図面なしで相談可</span>':''}${ml!=null?` · <span>最小ロット ${fmt(ml)}個</span>`:''}${mat==='factory'||mat==='both'?' · <span>材料を手配</span>':''}</div>
     <div class="gcaps">${caps.map(i=>GDB.caps[i]).filter(c=>chipCodes.includes(c)).map(c=>`<span class="chip">${esc(CAPN[c]||c)}</span>`).join('')}</div>
+    ${rfqCandidateBasis(chipCodes.length?'process':'text')}
     ${axHtml(r,S.axq||500)}
     ${sum?`<p class="gsumtxt" translate="no">${esc(sum)}</p>`:''}
     <div class="glinks">${web?`<a href="${esc(web)}" target="_blank" rel="noopener">公式サイト</a>`:''}${src&&src!==web?`<a href="${esc(src)}" target="_blank" rel="noopener">出典</a>`:''}${gmapA(r,'list')}</div></div></li>`}
@@ -3506,9 +3524,9 @@ async function renderMatch(){
     const side=`<aside class="coside">${head3}${S.files.length?`<div class="files rqf">${''}</div>`:''}${A.codes.length&&A.concept?condBox(A,DS):''}</aside>`;
     body=`${stepBar(2)}${blocked?notices+blockedNext(A):''}
     ${A.codes.length?`<div class="cohd"${cqW?' hidden':''}><h2 class="${cqW?'cohd2':'stepnow'}">${DS?{ds:'設計を相談する会社',mk:'見積を頼む工場',both:'設計と製作を頼む会社'}[dsTo]:MKv?'見積を頼むメーカー':'見積を頼む工場'}</h2><p class="cosub">${DS?'図面がない依頼なので、まず設計を頼める会社をおすすめしています。作る工場にも送れます。':'書いた内容に合う会社を、確かめられた情報の多い順に選んであります。'}</p></div><div class="colay${cqW?' cqon':''}"><div class="comain">${cqW}<div class="cqhold"${cqW?' hidden':''}>${S.dsFirst&&!DS?(MKv?'<p class="dsnone"><b>この品は、専門のメーカーが設計から作ります</b><span>図面だけを先に頼む必要はありません。下のメーカーに、そのまま相談してください。</span></p>':'<p class="dsnone"><b>この品は、作る会社が配合・処方から考えます</b><span>図面だけを先に頼む必要はありません。下のおすすめの会社に、そのまま相談してください。</span></p>'):''}
-      ${toBar}${DS?(dsTo==='mk'?recH:dsTo==='both'?dsH+recH:dsH):recH}
+      ${toBar}${rfqCheckBox(S.idea)}${DS?(dsTo==='mk'?recH:dsTo==='both'?dsH+recH:dsH):recH}
       ${qBar()}${imgL}<p class="coback"><button type="button" class="glink" data-stepgo="1">← 入力内容に戻る</button></p></div></div>${side}</div>`
-    :blocked?side:`${side}<div class="empty" style="margin-top:16px"><b>文章から工程を読み取れませんでした</b>このまま見積を依頼すれば、担当者が内容を読んで工程と会社を探します。型が決まっているもの（部品・ノベルティ・袋物など）なら「選んで探す」が早いです。<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn" id="mGuided">選んで探す</button></div></div>${(()=>{const ts=textSearch(S.idea);return ts.length?`<section class="mstep" data-step="文章に近い会社"><div class="mhead"><span class="mono mno">?</span><h2>文章の言葉が会社の説明に出てくる会社</h2><span class="muted">${fmt(ts.length)}社</span></div><p class="muted" style="margin:0 0 12px;font-size:13px">工程は読み取れませんでしたが、書いた言葉が社名や説明に含まれる会社です。参考にしてください。</p><ol class="glist">${ts.slice(0,10).map(r=>coCard(r,[])).join('')}</ol></section>`:''})()}`}`;
+    :blocked?side:`${side}${rfqCheckBox(S.idea)}<div class="empty" style="margin-top:16px"><b>文章から工程を読み取れませんでした</b>このまま見積を依頼すれば、担当者が内容を読んで工程と会社を探します。型が決まっているもの（部品・ノベルティ・袋物など）なら「選んで探す」が早いです。<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn" id="mGuided">選んで探す</button></div></div>${(()=>{const ts=textSearch(S.idea);return ts.length?`<section class="mstep" data-step="文章に近い会社"><div class="mhead"><span class="mono mno">?</span><h2>文章の言葉が会社の説明に出てくる会社</h2><span class="muted">${fmt(ts.length)}社</span></div><p class="muted" style="margin:0 0 12px;font-size:13px">工程は読み取れませんでしたが、書いた言葉が社名や説明に含まれる会社です。参考にしてください。</p><ol class="glist">${ts.slice(0,10).map(r=>coCard(r,[])).join('')}</ol></section>`:''})()}`}`;
   }
   body=body.split('__WHON__').join(fmt((S.gsel||[]).length));
   $('#app').innerHTML=`<section class="gut"><div class="wrap gpick">${body}</div></section>`;
@@ -3675,11 +3693,11 @@ function makerBox(MK){const key=ideaBase();const def=MK.rows[0];const r=(S.mkPic
   if(S.autoPick!==false){S.gsel=[r[0]];S.gstep={[r[0]]:'完成品（設計から完成まで）'};S.planPick='maker'}
   const opt=x=>{const on=x[0]===r[0],rec=x[0]===def[0];return `<label class="opt ${on?'on':''}"><input type="radio" name="mk" data-mk="${esc(x[0])}" ${on?'checked':''}>
     <span class="ob"><span class="on1">${on?'<i class="cdot"></i>':''}<b translate="no">${esc(x[0])}</b>${rec?'<span class="rk">★ おすすめ</span>':''}</span>
-    <small class="ry">${esc(x[11]||'')}</small><span class="om">${esc(x[1]==='JP'?((x[2]||'国内')+(x[3]?' '+x[3]:'')):(CTRY[x[1]]||x[1]))} · <span>${MKLV[x[10]]||'要確認'}</span></span>${on?gmapA(x,'maker'):''}</span></label>`};
+    ${rfqCandidateBasis('maker',MK.name)}<small class="ry">${esc(x[11]||'')}</small><span class="om">${esc(x[1]==='JP'?((x[2]||'国内')+(x[3]?' '+x[3]:'')):(CTRY[x[1]]||x[1]))} · <span>${MKLV[x[10]]||'要確認'}</span></span>${on?gmapA(x,'maker'):''}</span></label>`};
   const alt=MK.rows.filter(x=>x[0]!==r[0]);
   return `<section class="rec mkr" id="mPlans"><span class="rtag">★ おすすめ</span><h3>完成品のメーカーに1社で頼む</h3>
     <p class="why"><span>${esc(MK.name)}</span><span>は、</span><span>${esc(MK.why)}</span>${(x=>x&&['fill','proto'].includes(x.id)?`<span>${RL_WHY[x.id]}</span>`:'')(S.lastRL)}</p>
-    <p class="rwin"><span class="rwl">窓口</span><b translate="no">${esc(r[0])}</b><span>（設計から完成まで受け持ちます。部品や一部の加工は、この会社が外から手配することがあります）</span></p>
+    <p class="rwin"><span class="rwl">窓口</span><b translate="no">${esc(r[0])}</b><span>（一括依頼の候補です。設計から完成まで頼めるかは会社の回答で確認します）</span></p>
     <ol class="stps"><li class="stp" style="--c:${COCOL[0]}"><div class="sth"><b>設計から完成まで、1社で</b>${alt.length?`<small><span>候補</span> <span>${fmt(MK.rows.length)}社</span></small>`:''}</div>${opt(r)}
     ${alt.length?`<details class="alts" data-pc="mk" ${S.folds.pc_mk?'open':''}><summary><span>ほかのメーカーから選ぶ</span> <span>${fmt(alt.length)}社</span></summary><div class="altl">${alt.map(opt).join('')}</div></details>`:''}</li></ol>
     <p class="whon" style="margin-top:8px">${esc(MK.note)}</p>
@@ -3716,21 +3734,22 @@ const PHI={'設計':'<path d="M4 20l4-1 11-11-3-3L5 16z"/><path d="M14 6l3 3"/>'
 const phIcon=p=>`<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${PHI[p]||PHI['部品をつくる']}</svg>`;
 const mphaseOf=c=>{const i=MPHASE.findIndex(p=>p[1].test(c));return i<0?5:i};
 /* おすすめの理由（確かめられた事実だけ） */
-function recWhy(r,qmax,multi){const x=r[14]||{};const w=[];if(r[10]==='pub')w.push('公式サイト等で確認');if(r[6]&&qmax<=10)w.push('試作に対応');if(r[8]!=null&&r[8]<=qmax)w.push('この数量から受ける');
-  if(multi>1)w.push('ほかの工程もまとめて受けられる');if(x.sub)w.push('補助金の採択あり');if(r[1]==='JP')w.push('国内');
-  return w.length?w.slice(0,3):['候補の中で、確かめられた情報がいちばん多い']}
+function recWhy(r,qmax,multi){const x=r[14]||{};const w=[];if(r[10]==='pub')w.push('公式サイト等で確認');if(r[6]&&qmax<=10)w.push('試作に対応');if(r[8]!=null&&r[8]<=qmax)w.push('掲載上の最小ロットが目安以下');
+  if(multi>1)w.push('複数の工程の候補');if(x.sub)w.push('補助金の採択あり');if(r[1]==='JP')w.push('国内');
+  return w.length?w.slice(0,3):['今回の条件は会社の回答で確認']}
 function whoBox(AS,qmax){const by=new Map();for(const a of AS){if(!a.r)continue;const k=a.r[0];if(!by.has(k))by.set(k,{r:a.r,steps:[]});by.get(k).steps.push(a.name)}
   const W=[...by.values()];S.whoN=W.length;const multi=n=>(by.get(n)||{steps:[]}).steps.length;let ph='';
   const col={};W.forEach((w,i)=>col[w.r[0]]=COCOL[i%COCOL.length]);const cc=r=>r?col[r[0]]||'#adb5bd':'#adb5bd';
   const phases=[];for(const a of AS){const p=MPHASE[mphaseOf(a.c)][0];let g=phases.find(x=>x.p===p);if(!g){g={p,a:[]};phases.push(g)}g.a.push(a)}
   const flow=`<div class="pflow" aria-label="工程の流れ">${phases.map((g,i)=>`${i?'<span class="far" aria-hidden="true">↓</span>':''}<div class="fph"><div class="fpt">${phIcon(g.p)}<span>${esc(g.p)}</span></div><div class="fpp">${g.a.map(a=>`<span class="fst" style="--c:${cc(a.r)}" title="${esc(a.r?a.r[0]:'')}">${esc(a.name)}</span>`).join('')}</div></div>`).join('')}</div>`;
   const legend=W.length>=2?`<ul class="lgd">${W.map(w=>`<li style="--c:${col[w.r[0]]}"><i></i><b translate="no">${esc(w.r[0])}</b><small><span>${fmt(w.steps.length)}工程</span></small></li>`).join('')}${AS.some(a=>!a.r)?'<li style="--c:#adb5bd"><i></i><b>担当者が探します</b></li>':''}</ul>`:'';
-  return `${W.length>=2?flow+legend:''}<p class="whon">${W.length>=2?'工程の順に、頼む会社を1社ずつ選びます。★がおすすめです。ほかの候補を選ぶと、見積の送り先も変わります。完成品の組立と品質は「取りまとめ役」の会社が責任を持ち、日程の調整はKATACHIの担当者が手伝います。':'この1社に頼めば、完成まで受け持ってもらえる見込みです。'}</p>
+  return `${W.length>=2?flow+legend:''}<p class="whon">${W.length>=2?'工程の順に、見積を頼む候補を1社ずつ選びます。★がおすすめです。ほかの候補を選ぶと見積の送り先も変わります。取りまとめ役の対応範囲は、会社の回答で確認します。':'一括依頼の候補です。完成まで頼めるかは、会社の回答で確認します。'}</p>
     <ol class="stps">${AS.map((a,i)=>{const p=MPHASE[mphaseOf(a.c)][0];const head=p!==ph?(ph=p,`<li class="sph">${phIcon(p)}<span>${esc(p)}</span></li>`):'';
-      return head+`<li class="stp" data-pc="${esc(a.c)}" style="--c:${cc(a.r)}"><div class="sth"><span class="sn">${i+1}</span><b>${esc(a.name)}</b>${a.n>a.cmp.length?`<small><span>候補</span> <span>${fmt(a.n)}社</span></small>`:''}</div>${a.integ&&W.length>=2?'<p class="integ1"><b>取りまとめ役</b><span>ほかの会社の部品を受け取って組み立て、検査し、完成品の品質に責任を持つ会社です。</span></p>':''}
+      return head+`<li class="stp" data-pc="${esc(a.c)}" style="--c:${cc(a.r)}"><div class="sth"><span class="sn">${i+1}</span><b>${esc(a.name)}</b>${a.n>a.cmp.length?`<small><span>候補</span> <span>${fmt(a.n)}社</span></small>`:''}</div>${a.integ&&W.length>=2?'<p class="integ1"><b>'+ (a.r?'取りまとめ役の候補':'取りまとめ役は未選定') +'</b><span>'+ (a.r?'組立・検査・品質管理をどこまで任せられるかは、会社の回答で確認します。':'組立や品質確認を任せられる会社は、まだ決まっていません。') +'</span></p>':''}
       ${a.cmp.length?(()=>{const opt=r=>{const on=a.r&&r[0]===a.r[0],rec=a.def&&r[0]===a.def[0];return `<label class="opt ${on?'on':''}"><input type="radio" name="st_${esc(a.c)}" data-swap="${esc(a.c)}" data-swapn="${esc(r[0])}" ${on?'checked':''}>
         <span class="ob"><span class="on1">${on?'<i class="cdot"></i>':''}<b translate="no">${esc(r[0])}</b>${rec?'<span class="rk">★ おすすめ</span>':''}</span>
-        ${rec?`<small class="ry"><span>理由：</span>${recWhy(r,qmax,multi(r[0])).map(t=>`<span>${t}</span>`).join('・')}</small>`:''}
+        ${rfqCandidateBasis('process',a.name)}
+        ${rec?`<small class="ry">${recWhy(r,qmax,multi(r[0])).map(t=>`<span>${t}</span>`).join('・')}</small>`:''}
         <span class="om">${esc(r[1]==='JP'?(r[2]||'国内'):(CTRY[r[1]]||r[1]))}${r[8]!=null?` · <span>最小ロット ${fmt(r[8])}個</span>`:''}${r[6]?' · <span>試作に対応</span>':''}</span>${on?gmapA(r,'compare'):''}</span></label>`};
         const cur=a.cmp.filter(r=>a.r&&r[0]===a.r[0]),alt=a.cmp.filter(r=>!(a.r&&r[0]===a.r[0]));
         return cur.map(opt).join('')+(alt.length?`<details class="alts" data-pc="${esc(a.c)}" ${S.folds['pc_'+a.c]?'open':''}><summary><span>ほかの候補から選ぶ</span> <span>${fmt(alt.length)}社</span></summary><div class="altl">${alt.map(opt).join('')}</div></details>`:'')})():'<p class="whon" style="margin:0">この工程の会社は、まだ一覧にありません。担当者が探してお声がけします。</p>'}</li>`}).join('')}</ol>
@@ -3741,9 +3760,9 @@ function recBox(R3,secs,qmax){S.whoN=0;if(!R3||!R3.rows.length)return `<div clas
     R3={...R3,rows:rows.map(x=>({...x,step:seen.get(x.r[0]).join('・'),key:seen.get(x.r[0]).join('・')}))}}
   if(S.autoPick!==false){S.gsel=[];S.gstep={};for(const x of R3.rows){if(S.gsel.includes(x.r[0])||S.gsel.length>=8)continue;S.gsel.push(x.r[0]);S.gstep[x.r[0]]=x.key}S.planPick=R3.kind}
   const picked=R3.rows.slice(0,8).every(x=>S.gsel.includes(x.r[0]));
-  const win=R3.P?`<p class="rwin"><span class="rwl">窓口</span>${R3.win?`<b translate="no">${esc(R3.win[0])}</b><span>${R3.kind==='one'?'（この会社が完成まで受け持ちます。部品や一部の加工は、この会社が外から手配することがあります）':'（取りまとめ役：最後に組み立てて、完成品の品質を確かめます）'}</span>`:'<b>KATACHIの担当者</b><span>（取りまとめ役の会社を探して、会社同士の受け渡しを決めます）</span>'}</p>`:'';
+  const win=R3.P?`<p class="rwin"><span class="rwl">窓口</span>${R3.win?`<b translate="no">${esc(R3.win[0])}</b><span>${R3.kind==='one'?'（一括依頼の候補です。完成まで頼めるかは会社の回答で確認します）':'（取りまとめ役の候補。組み立てや品質確認を任せられるかは会社の回答で確認します）'}</span>`:'<b>KATACHIの担当者</b><span>（取りまとめ役の会社を探して、会社同士の受け渡しを決めます）</span>'}</p>`:'';
   return `<section class="rec" id="mPlans"><span class="rtag">★ おすすめ</span><h3>${R3.title}</h3><p class="why">${R3.why}</p>${win}${rlAsk(R3.RL)}
-    ${AS?whoBox(AS,qmax)+(R3.rows.length>8?`<p class="whon" style="margin-top:8px"><span>見積の依頼は、上から8社に送ります。残りの</span><span translate="no"> ${R3.rows.length-8} </span><span>社の工程は、担当者が手配します。</span></p>`:''):(()=>{const li=x=>`<li><span class="rs">${esc(x.step)}</span><b translate="no">${esc(x.r[0])}</b>${tBadges(x.r,qmax)}${gmapA(x.r,'recommend')}</li>`;const N=4;
+    ${AS?whoBox(AS,qmax)+(R3.rows.length>8?`<p class="whon" style="margin-top:8px"><span>見積の依頼は、上から8社に送ります。残りの</span><span translate="no"> ${R3.rows.length-8} </span><span>社の工程は、担当者が手配します。</span></p>`:''):(()=>{const li=x=>`<li><span class="rs">${esc(x.step)}</span><b translate="no">${esc(x.r[0])}</b>${rfqCandidateBasis('process',x.step)}${tBadges(x.r,qmax)}${gmapA(x.r,'recommend')}</li>`;const N=4;
       return `<ul class="rcos">${R3.rows.slice(0,N).map(li).join('')}</ul>${R3.rows.length>N?`<details class="rmore"><summary>ほかの工程の会社も見る</summary><ul class="rcos">${R3.rows.slice(N).map(li).join('')}</ul></details>`:''}`})()}
     <div class="qrow">${picked?'<span class="rsel">✓ 選択中。下の「見積を依頼する」で送れます</span>':'<button type="button" class="btn sm pri" data-plan-pick="rec">おすすめに戻す</button>'}</div>
     <div class="qrow"><button type="button" class="glink" data-recself>自分で選ばず、会社選びを担当者に任せる</button></div></section>`}
@@ -3826,7 +3845,7 @@ function dsBox(DS){const key=ideaBase();const sel=S.dsPick&&S.dsPick.k===key?S.d
   if(r&&S.autoPick!==false){S.gsel=[r[0],...S.gsel.filter(n=>n!==r[0])].slice(0,8);S.gstep[r[0]]=S.gstep[r[0]]&&S.gstep[r[0]]!=='設計（図面・3Dデータ）'?'設計（図面・3Dデータ）・'+S.gstep[r[0]]:'設計（図面・3Dデータ）'}
   const opt=x=>{const on=r&&x[0]===r[0],rc=x[0]===T.list[0][0];return `<label class="opt ${on?'on':''}"><input type="radio" name="dsn" data-dsn="${esc(x[0])}" ${on?'checked':''}>
     <span class="ob"><span class="on1">${on?'<i class="cdot"></i>':''}<b translate="no">${esc(x[0])}</b>${rc?'<span class="rk">★ おすすめ</span>':''}</span>
-    ${scBar(dsScope(x,T))}<small class="ry">${esc(x[11]||'')}</small><span class="om">${esc(x[2]?(x[2]+(x[3]?' '+x[3]:'')):'国内')} · <span>${x[10]==='unk'&&!(x[14]||{}).ds?MKLV.unk:DS_LV[x[10]]||'要確認'}</span>${x[4]?` · <a href="${esc(x[4])}" target="_blank" rel="noopener" data-dsweb>公式サイト ↗</a>`:''}</span></span></label>`};
+    ${rfqCandidateBasis('design',T.name)}${scBar(dsScope(x,T))}<small class="ry">${esc(x[11]||'')}</small><span class="om">${esc(x[2]?(x[2]+(x[3]?' '+x[3]:'')):'国内')} · <span>${x[10]==='unk'&&!(x[14]||{}).ds?MKLV.unk:DS_LV[x[10]]||'要確認'}</span>${x[4]?` · <a href="${esc(x[4])}" target="_blank" rel="noopener" data-dsweb>公式サイト ↗</a>`:''}</span></span></label>`};
   const alt=r?T.list.filter(x=>x[0]!==r[0]):[];
   const links=(T.links||[]).map(l=>`<li><a class="btn sm" href="${esc(dsLinkUrl(l))}" target="_blank" rel="noopener" data-dslink="${esc(l.n)}"><span>${esc(l.n)}</span> ↗</a><small>${esc(l.s)}</small></li>`).join('');
   return `<section class="rec dsg" id="mDesign" style="--c:var(--ice)"><span class="rtag"><span>まず設計</span></span><h3>図面がないので、まず設計を頼みます</h3>
